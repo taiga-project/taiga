@@ -25,9 +25,9 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 		printf("ERROR: Length of PROF_R and RPOF_D are different!\n");
 	}
 
-	double diam = (double)diameter / 1000;	
-	double deflH = (double)deflH_degree/180*PI;
-	double deflV = (double)deflV_degree/180*PI;	
+	double diam = diameter / 1000.0;	
+	double deflH = deflH_degree/180*PI;
+	double deflV = deflV_degree/180*PI;	
     //printf("Angles:\t%lf;%lf\n",deflH,deflV);
     
 	Vabs = sqrt(2*energy*1000*eperm);
