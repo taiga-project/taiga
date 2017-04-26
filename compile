@@ -1,0 +1,7 @@
+#nvcc -arch sm_21 --ptxas-options=-v -w   -Xptxas -dlcm=cg -maxrregcount=32  -O=9   main.cu 
+
+
+nvcc -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32  main.cu -O3 -o taiga.exe
+#nvcc -arch sm_21 -maxrregcount=32 -run main.cu
+
+
