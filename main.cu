@@ -295,7 +295,7 @@ int main(int argc, char *argv[]){
 
 	eperm = 1.60217656535e-19/1.66053892173e-27/mass;
 
-	beamIn(XR, XZ, XT, VR, VZ, VT, energy, eperm, NX, shotname, deflH, deflV);
+	beamIn(XR, XZ, XT, VR, VZ, VT, energy, eperm, NX, shotname, diameter, deflH, deflV);
 	/*XR[0] = 0.72;
 	XZ[0] = 0.00;
 	XT[0] = 0.00;*/

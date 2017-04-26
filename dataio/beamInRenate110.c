@@ -13,7 +13,7 @@ int get_array_size(double *array);
 double linear_interpolate(double *x_vector, double *y_vector, double x_value);
 
 // set beam inline parameters
-void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, double energy, double eperm, int beam_number, char *shotname, double deflH_degree, double deflV_degree){
+void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, double energy, double eperm, int beam_number, char *shotname, double diameter, double deflH_degree, double deflV_degree){
 	int i;
 
 	double *prof_r, *prof_d, Vabs, ionisation_yeald;
