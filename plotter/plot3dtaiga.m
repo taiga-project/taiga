@@ -2,7 +2,6 @@
 
 
 mainfolder = '../results';
-fieldfolder = '../input/fieldGrid';
 energy=60;
 shotnumber = '11344_0285'
 runnumber = '06May2016_140034'
@@ -13,9 +12,6 @@ load([mainfolder,'/',shotnumber,'/',runnumber,'/t_rad.dat'])
 load([mainfolder,'/',shotnumber,'/',runnumber,'/t_z.dat'])
 load([mainfolder,'/',shotnumber,'/',runnumber,'/t_tor.dat'])
 
-load([fieldfolder,'/',shotnumber,'/',runnumber,'/psi2.dat'])
-load([fieldfolder,'/',shotnumber,'/',runnumber,'/rcord.dat'])
-load([fieldfolder,'/',shotnumber,'/',runnumber,'/zcord.dat'])
 
 [R,Z]=meshgrid(rcord,zcord);
 
