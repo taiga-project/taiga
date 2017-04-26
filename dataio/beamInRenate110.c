@@ -40,7 +40,7 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 		/* set position of particles */
 		ionisation_yeald = (double)(rand()/RAND_MAX);
 		XR[i] = linear_interpolate(prof_d, prof_r, ionisation_yeald);
-		printf("(%d.) %lf\n",i, XR[i]);
+		printf("(%d.) %lf %lf %lf\n",i, XR[i],prof_d[0], prof_r[0]);
 		do{
 			XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
 			XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
