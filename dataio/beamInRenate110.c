@@ -10,7 +10,7 @@ mass:		in AMU
 
 */
 int get_array_size(double *array);
-double linear_interpolate(double *x_vector, double *y_vector, double x_value);
+double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value);
 
 // set beam inline parameters
 void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, double energy, double eperm, int beam_number, char *shotname, double diameter, double deflH_degree, double deflV_degree){
@@ -39,7 +39,7 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 	for (i=0;i<beam_number;++i){
 		/* set position of particles */
 		ionisation_yeald = (double)(rand()/RAND_MAX);
-		XR[i] = linear_interpolate(prof_d, prof_r, ionisation_yeald);
+		XR[i] = linear_interpolate(prof_d, prof_d_length, prof_r, prof_r_length, ionisation_yeald);
 		printf("(%d.) %lf %lf %lf\n",i, XR[i],prof_d[0], prof_r[0]);
 		do{
 			XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
@@ -61,12 +61,12 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 
 }
 
-double linear_interpolate(double *x_vector, double *y_vector, double x_value){
+double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){
 
 	int i;
 
-	int x_length = get_array_size(x_vector);
-	int y_length = get_array_size(y_vector);
+/*	int x_length = get_array_size(x_vector);
+	int y_length = get_array_size(y_vector);*/
 
 	if (x_length != y_length)		printf("ERROR: in interpolation. Two input vectors have different length.");
 	
