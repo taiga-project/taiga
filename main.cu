@@ -13,7 +13,7 @@
 #define $RENATE		110
 
 #define N_BLOCKS     192		//! @param N_BLOCKS Number of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
-#define BLOCK_SIZE 	 130*4 		//! @param BLOCK_SIZE smaller is better (max 1M)
+#define BLOCK_SIZE 	 1//30*4 		//! @param BLOCK_SIZE smaller is better (max 1M)
 
 #define R_midions	 0.695		//! @param R_midions mid of ions at BANANA and no-RADIONS
 
