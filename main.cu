@@ -1,4 +1,4 @@
-// MIKLOS, GO TO LINE 104!!!
+// TAIGA default parameters
 
 #define BANANA		 0		//! @param BANANA ABP: 0, banana orbits: 1
  
@@ -25,16 +25,16 @@
 #define $DETPOS 0.7089 //! detector position
 
 #if BANANA == 1
-    #define energy   0.5            // in keV
-    #define mass     2.013553212724 // in AMU (D)
-    #define diameter 50e-20         // in mm 
+    #define $energy   0.5            // in keV
+    #define $mass     2.013553212724 // in AMU (D)
+    #define $diameter 50e-20         // in mm 
 	#define dt		 1e-12			// timestep in seconds
 	#define Nstep	 100000//00		// max step of a loop
 	#define Nloop	 1000			// number of loops	
 #else
-	#define energy   60				//! @param energy in keV
-	#define mass     7.016004558	//! @param mass in AMU (Li-7)
-    #define diameter 25//4/*e-20*/      //! @param diameter in mm
+	#define $energy   60				//! @param energy in keV
+	#define $mass     7.016004558	//! @param mass in AMU (Li-7)
+    #define $diameter 25//4/*e-20*/      //! @param diameter in mm
     #define dt       1e-9			//! @param dt timestep in seconds
     #define Nstep    2000//000			//! @param Nstep max step of a loop
     #define Nloop    1//000				//! @param Nloop number of loops
@@ -106,11 +106,37 @@ inline void cErrorCheck(const char *file, int line) {
   }
 }
 
+double get_mass(char *s){
+    double mass;
+    
+    if strcmp(s,"D"){
+        mass = 2.013553212724;
+    }else if strcmp(s,"Li"){
+        mass = 7.016004558;
+    }else if strcmp(s,"Na"){
+        mass = 20.0073517;
+    }else if strcmp(s,"K"){
+        mass = 39.9639984821;
+    }else if strcmp(s,"H2"){
+        mass = 2.013553212724;
+    }else if strcmp(s,"Li7"){
+        mass = 7.016004558;
+    }else if strcmp(s,"Na20"){
+        mass = 20.0073517;
+    }else if strcmp(s,"K40"){
+        mass = 39.9639984821;
+    }else{
+        mass = (double)$mass;
+    }
+    
+    return mass;
 
+}
 
 int main(int argc, char *argv[]){
     //! @param shotname name of shot folder input folder (8714,11344,11347)	
 	char* shotname;
+	char *beammatter;
 	if (argc >= 2){
 		shotname = argv[1];	
 	}else{
@@ -118,10 +144,36 @@ int main(int argc, char *argv[]){
 	}	
 	
 	printf("shotname: %s\n",shotname);
+	
+	
+	if (argc >= 3){
+		beammatter = argv[2];	
+	}else{
+		beammatter = "Li";
+	}	
+	double mass = get_mass(beammatter);
+	
+	
+	double energy=(double)$energy;
+	if (argc >= 4){
+		energy = atof(argv[3]);
+    }
+	
+	double deflV=(double)$deflV;
+    double deflH=(double)$deflH;
+	if (argc >= 5){
+		deflV = atof(argv[4]);
+    }
+    
+    double diameter=(double)$diameter;
+	if (argc >= 6){
+		diameter = atof(argv[5]);
+    }
+		
 	int NX;
 	int max_blocks;
-	if (argc >= 3){
-		max_blocks = atoi(argv[2])/BLOCK_SIZE+1;
+	if (argc >= 7){
+		max_blocks = atoi(argv[6])/BLOCK_SIZE+1;
 		//printf("max blocks: %d\n\n",max_blocks);
         //NX = atoi(argv[1]); //for the future
     }else{        
@@ -131,11 +183,7 @@ int main(int argc, char *argv[]){
 	
     NX = BLOCK_SIZE * max_blocks;
     
-    double deflV=(double)$deflV;
-    double deflH=(double)$deflH;
-	if (argc >= 4){
-		deflV = atof(argv[3]);
-    }
+
     
 		
 	char* folder_out=concat("results/", shotname);//! io properties folder
@@ -247,7 +295,7 @@ int main(int argc, char *argv[]){
 
 	eperm = 1.60217656535e-19/1.66053892173e-27/mass;
 
-	beamIn(XR, XZ, XT, VR, VZ, VT, eperm, NX, shotname, deflH, deflV);
+	beamIn(XR, XZ, XT, VR, VZ, VT, energy, eperm, NX, shotname, deflH, deflV);
 	/*XR[0] = 0.72;
 	XZ[0] = 0.00;
 	XT[0] = 0.00;*/

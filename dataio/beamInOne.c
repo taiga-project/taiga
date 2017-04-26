@@ -12,7 +12,7 @@ mass:		in AMU
 */
 
 // set beam inline parameters
-void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, double eperm, int beam_number, char *shotname, double deflH_degree, double deflV_degree){
+void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, double energy, double eperm, int beam_number, char *shotname, double deflH_degree, double deflV_degree){
 	int i;
 	int i2=0,i3=0;
 
