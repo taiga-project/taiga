@@ -35,7 +35,7 @@ function renate110_to_taiga(varargin)
 	foldername = ([out.folder,'/', in.shotNumber,'_',num2str(in.time),'/']);
 	mkdir(foldername)
 	
-	dlmwrite([foldername, 'rad.dat']     , data(:,in.index.rad)     , 'precision','%.16e','delimiter','\t');  
+	dlmwrite([foldername, 'rad.dat']     , data(:,renate.rad.max-in.index.rad)     , 'precision','%.16e','delimiter','\t');  
 	dlmwrite([foldername, 'ionyeald.dat'], data(:,in.index.ionyeald), 'precision','%.16e','delimiter','\t');    
 	 
 
