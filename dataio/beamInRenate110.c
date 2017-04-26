@@ -70,7 +70,7 @@ double linear_interpolate(double *x_vector, int x_length, double *y_vector, int 
 
 	if (x_length != y_length)		printf("ERROR: in interpolation. Two input vectors have different length.");
 	
-	for (i=1; i<x_length && x_vector[i-1]>x_value; i++){printf("%lf %lf",x_vector[i-1],x_value);}
+	for (i=1; i<x_length && x_vector[i-1]>x_value; i++){printf("%lf %lf |",x_vector[i-1],x_value);}
 	
 	return y_vector[i] + (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 	
