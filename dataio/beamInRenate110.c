@@ -40,7 +40,7 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 		/* set position of particles */
 		ionisation_yeald = (double)(rand()/RAND_MAX);
 		XR[i] = linear_interpolate(prof_d, prof_r, ionisation_yeald);
-		
+		printf("(%d.) %lf\n",i, XR[i]);
 		do{
 			XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
 			XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
@@ -70,7 +70,7 @@ double linear_interpolate(double *x_vector, double *y_vector, double x_value){
 
 	if (x_length != y_length)		printf("ERROR: in interpolation. Two input vectors have different length.");
 	
-	for (i=1; i<x_length && x_vector[i-1]>x_value; i++);
+	for (i=1; i<x_length && x_vector[i-1]>x_value; i++){printf("%lf %lf",x_vector[i-1],x_value);}
 	
 	return y_vector[i] + (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 	
