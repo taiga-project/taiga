@@ -42,8 +42,8 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 		XR[i] = linear_interpolate(prof_d, prof_d_length, prof_r, prof_r_length, ionisation_yeald);
 		printf("(%d.) %lf %lf %lf\n",i, XR[i],prof_d[0], prof_r[0]);
 		do{
-			XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
-			XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
+			XZ[i]=((double)rand()-RAND_MAX/2)/RAND_MAX*diam;
+			XT[i]=((double)rand()-RAND_MAX/2)/RAND_MAX*diam;
 		}while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(diam/2)*(diam/2));
 		
 		/* toroidal deflection */
