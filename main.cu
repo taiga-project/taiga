@@ -109,7 +109,7 @@ inline void cErrorCheck(const char *file, int line) {
 double get_mass(char *s){
     double mass;
     
-    if (strcmp(s,"D"){
+    if ((strcmp(s,"D")){
         mass = 2.013553212724;
     }else if (strcmp(s,"Li")){
         mass = 7.016004558;
