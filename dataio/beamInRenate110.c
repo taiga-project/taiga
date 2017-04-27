@@ -26,7 +26,6 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 	}
 
 	double diam = diameter / 1000.0;
-	printf("diam: %lf",diam);	
 	double deflH = deflH_degree/180*PI;
 	double deflV = deflV_degree/180*PI;	
     //printf("Angles:\t%lf;%lf\n",deflH,deflV);
@@ -42,7 +41,7 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 		do{
 		    ionisation_yeald = (double)rand()/RAND_MAX;
 		    XR[i] = linear_interpolate(prof_d, prof_d_length, prof_r, prof_r_length, ionisation_yeald);
-	    }while (isnan(XR[i]));
+	    }while (isnan(XR[i])||XR[i]<0);
 		do{
 			XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
 			XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
