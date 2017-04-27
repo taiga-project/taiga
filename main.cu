@@ -582,6 +582,13 @@ int main(int argc, char *argv[]){
 	printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
 	printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
 	
+	printf("----------------------------------------------------------\n");
+	printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
+	printf("----------------------------------------------------------\n");
+	for(int i=1; i<20; i++){
+		printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
+	}
+	printf("----------------------------------------------------------\n");
 	
 	// BANANA
 	if (BANANA==1){
