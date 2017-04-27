@@ -207,7 +207,7 @@ function efit = readToroidalFlux(in, out, efit)
     in.hdf5flag = '/output/fluxFunctionProfiles/rBphi';
     efit.rbtor = readVectorData(in);
     
-    efit.btor = kron(efit.rbtor ./ efit.r, ones(1,length(efit.z)));
+    efit.btor = -kron(efit.rbtor ./ efit.r, ones(1,length(efit.z)));
 
 end
 
