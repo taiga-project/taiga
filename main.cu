@@ -179,10 +179,10 @@ int main(int argc, char *argv[]){
         //NX = atoi(argv[1]); //for the future
     }else{        
         //NX = BLOCK_SIZE*N_BLOCKS;
-        max_blocks=N_BLOCKS;
+        max_blocks=BLOCK_SIZE;
 	}
 	
-    NX = BLOCK_SIZE * max_blocks;
+    NX = N_BLOCKS * max_blocks;
     
 
     
