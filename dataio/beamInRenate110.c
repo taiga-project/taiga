@@ -74,7 +74,7 @@ double linear_interpolate(double *x_vector, int x_length, double *y_vector, int 
 	
 	for (i=1; (i<x_length) && (x_vector[i-1]>x_value); i++);//{printf("%lf %lf |",x_vector[i-1],x_value);}
 	
-	if(i>1)--i;
+	if(i>1){--i;}else{i=1;}
 //	printf("ii%ld",i);
 	return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 	
