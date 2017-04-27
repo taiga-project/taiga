@@ -174,7 +174,7 @@ int main(int argc, char *argv[]){
 	int NX;
 	int max_blocks;
 	if (argc >= 7){
-		max_blocks = atoi(argv[6])/BLOCK_SIZE+1;
+		max_blocks = atoi(argv[6])/N_BLOCKS+1;
 		//printf("max blocks: %d\n\n",max_blocks);
         //NX = atoi(argv[1]); //for the future
     }else{        
@@ -578,7 +578,7 @@ int main(int argc, char *argv[]){
 	float time;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
-
+/*
 	printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
 	printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
 	printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
@@ -589,7 +589,7 @@ int main(int argc, char *argv[]){
 	for(int i=1; i<20; i++){
 		printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
 	}
-	printf("----------------------------------------------------------\n");
+	printf("----------------------------------------------------------\n");*/
 	
 	// BANANA
 	if (BANANA==1){
@@ -642,7 +642,7 @@ int main(int argc, char *argv[]){
 		ctrl <<< max_blocks, BLOCK_SIZE >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,l_ri);
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
-		//ERRORCHECK();
+		ERRORCHECK();
 
 		// ION COORDS (device2HOST)
 		cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
@@ -701,14 +701,14 @@ int main(int argc, char *argv[]){
 	printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",XR[0],XZ[0],XT[0]);
 	printf("----------------------------------------------------------\n");
 */
-
+/*
 	printf("----------------------------------------------------------\n");
 	printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
 	printf("----------------------------------------------------------\n");
 	for(int i=1; i<20; i++){
 		printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
 	}
-	printf("----------------------------------------------------------\n");
+	printf("----------------------------------------------------------\n");*/
 /*
 	//printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",XR[0],XZ[0],XT[0]);
 	//printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",VR[0],VZ[0],VT[0]);
