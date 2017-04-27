@@ -41,7 +41,7 @@ void beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *
 		do{
 		    ionisation_yeald = (double)rand()/RAND_MAX;
 		    XR[i] = linear_interpolate(prof_d, prof_d_length, prof_r, prof_r_length, ionisation_yeald);
-	    }while (!isnan(XR[i]));
+	    }while (isnan(XR[i]));
 		printf("(%d.) %lf %lf %lf\n",i, XR[i],prof_d[0], prof_r[0]);
 		do{
 			XZ[i]=((double)rand()-RAND_MAX/2)*diam;
