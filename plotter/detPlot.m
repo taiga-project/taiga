@@ -1,17 +1,8 @@
 function detPlot(varargin)
 
 
-
-
-
-    %TORLIM = [-0.03,-0.01]
-    %ZLIM = [0.24 0.25]
     mainfolder = '../results';
-    energy=60;
-    %runnumber = '06May2016_141714'
     
-    detector_plotted=false;
-    particle_plotted=true;
     
     if nargin >= 1
         shotnumber = varargin{1};
@@ -22,13 +13,13 @@ function detPlot(varargin)
     if nargin >= 2
         runnumber = varargin{2};
     else        
-        runnumber = '27Apr2017_170822'
+        runnumber = '27Apr2017_173948'
     end
     
     if nargin >= 3
         ZMID_DET = varargin{3};
     else
-        ZMID_DET = 0.23;
+        ZMID_DET = 0.25;
     end
     
     if nargin >= 4
@@ -37,8 +28,21 @@ function detPlot(varargin)
         TMID_DET = 0.00;
     end
     
+    if nargin >= 5
+        detector_plotted = varargin{5};
+    else
+        detector_plotted = false;
+    end
+    
+    if nargin >= 6
+        particle_plotted = varargin{6};
+    else
+        particle_plotted = false;
+    end
     
     
+    
+    energy=60;
     %! detector position
     detpos = 0.7089;
 
@@ -75,16 +79,12 @@ function detPlot(varargin)
     %ind = find(rad==rad(1,1));
     ind = find(rad==detpos);
     
+    aaa=find(abs(tor(ind))<1)
     
-    if  particle_plotted
-        figure
-        plot(tor(ind(1:20)),z(ind(1:20)),'.')
-        xlabel('tor')
-        ylabel('z ')
-        xlim([-0.2 0.2])
-        ylim([-0.0 0.4])
-    end
-    rad(ind(1:20)),tor(ind(1:20)),z(ind(1:20))
+    ind=ind(aaa);
+    
+    
+
 
     rions = [0.7,0.68,0.66,0.64];
 
@@ -140,6 +140,7 @@ function detPlot(varargin)
         
        % [val,cate]=contourc(z(ind)',tor(ind)')
     X=    [tor(ind)',z(ind)'];
+    X
     rectangle('Position',[TORLIM(2) ZLIM(1) TORLIM(2)-TORLIM(1) ZLIM(2)-ZLIM(1)],'FaceColor','k','EdgeColor','none')
     hold on
            smoothhist2D(X,1,[1000, 1000],-0.1);
