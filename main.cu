@@ -642,7 +642,7 @@ int main(int argc, char *argv[]){
 		ctrl <<< max_blocks, BLOCK_SIZE >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,l_ri);
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
-		ERRORCHECK();
+		//ERRORCHECK();
 
 		// ION COORDS (device2HOST)
 		cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
