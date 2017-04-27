@@ -109,21 +109,21 @@ inline void cErrorCheck(const char *file, int line) {
 double get_mass(char *s){
     double mass;
     
-    if (strcmp(s,"D")){
+    if (strcmp(s,"D")==0){
         mass = 2.013553212724;
-    }else if (strcmp(s,"Li")){
+    }else if (strcmp(s,"Li")==0){
         mass = 7.016004558;
-    }else if (strcmp(s,"Na")){
+    }else if (strcmp(s,"Na")==0){
         mass = 20.0073517;
-    }else if (strcmp(s,"K")){
+    }else if (strcmp(s,"K")==0){
         mass = 39.9639984821;
-    }else if (strcmp(s,"H2")){
+    }else if (strcmp(s,"H2")==0){
         mass = 2.013553212724;
-    }else if (strcmp(s,"Li7")){
+    }else if (strcmp(s,"Li7")==0){
         mass = 7.016004558;
-    }else if (strcmp(s,"Na20")){
+    }else if (strcmp(s,"Na20")==0){
         mass = 20.0073517;
-    }else if (strcmp(s,"K40")){
+    }else if (strcmp(s,"K40")==0){
         mass = 39.9639984821;
     }else{
         mass = (double)$mass;
