@@ -68,7 +68,9 @@ function detPlot(varargin)
         figure
         plot(tor(1:20),z(1:20),'.')
         xlabel('tor')
-        ylabel('z')
+        ylabel('z ')
+        xlim([-0.2 0.2])
+        ylim([-0.0 0.4])
     end
 
 
