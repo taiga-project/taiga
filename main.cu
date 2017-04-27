@@ -169,6 +169,7 @@ int main(int argc, char *argv[]){
 	if (argc >= 6){
 		diameter = atof(argv[5]);
     }
+	printf("diameter: %lf mm",diameter);	
 		
 	int NX;
 	int max_blocks;
