@@ -66,7 +66,7 @@ function detPlot(varargin)
 
     if  particle_plotted
         figure
-        plot(tor(1:20),z(1:20),'.')
+        plot(tor(1:200),z(1:200),'.')
         xlabel('tor')
         ylabel('z ')
         xlim([-0.2 0.2])
