@@ -692,7 +692,7 @@ int main(int argc, char *argv[]){
 	printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",VR[0],VZ[0],VT[0]);
 	printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",XR[0],XZ[0],XT[0]);
 	printf("----------------------------------------------------------\n");
-
+*/
 
 	printf("----------------------------------------------------------\n");
 	printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
@@ -701,7 +701,7 @@ int main(int argc, char *argv[]){
 		printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
 	}
 	printf("----------------------------------------------------------\n");
-
+/*
 	//printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",XR[0],XZ[0],XT[0]);
 	//printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",VR[0],VZ[0],VT[0]);
 	
