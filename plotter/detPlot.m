@@ -8,31 +8,42 @@ function detPlot(varargin)
     %ZLIM = [0.24 0.25]
     mainfolder = '../results';
     energy=60;
-    shotnumber = '11344_0285'
-    runnumber = '06May2016_140034'
     %runnumber = '06May2016_141714'
     
     detector_plotted=false;
+    particle_plotted=true;
     
     if nargin >= 1
         shotnumber = varargin{1};
+    else
+        shotnumber = '11344_1000'        
     end
     if nargin >= 2
         runnumber = varargin{2};
+    else        
+        runnumber = '06May2016_140034'
     end
     
+    if nargin >= 3
+        ZMID_DET = varargin{3};
+    else
+        ZMID_DET = 0.23;
+    end
     
+    if nargin >= 4
+        TMID_DET = varargin{4};
+    else
+        TMID_DET = 0.00;
+    end
     
     
     
     %! detector position
     detpos = 0.7089;
 
-    TORLIM = [-0.07, 0.03];
-    ZLIM = [0.18 0.28];%[0.12, 0.20];
-    TORLIM = [-0.04 0.04];
-    ZLIM = [0.20 0.28];
-    ZMID_DET=0.23;
+    TORLIM = [TMID_DET-0.04 TMID_DET+0.04];
+    ZLIM = [ZMID_DET-0.04 ZMID_DET+0.04];
+    
 
     TORDET = [-0.00425 -0.00225 -0.00175 -0.00075 -0.00025 0.00025 0.00075 0.00175 0.00225 0.00425];
     %                d        g      d       g       d      g      d      g      d
@@ -50,6 +61,15 @@ function detPlot(varargin)
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_rad.dat'])
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_z.dat'])
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_tor.dat'])
+
+
+
+    if  particle_plotted
+        figure
+        plot(tor(1:20),z(1:20),'.')
+        xlabel('tor')
+        ylabel('z')
+    end
 
 
     s_rad = (t_rad(1,:));
