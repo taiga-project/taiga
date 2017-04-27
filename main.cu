@@ -578,7 +578,7 @@ int main(int argc, char *argv[]){
 	float time;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
-/*
+
 	printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
 	printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
 	printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
@@ -589,7 +589,7 @@ int main(int argc, char *argv[]){
 	for(int i=1; i<20; i++){
 		printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
 	}
-	printf("----------------------------------------------------------\n");*/
+	printf("----------------------------------------------------------\n");
 	
 	// BANANA
 	if (BANANA==1){
@@ -663,9 +663,9 @@ int main(int argc, char *argv[]){
 
 		
 
-	//printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-	//printf("ion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
-	//printf("ion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
+	printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
+	printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
+	printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
 	}	
 	
 	// Get CUDA timer 
