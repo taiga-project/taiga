@@ -22,7 +22,7 @@ function renate110_to_taiga(varargin)
     end    
     
     if nargin >=2    
-        renate.rad.max = varargin{2};
+        renate.rad.max = varargin{3};
 	else
 	    renate.rad.max = 0.78;
 	end
@@ -35,8 +35,11 @@ function renate110_to_taiga(varargin)
 	foldername = ([out.folder,'/', in.shotNumber,'_',num2str(in.time),'/']);
 	mkdir(foldername)
 	
-	dlmwrite([foldername, 'rad.dat']     , renate.rad.max-data(:,in.index.rad)     , 'precision','%.16e','delimiter','\t');  
-	dlmwrite([foldername, 'ionyeald.dat'], data(:,in.index.ionyeald), 'precision','%.16e','delimiter','\t');    
+	out.rad      = renate.rad.max-data(:,in.index.rad);
+	out.ionyeald = data(:,in.index.ionyeald);
+	
+	dlmwrite([foldername, 'rad.dat']     , out.rad     , 'precision','%.16e','delimiter','\t');  
+	dlmwrite([foldername, 'ionyeald.dat'], out.ionyeald, 'precision','%.16e','delimiter','\t');    
 	 
 
 end
