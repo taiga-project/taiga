@@ -1,5 +1,30 @@
 function detPlot(varargin)
 
+
+
+
+
+    %TORLIM = [-0.03,-0.01]
+    %ZLIM = [0.24 0.25]
+    mainfolder = '../results';
+    energy=60;
+    shotnumber = '11344_0285'
+    runnumber = '06May2016_140034'
+    %runnumber = '06May2016_141714'
+    
+    detector_plotted=false;
+    
+    if nargin >= 1
+        shotnumber = varargin{1};
+    end
+    if nargin >= 2
+        runnumber = varargin{2};
+    end
+    
+    
+    
+    
+    
     %! detector position
     detpos = 0.7089;
 
@@ -16,25 +41,7 @@ function detPlot(varargin)
     ZDET = ZMID_DET+[-0.01075 -0.00575 -0.00525 -0.00025 0.00025 0.00525 0.00575 0.01075];
     %                        d        g        d        g       d       g        d   
 
-
-
-
-    %TORLIM = [-0.03,-0.01]
-    %ZLIM = [0.24 0.25]
-    mainfolder = '../results';
-    energy=60;
-    shotnumber = '11344_0285'
-    runnumber = '06May2016_140034'
-    %runnumber = '06May2016_141714'
     
-    
-    
-    if nargin >= 1
-        shotnumber = varargin{1};
-    end
-    if nargin >= 2
-        runnumber = varargin{2};
-    end
 
     load([mainfolder,'/',shotnumber,'/',runnumber,'/rad.dat'])
     load([mainfolder,'/',shotnumber,'/',runnumber,'/z.dat'])
@@ -128,7 +135,7 @@ function detPlot(varargin)
 
 
 
-    if true
+    if detector_plotted
     hold on
 
 
@@ -161,7 +168,7 @@ function detPlot(varargin)
     end
     end
 
-    if true
+    if detector_plotted
     hold on
     valy = ZLIM(1):0.01:ZLIM(2);
     valx = [xlim0(2)+0.003,xlim0(2)-0.003];
