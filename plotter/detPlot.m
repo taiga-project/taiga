@@ -16,12 +16,13 @@ function detPlot(varargin)
     if nargin >= 1
         shotnumber = varargin{1};
     else
-        shotnumber = '11344_1000'        
+        shotnumber = '11774_1000'
+      
     end
     if nargin >= 2
         runnumber = varargin{2};
     else        
-        runnumber = '06May2016_140034'
+        runnumber = '27Apr2017_170822'
     end
     
     if nargin >= 3
@@ -64,14 +65,7 @@ function detPlot(varargin)
 
 
 
-    if  particle_plotted
-        figure
-        plot(tor(1:200),z(1:200),'.')
-        xlabel('tor')
-        ylabel('z ')
-        xlim([-0.2 0.2])
-        ylim([-0.0 0.4])
-    end
+
 
 
     s_rad = (t_rad(1,:));
@@ -80,6 +74,17 @@ function detPlot(varargin)
 
     %ind = find(rad==rad(1,1));
     ind = find(rad==detpos);
+    
+    
+    if  particle_plotted
+        figure
+        plot(tor(ind(1:20)),z(ind(1:20)),'.')
+        xlabel('tor')
+        ylabel('z ')
+        xlim([-0.2 0.2])
+        ylim([-0.0 0.4])
+    end
+    rad(ind(1:20)),tor(ind(1:20)),z(ind(1:20))
 
     rions = [0.7,0.68,0.66,0.64];
 
