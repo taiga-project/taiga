@@ -13,7 +13,7 @@ function detPlot(varargin)
     if nargin >= 2
         runnumber = varargin{2};
     else        
-        runnumber = '27Apr2017_173948'
+        runnumber = '27Apr2017_182937'
     end
     
     if nargin >= 3
@@ -79,12 +79,13 @@ function detPlot(varargin)
     %ind = find(rad==rad(1,1));
     ind = find(rad==detpos);
     
-    aaa=find(abs(tor(ind))<1)
+    aaa=find(abs(tor(ind))<1);
     
     ind=ind(aaa);
     
     
-
+figure
+hist(s_rad,100)
 
     rions = [0.7,0.68,0.66,0.64];
 
@@ -139,11 +140,22 @@ function detPlot(varargin)
         %contourf(categ{2},categ{1},values)
         
        % [val,cate]=contourc(z(ind)',tor(ind)')
-    X=    [tor(ind)',z(ind)'];
-    X
+       
+    ind000=ind;
+    a000=find(tor(ind000)<TORLIM(2));
+    ind000=ind000(a000);
+    a000=find(tor(ind000)>TORLIM(1));
+    ind000=ind000(a000);
+    a000=find(z(ind000)<ZLIM(2));
+    ind000=ind000(a000);
+    a000=find(z(ind000)>ZLIM(1));
+    ind000=ind000(a000);
+    
+    X=    [tor(ind000)',z(ind000)'];
+   % X
     rectangle('Position',[TORLIM(2) ZLIM(1) TORLIM(2)-TORLIM(1) ZLIM(2)-ZLIM(1)],'FaceColor','k','EdgeColor','none')
     hold on
-           smoothhist2D(X,1,[1000, 1000],-0.1);
+           smoothhist2D(X,1,[100, 100],-0.1);
       set(gca,'xdir','reverse','ydir','normal')
         colorbar('YTick', [0, 64 ,128, 192, 256],'YTickLabel',{'0%','25%','50%','75%','100%'})
 
@@ -152,8 +164,8 @@ function detPlot(varargin)
 
 		
     xlim0=xlim;ylim0=ylim;
-    xlim0
-    ylim0
+    %xlim0
+    %ylim0
     xlim0=TORLIM;
     ylim0=ZLIM;
 		    %axis equal
