@@ -21,7 +21,7 @@ function renate110_to_taiga(varargin)
         in.time = varargin{2};
     end    
     
-    if nargin >=2    
+    if nargin >=3    
         renate.rad.max = varargin{3};
 	else
 	    renate.rad.max = 0.78;
