@@ -6,12 +6,13 @@ function cdb_reader(varargin)
     in.tokamak = 'compass';
     in.majorradius=0.56;  
     
-    in.plot = false;
+    in.plot = true;
     
     in.folder = '../input/cdb';
     out.folder.renate = '../input/renate110';
     out.folder.grid = '../input/fieldGrid/';
     out.folder.spline = '../input/fieldSpl/';
+    out.folder.plot = '../results/';
     
 
     if nargin == 0
@@ -24,7 +25,7 @@ function cdb_reader(varargin)
         in.shotNumber = varargin{1};
         in.time = varargin{2};
     end    
-      
+          
     out = getHiddenParameters(out);
     
     %   start    
@@ -97,6 +98,15 @@ function saveMagneticGrid (in, out, efit)
     
     % a btor szar
     
+end
+
+
+function savePlot (in, out, plotname)
+    mkdir(out.folder.plot)
+    foldername = [out.folder.plot,'/', in.shotNumber,'_',num2str(in.time),'/'];
+    mkdir(foldername)
+    saveas(gcf,[foldername, plotname, '.pdf'])
+    close
 end
 
 function saveMagneticSpline (in, out, efit)
@@ -189,8 +199,8 @@ function ts = readThomsonData(in, out, ts)
     ts.temperatureRaw   = ts.temperatureRaw / 1000;
 
     notnanindex     = (~isnan(ts.densityRaw));
-    ts.density       = [ts.densityRaw(notnanindex)];
-    ts.temperature   = [ts.temperatureRaw(notnanindex)];
+    ts.density       = [ts.densityRaw(notnanindex)];        % 1e19 m-3
+    ts.temperature   = [ts.temperatureRaw(notnanindex)];    % keV
     ts.z             = [ts.zRaw(notnanindex)];
     ts.r             = ones(size(ts.z))*in.majorradius;
     ts.psi           = interp2(out.flux.r,out.flux.z,out.flux.normPolFlux,ts.r,ts.z);
@@ -363,7 +373,8 @@ function plotProfilesNT (in, out, ts);
     plot(out.nt.psi,out.nt.density,'m')
     plot(out.nt.psi_in,out.nt.density(1:l),'r','linewidth',2)
     xlabel('\psi')
-    ylabel('n_e')
+    ylabel('n_e [10^{19} m^{-3}]')
+    savePlot (in, out, 'ne')
 
     figure
     hold on
@@ -372,7 +383,8 @@ function plotProfilesNT (in, out, ts);
     plot(out.nt.psi,out.nt.temperature,'m')
     plot(out.nt.psi_in,out.nt.temperature(1:l),'r','linewidth',2)
     xlabel('\psi')
-    ylabel('T_e')
+    ylabel('T_e [keV]')
+    savePlot (in, out, 'Te')
 
 end
 
@@ -401,11 +413,14 @@ function plotNormFlux (in, out, efit)
     end
     
     
-    xlabel('R')
-    ylabel('z')
-    
+    xlabel('R [m]')
+    ylabel('z [m]')
+       
     colorbar
     axis equal
+    
+    savePlot(in, out, 'psi')
+    
 end
 
 function  outputData = readScalarData(in)
