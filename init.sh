@@ -14,6 +14,6 @@ idl -rt=renate_110/am_renate110taiga.sav  -args $shotnumber $time $beammatter $e
 
 cp 'renate_110/output/'$(ls -1t renate_110/output/| head -1) "input/renate110/pop_compass"$shotnumber"_"$time".txt"
 
-matlabscript="cd preproc,try, renate110_to_taiga('$shotnumber',"$time"), catch, exit(1), end, exit(0);"
+matlabscript="cd preproc,try, renate110_to_taiga('$shotnumber',"$time", "$angle"), catch, exit(1), end, exit(0);"
 eval '$matlab -nodesktop -r "$matlabscript"'
 echo "matlab exit code: $?"

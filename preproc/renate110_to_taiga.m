@@ -6,6 +6,7 @@ function renate110_to_taiga(varargin)
     
     in.folder = '../input/renate110';
     out.folder = '../input/ionProf';
+    out.plotfolder='../results';
     
 	in.index.rad = 1;
 	in.index.ionyeald = 3;
@@ -22,6 +23,12 @@ function renate110_to_taiga(varargin)
     end    
     
     if nargin >=3    
+        renate.angle = varargin{3};
+	else
+	    renate.angle = 0.0;
+	end
+    
+    if nargin >=4    
         renate.rad.max = varargin{3};
 	else
 	    renate.rad.max = 0.78;
@@ -39,59 +46,11 @@ function renate110_to_taiga(varargin)
 	out.ionyeald = data(:,in.index.ionyeald);
 	
 	dlmwrite([foldername, 'rad.dat']     , out.rad     , 'precision','%.16e','delimiter','\t');  
-	dlmwrite([foldername, 'ionyeald.dat'], out.ionyeald, 'precision','%.16e','delimiter','\t');    
-	 
+	dlmwrite([foldername, 'ionyeald.dat'], out.ionyeald, 'precision','%.16e','delimiter','\t'); 
+	ylim([0 1])   
+    title (['Ionisation yield from RENATE @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s) angle: ',num2str(renate.angle),' ^o'])
+    xlabel('R [m]')
+    ylabel('ionisation yield')
+	saveas(gcf,[out.plotfolder,'/', in.shotNumber,'_',num2str(in.time),'/renate_',num2str(renate.angle),'.pdf'])
 
-end
-
-
-
-function old
-	runshot = '11344';
-
-	runmode.folder.renate='.';
-	runmode.renate.rad.max=0.78
-	runmode.renate.rad.min=0.6
-	runmode.renate.number=400
-	runmode.renate.index.r=1;
-	runmode.renate.index.dens=3;
-	runmode.renate.index.pop=3;
-
-	files = dir([runmode.folder.renate,'/output/*.txt']);
-		     
-	%% read RENATE output
-	data = load ([runmode.folder.renate,'/output/',files(length(files)).name]);
-
-	%% ionisation distribution
-	runmode.renate.distr = 1-cumsum(data(:,runmode.renate.index.pop))/sum(data(:,runmode.renate.index.pop));
-
-	%% ionisation density function
-	runmode.renate.profil = (data(1:end-1,runmode.renate.index.dens)-data(2:end,runmode.renate.index.dens))/(runmode.renate.rad.max-runmode.renate.rad.min)*(runmode.renate.number);
-	runmode.renate.profil=[runmode.renate.profil;0];
-
-	runmode.renate.profil2 = data(:,runmode.renate.index.pop);
-
-
-	radial_coords=linspace(runmode.renate.rad.max,runmode.renate.rad.min,length(runmode.renate.distr));
-	close all
-	subplot(2,1,1)
-	plot(radial_coords,runmode.renate.distr,'r','linewidth',2)
-
-
-	title(['$\#',runshot,'$'],'interpreter','latex','fontsize',14)
-	xlabel('{$R$ (m)}','interpreter','latex','fontsize',14)
-	ylabel('{cumulative ionisation rate}','interpreter','latex','fontsize',14)
-
-	%figure
-	%hold on
-
-	%plot(radial_coords,runmode.renate.profil,'r')
-
-	subplot(2,1,2)
-	plot(radial_coords,runmode.renate.profil2,'r','linewidth',2)
-
-	title(['$\#',runshot,'$'],'interpreter','latex','fontsize',14)
-	xlabel('{$R$ (m)}','interpreter','latex','fontsize',14)
-	ylabel('{normalised ionisation rate}','interpreter','latex','fontsize',14)
-	saveas(gcf,['plots/renate_',runshot,'.pdf'])
 end
