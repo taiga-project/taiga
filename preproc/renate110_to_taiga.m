@@ -47,8 +47,11 @@ function renate110_to_taiga(varargin)
 	
 	dlmwrite([foldername, 'rad.dat']     , out.rad     , 'precision','%.16e','delimiter','\t');  
 	dlmwrite([foldername, 'ionyeald.dat'], out.ionyeald, 'precision','%.16e','delimiter','\t'); 
+	
+	figure
+	plot(out.rad,out.ionyeald,'r','linewidth',2)
 	ylim([0 1])   
-    title (['Ionisation yield from RENATE @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s) angle: ',num2str(renate.angle),' ^o'])
+    title (['Ionisation yield from RENATE @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s) angle: ',num2str(renate.angle),' degree'])
     xlabel('R [m]')
     ylabel('ionisation yield')
 	saveas(gcf,[out.plotfolder,'/', in.shotNumber,'_',num2str(in.time),'/renate_',num2str(renate.angle),'.pdf'])
