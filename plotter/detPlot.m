@@ -7,42 +7,63 @@ function detPlot(varargin)
     if nargin >= 1
         shotnumber = varargin{1};
     else
-        shotnumber = '11774_1000'
+        shotnumber = '11774_1000';
       
     end
     if nargin >= 2
         runnumber = varargin{2};
     else        
-        runnumber = '27Apr2017_182937'
+        runnumber = '0';
     end
     
+    
     if nargin >= 3
-        ZMID_DET = varargin{3};
+        energy = varargin{3};
+    else        
+        energy=60;
+    end
+    
+    
+    if nargin >= 4
+        runangle = varargin{4};
+    else        
+        runangle=0;
+    end
+    
+    if nargin >= 5
+        scenario = varargin{5};
+    else        
+        scenario = '_all';
+    end
+    
+    
+    if nargin >= 6
+        ZMID_DET = varargin{6};
     else
         ZMID_DET = 0.25;
     end
     
-    if nargin >= 4
-        TMID_DET = varargin{4};
+    if nargin >= 7
+        TMID_DET = varargin{7};
     else
         TMID_DET = 0.00;
     end
+
     
-    if nargin >= 5
-        detector_plotted = varargin{5};
+    if nargin >= 8
+        detector_plotted = varargin{8};
     else
         detector_plotted = false;
     end
     
-    if nargin >= 6
-        particle_plotted = varargin{6};
+    if nargin >= 9
+        particle_plotted = varargin{9};
     else
         particle_plotted = false;
     end
     
     
     
-    energy=60;
     %! detector position
     detpos = 0.7089;
 
@@ -83,7 +104,13 @@ function detPlot(varargin)
     
     ind=ind(aaa);
     
-    
+    if strcmp(scenario,'_spx')
+		aaa=find(s_rad(ind)<0.72 && s_rad(ind)>0.70)
+		
+		ind=ind(aaa);
+		
+	end
+	
 figure
 hist(s_rad,100)
 
@@ -235,31 +262,14 @@ hist(s_rad,100)
     ttli = [0 strfind(runnumber,'_') length(runnumber)+1];
     runshot = runnumber(ttli(1)+1:ttli(2)-1);
     
-    if strcmp(runnumber (ttli(2)+1), 'm')
-        if (ttli(2)+3==ttli(3))
-            runangle = ['-',runnumber(ttli(2)+2),'.0'];            
-        else
-            runangle = ['-',runnumber(ttli(2)+2),'.',runnumber(ttli(2)+3:ttli(3)-1)];
-        end
-    else
-        if (ttli(2)+2==ttli(3))
-            if strcmp(runnumber(ttli(2)+1),'0')
-                runangle = [runnumber(ttli(2)+1),'.0'];           
-            else
-                runangle = ['+',runnumber(ttli(2)+1),'.0'];
-            end
-        
-        else
-            runangle = ['+',runnumber(ttli(2)+1),'.',runnumber(ttli(2)+2:ttli(3)-1)];
-        end
-    end
+
 	title(['$\#',runshot,...
         '~~R_\mathrm{detector} = ',num2str(detpos),'\mathrm{~m}~~(\varphi_\mathrm{in}=',...
-        runangle,'^\circ) E=',num2str(energy),'~\mathrm{keV} $'],'interpreter','latex','fontsize',14)
+        num2str(runangle),'^\circ) E=',num2str(energy),'~\mathrm{keV} $'],'interpreter','latex','fontsize',14)
     xlabel('{$T$ (m)}','interpreter','latex','fontsize',14)
     ylabel('{$Z$ (m)}','interpreter','latex','fontsize',14)
     mkdir('plots')
     mkdir(['plots/',shotnumber])
-    saveas(gcf,['plots/',shotnumber,'/',runnumber,'_detector',num2str(ZMID_DET),'.pdf'])
-    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector.pdf'])
+    %saveas(gcf,['plots/',shotnumber,'/',runnumber,'_detector',num2str(ZMID_DET),'.pdf'])
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.pdf'])
 end
