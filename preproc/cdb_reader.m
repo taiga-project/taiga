@@ -185,6 +185,8 @@ function ts = readThomsonData(in, out, ts)
     % TS density profile (from TS)
     in.hdf5flag = 'ne';
     ts.densityRaw = readVectorData(in);
+    in.hdf5flag = 'ne_err';
+    ts.densityRawErr = readVectorData(in);
         
     % TS coordinates
     in.hdf5flag = 'TS_z_axis';
@@ -193,14 +195,20 @@ function ts = readThomsonData(in, out, ts)
     % TS temperature profile (from TS)
     in.hdf5flag = 'Te';
     ts.temperatureRaw = readVectorData(in);
+    in.hdf5flag = 'Te_err';
+    ts.temperatureRawErr = readVectorData(in);
 
     %value to renate110
-    ts.densityRaw       = ts.densityRaw  /1e19;
-    ts.temperatureRaw   = ts.temperatureRaw / 1000;
+    ts.densityRaw        = ts.densityRaw        / 1e19;
+    ts.densityRawErr     = ts.densityRawErr     / 1e19;
+    ts.temperatureRaw    = ts.temperatureRaw    / 1000;
+    ts.temperatureRawErr = ts.temperatureRawErr / 1000;
 
-    notnanindex     = (~isnan(ts.densityRaw));
+    notnanindex      = (~isnan(ts.densityRaw));
     ts.density       = [ts.densityRaw(notnanindex)];        % 1e19 m-3
+    ts.densityErr    = [ts.densityRawErr(notnanindex)];     % 1e19 m-3
     ts.temperature   = [ts.temperatureRaw(notnanindex)];    % keV
+    ts.temperatureErr= [ts.temperatureRawErr(notnanindex)]; % keV
     ts.z             = [ts.zRaw(notnanindex)];
     ts.r             = ones(size(ts.z))*in.majorradius;
     ts.psi           = interp2(out.flux.r,out.flux.z,out.flux.normPolFlux,ts.r,ts.z);
@@ -338,7 +346,32 @@ function saveRenateFlux(in, out)
 end
 
 
+function ts = profileHack(ts)
+	density = ts.density;
+	densityErr = ts.densityErr;
+	temperature = ts.temperature;
+	temperatureErr = ts.temperatureErr;
+	psi_in = ts.psi;
+	psi_out=[];
+	Te_out=[];
+	ne_out=[];
+	l = length(flux);
+	l2=100;
+	for i = 1:l
+		psi_out=[psi_out,psi_in(i)*ones(1,l2)];		
+		ne_out=[Te_out,random('norm',density(i),densityErr(i),l2)];
+		Te_out=[Te_out,random('norm',temperature(i),temperatureErr(i),l2)];
+	end
+	ts.psi=psi_out;
+	ts.temperature=Te_out;
+	ts.density=ne_out;
+	
+
+end
+
 function out = fitProfilesNT(ts, out)
+    
+    ts = profileHack(ts);
     
     in = find(ts.psi<max(out.nt.psi_in) & ts.psi > min(out.nt.psi_in));
     
@@ -374,7 +407,18 @@ function plotProfilesNT (in, out, ts);
     plot(out.nt.psi_in,out.nt.density(1:l),'r','linewidth',2)
     xlabel('\psi')
     ylabel('n_e [10^{19} m^{-3}]')
-    savePlot (in, out, 'ne')
+    savePlot (in, out, 'ne')    
+    
+    figure
+    hold on
+    title (['Electron density profile @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s)'])
+    errorbar(ts.psi,ts.density,ts.densityErr)
+    plot(out.nt.psi,out.nt.density,'m')
+    plot(out.nt.psi_in,out.nt.density(1:l),'r','linewidth',2)
+    xlabel('\psi')
+    ylabel('n_e [10^{19} m^{-3}]')
+    ylim([0,1.1*max(ts.density)])
+    savePlot (in, out, 'ne_err')
 
     figure
     hold on
@@ -385,6 +429,17 @@ function plotProfilesNT (in, out, ts);
     xlabel('\psi')
     ylabel('T_e [keV]')
     savePlot (in, out, 'Te')
+    
+    figure
+    hold on
+    title (['Electron temperature profile @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s)'])
+    errorbar(ts.psi,ts.temperature,ts.temperatureErr)
+    plot(out.nt.psi,out.nt.temperature,'m')
+    plot(out.nt.psi_in,out.nt.temperature(1:l),'r','linewidth',2)
+    xlabel('\psi')
+    ylabel('T_e [keV]')
+    ylim([0,1.1*max(ts.temperature)])
+    savePlot (in, out, 'Te_err')
 
 end
 
