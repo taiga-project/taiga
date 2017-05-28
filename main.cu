@@ -135,9 +135,9 @@ double get_mass(char *s){
 
 int main(int argc, char *argv[]){
     //! @param shotname name of shot folder input folder (8714,11344,11347)	
-	char* shotname;
-	char *beammatter;
-	if (argc >= 2){
+	char *shotname;
+	
+	if (argc > 1){
 		shotname = argv[1];	
 	}else{
 		shotname = "11347";
@@ -145,36 +145,41 @@ int main(int argc, char *argv[]){
 	
 	printf("shotname: %s\n",shotname);
 	
+	int runnumber = 0;
+	if (argc > 2){
+		runnumber = atoi(argv[2]);
+    }	
 	
-	if (argc >= 3){
-		beammatter = argv[2];	
+	char *beammatter;
+	if (argc > 3){
+		beammatter = argv[3];	
 	}else{
 		beammatter = "Li";
 	}	
+	
 	double mass = get_mass(beammatter);
-	
-	
+		
 	double energy=(double)$energy;
-	if (argc >= 4){
-		energy = atof(argv[3]);
+	if (argc > 4){
+		energy = atof(argv[4]);
     }
 	
 	double deflV=(double)$deflV;
     double deflH=(double)$deflH;
-	if (argc >= 5){
-		deflV = atof(argv[4]);
+	if (argc > 5){
+		deflV = atof(argv[5]);
     }
     
     double diameter=(double)$diameter;
-	if (argc >= 6){
-		diameter = atof(argv[5]);
+	if (argc > 6){
+		diameter = atof(argv[6]);
     }
 	printf("diameter: %lf mm",diameter);	
 		
 	int NX;
 	int max_blocks;
-	if (argc >= 7){
-		max_blocks = atoi(argv[6])/N_BLOCKS+1;
+	if (argc > 7){
+		max_blocks = atoi(argv[7])/N_BLOCKS+1;
 		//printf("max blocks: %d\n\n",max_blocks);
         //NX = atoi(argv[1]); //for the future
     }else{        
@@ -254,9 +259,12 @@ int main(int argc, char *argv[]){
 	time_t rawtime;
 	struct tm *info;
 	char timestamp[80];
-	time( &rawtime );
+	sprintf(timestamp, "%d", runnumber);
+	/*time( &rawtime );
   	info = localtime( &rawtime );
   	strftime(timestamp,80,"%d%b%Y_%H%M%S", info);
+	*/
+	
 	
 	// coords
 	
