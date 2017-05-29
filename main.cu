@@ -749,7 +749,7 @@ int main(int argc, char *argv[]){
 	saveDataH("Beam energy","keV",energy,folder_out,timestamp);
 	saveDataH("Atomic mass","AMU",mass,folder_out,timestamp);
 	saveDataH("Beam diameter","mm",diameter,folder_out,timestamp);
-	saveDataH2("Deflation (H/V)","°",$deflH,$deflV,folder_out,timestamp);
+	saveDataH2("Deflation (H/V)","°",deflH,deflV,folder_out,timestamp);
 	if(!RADIONS&&!BANANA){	
 		saveDataH("Ion. position (R)","m",R_midions,folder_out,timestamp);
 	}
