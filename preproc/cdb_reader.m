@@ -6,7 +6,7 @@ function cdb_reader(varargin)
     in.tokamak = 'compass';
     in.majorradius=0.56;  
     
-    in.plot = true;
+    in.plot = false;
     
     in.folder = '../input/cdb';
     out.folder.renate = '../input/renate110';
