@@ -9,8 +9,9 @@
 #define RKOLD		 0		//! @param RKOLD do not set! 0 (semi-RK: 1)
 
 #define $FASTMODE    0//1  	//! @param $FASTMODE fastmode do not set! 0
+#define $3DINPUTPROF 1
 
-#define $RENATE		110
+//#define $RENATE		110
 
 #define N_BLOCKS     192		//! @param N_BLOCKS Number of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
 #define BLOCK_SIZE 	 1//30*4 		//! @param BLOCK_SIZE smaller is better (max 1M)
@@ -63,6 +64,8 @@
 #elif RADIONS == 1
 	#if $RENATE == 110
 		#include "dataio/beamInRenate110.c"
+	#elif $3DINPUTPROF == 1
+		#include "dataio/beamInFull.c"
 	#else
 		#include "dataio/beamIn.c"
 	#endif
@@ -181,16 +184,19 @@ int main(int argc, char *argv[]){
 	if (argc > 7){
 		max_blocks = atoi(argv[7])/N_BLOCKS+1;
 		//printf("max blocks: %d\n\n",max_blocks);
-        //NX = atoi(argv[1]); //for the future
+		//NX = atoi(argv[1]); //for the future
     }else{        
-        //NX = BLOCK_SIZE*N_BLOCKS;
-        max_blocks=BLOCK_SIZE;
+		//NX = BLOCK_SIZE*N_BLOCKS;
+		max_blocks=BLOCK_SIZE;
 	}
 	
-    NX = N_BLOCKS * max_blocks;
-    
-
-    
+	NX = N_BLOCKS * max_blocks;
+	
+	if ($3DINPUTPROF == 1){
+		NX = vectorReader0(&XR, "dataio/data/rad.dat");
+        max_blocks = NX / N_BLOCKS+1;
+	}
+	
 		
 	char* folder_out=concat("results/", shotname);//! io properties folder
 	// card settings
