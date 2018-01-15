@@ -750,7 +750,7 @@ int main(int argc, char *argv[]){
 			saveDataHT("(Real ionization position)",folder_out,timestamp); 
 			if($3DINPUTPROF==1){
 				saveDataHT("(3D input)",folder_out,timestamp);			
-			else if($RENATE==110){
+            }else if($RENATE==110){
 				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
 			}
 			
