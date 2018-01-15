@@ -8,7 +8,6 @@
 
 #define RKOLD		 0		//! @param RKOLD do not set! 0 (semi-RK: 1)
 
-#define $FASTMODE    0//1  	//! @param $FASTMODE fastmode do not set! 0
 #define $3DINPUTPROF 1
 
 #define $RENATE		0//110
@@ -194,7 +193,7 @@ int main(int argc, char *argv[]){
 	
 	if ($3DINPUTPROF == 1){
         double *XR;
-		NX = vectorReader0(&XR, "dataio/data/rad.dat");
+		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
         max_blocks = NX / N_BLOCKS+1;
 	}
 	
@@ -631,25 +630,19 @@ int main(int argc, char *argv[]){
 	}	
 	
 	for (int step_i=0;step_i<Nloop;step_i++){
-
 		
-		if ($FASTMODE==0){
-			// ION COORDS (HOST2device)
-			cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
-			cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
-			cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
-			//cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
+		// ION COORDS (HOST2device)
+		cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
+		cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
+		cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
+		//cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
 
-			// ION SPEEDS (HOST2device)
-			cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
-			cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
-			cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
-			//cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
-		}else{
-			double *PROFR, *PROFD;
-			int N_beamdens = vectorReader0(&PROFR,"dataio/data/prof_r.dat");
-			vectorReader0(&PROFD,"dataio/data/prof_d.dat");
-		}
+		// ION SPEEDS (HOST2device)
+		cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
+		cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
+		cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
+		//cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
+		
 		
 		// CUDA CODE, timer and Error catch	
 		//ERRORCHECK();
