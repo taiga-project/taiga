@@ -745,8 +745,9 @@ int main(int argc, char *argv[]){
 		saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
 		if(RADIONS){
 			saveDataHT("(Real ionization position)",folder_out,timestamp);
-            if($RENATE==110) && saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
-
+			try{
+				if($RENATE==110) && saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
+			}
 		}else{
 			saveDataHT("(R=const ionization)",folder_out,timestamp);
 		}
