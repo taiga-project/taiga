@@ -371,7 +371,10 @@ end
 
 function out = fitProfilesNT(ts, out)
     
-    ts = profileHack(ts,out);
+    try 
+        ts = profileHack(ts,out);
+    catch e
+    end
     
     in = find(ts.psi<max(out.nt.psi_in) & ts.psi > min(out.nt.psi_in));
     
