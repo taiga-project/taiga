@@ -733,6 +733,9 @@ int main(int argc, char *argv[]){
 	saveData1(XR,NX,folder_out,timestamp,"rad.dat");
 	saveData1(XZ,NX,folder_out,timestamp,"z.dat");
 	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
+	saveData1(VR,NX,folder_out,timestamp,"vrad.dat");
+	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
+	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");
 	
 	
 	
@@ -747,7 +750,9 @@ int main(int argc, char *argv[]){
 			saveDataHT("(Real ionization position)",folder_out,timestamp);
 			try{
 				if($RENATE==110) && saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
-			}
+			}catch(int e){
+				
+            }
 		}else{
 			saveDataHT("(R=const ionization)",folder_out,timestamp);
 		}
