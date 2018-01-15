@@ -11,7 +11,7 @@
 #define $FASTMODE    0//1  	//! @param $FASTMODE fastmode do not set! 0
 #define $3DINPUTPROF 1
 
-//#define $RENATE		110
+#define $RENATE		0//110
 
 #define N_BLOCKS     192		//! @param N_BLOCKS Number of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
 #define BLOCK_SIZE 	 1//30*4 		//! @param BLOCK_SIZE smaller is better (max 1M)
@@ -62,10 +62,10 @@
 #if BANANA == 1
 	#include "dataio/beamInBan.c"
 #elif RADIONS == 1
-	#if $RENATE == 110
-		#include "dataio/beamInRenate110.c"
-	#elif $3DINPUTPROF == 1
+	#if $3DINPUTPROF == 1
 		#include "dataio/beamInFull.c"
+	#elif $RENATE == 110
+		#include "dataio/beamInRenate110.c"
 	#else
 		#include "dataio/beamIn.c"
 	#endif
@@ -747,12 +747,13 @@ int main(int argc, char *argv[]){
 	}else{		
 		saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
 		if(RADIONS){
-			saveDataHT("(Real ionization position)",folder_out,timestamp);
-			try{
-				if($RENATE==110) && saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
-			}catch(int e){
-				
-            }
+			saveDataHT("(Real ionization position)",folder_out,timestamp); 
+			if($3DINPUTPROF==1){
+				saveDataHT("(3D input)",folder_out,timestamp);			
+			else if($RENATE==110){
+				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
+			}
+			
 		}else{
 			saveDataHT("(R=const ionization)",folder_out,timestamp);
 		}
