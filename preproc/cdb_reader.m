@@ -346,7 +346,7 @@ function saveRenateFlux(in, out)
 end
 
 
-function ts = profileHack(ts)
+function ts = profileHack(ts,out)
 	density = ts.density;
 	densityErr = ts.densityErr;
 	temperature = ts.temperature;
@@ -355,7 +355,7 @@ function ts = profileHack(ts)
 	psi_out=[];
 	Te_out=[];
 	ne_out=[];
-	l = length(flux);
+	l = length(out.flux.r);
 	l2=100;
 	for i = 1:l
 		psi_out=[psi_out,psi_in(i)*ones(1,l2)];		
@@ -371,7 +371,7 @@ end
 
 function out = fitProfilesNT(ts, out)
     
-    ts = profileHack(ts);
+    ts = profileHack(ts,out);
     
     in = find(ts.psi<max(out.nt.psi_in) & ts.psi > min(out.nt.psi_in));
     
