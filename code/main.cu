@@ -219,34 +219,19 @@ int main(int argc, char *argv[]){
         double *XR;
 		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
         max_blocks = NX / N_BLOCKS+1;
-	}
-	
+	}	
 		
-	char* folder_out=concat("results/", shot.name);//! io properties folder
-	// card settings	
+	char* folder_out=concat("results/", shot.name);
 	
 	set_cuda();
- /*0*/	
-//	int BLOCK_SIZE = 1;//prop.maxThreadsPerBlock;
-//	if(BLOCK_SIZE<1) BLOCK_SIZE=1;
-//	int N_BLOCKS = 192;//0;
-
-	// phys. constants
-	double eperm;
 
 	// set timestamp
-
 	time_t rawtime;
 	struct tm *info;
 	char timestamp[80];
 	sprintf(timestamp, "%d", shot.runnumber);
-	/*time( &rawtime );
-  	info = localtime( &rawtime );
-  	strftime(timestamp,80,"%d%b%Y_%H%M%S", info);
-	*/	
-	
-	// coords
-	
+
+	// coords	
 	double *X_PTR[3], **x_ptr;
 	double *V_PTR[3], **v_ptr;
 	size_t dimXP = 3*sizeof(double*);
@@ -274,14 +259,11 @@ int main(int argc, char *argv[]){
 	VZ = (double*)malloc(sizeof(double)*NX);
 	VT = (double*)malloc(sizeof(double)*NX);
 
-	//time_t t;
-
+	// phys. constants
+	double eperm;
 	eperm = 1.60217656535e-19/1.66053892173e-27/beam.mass;
 
 	beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflation, beam.vertical_deflation);
-	/*XR[0] = 0.72;
-	XZ[0] = 0.00;
-	XT[0] = 0.00;*/	
 
 	//! position and velocity array allocation
 	size_t dimX = NX * sizeof(double);
@@ -296,8 +278,6 @@ int main(int argc, char *argv[]){
 	cudaMalloc((void **) &vt,  dimX); 
 	cudaMalloc((void **) &v_ptr,  dimXP); 
 
-
-
 	//! coords pointers
 	X_PTR[0] = xr;
 	X_PTR[1] = xz;
@@ -306,7 +286,6 @@ int main(int argc, char *argv[]){
 	V_PTR[0] = vr;
 	V_PTR[1] = vz;
 	V_PTR[2] = vt;
-
 	
 	//! grid pointers
 	double *G_PTR[2];
@@ -338,7 +317,7 @@ int main(int argc, char *argv[]){
 	}else{
 		NZ = vectorReader(&ZG, "input/fieldSpl", shot.name, "z.spline");
 	}*/
-	//int NRZ = NR*NZ;
+
 	size_t dimZ = NZ * sizeof(double);
 	size_t dimRZ = (NR-1) * (NZ-1) * sizeof(double);
 	cudaMalloc((void **) &zg,  dimZ); 
@@ -347,9 +326,7 @@ int main(int argc, char *argv[]){
 	G_PTR[0] = rg;
 	G_PTR[1] = zg;
 
-
-	//! MAGN. FIELD (HOST, device) ALLOCATION      
-    
+	//! MAGN. FIELD (HOST, device) ALLOCATION          
     
 	//!rad
 	double *BR0,  *br0;  vectorReader(&BR0, "input/fieldSpl", shot.name, "brad.spl11");	cudaMalloc((void **) &br0,  dimRZ); 
@@ -416,7 +393,6 @@ int main(int argc, char *argv[]){
 	cudaMalloc((void **) &bt_ptr,  dimB); 
 	double *BZ_PTR[16];	double **bz_ptr;
 	cudaMalloc((void **) &bz_ptr,  dimB); 	
-		
 	
 	
 	//! MAGN. FIELD POINTERS
@@ -439,8 +415,6 @@ int main(int argc, char *argv[]){
 	BZ_PTR[8] = bz8;	BZ_PTR[9] = bz9;	BZ_PTR[10] = bz10;	BZ_PTR[11] = bz11;
 	BZ_PTR[12] = bz12;	BZ_PTR[13] = bz13;	BZ_PTR[14] = bz14;	BZ_PTR[15] = bz15;
 	
-	
-	
 		
 	// temporary test data
 	double *TMP, *tmp;
@@ -455,17 +429,13 @@ int main(int argc, char *argv[]){
 	BD1 = (double *)malloc(dimX);
 	BD2 = (double *)malloc(dimX);
 	cudaMalloc((void **) &bd1,  dimX); 
-	cudaMalloc((void **) &bd2,  dimX); 
-	
+	cudaMalloc((void **) &bd2,  dimX); 	
 	
 
 	//! CUDA profiler START
 	cudaProfilerStart();
 	
 	//! MEMCOPY (HOST2device)
-	
-	
-
 
 	//! GRID COORDS	
 	cudaMemcpy(rg, RG, dimR, cudaMemcpyHostToDevice);
@@ -532,15 +502,9 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(bz_ptr, BZ_PTR, dimB, cudaMemcpyHostToDevice);
 
 	//! ION COORDS (HOST2device)
-	/*cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
-	cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
-	cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);*/
 	cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
 
 	//! ION SPEEDS (HOST2device)
-	/*cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
-	cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
-	cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);*/
 	cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
 	
 	// EXECUTION
@@ -661,32 +625,11 @@ int main(int argc, char *argv[]){
 		printf("\n+---	-------------------+\n | Fatal error in running. | \n | The CUDA did not run well. |\n+-----------------------+\n");
 	}else{
 		printf("\n	Memcopy OK.\n");
-	}
-	
-
-
-
+	}	
 
 	//! CUDA profiler STOP
 	cudaProfilerStop();
-	/*
-	printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",VR[0],VZ[0],VT[0]);
-	printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",XR[0],XZ[0],XT[0]);
-	printf("----------------------------------------------------------\n");
-*/
-/*
-	printf("----------------------------------------------------------\n");
-	printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-	printf("----------------------------------------------------------\n");
-	for(int i=1; i<20; i++){
-		printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
-	}
-	printf("----------------------------------------------------------\n");*/
-/*
-	//printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",XR[0],XZ[0],XT[0]);
-	//printf("ion:  0.\t %18.18le\t %18.18le\t %18.18le\n",VR[0],VZ[0],VT[0]);
-	
-	*/
+
 	//! Save data to files
 	saveData1(XR,NX,folder_out,timestamp,"rad.dat");
 	saveData1(XZ,NX,folder_out,timestamp,"z.dat");
@@ -742,20 +685,13 @@ int main(int argc, char *argv[]){
 	saveDataH("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
 	saveDataH("Block size", "", BLOCK_SIZE,folder_out,timestamp);
 	saveDataH("Length of a loop", "", Nstep,folder_out,timestamp);
-	saveDataH("Number of loops", "", Nloop,folder_out,timestamp);
-	
-	
+	saveDataH("Number of loops", "", Nloop,folder_out,timestamp);		
 
 	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
 
-
-
 	//! Free CUDA
-
 	cudaFree(x_ptr);	cudaFree(xr);	cudaFree(xz);	cudaFree(xt);
-
-	cudaFree(g_ptr);	cudaFree(rg);	cudaFree(zg);	
-	
+	cudaFree(g_ptr);	cudaFree(rg);	cudaFree(zg);		
 	cudaFree(br_ptr);	cudaFree(bz_ptr);	cudaFree(bt_ptr);	
 	
 	cudaFree(br0);	cudaFree(br1);	cudaFree(br2);	cudaFree(br3);	
@@ -773,11 +709,8 @@ int main(int argc, char *argv[]){
 	cudaFree(bt8);	cudaFree(bt9);	cudaFree(bt10);	cudaFree(bt11);	
 	cudaFree(bt12);	cudaFree(bt13);	cudaFree(bt14);	cudaFree(bt15);	
 
-
 	//! Free RAM
 	free(RG);	free(ZG);	
-
-
 	free(XR);	free(XZ);	free(XT);
 	//	free(G_PTR);
 	//	free(BR_PTR);	free(BZ_PTR);	free(BT_PTR);	
@@ -795,8 +728,7 @@ int main(int argc, char *argv[]){
 	free(BT0);	free(BT1);	free(BT2);	free(BT3);
 	free(BT4);	free(BT5);	free(BT6);	free(BT7);
 	free(BT8);	free(BT9);	free(BT10);	free(BT11);
-	free(BT12);	free(BT13);	free(BT14);	free(BT15);	
-	
+	free(BT12);	free(BT13);	free(BT14);	free(BT15);		
 	
 	//! FREE TMP variables (RAM, cuda)
 	free(TMP);	cudaFree(tmp);
@@ -805,8 +737,7 @@ int main(int argc, char *argv[]){
 }
 
 char* concat(const char *s1, const char *s2){
-    char *result = (char*)malloc(strlen(s1)+strlen(s2)+1);//+1 for the zero-terminator
-    //in real code you would check for errors in malloc here
+    char *result = (char*)malloc(strlen(s1)+strlen(s2)+1);
     strcpy(result, s1);
     strcat(result, s2);
     return result;
