@@ -98,6 +98,24 @@
 char* concat(const char *s1, const char *s2);
 
 
+struct beam_prop{
+    char* matter;
+    double mass;
+    double energy;
+    double diameter;
+    double toroidal_deflation;    
+    double vertical_deflation;
+    
+}
+
+struct shot_prop{
+    char* name;
+    int runnumber;     
+}
+
+
+
+
 inline void cErrorCheck(const char *file, int line) {
   cudaThreadSynchronize();
   cudaError_t err = cudaGetLastError();
@@ -237,7 +255,7 @@ int main(int argc, char *argv[]){
 	
 	cudaDeviceProp prop;
 	cudaGetDevice(&max_device);
-	cudaGetDeviceProperties( &prop, 0) ;
+	cudaGetDeviceProperties(&prop, 0) ;
  /*0*/	
 //	int BLOCK_SIZE = 1;//prop.maxThreadsPerBlock;
 //	if(BLOCK_SIZE<1) BLOCK_SIZE=1;
@@ -381,8 +399,9 @@ int main(int argc, char *argv[]){
 	G_PTR[1] = zg;
 
 
-	//! MAGN. FIELD (HOST, device) ALLOCATION
-	
+	//! MAGN. FIELD (HOST, device) ALLOCATION      
+    
+    
 	//!rad
 	double *BR0,  *br0;  vectorReader(&BR0, "input/fieldSpl", shotname, "brad.spl11");	cudaMalloc((void **) &br0,  dimRZ); 
 	double *BR1,  *br1;  vectorReader(&BR1, "input/fieldSpl", shotname, "brad.spl12");	cudaMalloc((void **) &br1,  dimRZ);
@@ -563,8 +582,6 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(bz15, BZ15, dimRZ, cudaMemcpyHostToDevice);			
 	cudaMemcpy(bz_ptr, BZ_PTR, dimB, cudaMemcpyHostToDevice);
 
-
-
 	//! ION COORDS (HOST2device)
 	/*cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
 	cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
@@ -576,16 +593,14 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
 	cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);*/
 	cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
-
 	
-	// EXECUTION	
-
-
-
-
+	// EXECUTION
 	addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
 	addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
 	addData1(XZ,NX,folder_out,timestamp,"t_tor.dat");
+	addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
+	addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
+	addData1(VZ,NX,folder_out,timestamp,"t_vtor.dat");
 
 	//! Set CUDA timer 
 	cudaEvent_t start, stop;
@@ -667,8 +682,9 @@ int main(int argc, char *argv[]){
 		addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
 		addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
 		addData1(XZ,NX,folder_out,timestamp,"t_tor.dat");
-		
-
+		addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
+		addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
+		addData1(VZ,NX,folder_out,timestamp,"t_vtor.dat");
 		
 
 	printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
