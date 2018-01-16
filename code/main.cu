@@ -99,18 +99,18 @@ char* concat(const char *s1, const char *s2);
 
 
 struct beam_prop{
-    char* matter;
-    double mass;
-    double energy;
-    double diameter;
-    double toroidal_deflation;    
-    double vertical_deflation;
+    char* matter = "Li";
+    double mass = 7.016004558;
+    double energy = (double)$energy ;
+    double diameter = (double)$diameter;
+    double toroidal_deflation = (double)$deflH;   
+    double vertical_deflation = (double)$deflV;
     
 };
 
 struct shot_prop{
-    char* name;
-    int runnumber;     
+    char* name = "11347";
+    int runnumber = 0;     
 };
 
 
