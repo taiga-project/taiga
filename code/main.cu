@@ -125,6 +125,44 @@ inline void cErrorCheck(const char *file, int line) {
   }
 }
 
+int set_cuda(){
+	int num_devices, device, max_device;
+	cudaGetDeviceCount(&num_devices);
+	printf("Number of devices: %d\n",num_devices);
+	
+	if (num_devices > 1) {
+        int max_multiprocessors = 0, max_device = 0;
+        for (device = 0; device < num_devices; device++) {
+            cudaDeviceProp properties;
+            cudaGetDeviceProperties(&properties, device);
+            if (max_multiprocessors < properties.multiProcessorCount) {
+                max_multiprocessors = properties.multiProcessorCount;
+                max_device = device;
+            }
+	      /*  printf("%d:%s\n",device,&properties.name);
+	        printf("\tL2Cache:\t%d",	properties.l2CacheSize);
+	        printf("\tNumber of cores:\t%d",	properties.warpSize);
+	
+	        printf("\tKernels:\t%d",	properties.concurrentKernels);
+	        printf("\tThreads:\t%d",	properties.maxThreadsPerMultiProcessor);
+	        printf("\tClock:\t%d",	properties.clockRate/1024);
+	        printf("\n");*/
+        }
+        cudaSetDevice(max_device);
+        for (device = 0; device < num_devices; device++) {
+        	if(device==max_device) printf("-->");
+            cudaDeviceProp properties;
+            cudaGetDeviceProperties(&properties, device);
+        	printf("\t%d:\t%s\n",device,&properties.name);
+        }
+        
+    }
+	
+	cudaDeviceProp prop;
+	cudaGetDevice(&max_device);
+	cudaGetDeviceProperties(&prop, 0) ;  
+}
+
 double get_mass(char *s){
     double mass;
     
@@ -187,41 +225,7 @@ int main(int argc, char *argv[]){
 	char* folder_out=concat("results/", shot.name);//! io properties folder
 	// card settings	
 	
-	int num_devices, device, max_device;
-	cudaGetDeviceCount(&num_devices);
-	printf("Number of devices: %d\n",num_devices);
-	
-	if (num_devices > 1) {
-        int max_multiprocessors = 0, max_device = 0;
-        for (device = 0; device < num_devices; device++) {
-            cudaDeviceProp properties;
-            cudaGetDeviceProperties(&properties, device);
-            if (max_multiprocessors < properties.multiProcessorCount) {
-                max_multiprocessors = properties.multiProcessorCount;
-                max_device = device;
-            }
-	      /*  printf("%d:%s\n",device,&properties.name);
-	        printf("\tL2Cache:\t%d",	properties.l2CacheSize);
-	        printf("\tNumber of cores:\t%d",	properties.warpSize);
-	
-	        printf("\tKernels:\t%d",	properties.concurrentKernels);
-	        printf("\tThreads:\t%d",	properties.maxThreadsPerMultiProcessor);
-	        printf("\tClock:\t%d",	properties.clockRate/1024);
-	        printf("\n");*/
-        }
-        cudaSetDevice(max_device);
-        for (device = 0; device < num_devices; device++) {
-        	if(device==max_device) printf("-->");
-            cudaDeviceProp properties;
-            cudaGetDeviceProperties(&properties, device);
-        	printf("\t%d:\t%s\n",device,&properties.name);
-        }
-        
-    }
-	
-	cudaDeviceProp prop;
-	cudaGetDevice(&max_device);
-	cudaGetDeviceProperties(&prop, 0) ;
+	set_cuda();
  /*0*/	
 //	int BLOCK_SIZE = 1;//prop.maxThreadsPerBlock;
 //	if(BLOCK_SIZE<1) BLOCK_SIZE=1;
