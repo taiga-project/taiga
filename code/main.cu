@@ -98,7 +98,7 @@
 char* concat(const char *s1, const char *s2);
 
 
-struct beam{
+struct beam_prop{
     char* matter = "Li";
     double mass = 7.016004558;
     double energy = (double)$energy ;
