@@ -6,4 +6,5 @@ energy=60 #keV
 angle=0 #degree
 diameter=25 #mm
 particles=100000
+detector_R=0.7089
 matlab='/home/maradi/prog/MATLAB/R2017a/bin/matlab'

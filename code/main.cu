@@ -22,18 +22,19 @@
 #define $deflH	 0				//! @param $deflH horizontal deflection in rad (up--down)  
 #define $deflV	 0				//! @param $deflV vertical deflection in rad (left--right) -> TOROIDAL DEFLECTION
 
-#define $DETPOS 0.7089 //! detector position
 
 #if BANANA == 1
     #define $energy   0.5            // in keV
     #define $mass     2.013553212724 // in AMU (D)
     #define $diameter 50e-20         // in mm 
+    #define $DETPOS 1 //! detector position
 	#define dt		 1e-12			// timestep in seconds
 	#define Nstep	 100000//00		// max step of a loop
 	#define Nloop	 1000			// number of loops	
 #else
 	#define $energy   60				//! @param energy in keV
 	#define $mass     7.016004558	//! @param mass in AMU (Li-7)
+    #define $DETPOS 0.7089 //! detector position
     #define $diameter 25//4/*e-20*/      //! @param diameter in mm
     #define dt       1e-9			//! @param dt timestep in seconds
     #define Nstep    2000//000			//! @param Nstep max step of a loop
@@ -105,6 +106,7 @@ struct beam_prop{
     double diameter = (double)$diameter;
     double toroidal_deflation = (double)$deflH;   
     double vertical_deflation = (double)$deflV;
+    double detector_R = (double)$DETPOS;
     
 };
 
@@ -112,9 +114,6 @@ struct shot_prop{
     char* name = "11347";
     int runnumber = 0;     
 };
-
-
-
 
 inline void cErrorCheck(const char *file, int line) {
   cudaThreadSynchronize();
@@ -165,14 +164,15 @@ int main(int argc, char *argv[]){
 	if (argc > 4)	beam.energy = atof(argv[4]);    
 	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);    
 	if (argc > 6)	beam.diameter = atof(argv[6]);
+	if (argc > 7)	beam.detector_R = atof(argv[7]);
     
 	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);
-	printf("diameter: %lf mm",beam.diameter);	
+	printf("diameter: %lf mm\n",beam.diameter);	  
 		
 	int NX;
 	int max_blocks;
-	if (argc > 7)	max_blocks = atoi(argv[7])/N_BLOCKS+1;    
+	if (argc > 8)	max_blocks = atoi(argv[8])/N_BLOCKS+1;    
 		else	max_blocks=BLOCK_SIZE;	
 	
 	NX = N_BLOCKS * max_blocks;
@@ -185,9 +185,7 @@ int main(int argc, char *argv[]){
 	
 		
 	char* folder_out=concat("results/", shot.name);//! io properties folder
-	// card settings
-	
-	
+	// card settings	
 	
 	int num_devices, device, max_device;
 	cudaGetDeviceCount(&num_devices);
@@ -229,20 +227,6 @@ int main(int argc, char *argv[]){
 //	if(BLOCK_SIZE<1) BLOCK_SIZE=1;
 //	int N_BLOCKS = 192;//0;
 
-
-
-	// detector position
-	double l_ri;
-
-	// FOR ABP
-	if (!BANANA) {
-		l_ri = $DETPOS;
-	// FOR BANANA ORBITS
-	}else{
-		l_ri = 1.0000; // just for taiga does not stop, there is no physical meaning
-	}
-
-
 	// phys. constants
 	double eperm;
 
@@ -255,8 +239,7 @@ int main(int argc, char *argv[]){
 	/*time( &rawtime );
   	info = localtime( &rawtime );
   	strftime(timestamp,80,"%d%b%Y_%H%M%S", info);
-	*/
-	
+	*/	
 	
 	// coords
 	
@@ -270,9 +253,7 @@ int main(int argc, char *argv[]){
 
 	double *VR,  *vr; 
 	double *VZ,  *vz;
-	double *VT,  *vt;
-	
-	
+	double *VT,  *vt;	
 	
 	printf("=============================\n");
 	printf("Number of blocks (threads): %d\n", max_blocks);
@@ -280,8 +261,6 @@ int main(int argc, char *argv[]){
 	printf("Number of parts: %d\n", NX);
 	printf("length of a loop: %d\n", Nstep);
 	printf("Number of loops: %d\n", Nloop);
-
-
 	
 	XR = (double*)malloc(sizeof(double)*NX);
 	XZ = (double*)malloc(sizeof(double)*NX);
@@ -291,7 +270,6 @@ int main(int argc, char *argv[]){
 	VZ = (double*)malloc(sizeof(double)*NX);
 	VT = (double*)malloc(sizeof(double)*NX);
 
-
 	//time_t t;
 
 	eperm = 1.60217656535e-19/1.66053892173e-27/beam.mass;
@@ -299,8 +277,7 @@ int main(int argc, char *argv[]){
 	beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflation, beam.vertical_deflation);
 	/*XR[0] = 0.72;
 	XZ[0] = 0.00;
-	XT[0] = 0.00;*/
-	
+	XT[0] = 0.00;*/	
 
 	//! position and velocity array allocation
 	size_t dimX = NX * sizeof(double);
@@ -630,7 +607,7 @@ int main(int argc, char *argv[]){
 		// CUDA CODE, timer and Error catch	
 		//ERRORCHECK();
 		cudaEventRecord(start, 0);
-		ctrl <<< max_blocks, BLOCK_SIZE >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,l_ri);
+		ctrl <<< max_blocks, BLOCK_SIZE >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
 		ERRORCHECK();
@@ -747,7 +724,7 @@ int main(int argc, char *argv[]){
 	saveDataH("Number of ions","",NX,folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
-	saveDataH("Detector position (R)","m",l_ri,folder_out,timestamp);
+	saveDataH("Detector position (R)","m",beam.detector_R,folder_out,timestamp);
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
