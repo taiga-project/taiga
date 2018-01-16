@@ -98,7 +98,7 @@
 char* concat(const char *s1, const char *s2);
 
 
-struct beam_prop{
+struct beam{
     char* matter = "Li";
     double mass = 7.016004558;
     double energy = (double)$energy ;
@@ -155,57 +155,25 @@ double get_mass(char *s){
 
 int main(int argc, char *argv[]){
     //! @param shotname name of shot folder input folder (8714,11344,11347)	
-	char *shotname;
-	
-	if (argc > 1){
-		shotname = argv[1];	
-	}else{
-		shotname = "11347";
-	}	
-	
-	printf("shotname: %s\n",shotname);
-	
-	int runnumber = 0;
-	if (argc > 2){
-		runnumber = atoi(argv[2]);
-    }	
-	
-	char *beammatter;
-	if (argc > 3){
-		beammatter = argv[3];	
-	}else{
-		beammatter = "Li";
-	}	
-	
-	double mass = get_mass(beammatter);
-		
-	double energy=(double)$energy;
-	if (argc > 4){
-		energy = atof(argv[4]);
-    }
-	
-	double deflV=(double)$deflV;
-    double deflH=(double)$deflH;
-	if (argc > 5){
-		deflV = atof(argv[5]);
-    }
     
-    double diameter=(double)$diameter;
-	if (argc > 6){
-		diameter = atof(argv[6]);
-    }
-	printf("diameter: %lf mm",diameter);	
+    shot_prop shot;
+    beam_prop beam;
+	
+	if (argc > 1)	shot.name = argv[1];	
+	if (argc > 2)	shot.runnumber = atoi(argv[2]);
+	if (argc > 3)	beam.matter = argv[3];			
+	if (argc > 4)	beam.energy = atof(argv[4]);    
+	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);    
+	if (argc > 6)	beam.diameter = atof(argv[6]);
+    
+	beam.mass = get_mass(beam.matter);
+	printf("shotname: %s\n",shot.name);
+	printf("diameter: %lf mm",beam.diameter);	
 		
 	int NX;
 	int max_blocks;
-	if (argc > 7){
-		max_blocks = atoi(argv[7])/N_BLOCKS+1;
-		//printf("max blocks: %d\n\n",max_blocks);
-		//NX = atoi(argv[1]); //for the future
-    }else{        
-		//NX = BLOCK_SIZE*N_BLOCKS;
-		max_blocks=BLOCK_SIZE;
-	}
+	if (argc > 7)	max_blocks = atoi(argv[7])/N_BLOCKS+1;    
+		else	max_blocks=BLOCK_SIZE;	
 	
 	NX = N_BLOCKS * max_blocks;
 	
@@ -216,7 +184,7 @@ int main(int argc, char *argv[]){
 	}
 	
 		
-	char* folder_out=concat("results/", shotname);//! io properties folder
+	char* folder_out=concat("results/", shot.name);//! io properties folder
 	// card settings
 	
 	
@@ -283,7 +251,7 @@ int main(int argc, char *argv[]){
 	time_t rawtime;
 	struct tm *info;
 	char timestamp[80];
-	sprintf(timestamp, "%d", runnumber);
+	sprintf(timestamp, "%d", shot.runnumber);
 	/*time( &rawtime );
   	info = localtime( &rawtime );
   	strftime(timestamp,80,"%d%b%Y_%H%M%S", info);
@@ -326,9 +294,9 @@ int main(int argc, char *argv[]){
 
 	//time_t t;
 
-	eperm = 1.60217656535e-19/1.66053892173e-27/mass;
+	eperm = 1.60217656535e-19/1.66053892173e-27/beam.mass;
 
-	beamIn(XR, XZ, XT, VR, VZ, VT, energy, eperm, NX, shotname, diameter, deflH, deflV);
+	beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflation, beam.vertical_deflation);
 	/*XR[0] = 0.72;
 	XZ[0] = 0.00;
 	XT[0] = 0.00;*/
@@ -371,23 +339,23 @@ int main(int argc, char *argv[]){
 
 	//! R-grid points
 
-	int NR = vectorReader(&RG, "input/fieldSpl", shotname, "r.spline");
+	int NR = vectorReader(&RG, "input/fieldSpl", shot.name, "r.spline");
 	/*if ($ELM == 1){
 		NR = vectorReader(&RG, "field/cuda/ipol/r.spline");
 		printf("ELM mode\n");
 	}else{
-		NR = vectorReader(&RG, "input/fieldSpl", shotname, "r.spline");
+		NR = vectorReader(&RG, "input/fieldSpl", shot.name, "r.spline");
 		printf("ELM-free mode\n");
 	}*/
 	size_t dimR = NR * sizeof(double);
 	cudaMalloc((void **) &rg,  dimR); 
 	
 	//! Z-grid points
-	int NZ = vectorReader(&ZG, "input/fieldSpl", shotname, "z.spline");
+	int NZ = vectorReader(&ZG, "input/fieldSpl", shot.name, "z.spline");
 	/*if ($ELM == 1){
 		NZ = vectorReader(&ZG, "field/cuda/ipol/z.spline");
 	}else{
-		NZ = vectorReader(&ZG, "input/fieldSpl", shotname, "z.spline");
+		NZ = vectorReader(&ZG, "input/fieldSpl", shot.name, "z.spline");
 	}*/
 	//int NRZ = NR*NZ;
 	size_t dimZ = NZ * sizeof(double);
@@ -403,58 +371,58 @@ int main(int argc, char *argv[]){
     
     
 	//!rad
-	double *BR0,  *br0;  vectorReader(&BR0, "input/fieldSpl", shotname, "brad.spl11");	cudaMalloc((void **) &br0,  dimRZ); 
-	double *BR1,  *br1;  vectorReader(&BR1, "input/fieldSpl", shotname, "brad.spl12");	cudaMalloc((void **) &br1,  dimRZ);
-	double *BR2,  *br2;  vectorReader(&BR2, "input/fieldSpl", shotname, "brad.spl13");	cudaMalloc((void **) &br2,  dimRZ);
-	double *BR3,  *br3;  vectorReader(&BR3, "input/fieldSpl", shotname, "brad.spl14");	cudaMalloc((void **) &br3,  dimRZ); 
-	double *BR4,  *br4;  vectorReader(&BR4, "input/fieldSpl", shotname, "brad.spl21");	cudaMalloc((void **) &br4,  dimRZ); 
-	double *BR5,  *br5;  vectorReader(&BR5, "input/fieldSpl", shotname, "brad.spl22");	cudaMalloc((void **) &br5,  dimRZ); 
-	double *BR6,  *br6;  vectorReader(&BR6, "input/fieldSpl", shotname, "brad.spl23");	cudaMalloc((void **) &br6,  dimRZ); 
-	double *BR7,  *br7;  vectorReader(&BR7, "input/fieldSpl", shotname, "brad.spl24");	cudaMalloc((void **) &br7,  dimRZ);
-	double *BR8,  *br8;  vectorReader(&BR8, "input/fieldSpl", shotname, "brad.spl31");	cudaMalloc((void **) &br8,  dimRZ); 
-	double *BR9,  *br9;  vectorReader(&BR9, "input/fieldSpl", shotname, "brad.spl32");	cudaMalloc((void **) &br9,  dimRZ); 
-	double *BR10, *br10; vectorReader(&BR10,"input/fieldSpl", shotname, "brad.spl33");	cudaMalloc((void **) &br10,  dimRZ);
-	double *BR11, *br11; vectorReader(&BR11,"input/fieldSpl", shotname, "brad.spl34");	cudaMalloc((void **) &br11,  dimRZ); 
-	double *BR12, *br12; vectorReader(&BR12,"input/fieldSpl", shotname, "brad.spl41");	cudaMalloc((void **) &br12,  dimRZ);
-	double *BR13, *br13; vectorReader(&BR13,"input/fieldSpl", shotname, "brad.spl42");	cudaMalloc((void **) &br13,  dimRZ); 
-	double *BR14, *br14; vectorReader(&BR14,"input/fieldSpl", shotname, "brad.spl43");	cudaMalloc((void **) &br14,  dimRZ); 
-	double *BR15, *br15; vectorReader(&BR15,"input/fieldSpl", shotname, "brad.spl44");	cudaMalloc((void **) &br15,  dimRZ);
+	double *BR0,  *br0;  vectorReader(&BR0, "input/fieldSpl", shot.name, "brad.spl11");	cudaMalloc((void **) &br0,  dimRZ); 
+	double *BR1,  *br1;  vectorReader(&BR1, "input/fieldSpl", shot.name, "brad.spl12");	cudaMalloc((void **) &br1,  dimRZ);
+	double *BR2,  *br2;  vectorReader(&BR2, "input/fieldSpl", shot.name, "brad.spl13");	cudaMalloc((void **) &br2,  dimRZ);
+	double *BR3,  *br3;  vectorReader(&BR3, "input/fieldSpl", shot.name, "brad.spl14");	cudaMalloc((void **) &br3,  dimRZ); 
+	double *BR4,  *br4;  vectorReader(&BR4, "input/fieldSpl", shot.name, "brad.spl21");	cudaMalloc((void **) &br4,  dimRZ); 
+	double *BR5,  *br5;  vectorReader(&BR5, "input/fieldSpl", shot.name, "brad.spl22");	cudaMalloc((void **) &br5,  dimRZ); 
+	double *BR6,  *br6;  vectorReader(&BR6, "input/fieldSpl", shot.name, "brad.spl23");	cudaMalloc((void **) &br6,  dimRZ); 
+	double *BR7,  *br7;  vectorReader(&BR7, "input/fieldSpl", shot.name, "brad.spl24");	cudaMalloc((void **) &br7,  dimRZ);
+	double *BR8,  *br8;  vectorReader(&BR8, "input/fieldSpl", shot.name, "brad.spl31");	cudaMalloc((void **) &br8,  dimRZ); 
+	double *BR9,  *br9;  vectorReader(&BR9, "input/fieldSpl", shot.name, "brad.spl32");	cudaMalloc((void **) &br9,  dimRZ); 
+	double *BR10, *br10; vectorReader(&BR10,"input/fieldSpl", shot.name, "brad.spl33");	cudaMalloc((void **) &br10,  dimRZ);
+	double *BR11, *br11; vectorReader(&BR11,"input/fieldSpl", shot.name, "brad.spl34");	cudaMalloc((void **) &br11,  dimRZ); 
+	double *BR12, *br12; vectorReader(&BR12,"input/fieldSpl", shot.name, "brad.spl41");	cudaMalloc((void **) &br12,  dimRZ);
+	double *BR13, *br13; vectorReader(&BR13,"input/fieldSpl", shot.name, "brad.spl42");	cudaMalloc((void **) &br13,  dimRZ); 
+	double *BR14, *br14; vectorReader(&BR14,"input/fieldSpl", shot.name, "brad.spl43");	cudaMalloc((void **) &br14,  dimRZ); 
+	double *BR15, *br15; vectorReader(&BR15,"input/fieldSpl", shot.name, "brad.spl44");	cudaMalloc((void **) &br15,  dimRZ);
 
 	//!tor
-	double *BT0,  *bt0;  vectorReader(&BT0, "input/fieldSpl", shotname, "btor.spl11");	cudaMalloc((void **) &bt0,  dimRZ); 
-	double *BT1,  *bt1;  vectorReader(&BT1, "input/fieldSpl", shotname, "btor.spl12");	cudaMalloc((void **) &bt1,  dimRZ); 
-	double *BT2,  *bt2;  vectorReader(&BT2, "input/fieldSpl", shotname, "btor.spl13");	cudaMalloc((void **) &bt2,  dimRZ); 
-	double *BT3,  *bt3;  vectorReader(&BT3, "input/fieldSpl", shotname, "btor.spl14");	cudaMalloc((void **) &bt3,  dimRZ); 
-	double *BT4,  *bt4;  vectorReader(&BT4, "input/fieldSpl", shotname, "btor.spl21");	cudaMalloc((void **) &bt4,  dimRZ); 
-	double *BT5,  *bt5;  vectorReader(&BT5, "input/fieldSpl", shotname, "btor.spl22");	cudaMalloc((void **) &bt5,  dimRZ); 
-	double *BT6,  *bt6;  vectorReader(&BT6, "input/fieldSpl", shotname, "btor.spl23");	cudaMalloc((void **) &bt6,  dimRZ); 
-	double *BT7,  *bt7;  vectorReader(&BT7, "input/fieldSpl", shotname, "btor.spl24");	cudaMalloc((void **) &bt7,  dimRZ);
-	double *BT8,  *bt8;  vectorReader(&BT8, "input/fieldSpl", shotname, "btor.spl31");	cudaMalloc((void **) &bt8,  dimRZ); 
-	double *BT9,  *bt9;  vectorReader(&BT9, "input/fieldSpl", shotname, "btor.spl32");	cudaMalloc((void **) &bt9,  dimRZ); 
-	double *BT10, *bt10; vectorReader(&BT10,"input/fieldSpl", shotname, "btor.spl33");	cudaMalloc((void **) &bt10,  dimRZ); 
-	double *BT11, *bt11; vectorReader(&BT11,"input/fieldSpl", shotname, "btor.spl34");	cudaMalloc((void **) &bt11,  dimRZ); 
-	double *BT12, *bt12; vectorReader(&BT12,"input/fieldSpl", shotname, "btor.spl41");	cudaMalloc((void **) &bt12,  dimRZ); 
-	double *BT13, *bt13; vectorReader(&BT13,"input/fieldSpl", shotname, "btor.spl42");	cudaMalloc((void **) &bt13,  dimRZ);
-	double *BT14, *bt14; vectorReader(&BT14,"input/fieldSpl", shotname, "btor.spl43");	cudaMalloc((void **) &bt14,  dimRZ); 
-	double *BT15, *bt15; vectorReader(&BT15,"input/fieldSpl", shotname, "btor.spl44");	cudaMalloc((void **) &bt15,  dimRZ);
+	double *BT0,  *bt0;  vectorReader(&BT0, "input/fieldSpl", shot.name, "btor.spl11");	cudaMalloc((void **) &bt0,  dimRZ); 
+	double *BT1,  *bt1;  vectorReader(&BT1, "input/fieldSpl", shot.name, "btor.spl12");	cudaMalloc((void **) &bt1,  dimRZ); 
+	double *BT2,  *bt2;  vectorReader(&BT2, "input/fieldSpl", shot.name, "btor.spl13");	cudaMalloc((void **) &bt2,  dimRZ); 
+	double *BT3,  *bt3;  vectorReader(&BT3, "input/fieldSpl", shot.name, "btor.spl14");	cudaMalloc((void **) &bt3,  dimRZ); 
+	double *BT4,  *bt4;  vectorReader(&BT4, "input/fieldSpl", shot.name, "btor.spl21");	cudaMalloc((void **) &bt4,  dimRZ); 
+	double *BT5,  *bt5;  vectorReader(&BT5, "input/fieldSpl", shot.name, "btor.spl22");	cudaMalloc((void **) &bt5,  dimRZ); 
+	double *BT6,  *bt6;  vectorReader(&BT6, "input/fieldSpl", shot.name, "btor.spl23");	cudaMalloc((void **) &bt6,  dimRZ); 
+	double *BT7,  *bt7;  vectorReader(&BT7, "input/fieldSpl", shot.name, "btor.spl24");	cudaMalloc((void **) &bt7,  dimRZ);
+	double *BT8,  *bt8;  vectorReader(&BT8, "input/fieldSpl", shot.name, "btor.spl31");	cudaMalloc((void **) &bt8,  dimRZ); 
+	double *BT9,  *bt9;  vectorReader(&BT9, "input/fieldSpl", shot.name, "btor.spl32");	cudaMalloc((void **) &bt9,  dimRZ); 
+	double *BT10, *bt10; vectorReader(&BT10,"input/fieldSpl", shot.name, "btor.spl33");	cudaMalloc((void **) &bt10,  dimRZ); 
+	double *BT11, *bt11; vectorReader(&BT11,"input/fieldSpl", shot.name, "btor.spl34");	cudaMalloc((void **) &bt11,  dimRZ); 
+	double *BT12, *bt12; vectorReader(&BT12,"input/fieldSpl", shot.name, "btor.spl41");	cudaMalloc((void **) &bt12,  dimRZ); 
+	double *BT13, *bt13; vectorReader(&BT13,"input/fieldSpl", shot.name, "btor.spl42");	cudaMalloc((void **) &bt13,  dimRZ);
+	double *BT14, *bt14; vectorReader(&BT14,"input/fieldSpl", shot.name, "btor.spl43");	cudaMalloc((void **) &bt14,  dimRZ); 
+	double *BT15, *bt15; vectorReader(&BT15,"input/fieldSpl", shot.name, "btor.spl44");	cudaMalloc((void **) &bt15,  dimRZ);
 	
 	//!z
-	double *BZ0,  *bz0;  vectorReader(&BZ0, "input/fieldSpl", shotname, "bz.spl11");	cudaMalloc((void **) &bz0,  dimRZ); 
-	double *BZ1,  *bz1;  vectorReader(&BZ1, "input/fieldSpl", shotname, "bz.spl12");	cudaMalloc((void **) &bz1,  dimRZ); 
-	double *BZ2,  *bz2;  vectorReader(&BZ2, "input/fieldSpl", shotname, "bz.spl13");	cudaMalloc((void **) &bz2,  dimRZ); 
-	double *BZ3,  *bz3;  vectorReader(&BZ3, "input/fieldSpl", shotname, "bz.spl14");	cudaMalloc((void **) &bz3,  dimRZ); 
-	double *BZ4,  *bz4;  vectorReader(&BZ4, "input/fieldSpl", shotname, "bz.spl21");	cudaMalloc((void **) &bz4,  dimRZ);
-	double *BZ5,  *bz5;  vectorReader(&BZ5, "input/fieldSpl", shotname, "bz.spl22");	cudaMalloc((void **) &bz5,  dimRZ); 
-	double *BZ6,  *bz6;  vectorReader(&BZ6, "input/fieldSpl", shotname, "bz.spl23");	cudaMalloc((void **) &bz6,  dimRZ);
-	double *BZ7,  *bz7;  vectorReader(&BZ7, "input/fieldSpl", shotname, "bz.spl24");	cudaMalloc((void **) &bz7,  dimRZ);
-	double *BZ8,  *bz8;  vectorReader(&BZ8, "input/fieldSpl", shotname, "bz.spl31");	cudaMalloc((void **) &bz8,  dimRZ); 
-	double *BZ9,  *bz9;  vectorReader(&BZ9, "input/fieldSpl", shotname, "bz.spl32");	cudaMalloc((void **) &bz9,  dimRZ); 
-	double *BZ10, *bz10; vectorReader(&BZ10,"input/fieldSpl", shotname, "bz.spl33");	cudaMalloc((void **) &bz10,  dimRZ); 
-	double *BZ11, *bz11; vectorReader(&BZ11,"input/fieldSpl", shotname, "bz.spl34");	cudaMalloc((void **) &bz11,  dimRZ); 
-	double *BZ12, *bz12; vectorReader(&BZ12,"input/fieldSpl", shotname, "bz.spl41");	cudaMalloc((void **) &bz12,  dimRZ);
-	double *BZ13, *bz13; vectorReader(&BZ13,"input/fieldSpl", shotname, "bz.spl42");	cudaMalloc((void **) &bz13,  dimRZ); 
-	double *BZ14, *bz14; vectorReader(&BZ14,"input/fieldSpl", shotname, "bz.spl43");	cudaMalloc((void **) &bz14,  dimRZ);
-	double *BZ15, *bz15; vectorReader(&BZ15,"input/fieldSpl", shotname, "bz.spl44");	cudaMalloc((void **) &bz15,  dimRZ);
+	double *BZ0,  *bz0;  vectorReader(&BZ0, "input/fieldSpl", shot.name, "bz.spl11");	cudaMalloc((void **) &bz0,  dimRZ); 
+	double *BZ1,  *bz1;  vectorReader(&BZ1, "input/fieldSpl", shot.name, "bz.spl12");	cudaMalloc((void **) &bz1,  dimRZ); 
+	double *BZ2,  *bz2;  vectorReader(&BZ2, "input/fieldSpl", shot.name, "bz.spl13");	cudaMalloc((void **) &bz2,  dimRZ); 
+	double *BZ3,  *bz3;  vectorReader(&BZ3, "input/fieldSpl", shot.name, "bz.spl14");	cudaMalloc((void **) &bz3,  dimRZ); 
+	double *BZ4,  *bz4;  vectorReader(&BZ4, "input/fieldSpl", shot.name, "bz.spl21");	cudaMalloc((void **) &bz4,  dimRZ);
+	double *BZ5,  *bz5;  vectorReader(&BZ5, "input/fieldSpl", shot.name, "bz.spl22");	cudaMalloc((void **) &bz5,  dimRZ); 
+	double *BZ6,  *bz6;  vectorReader(&BZ6, "input/fieldSpl", shot.name, "bz.spl23");	cudaMalloc((void **) &bz6,  dimRZ);
+	double *BZ7,  *bz7;  vectorReader(&BZ7, "input/fieldSpl", shot.name, "bz.spl24");	cudaMalloc((void **) &bz7,  dimRZ);
+	double *BZ8,  *bz8;  vectorReader(&BZ8, "input/fieldSpl", shot.name, "bz.spl31");	cudaMalloc((void **) &bz8,  dimRZ); 
+	double *BZ9,  *bz9;  vectorReader(&BZ9, "input/fieldSpl", shot.name, "bz.spl32");	cudaMalloc((void **) &bz9,  dimRZ); 
+	double *BZ10, *bz10; vectorReader(&BZ10,"input/fieldSpl", shot.name, "bz.spl33");	cudaMalloc((void **) &bz10,  dimRZ); 
+	double *BZ11, *bz11; vectorReader(&BZ11,"input/fieldSpl", shot.name, "bz.spl34");	cudaMalloc((void **) &bz11,  dimRZ); 
+	double *BZ12, *bz12; vectorReader(&BZ12,"input/fieldSpl", shot.name, "bz.spl41");	cudaMalloc((void **) &bz12,  dimRZ);
+	double *BZ13, *bz13; vectorReader(&BZ13,"input/fieldSpl", shot.name, "bz.spl42");	cudaMalloc((void **) &bz13,  dimRZ); 
+	double *BZ14, *bz14; vectorReader(&BZ14,"input/fieldSpl", shot.name, "bz.spl43");	cudaMalloc((void **) &bz14,  dimRZ);
+	double *BZ15, *bz15; vectorReader(&BZ15,"input/fieldSpl", shot.name, "bz.spl44");	cudaMalloc((void **) &bz15,  dimRZ);
 	
 
 	// magnetic field pointer array
@@ -604,7 +572,7 @@ int main(int argc, char *argv[]){
 
 	//! Set CUDA timer 
 	cudaEvent_t start, stop;
-	float time;
+	float runtime;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 
@@ -693,8 +661,8 @@ int main(int argc, char *argv[]){
 	}	
 	
 	// Get CUDA timer 
-	cudaEventElapsedTime(&time, start, stop);
-	printf ("Time for the kernel: %f s\n", time/1000.0);
+	cudaEventElapsedTime(&runtime, start, stop);
+	printf ("Time for the kernel: %f s\n", runtime/1000.0);
 
 /*	// ION COORDS (device2HOST)
 	cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
@@ -748,7 +716,7 @@ int main(int argc, char *argv[]){
 	
 	
 	
-	saveDataHT(concat("Shot ID: ",shotname),folder_out,timestamp);
+	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
 	saveDataHT(concat("Run ID:  ",timestamp),folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	if(BANANA){
@@ -768,10 +736,10 @@ int main(int argc, char *argv[]){
 		}
 	}
 	saveDataHT("-----------------------------------",folder_out,timestamp);
-	saveDataH("Beam energy","keV",energy,folder_out,timestamp);
-	saveDataH("Atomic mass","AMU",mass,folder_out,timestamp);
-	saveDataH("Beam diameter","mm",diameter,folder_out,timestamp);
-	saveDataH2("Deflation (H/V)","°",deflH,deflV,folder_out,timestamp);
+	saveDataH("Beam energy","keV",beam.energy,folder_out,timestamp);
+	saveDataH("Atomic mass","AMU",beam.mass,folder_out,timestamp);
+	saveDataH("Beam diameter","mm",beam.diameter,folder_out,timestamp);
+	saveDataH2("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
 	if(!RADIONS&&!BANANA){	
 		saveDataH("Ion. position (R)","m",R_midions,folder_out,timestamp);
 	}
@@ -788,7 +756,7 @@ int main(int argc, char *argv[]){
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
-	saveDataH("Kernel runtime", "s", time/1000.0,folder_out,timestamp);
+	saveDataH("Kernel runtime", "s", runtime/1000.0,folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	saveDataH("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
 	saveDataH("Block size", "", BLOCK_SIZE,folder_out,timestamp);
