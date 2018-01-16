@@ -106,12 +106,12 @@ struct beam_prop{
     double toroidal_deflation;    
     double vertical_deflation;
     
-}
+};
 
 struct shot_prop{
     char* name;
     int runnumber;     
-}
+};
 
 
 
