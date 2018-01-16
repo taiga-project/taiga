@@ -385,15 +385,10 @@ int main(int argc, char *argv[]){
 
 	// magnetic field pointer array
 	// magnetic field (HOST, device)
-	size_t dimB = 16*sizeof(double*);
-		
-	double *BR_PTR[16];	double **br_ptr;	
-	cudaMalloc((void **) &br_ptr,  dimB); 
-	double *BT_PTR[16];	double **bt_ptr;
-	cudaMalloc((void **) &bt_ptr,  dimB); 
-	double *BZ_PTR[16];	double **bz_ptr;
-	cudaMalloc((void **) &bz_ptr,  dimB); 	
-	
+	size_t dimB = 16*sizeof(double*);		
+	double *BR_PTR[16];	double **br_ptr;	cudaMalloc((void **) &br_ptr,  dimB); 
+	double *BT_PTR[16];	double **bt_ptr;	cudaMalloc((void **) &bt_ptr,  dimB); 
+	double *BZ_PTR[16];	double **bz_ptr;	cudaMalloc((void **) &bz_ptr,  dimB); 
 	
 	//! MAGN. FIELD POINTERS
 	
@@ -415,22 +410,13 @@ int main(int argc, char *argv[]){
 	BZ_PTR[8] = bz8;	BZ_PTR[9] = bz9;	BZ_PTR[10] = bz10;	BZ_PTR[11] = bz11;
 	BZ_PTR[12] = bz12;	BZ_PTR[13] = bz13;	BZ_PTR[14] = bz14;	BZ_PTR[15] = bz15;
 	
-		
 	// temporary test data
 	double *TMP, *tmp;
-	TMP = (double *)malloc(dimR);
-	cudaMalloc((void **) &tmp,  dimR); 
-	
-	
-		
+	TMP = (double *)malloc(dimR);	cudaMalloc((void **) &tmp,  dimR); 
+
 	// field direction on first
-	double *BD1, *bd1;
-	double *BD2, *bd2;
-	BD1 = (double *)malloc(dimX);
-	BD2 = (double *)malloc(dimX);
-	cudaMalloc((void **) &bd1,  dimX); 
-	cudaMalloc((void **) &bd2,  dimX); 	
-	
+	double *BD1, *bd1;	cudaMalloc((void **) &bd1,  dimX); 	BD1 = (double *)malloc(dimX);
+	double *BD2, *bd2;	cudaMalloc((void **) &bd2,  dimX);	BD2 = (double *)malloc(dimX);
 
 	//! CUDA profiler START
 	cudaProfilerStart();
@@ -609,16 +595,6 @@ int main(int argc, char *argv[]){
 	cudaEventElapsedTime(&runtime, start, stop);
 	printf ("Time for the kernel: %f s\n", runtime/1000.0);
 
-/*	// ION COORDS (device2HOST)
-	cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
-	cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
-	cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
-
-	// ION SPEEDS (device2HOST)
-	cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
-	cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
-	cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);*/
-
 	//! MEMCOPY (device2HOST)
 	cudaMemcpy(TMP, tmp, dimR, cudaMemcpyDeviceToHost);
 	if(TMP[0]!=42.24){
@@ -636,9 +612,7 @@ int main(int argc, char *argv[]){
 	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
 	saveData1(VR,NX,folder_out,timestamp,"vrad.dat");
 	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
-	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");
-	
-	
+	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");	
 	
 	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
 	saveDataHT(concat("Run ID:  ",timestamp),folder_out,timestamp);
@@ -675,8 +649,7 @@ int main(int argc, char *argv[]){
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
-	saveDataH("Timestep","s",dt,folder_out,timestamp);
-	
+	saveDataH("Timestep","s",dt,folder_out,timestamp);	
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
