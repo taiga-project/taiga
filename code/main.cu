@@ -112,7 +112,8 @@ struct beam_prop{
 
 struct shot_prop{
     char* name = "11347";
-    int runnumber = 0;     
+    int runnumber = 0;  
+    int debug = 0;
 };
 
 inline void cErrorCheck(const char *file, int line) {
@@ -205,13 +206,14 @@ int main(int argc, char *argv[]){
 	if (argc > 7)	beam.detector_R = atof(argv[7]);
     
 	beam.mass = get_mass(beam.matter);
-	printf("shotname: %s\n",shot.name);
-	printf("diameter: %lf mm\n",beam.diameter);	  
+	printf("shotname: %s\n",shot.name);  
 		
 	int NX;
 	int max_blocks;
 	if (argc > 8)	max_blocks = atoi(argv[8])/N_BLOCKS+1;    
 		else	max_blocks=BLOCK_SIZE;	
+        
+    if (argc > 9) shot.debug = atof(argv[9]); 
 	
 	NX = N_BLOCKS * max_blocks;
 	
@@ -507,18 +509,19 @@ int main(int argc, char *argv[]){
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 
-	printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
-	printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-	printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
-	
-	printf("----------------------------------------------------------\n");
-	printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-	printf("----------------------------------------------------------\n");
-	for(int i=1; i<20; i++){
-		printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
-	}
-	printf("----------------------------------------------------------\n");
-	
+    if (shot.debug == 1){
+        printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
+        printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
+        printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
+        
+        printf("----------------------------------------------------------\n");
+        printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
+        printf("----------------------------------------------------------\n");
+        for(int i=1; i<20; i++){
+            printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
+        }
+        printf("----------------------------------------------------------\n");
+    }
 	// BANANA
 	if (BANANA==1){
 		printf("BANANA CTRL\n");
@@ -585,10 +588,11 @@ int main(int argc, char *argv[]){
 		addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
 		addData1(VZ,NX,folder_out,timestamp,"t_vtor.dat");
 		
-
-	printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-	printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
-	printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
+        if (shot.debug == 1){
+            printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
+            printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
+            printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
+        }
 	}	
 	
 	// Get CUDA timer 
