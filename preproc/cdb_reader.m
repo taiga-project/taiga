@@ -7,7 +7,7 @@ function cdb_reader(varargin)
     in.majorradius=0.56;  
     
     in.plot = false;
-    
+    in.renate = false;
     in.folder = '../input/cdb';
     out.folder.renate = '../input/renate110';
     out.folder.grid = '../input/fieldGrid/';
@@ -38,26 +38,27 @@ function cdb_reader(varargin)
     
     efit = readToroidalFlux(in, out, efit);
     efit = readPoloidalFlux(in, out, efit);
-    
+
     efit = makeMagneticGrid (in, out, efit);
     out = normaliseFlux(in, out, efit);
     
-    ts = readThomsonData(in, out, ts);
-        
-    out.efit.z      = linspace(min(ts.z),max(ts.z),200);
-    out.efit.r      = ones(size(out.efit.z))*in.majorradius;
-    
-    out = fitProfilesNT(ts, out);
-            
-    saveRenateFlux(in, out);    
-    saveRenateNT (in, out);
-    
     saveMagneticGrid (in, out, efit);    
     saveMagneticSpline (in, out, efit);
-
-    if in.plot
-        plotProfilesNT (in, out, ts);        
-        plotNormFlux (in, out, efit);
+    if in.renate
+        ts = readThomsonData(in, out, ts);
+    
+        out.efit.z      = linspace(min(ts.z),max(ts.z),200);
+        out.efit.r      = ones(size(out.efit.z))*in.majorradius;
+        
+        out = fitProfilesNT(ts, out);
+            
+        saveRenateFlux(in, out);    
+        saveRenateNT (in, out);
+    
+        if in.plot
+            plotProfilesNT (in, out, ts);        
+            plotNormFlux (in, out, efit);
+        end
     end
 
 end
@@ -149,7 +150,7 @@ function saveMagneticSpline (in, out, efit)
             end
         end
         disp(comp)
-        disp('Spline saved')
+        disp(['Spline saved to ',foldername])
     end
 end
 
