@@ -221,6 +221,7 @@ int main(int argc, char *argv[]){
         double *XR;
 		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
         max_blocks = NX / N_BLOCKS+1;
+        BLOCK_SIZE = NX;
 	}	
 		
 	char* folder_out=concat("results/", shot.name);
