@@ -114,6 +114,8 @@ struct shot_prop{
     char* name = "11347";
     int runnumber = 0;  
     int debug = 0;
+    int block_size = BLOCK_SIZE;
+    int block_number = N_BLOCKS;
 };
 
 inline void cErrorCheck(const char *file, int line) {
@@ -210,18 +212,18 @@ int main(int argc, char *argv[]){
 		
 	int NX;
 	int max_blocks;
-	if (argc > 8)	max_blocks = atoi(argv[8])/N_BLOCKS+1;    
-		else	max_blocks=BLOCK_SIZE;	
+	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_number+1;    
+		else	max_blocks=shot.block_size;	
         
     if (argc > 9) shot.debug = atof(argv[9]); 
 	
-	NX = N_BLOCKS * max_blocks;
+	NX = shot.block_number * max_blocks;
 	
 	if ($3DINPUTPROF == 1){
         double *XR;
 		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
-        max_blocks = NX / N_BLOCKS+1;
-        BLOCK_SIZE = NX;
+        max_blocks = NX / shot.block_number+1;
+        shot.block_size = NX;
 	}	
 		
 	char* folder_out=concat("results/", shot.name);
@@ -249,7 +251,7 @@ int main(int argc, char *argv[]){
 	
 	printf("=============================\n");
 	printf("Number of blocks (threads): %d\n", max_blocks);
-	printf("Block size: %d\n", BLOCK_SIZE);
+	printf("Block size: %d\n", shot.block_size);
 	printf("Number of parts: %d\n", NX);
 	printf("length of a loop: %d\n", Nstep);
 	printf("Number of loops: %d\n", Nloop);
@@ -537,7 +539,7 @@ int main(int argc, char *argv[]){
 		cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
 		cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
 				
-		banCtrl <<< max_blocks, BLOCK_SIZE >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,bd1,bd2);
+		banCtrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,bd1,bd2);
 		cudaMemcpy(BD1, bd1, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(BD2, bd2, dimX, cudaMemcpyDeviceToHost);
 		addData1(BD1,NX,folder_out,timestamp,"d_b1.dat");
@@ -565,7 +567,7 @@ int main(int argc, char *argv[]){
 		// CUDA CODE, timer and Error catch	
 		//ERRORCHECK();
 		cudaEventRecord(start, 0);
-		ctrl <<< max_blocks, BLOCK_SIZE >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
+		ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
 		ERRORCHECK();
@@ -661,7 +663,7 @@ int main(int argc, char *argv[]){
 	saveDataH("Kernel runtime", "s", runtime/1000.0,folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	saveDataH("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
-	saveDataH("Block size", "", BLOCK_SIZE,folder_out,timestamp);
+	saveDataH("Block size", "", shot.block_size,folder_out,timestamp);
 	saveDataH("Length of a loop", "", Nstep,folder_out,timestamp);
 	saveDataH("Number of loops", "", Nloop,folder_out,timestamp);		
 
