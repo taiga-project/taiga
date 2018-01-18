@@ -193,6 +193,158 @@ double get_mass(char *s){
 
 }
 
+
+void spline_read_and_init(double **return_br_ptr, double **return_bz_ptr, double **return_bt_ptr){
+    
+    string spline_folder = "input/fieldSpl";
+    
+	double *BR0,  *br0;  vectorReader(&BR0, "input/fieldSpl", shot.name, "brad.spl11");	cudaMalloc((void **) &br0,  dimRZ); 
+	double *BR1,  *br1;  vectorReader(&BR1, "input/fieldSpl", shot.name, "brad.spl12");	cudaMalloc((void **) &br1,  dimRZ);
+	double *BR2,  *br2;  vectorReader(&BR2, "input/fieldSpl", shot.name, "brad.spl13");	cudaMalloc((void **) &br2,  dimRZ);
+	double *BR3,  *br3;  vectorReader(&BR3, "input/fieldSpl", shot.name, "brad.spl14");	cudaMalloc((void **) &br3,  dimRZ); 
+	double *BR4,  *br4;  vectorReader(&BR4, "input/fieldSpl", shot.name, "brad.spl21");	cudaMalloc((void **) &br4,  dimRZ); 
+	double *BR5,  *br5;  vectorReader(&BR5, "input/fieldSpl", shot.name, "brad.spl22");	cudaMalloc((void **) &br5,  dimRZ); 
+	double *BR6,  *br6;  vectorReader(&BR6, "input/fieldSpl", shot.name, "brad.spl23");	cudaMalloc((void **) &br6,  dimRZ); 
+	double *BR7,  *br7;  vectorReader(&BR7, "input/fieldSpl", shot.name, "brad.spl24");	cudaMalloc((void **) &br7,  dimRZ);
+	double *BR8,  *br8;  vectorReader(&BR8, "input/fieldSpl", shot.name, "brad.spl31");	cudaMalloc((void **) &br8,  dimRZ); 
+	double *BR9,  *br9;  vectorReader(&BR9, "input/fieldSpl", shot.name, "brad.spl32");	cudaMalloc((void **) &br9,  dimRZ); 
+	double *BR10, *br10; vectorReader(&BR10,"input/fieldSpl", shot.name, "brad.spl33");	cudaMalloc((void **) &br10,  dimRZ);
+	double *BR11, *br11; vectorReader(&BR11,"input/fieldSpl", shot.name, "brad.spl34");	cudaMalloc((void **) &br11,  dimRZ); 
+	double *BR12, *br12; vectorReader(&BR12,"input/fieldSpl", shot.name, "brad.spl41");	cudaMalloc((void **) &br12,  dimRZ);
+	double *BR13, *br13; vectorReader(&BR13,"input/fieldSpl", shot.name, "brad.spl42");	cudaMalloc((void **) &br13,  dimRZ); 
+	double *BR14, *br14; vectorReader(&BR14,"input/fieldSpl", shot.name, "brad.spl43");	cudaMalloc((void **) &br14,  dimRZ); 
+	double *BR15, *br15; vectorReader(&BR15,"input/fieldSpl", shot.name, "brad.spl44");	cudaMalloc((void **) &br15,  dimRZ);
+
+	//!tor
+	double *BT0,  *bt0;  vectorReader(&BT0, "input/fieldSpl", shot.name, "btor.spl11");	cudaMalloc((void **) &bt0,  dimRZ); 
+	double *BT1,  *bt1;  vectorReader(&BT1, "input/fieldSpl", shot.name, "btor.spl12");	cudaMalloc((void **) &bt1,  dimRZ); 
+	double *BT2,  *bt2;  vectorReader(&BT2, "input/fieldSpl", shot.name, "btor.spl13");	cudaMalloc((void **) &bt2,  dimRZ); 
+	double *BT3,  *bt3;  vectorReader(&BT3, "input/fieldSpl", shot.name, "btor.spl14");	cudaMalloc((void **) &bt3,  dimRZ); 
+	double *BT4,  *bt4;  vectorReader(&BT4, "input/fieldSpl", shot.name, "btor.spl21");	cudaMalloc((void **) &bt4,  dimRZ); 
+	double *BT5,  *bt5;  vectorReader(&BT5, "input/fieldSpl", shot.name, "btor.spl22");	cudaMalloc((void **) &bt5,  dimRZ); 
+	double *BT6,  *bt6;  vectorReader(&BT6, "input/fieldSpl", shot.name, "btor.spl23");	cudaMalloc((void **) &bt6,  dimRZ); 
+	double *BT7,  *bt7;  vectorReader(&BT7, "input/fieldSpl", shot.name, "btor.spl24");	cudaMalloc((void **) &bt7,  dimRZ);
+	double *BT8,  *bt8;  vectorReader(&BT8, "input/fieldSpl", shot.name, "btor.spl31");	cudaMalloc((void **) &bt8,  dimRZ); 
+	double *BT9,  *bt9;  vectorReader(&BT9, "input/fieldSpl", shot.name, "btor.spl32");	cudaMalloc((void **) &bt9,  dimRZ); 
+	double *BT10, *bt10; vectorReader(&BT10,"input/fieldSpl", shot.name, "btor.spl33");	cudaMalloc((void **) &bt10,  dimRZ); 
+	double *BT11, *bt11; vectorReader(&BT11,"input/fieldSpl", shot.name, "btor.spl34");	cudaMalloc((void **) &bt11,  dimRZ); 
+	double *BT12, *bt12; vectorReader(&BT12,"input/fieldSpl", shot.name, "btor.spl41");	cudaMalloc((void **) &bt12,  dimRZ); 
+	double *BT13, *bt13; vectorReader(&BT13,"input/fieldSpl", shot.name, "btor.spl42");	cudaMalloc((void **) &bt13,  dimRZ);
+	double *BT14, *bt14; vectorReader(&BT14,"input/fieldSpl", shot.name, "btor.spl43");	cudaMalloc((void **) &bt14,  dimRZ); 
+	double *BT15, *bt15; vectorReader(&BT15,"input/fieldSpl", shot.name, "btor.spl44");	cudaMalloc((void **) &bt15,  dimRZ);
+	
+	//!z
+	double *BZ0,  *bz0;  vectorReader(&BZ0, "input/fieldSpl", shot.name, "bz.spl11");	cudaMalloc((void **) &bz0,  dimRZ); 
+	double *BZ1,  *bz1;  vectorReader(&BZ1, "input/fieldSpl", shot.name, "bz.spl12");	cudaMalloc((void **) &bz1,  dimRZ); 
+	double *BZ2,  *bz2;  vectorReader(&BZ2, "input/fieldSpl", shot.name, "bz.spl13");	cudaMalloc((void **) &bz2,  dimRZ); 
+	double *BZ3,  *bz3;  vectorReader(&BZ3, "input/fieldSpl", shot.name, "bz.spl14");	cudaMalloc((void **) &bz3,  dimRZ); 
+	double *BZ4,  *bz4;  vectorReader(&BZ4, "input/fieldSpl", shot.name, "bz.spl21");	cudaMalloc((void **) &bz4,  dimRZ);
+	double *BZ5,  *bz5;  vectorReader(&BZ5, "input/fieldSpl", shot.name, "bz.spl22");	cudaMalloc((void **) &bz5,  dimRZ); 
+	double *BZ6,  *bz6;  vectorReader(&BZ6, "input/fieldSpl", shot.name, "bz.spl23");	cudaMalloc((void **) &bz6,  dimRZ);
+	double *BZ7,  *bz7;  vectorReader(&BZ7, "input/fieldSpl", shot.name, "bz.spl24");	cudaMalloc((void **) &bz7,  dimRZ);
+	double *BZ8,  *bz8;  vectorReader(&BZ8, "input/fieldSpl", shot.name, "bz.spl31");	cudaMalloc((void **) &bz8,  dimRZ); 
+	double *BZ9,  *bz9;  vectorReader(&BZ9, "input/fieldSpl", shot.name, "bz.spl32");	cudaMalloc((void **) &bz9,  dimRZ); 
+	double *BZ10, *bz10; vectorReader(&BZ10,"input/fieldSpl", shot.name, "bz.spl33");	cudaMalloc((void **) &bz10,  dimRZ); 
+	double *BZ11, *bz11; vectorReader(&BZ11,"input/fieldSpl", shot.name, "bz.spl34");	cudaMalloc((void **) &bz11,  dimRZ); 
+	double *BZ12, *bz12; vectorReader(&BZ12,"input/fieldSpl", shot.name, "bz.spl41");	cudaMalloc((void **) &bz12,  dimRZ);
+	double *BZ13, *bz13; vectorReader(&BZ13,"input/fieldSpl", shot.name, "bz.spl42");	cudaMalloc((void **) &bz13,  dimRZ); 
+	double *BZ14, *bz14; vectorReader(&BZ14,"input/fieldSpl", shot.name, "bz.spl43");	cudaMalloc((void **) &bz14,  dimRZ);
+	double *BZ15, *bz15; vectorReader(&BZ15,"input/fieldSpl", shot.name, "bz.spl44");	cudaMalloc((void **) &bz15,  dimRZ);
+    
+    
+	// magnetic field pointer array
+	// magnetic field (HOST, device)
+	size_t dimB = 16*sizeof(double*);		
+	double *BR_PTR[16];	double **br_ptr;	cudaMalloc((void **) &br_ptr,  dimB); 
+	double *BT_PTR[16];	double **bt_ptr;	cudaMalloc((void **) &bt_ptr,  dimB); 
+	double *BZ_PTR[16];	double **bz_ptr;	cudaMalloc((void **) &bz_ptr,  dimB); 
+	
+	//! MAGN. FIELD POINTERS
+	
+	//!rad	
+	BR_PTR[0] = br0;	BR_PTR[1] = br1;	BR_PTR[2] = br2;	BR_PTR[3] = br3;
+	BR_PTR[4] = br4;	BR_PTR[5] = br5;	BR_PTR[6] = br6;	BR_PTR[7] = br7;
+	BR_PTR[8] = br8;	BR_PTR[9] = br9;	BR_PTR[10] = br10;	BR_PTR[11] = br11;
+	BR_PTR[12] = br12;	BR_PTR[13] = br13;	BR_PTR[14] = br14;	BR_PTR[15] = br15;
+	
+	//!tor
+	BT_PTR[0] = bt0;	BT_PTR[1] = bt1;	BT_PTR[2] = bt2;	BT_PTR[3] = bt3;
+	BT_PTR[4] = bt4;	BT_PTR[5] = bt5;	BT_PTR[6] = bt6;	BT_PTR[7] = bt7;
+	BT_PTR[8] = bt8;	BT_PTR[9] = bt9;	BT_PTR[10] = bt10;	BT_PTR[11] = bt11;
+	BT_PTR[12] = bt12;	BT_PTR[13] = bt13;	BT_PTR[14] = bt14;	BT_PTR[15] = bt15;
+	
+	//!z
+	BZ_PTR[0] = bz0;	BZ_PTR[1] = bz1;	BZ_PTR[2] = bz2;	BZ_PTR[3] = bz3;
+	BZ_PTR[4] = bz4;	BZ_PTR[5] = bz5;	BZ_PTR[6] = bz6;	BZ_PTR[7] = bz7;
+	BZ_PTR[8] = bz8;	BZ_PTR[9] = bz9;	BZ_PTR[10] = bz10;	BZ_PTR[11] = bz11;
+	BZ_PTR[12] = bz12;	BZ_PTR[13] = bz13;	BZ_PTR[14] = bz14;	BZ_PTR[15] = bz15;
+    
+    
+	//! MAGNETIC FIELD
+	
+	//!rad	
+	cudaMemcpy(br0, BR0, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br1, BR1, dimRZ, cudaMemcpyHostToDevice);	
+	cudaMemcpy(br2, BR2, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br3, BR3, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br4, BR4, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br5, BR5, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br6, BR6, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br7, BR7, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br8, BR8, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br9, BR9, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br10, BR10, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br11, BR11, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br12, BR12, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br13, BR13, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br14, BR14, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(br15, BR15, dimRZ, cudaMemcpyHostToDevice);			
+	cudaMemcpy(br_ptr, BR_PTR, dimB, cudaMemcpyHostToDevice);
+	
+	//!tor
+	cudaMemcpy(bt0, BT0, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt1, BT1, dimRZ, cudaMemcpyHostToDevice);	
+	cudaMemcpy(bt2, BT2, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt3, BT3, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt4, BT4, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt5, BT5, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt6, BT6, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt7, BT7, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt8, BT8, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt9, BT9, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt10, BT10, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt11, BT11, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt12, BT12, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt13, BT13, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt14, BT14, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bt15, BT15, dimRZ, cudaMemcpyHostToDevice);			
+	cudaMemcpy(bt_ptr, BT_PTR, dimB, cudaMemcpyHostToDevice);
+	
+	//!z
+	cudaMemcpy(bz0, BZ0, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz1, BZ1, dimRZ, cudaMemcpyHostToDevice);	
+	cudaMemcpy(bz2, BZ2, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz3, BZ3, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz4, BZ4, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz5, BZ5, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz6, BZ6, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz7, BZ7, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz8, BZ8, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz9, BZ9, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz10, BZ10, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz11, BZ11, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz12, BZ12, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz13, BZ13, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz14, BZ14, dimRZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(bz15, BZ15, dimRZ, cudaMemcpyHostToDevice);			
+	cudaMemcpy(bz_ptr, BZ_PTR, dimB, cudaMemcpyHostToDevice);
+    
+   *return_br_ptr = br_ptr;
+   *return_bz_ptr = bz_ptr;
+   *return_bt_ptr = bt_ptr;
+}
+
+
 int main(int argc, char *argv[]){
     //! @param shotname name of shot folder input folder (8714,11344,11347)	
     
@@ -333,87 +485,13 @@ int main(int argc, char *argv[]){
 
 	//! MAGN. FIELD (HOST, device) ALLOCATION          
     
-	//!rad
-	double *BR0,  *br0;  vectorReader(&BR0, "input/fieldSpl", shot.name, "brad.spl11");	cudaMalloc((void **) &br0,  dimRZ); 
-	double *BR1,  *br1;  vectorReader(&BR1, "input/fieldSpl", shot.name, "brad.spl12");	cudaMalloc((void **) &br1,  dimRZ);
-	double *BR2,  *br2;  vectorReader(&BR2, "input/fieldSpl", shot.name, "brad.spl13");	cudaMalloc((void **) &br2,  dimRZ);
-	double *BR3,  *br3;  vectorReader(&BR3, "input/fieldSpl", shot.name, "brad.spl14");	cudaMalloc((void **) &br3,  dimRZ); 
-	double *BR4,  *br4;  vectorReader(&BR4, "input/fieldSpl", shot.name, "brad.spl21");	cudaMalloc((void **) &br4,  dimRZ); 
-	double *BR5,  *br5;  vectorReader(&BR5, "input/fieldSpl", shot.name, "brad.spl22");	cudaMalloc((void **) &br5,  dimRZ); 
-	double *BR6,  *br6;  vectorReader(&BR6, "input/fieldSpl", shot.name, "brad.spl23");	cudaMalloc((void **) &br6,  dimRZ); 
-	double *BR7,  *br7;  vectorReader(&BR7, "input/fieldSpl", shot.name, "brad.spl24");	cudaMalloc((void **) &br7,  dimRZ);
-	double *BR8,  *br8;  vectorReader(&BR8, "input/fieldSpl", shot.name, "brad.spl31");	cudaMalloc((void **) &br8,  dimRZ); 
-	double *BR9,  *br9;  vectorReader(&BR9, "input/fieldSpl", shot.name, "brad.spl32");	cudaMalloc((void **) &br9,  dimRZ); 
-	double *BR10, *br10; vectorReader(&BR10,"input/fieldSpl", shot.name, "brad.spl33");	cudaMalloc((void **) &br10,  dimRZ);
-	double *BR11, *br11; vectorReader(&BR11,"input/fieldSpl", shot.name, "brad.spl34");	cudaMalloc((void **) &br11,  dimRZ); 
-	double *BR12, *br12; vectorReader(&BR12,"input/fieldSpl", shot.name, "brad.spl41");	cudaMalloc((void **) &br12,  dimRZ);
-	double *BR13, *br13; vectorReader(&BR13,"input/fieldSpl", shot.name, "brad.spl42");	cudaMalloc((void **) &br13,  dimRZ); 
-	double *BR14, *br14; vectorReader(&BR14,"input/fieldSpl", shot.name, "brad.spl43");	cudaMalloc((void **) &br14,  dimRZ); 
-	double *BR15, *br15; vectorReader(&BR15,"input/fieldSpl", shot.name, "brad.spl44");	cudaMalloc((void **) &br15,  dimRZ);
-
-	//!tor
-	double *BT0,  *bt0;  vectorReader(&BT0, "input/fieldSpl", shot.name, "btor.spl11");	cudaMalloc((void **) &bt0,  dimRZ); 
-	double *BT1,  *bt1;  vectorReader(&BT1, "input/fieldSpl", shot.name, "btor.spl12");	cudaMalloc((void **) &bt1,  dimRZ); 
-	double *BT2,  *bt2;  vectorReader(&BT2, "input/fieldSpl", shot.name, "btor.spl13");	cudaMalloc((void **) &bt2,  dimRZ); 
-	double *BT3,  *bt3;  vectorReader(&BT3, "input/fieldSpl", shot.name, "btor.spl14");	cudaMalloc((void **) &bt3,  dimRZ); 
-	double *BT4,  *bt4;  vectorReader(&BT4, "input/fieldSpl", shot.name, "btor.spl21");	cudaMalloc((void **) &bt4,  dimRZ); 
-	double *BT5,  *bt5;  vectorReader(&BT5, "input/fieldSpl", shot.name, "btor.spl22");	cudaMalloc((void **) &bt5,  dimRZ); 
-	double *BT6,  *bt6;  vectorReader(&BT6, "input/fieldSpl", shot.name, "btor.spl23");	cudaMalloc((void **) &bt6,  dimRZ); 
-	double *BT7,  *bt7;  vectorReader(&BT7, "input/fieldSpl", shot.name, "btor.spl24");	cudaMalloc((void **) &bt7,  dimRZ);
-	double *BT8,  *bt8;  vectorReader(&BT8, "input/fieldSpl", shot.name, "btor.spl31");	cudaMalloc((void **) &bt8,  dimRZ); 
-	double *BT9,  *bt9;  vectorReader(&BT9, "input/fieldSpl", shot.name, "btor.spl32");	cudaMalloc((void **) &bt9,  dimRZ); 
-	double *BT10, *bt10; vectorReader(&BT10,"input/fieldSpl", shot.name, "btor.spl33");	cudaMalloc((void **) &bt10,  dimRZ); 
-	double *BT11, *bt11; vectorReader(&BT11,"input/fieldSpl", shot.name, "btor.spl34");	cudaMalloc((void **) &bt11,  dimRZ); 
-	double *BT12, *bt12; vectorReader(&BT12,"input/fieldSpl", shot.name, "btor.spl41");	cudaMalloc((void **) &bt12,  dimRZ); 
-	double *BT13, *bt13; vectorReader(&BT13,"input/fieldSpl", shot.name, "btor.spl42");	cudaMalloc((void **) &bt13,  dimRZ);
-	double *BT14, *bt14; vectorReader(&BT14,"input/fieldSpl", shot.name, "btor.spl43");	cudaMalloc((void **) &bt14,  dimRZ); 
-	double *BT15, *bt15; vectorReader(&BT15,"input/fieldSpl", shot.name, "btor.spl44");	cudaMalloc((void **) &bt15,  dimRZ);
-	
-	//!z
-	double *BZ0,  *bz0;  vectorReader(&BZ0, "input/fieldSpl", shot.name, "bz.spl11");	cudaMalloc((void **) &bz0,  dimRZ); 
-	double *BZ1,  *bz1;  vectorReader(&BZ1, "input/fieldSpl", shot.name, "bz.spl12");	cudaMalloc((void **) &bz1,  dimRZ); 
-	double *BZ2,  *bz2;  vectorReader(&BZ2, "input/fieldSpl", shot.name, "bz.spl13");	cudaMalloc((void **) &bz2,  dimRZ); 
-	double *BZ3,  *bz3;  vectorReader(&BZ3, "input/fieldSpl", shot.name, "bz.spl14");	cudaMalloc((void **) &bz3,  dimRZ); 
-	double *BZ4,  *bz4;  vectorReader(&BZ4, "input/fieldSpl", shot.name, "bz.spl21");	cudaMalloc((void **) &bz4,  dimRZ);
-	double *BZ5,  *bz5;  vectorReader(&BZ5, "input/fieldSpl", shot.name, "bz.spl22");	cudaMalloc((void **) &bz5,  dimRZ); 
-	double *BZ6,  *bz6;  vectorReader(&BZ6, "input/fieldSpl", shot.name, "bz.spl23");	cudaMalloc((void **) &bz6,  dimRZ);
-	double *BZ7,  *bz7;  vectorReader(&BZ7, "input/fieldSpl", shot.name, "bz.spl24");	cudaMalloc((void **) &bz7,  dimRZ);
-	double *BZ8,  *bz8;  vectorReader(&BZ8, "input/fieldSpl", shot.name, "bz.spl31");	cudaMalloc((void **) &bz8,  dimRZ); 
-	double *BZ9,  *bz9;  vectorReader(&BZ9, "input/fieldSpl", shot.name, "bz.spl32");	cudaMalloc((void **) &bz9,  dimRZ); 
-	double *BZ10, *bz10; vectorReader(&BZ10,"input/fieldSpl", shot.name, "bz.spl33");	cudaMalloc((void **) &bz10,  dimRZ); 
-	double *BZ11, *bz11; vectorReader(&BZ11,"input/fieldSpl", shot.name, "bz.spl34");	cudaMalloc((void **) &bz11,  dimRZ); 
-	double *BZ12, *bz12; vectorReader(&BZ12,"input/fieldSpl", shot.name, "bz.spl41");	cudaMalloc((void **) &bz12,  dimRZ);
-	double *BZ13, *bz13; vectorReader(&BZ13,"input/fieldSpl", shot.name, "bz.spl42");	cudaMalloc((void **) &bz13,  dimRZ); 
-	double *BZ14, *bz14; vectorReader(&BZ14,"input/fieldSpl", shot.name, "bz.spl43");	cudaMalloc((void **) &bz14,  dimRZ);
-	double *BZ15, *bz15; vectorReader(&BZ15,"input/fieldSpl", shot.name, "bz.spl44");	cudaMalloc((void **) &bz15,  dimRZ);
+    double **br_ptr;
+    double **bz_ptr;
+    double **bt_ptr;
+    
+	spline_read_and_init(&br_ptr,&bz_ptr,&bt_ptr);
 	
 
-	// magnetic field pointer array
-	// magnetic field (HOST, device)
-	size_t dimB = 16*sizeof(double*);		
-	double *BR_PTR[16];	double **br_ptr;	cudaMalloc((void **) &br_ptr,  dimB); 
-	double *BT_PTR[16];	double **bt_ptr;	cudaMalloc((void **) &bt_ptr,  dimB); 
-	double *BZ_PTR[16];	double **bz_ptr;	cudaMalloc((void **) &bz_ptr,  dimB); 
-	
-	//! MAGN. FIELD POINTERS
-	
-	//!rad	
-	BR_PTR[0] = br0;	BR_PTR[1] = br1;	BR_PTR[2] = br2;	BR_PTR[3] = br3;
-	BR_PTR[4] = br4;	BR_PTR[5] = br5;	BR_PTR[6] = br6;	BR_PTR[7] = br7;
-	BR_PTR[8] = br8;	BR_PTR[9] = br9;	BR_PTR[10] = br10;	BR_PTR[11] = br11;
-	BR_PTR[12] = br12;	BR_PTR[13] = br13;	BR_PTR[14] = br14;	BR_PTR[15] = br15;
-	
-	//!tor
-	BT_PTR[0] = bt0;	BT_PTR[1] = bt1;	BT_PTR[2] = bt2;	BT_PTR[3] = bt3;
-	BT_PTR[4] = bt4;	BT_PTR[5] = bt5;	BT_PTR[6] = bt6;	BT_PTR[7] = bt7;
-	BT_PTR[8] = bt8;	BT_PTR[9] = bt9;	BT_PTR[10] = bt10;	BT_PTR[11] = bt11;
-	BT_PTR[12] = bt12;	BT_PTR[13] = bt13;	BT_PTR[14] = bt14;	BT_PTR[15] = bt15;
-	
-	//!z
-	BZ_PTR[0] = bz0;	BZ_PTR[1] = bz1;	BZ_PTR[2] = bz2;	BZ_PTR[3] = bz3;
-	BZ_PTR[4] = bz4;	BZ_PTR[5] = bz5;	BZ_PTR[6] = bz6;	BZ_PTR[7] = bz7;
-	BZ_PTR[8] = bz8;	BZ_PTR[9] = bz9;	BZ_PTR[10] = bz10;	BZ_PTR[11] = bz11;
-	BZ_PTR[12] = bz12;	BZ_PTR[13] = bz13;	BZ_PTR[14] = bz14;	BZ_PTR[15] = bz15;
 	
 	// temporary test data
 	double *TMP, *tmp;
@@ -433,64 +511,7 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(zg, ZG, dimZ, cudaMemcpyHostToDevice);
 	cudaMemcpy(g_ptr, G_PTR, dimG, cudaMemcpyHostToDevice);
 	
-	//! MAGNETIC FIELD
-	
-	//!rad	
-	cudaMemcpy(br0, BR0, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br1, BR1, dimRZ, cudaMemcpyHostToDevice);	
-	cudaMemcpy(br2, BR2, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br3, BR3, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br4, BR4, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br5, BR5, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br6, BR6, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br7, BR7, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br8, BR8, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br9, BR9, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br10, BR10, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br11, BR11, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br12, BR12, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br13, BR13, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br14, BR14, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(br15, BR15, dimRZ, cudaMemcpyHostToDevice);			
-	cudaMemcpy(br_ptr, BR_PTR, dimB, cudaMemcpyHostToDevice);
-	
-	//!tor
-	cudaMemcpy(bt0, BT0, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt1, BT1, dimRZ, cudaMemcpyHostToDevice);	
-	cudaMemcpy(bt2, BT2, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt3, BT3, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt4, BT4, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt5, BT5, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt6, BT6, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt7, BT7, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt8, BT8, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt9, BT9, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt10, BT10, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt11, BT11, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt12, BT12, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt13, BT13, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt14, BT14, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bt15, BT15, dimRZ, cudaMemcpyHostToDevice);			
-	cudaMemcpy(bt_ptr, BT_PTR, dimB, cudaMemcpyHostToDevice);
-	
-	//!z
-	cudaMemcpy(bz0, BZ0, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz1, BZ1, dimRZ, cudaMemcpyHostToDevice);	
-	cudaMemcpy(bz2, BZ2, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz3, BZ3, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz4, BZ4, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz5, BZ5, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz6, BZ6, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz7, BZ7, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz8, BZ8, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz9, BZ9, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz10, BZ10, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz11, BZ11, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz12, BZ12, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz13, BZ13, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz14, BZ14, dimRZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(bz15, BZ15, dimRZ, cudaMemcpyHostToDevice);			
-	cudaMemcpy(bz_ptr, BZ_PTR, dimB, cudaMemcpyHostToDevice);
+
 
 	//! ION COORDS (HOST2device)
 	cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
