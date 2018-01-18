@@ -196,7 +196,7 @@ double get_mass(char *s){
 
 void spline_read_and_init(shot_prop shot, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){
     
-    string spline_folder = "input/fieldSpl";
+	char* spline_folder = "input/fieldSpl";
     
 	double *BR0,  *br0;  vectorReader(&BR0, "input/fieldSpl", shot.name, "brad.spl11");	cudaMalloc((void **) &br0,  dimRZ); 
 	double *BR1,  *br1;  vectorReader(&BR1, "input/fieldSpl", shot.name, "brad.spl12");	cudaMalloc((void **) &br1,  dimRZ);
