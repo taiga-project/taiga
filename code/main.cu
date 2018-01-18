@@ -251,6 +251,9 @@ void spline_read_and_init(shot_prop shot, double ***return_br_ptr, double ***ret
 	double *BZ14, *bz14; vectorReader(&BZ14,"input/fieldSpl", shot.name, "bz.spl43");	cudaMalloc((void **) &bz14,  dimRZ);
 	double *BZ15, *bz15; vectorReader(&BZ15,"input/fieldSpl", shot.name, "bz.spl44");	cudaMalloc((void **) &bz15,  dimRZ);
     
+    for (int i=1;i<5;i++){
+            printf("BZ0 %d:\t %lf \n",i,BZ0[i]);
+    }
     
 	// magnetic field pointer array
 	// magnetic field (HOST, device)
