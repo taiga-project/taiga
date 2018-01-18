@@ -194,7 +194,7 @@ double get_mass(char *s){
 }
 
 
-void spline_read_and_init(double **return_br_ptr, double **return_bz_ptr, double **return_bt_ptr){
+void spline_read_and_init(shot_prop shot, double **return_br_ptr, double **return_bz_ptr, double **return_bt_ptr, int dimRZ){
     
     string spline_folder = "input/fieldSpl";
     
@@ -342,6 +342,21 @@ void spline_read_and_init(double **return_br_ptr, double **return_bz_ptr, double
    *return_br_ptr = br_ptr;
    *return_bz_ptr = bz_ptr;
    *return_bt_ptr = bt_ptr;
+   
+	free(BR0);	free(BR1);	free(BR2);	free(BR3);
+	free(BR4);	free(BR5);	free(BR6);	free(BR7);	
+	free(BR8);	free(BR9);	free(BR10);	free(BR11);	
+	free(BR12);	free(BR13);	free(BR14);	free(BR15);
+		
+	free(BZ0);	free(BZ1);	free(BZ2);	free(BZ3);	
+	free(BZ4);	free(BZ5);	free(BZ6);	free(BZ7);	
+	free(BZ8);	free(BZ9);	free(BZ10);	free(BZ11);	
+	free(BZ12);	free(BZ13);	free(BZ14);	free(BZ15);
+	
+	free(BT0);	free(BT1);	free(BT2);	free(BT3);
+	free(BT4);	free(BT5);	free(BT6);	free(BT7);
+	free(BT8);	free(BT9);	free(BT10);	free(BT11);
+	free(BT12);	free(BT13);	free(BT14);	free(BT15);
 }
 
 
@@ -489,7 +504,7 @@ int main(int argc, char *argv[]){
     double **bz_ptr;
     double **bt_ptr;
     
-	spline_read_and_init(&br_ptr,&bz_ptr,&bt_ptr);
+	spline_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
 	
 
 	
@@ -695,6 +710,7 @@ int main(int argc, char *argv[]){
 	cudaFree(g_ptr);	cudaFree(rg);	cudaFree(zg);		
 	cudaFree(br_ptr);	cudaFree(bz_ptr);	cudaFree(bt_ptr);	
 	
+    /*
 	cudaFree(br0);	cudaFree(br1);	cudaFree(br2);	cudaFree(br3);	
 	cudaFree(br4);	cudaFree(br5);	cudaFree(br6);	cudaFree(br7);	
 	cudaFree(br8);	cudaFree(br9);	cudaFree(br10);	cudaFree(br11);	
@@ -708,7 +724,7 @@ int main(int argc, char *argv[]){
 	cudaFree(bt0);	cudaFree(bt1);	cudaFree(bt2);	cudaFree(bt3);	
 	cudaFree(bt4);	cudaFree(bt5);	cudaFree(bt6);	cudaFree(bt7);	
 	cudaFree(bt8);	cudaFree(bt9);	cudaFree(bt10);	cudaFree(bt11);	
-	cudaFree(bt12);	cudaFree(bt13);	cudaFree(bt14);	cudaFree(bt15);	
+	cudaFree(bt12);	cudaFree(bt13);	cudaFree(bt14);	cudaFree(bt15);	*/
 
 	//! Free RAM
 	free(RG);	free(ZG);	
@@ -716,7 +732,7 @@ int main(int argc, char *argv[]){
 	//	free(G_PTR);
 	//	free(BR_PTR);	free(BZ_PTR);	free(BT_PTR);	
 	
-	free(BR0);	free(BR1);	free(BR2);	free(BR3);
+	/*free(BR0);	free(BR1);	free(BR2);	free(BR3);
 	free(BR4);	free(BR5);	free(BR6);	free(BR7);	
 	free(BR8);	free(BR9);	free(BR10);	free(BR11);	
 	free(BR12);	free(BR13);	free(BR14);	free(BR15);
@@ -729,7 +745,7 @@ int main(int argc, char *argv[]){
 	free(BT0);	free(BT1);	free(BT2);	free(BT3);
 	free(BT4);	free(BT5);	free(BT6);	free(BT7);
 	free(BT8);	free(BT9);	free(BT10);	free(BT11);
-	free(BT12);	free(BT13);	free(BT14);	free(BT15);		
+	free(BT12);	free(BT13);	free(BT14);	free(BT15);		*/
 	
 	//! FREE TMP variables (RAM, cuda)
 	free(TMP);	cudaFree(tmp);
