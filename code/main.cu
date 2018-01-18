@@ -194,7 +194,7 @@ double get_mass(char *s){
 }
 
 
-void spline_read_and_init(shot_prop shot, double **return_br_ptr, double **return_bz_ptr, double **return_bt_ptr, int dimRZ){
+void spline_read_and_init(shot_prop shot, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){
     
     string spline_folder = "input/fieldSpl";
     
