@@ -194,7 +194,7 @@ double get_mass(char *s){
 }
 
 
-void spline_read_and_init(shot_prop shot, char* field_name double ***return_s_ptr, int dimRZ){
+void spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_ptr, int dimRZ){
 
 	double *S0,  *s0;  vectorReader(&S0, "input/fieldSpl", shot.name, concat(field_name ,".spl11"));	cudaMalloc((void **) &s0,  dimRZ); 
 	double *S1,  *s1;  vectorReader(&S1, "input/fieldSpl", shot.name, concat(field_name ,".spl12"));	cudaMalloc((void **) &s1,  dimRZ);
