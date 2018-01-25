@@ -196,6 +196,8 @@ double get_mass(char *s){
 
 void spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_ptr, int dimRZ){
 
+	char* spline_folder = "input/fieldSpl";
+    
 	double *S0,  *s0;  vectorReader(&S0, "input/fieldSpl", shot.name, concat(field_name ,".spl11"));	cudaMalloc((void **) &s0,  dimRZ); 
 	double *S1,  *s1;  vectorReader(&S1, "input/fieldSpl", shot.name, concat(field_name ,".spl12"));	cudaMalloc((void **) &s1,  dimRZ);
 	double *S2,  *s2;  vectorReader(&S2, "input/fieldSpl", shot.name, concat(field_name ,".spl13"));	cudaMalloc((void **) &s2,  dimRZ);
@@ -220,10 +222,8 @@ void spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_p
 	S_PTR[0]  = s0; 	S_PTR[1]  = s1 ;	S_PTR[2]  = s2; 	S_PTR[3]  = s3;
 	S_PTR[4]  = s4; 	S_PTR[5]  = s5; 	S_PTR[6]  = s6; 	S_PTR[7]  = s7;
 	S_PTR[8]  = s8; 	S_PTR[9]  = s9; 	S_PTR[10] = s10;	S_PTR[11] = s11;
-	S_PTR[12] = s12;	S_PTR[13] = s13;	S_PTR[14] = s14;	S_PTR[15] = s15;
-    
-    
-    
+	S_PTR[12] = s12;	S_PTR[13] = s13;	S_PTR[14] = s14;	S_PTR[15] = s15; 
+
 	cudaMemcpy(s0, S0, dimRZ, cudaMemcpyHostToDevice);
 	cudaMemcpy(s1, S1, dimRZ, cudaMemcpyHostToDevice);	
 	cudaMemcpy(s2, S2, dimRZ, cudaMemcpyHostToDevice);
@@ -252,7 +252,27 @@ void spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_p
 }
 
 
-void magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){
+
+void magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){    
+    
+	size_t dimB = 16*sizeof(double*);	
+	double *BR_PTR[16];	double **br_ptr;	cudaMalloc((void **) &br_ptr,  dimB); 
+	double *BT_PTR[16];	double **bt_ptr;	cudaMalloc((void **) &bt_ptr,  dimB); 
+	double *BZ_PTR[16];	double **bz_ptr;	cudaMalloc((void **) &bz_ptr,  dimB);     
+    
+	spline_read_and_init(shot, "brad", &br_ptr, dimRZ);    
+	spline_read_and_init(shot, "bz",   &bz_ptr, dimRZ);    
+	spline_read_and_init(shot, "btor", &bt_ptr, dimRZ);     
+    
+	*return_br_ptr = br_ptr;
+	*return_bz_ptr = bz_ptr;
+	*return_bt_ptr = bt_ptr;
+
+	printf("<< New spline reader >>.\n");
+
+}
+
+void magnetic_field_read_and_init_STABLE(shot_prop shot, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){
     
 	char* spline_folder = "input/fieldSpl";
     
