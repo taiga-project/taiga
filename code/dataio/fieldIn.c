@@ -9,6 +9,20 @@ Load raw data
 @output double** name
 */
 
+
+
+
+int vectorReader(double **name, char *folder, char *shotname, char *filename0, int **successful){
+    int l = vectorReader(name, folder, shotname, filename0);
+    int *s;
+    if (l < 0){
+        s[0] = 0;
+    }    
+    *successful = s;
+    return l;
+}
+
+
 int vectorReader(double **name, char *folder, char *shotname, char *filename0){
 	int i = 0;
 	int j;
@@ -50,6 +64,7 @@ int vectorReader(double **name, char *folder, char *shotname, char *filename0){
 		
 	}else{
 		printf("The following file is not exists:\n%s\n\n",filename);
+        i = -1;
 	}	
 	
 	*name = tname;
@@ -112,6 +127,7 @@ int matrixColoumnReader(double **name, char *folder, char *shotname, char *filen
 		
 	}else{
 		printf("The following file is not exists:\n%s\n\n",filename);
+        i = -1;
 	}	
 	
 	*name = tname;
@@ -162,6 +178,7 @@ int vectorReader0(double **name, char *filename){
 		
 	}else{
 		printf("The following file is not exists:\n%s\n\n",filename);
+        i = -1;
 	}	
 	
 	*name = tname;
@@ -170,7 +187,3 @@ int vectorReader0(double **name, char *filename){
 	return i;
 	
 }
-
-
-
-
