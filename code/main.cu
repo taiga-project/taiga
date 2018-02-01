@@ -200,7 +200,7 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 
 	char* spline_folder = "input/fieldSpl";
     //int[1] suc;
-    int suc[0] = {1};
+    int suc[1] = {1};
     
 	double *S0,  *s0;  vectorReader(&S0, "input/fieldSpl", shot.name, concat(field_name ,".spl11", &suc));	cudaMalloc((void **) &s0,  dimRZ); 
 	double *S1,  *s1;  vectorReader(&S1, "input/fieldSpl", shot.name, concat(field_name ,".spl12", &suc));	cudaMalloc((void **) &s1,  dimRZ);
