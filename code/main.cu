@@ -540,6 +540,7 @@ int main(int argc, char *argv[]){
 		//ERRORCHECK();
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
+			printf("electric_field_module ON\n");            
 			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
 		}else{
 			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
