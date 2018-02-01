@@ -441,7 +441,7 @@ int main(int argc, char *argv[]){
 	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
 	
 	if (shot.electric_field_module){
-		int electric_field_loaded = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
+		shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
     }
 	
 	// temporary test data
@@ -539,7 +539,7 @@ int main(int argc, char *argv[]){
 		// CUDA CODE, timer and Error catch	
 		//ERRORCHECK();
 		cudaEventRecord(start, 0);
-		if (electric_field_loaded){
+		if (shot.electric_field_module){
 			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
 		}else{
 			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
