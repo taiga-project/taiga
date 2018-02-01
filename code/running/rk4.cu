@@ -102,10 +102,10 @@ __device__ void rk4lin(double *X, double l_br, double l_bz, double l_bt, double 
 	
 	double S1[6],S2[6],S3[6],S4[6];
 
-	rk4op(X, S1, X,  0.0, l_br, l_bz, l_bt, er_ptr, ez_ptr, et_ptr, eperm);
-	rk4op(X, S2, S1, 0.5, l_br, l_bz, l_bt, er_ptr, ez_ptr, et_ptr, eperm);
-	rk4op(X, S3, S2, 0.5, l_br, l_bz, l_bt, er_ptr, ez_ptr, et_ptr, eperm);
-	rk4op(X, S4, S3, 1.0, l_br, l_bz, l_bt, er_ptr, ez_ptr, et_ptr, eperm);
+	rk4op(X, S1, X,  0.0, l_br, l_bz, l_bt, l_er, l_ez, l_et, eperm);
+	rk4op(X, S2, S1, 0.5, l_br, l_bz, l_bt, l_er, l_ez, l_et, eperm);
+	rk4op(X, S3, S2, 0.5, l_br, l_bz, l_bt, l_er, l_ez, l_et, eperm);
+	rk4op(X, S4, S3, 1.0, l_br, l_bz, l_bt, l_er, l_ez, l_et, eperm);
 
 
 	for(int i=0;i<6;i++){

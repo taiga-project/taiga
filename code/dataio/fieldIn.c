@@ -12,15 +12,6 @@ Load raw data
 
 
 
-int vectorReader(double **name, char *folder, char *shotname, char *filename0, int **successful){
-    int l = vectorReader(name, folder, shotname, filename0);
-    int *s;
-    if (l < 0){
-        s[0] = 0;
-    }    
-    *successful = s;
-    return l;
-}
 
 
 int vectorReader(double **name, char *folder, char *shotname, char *filename0){
@@ -74,6 +65,15 @@ int vectorReader(double **name, char *folder, char *shotname, char *filename0){
 	
 }
 
+int vectorReader(double **name, char *folder, char *shotname, char *filename0, int **successful){
+    int l = vectorReader(name, folder, shotname, filename0);
+    int *s;
+    if (l < 0){
+        s[0] = 0;
+    }    
+    *successful = s;
+    return l;
+}
 
 
 /*!
