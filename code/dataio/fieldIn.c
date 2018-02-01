@@ -9,11 +9,6 @@ Load raw data
 @output double** name
 */
 
-
-
-
-
-
 int vectorReader(double **name, char *folder, char *shotname, char *filename0){
 	int i = 0;
 	int j;

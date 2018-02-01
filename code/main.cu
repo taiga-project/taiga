@@ -202,22 +202,22 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
     //int[1] suc;
     int suc[1] = {1};
     
-	double *S0,  *s0;  vectorReader(&S0, "input/fieldSpl", shot.name, concat(field_name ,".spl11", &suc));	cudaMalloc((void **) &s0,  dimRZ); 
-	double *S1,  *s1;  vectorReader(&S1, "input/fieldSpl", shot.name, concat(field_name ,".spl12", &suc));	cudaMalloc((void **) &s1,  dimRZ);
-	double *S2,  *s2;  vectorReader(&S2, "input/fieldSpl", shot.name, concat(field_name ,".spl13", &suc));	cudaMalloc((void **) &s2,  dimRZ);
-	double *S3,  *s3;  vectorReader(&S3, "input/fieldSpl", shot.name, concat(field_name ,".spl14", &suc));	cudaMalloc((void **) &s3,  dimRZ); 
-	double *S4,  *s4;  vectorReader(&S4, "input/fieldSpl", shot.name, concat(field_name ,".spl21", &suc));	cudaMalloc((void **) &s4,  dimRZ); 
-	double *S5,  *s5;  vectorReader(&S5, "input/fieldSpl", shot.name, concat(field_name ,".spl22", &suc));	cudaMalloc((void **) &s5,  dimRZ); 
-	double *S6,  *s6;  vectorReader(&S6, "input/fieldSpl", shot.name, concat(field_name ,".spl23", &suc));	cudaMalloc((void **) &s6,  dimRZ); 
-	double *S7,  *s7;  vectorReader(&S7, "input/fieldSpl", shot.name, concat(field_name ,".spl24", &suc));	cudaMalloc((void **) &s7,  dimRZ);
-	double *S8,  *s8;  vectorReader(&S8, "input/fieldSpl", shot.name, concat(field_name ,".spl31", &suc));	cudaMalloc((void **) &s8,  dimRZ); 
-	double *S9,  *s9;  vectorReader(&S9, "input/fieldSpl", shot.name, concat(field_name ,".spl32", &suc));	cudaMalloc((void **) &s9,  dimRZ); 
-	double *S10, *s10; vectorReader(&S10,"input/fieldSpl", shot.name, concat(field_name ,".spl33", &suc));	cudaMalloc((void **) &s10,  dimRZ);
-	double *S11, *s11; vectorReader(&S11,"input/fieldSpl", shot.name, concat(field_name ,".spl34", &suc));	cudaMalloc((void **) &s11,  dimRZ); 
-	double *S12, *s12; vectorReader(&S12,"input/fieldSpl", shot.name, concat(field_name ,".spl41", &suc));	cudaMalloc((void **) &s12,  dimRZ);
-	double *S13, *s13; vectorReader(&S13,"input/fieldSpl", shot.name, concat(field_name ,".spl42", &suc));	cudaMalloc((void **) &s13,  dimRZ); 
-	double *S14, *s14; vectorReader(&S14,"input/fieldSpl", shot.name, concat(field_name ,".spl43", &suc));	cudaMalloc((void **) &s14,  dimRZ); 
-	double *S15, *s15; vectorReader(&S15,"input/fieldSpl", shot.name, concat(field_name ,".spl44", &suc));	cudaMalloc((void **) &s15,  dimRZ);
+	double *S0,  *s0;  vectorReader(&S0, "input/fieldSpl", shot.name, concat(field_name ,".spl11"), &suc);	cudaMalloc((void **) &s0,  dimRZ); 
+	double *S1,  *s1;  vectorReader(&S1, "input/fieldSpl", shot.name, concat(field_name ,".spl12"), &suc);	cudaMalloc((void **) &s1,  dimRZ);
+	double *S2,  *s2;  vectorReader(&S2, "input/fieldSpl", shot.name, concat(field_name ,".spl13"), &suc);	cudaMalloc((void **) &s2,  dimRZ);
+	double *S3,  *s3;  vectorReader(&S3, "input/fieldSpl", shot.name, concat(field_name ,".spl14"), &suc);	cudaMalloc((void **) &s3,  dimRZ); 
+	double *S4,  *s4;  vectorReader(&S4, "input/fieldSpl", shot.name, concat(field_name ,".spl21"), &suc);	cudaMalloc((void **) &s4,  dimRZ); 
+	double *S5,  *s5;  vectorReader(&S5, "input/fieldSpl", shot.name, concat(field_name ,".spl22"), &suc);	cudaMalloc((void **) &s5,  dimRZ); 
+	double *S6,  *s6;  vectorReader(&S6, "input/fieldSpl", shot.name, concat(field_name ,".spl23"), &suc);	cudaMalloc((void **) &s6,  dimRZ); 
+	double *S7,  *s7;  vectorReader(&S7, "input/fieldSpl", shot.name, concat(field_name ,".spl24"), &suc);	cudaMalloc((void **) &s7,  dimRZ);
+	double *S8,  *s8;  vectorReader(&S8, "input/fieldSpl", shot.name, concat(field_name ,".spl31"), &suc);	cudaMalloc((void **) &s8,  dimRZ); 
+	double *S9,  *s9;  vectorReader(&S9, "input/fieldSpl", shot.name, concat(field_name ,".spl32"), &suc);	cudaMalloc((void **) &s9,  dimRZ); 
+	double *S10, *s10; vectorReader(&S10,"input/fieldSpl", shot.name, concat(field_name ,".spl33"), &suc);	cudaMalloc((void **) &s10,  dimRZ);
+	double *S11, *s11; vectorReader(&S11,"input/fieldSpl", shot.name, concat(field_name ,".spl34"), &suc);	cudaMalloc((void **) &s11,  dimRZ); 
+	double *S12, *s12; vectorReader(&S12,"input/fieldSpl", shot.name, concat(field_name ,".spl41"), &suc);	cudaMalloc((void **) &s12,  dimRZ);
+	double *S13, *s13; vectorReader(&S13,"input/fieldSpl", shot.name, concat(field_name ,".spl42"), &suc);	cudaMalloc((void **) &s13,  dimRZ); 
+	double *S14, *s14; vectorReader(&S14,"input/fieldSpl", shot.name, concat(field_name ,".spl43"), &suc);	cudaMalloc((void **) &s14,  dimRZ); 
+	double *S15, *s15; vectorReader(&S15,"input/fieldSpl", shot.name, concat(field_name ,".spl44"), &suc);	cudaMalloc((void **) &s15,  dimRZ);
     
 	size_t dimB = 16*sizeof(double*);		
 	double *S_PTR[16];	double **s_ptr;	cudaMalloc((void **) &s_ptr,  dimB);     
