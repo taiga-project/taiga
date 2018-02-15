@@ -228,7 +228,7 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 	S_PTR[8]  = s8; 	S_PTR[9]  = s9; 	S_PTR[10] = s10;	S_PTR[11] = s11;
 	S_PTR[12] = s12;	S_PTR[13] = s13;	S_PTR[14] = s14;	S_PTR[15] = s15;
 
-	if (suc[0]==1){
+	if (suc[0] == 1){
 		cudaMemcpy(s0, S0, dimRZ, cudaMemcpyHostToDevice);
 		cudaMemcpy(s1, S1, dimRZ, cudaMemcpyHostToDevice);	
 		cudaMemcpy(s2, S2, dimRZ, cudaMemcpyHostToDevice);
@@ -251,7 +251,13 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 		free(S8);	free(S9);	free(S10);	free(S11);	
 		free(S12);	free(S13);	free(S14);	free(S15);
 	}
-
+	
+	if (shot.debug == 1)
+		for (int i=0;i<10;i++){
+			printf("spline s0 %d %lf\n",i,S0[i]);
+		}
+	}
+	
 	*return_s_ptr = s_ptr; 
 	return suc[0];	
     
@@ -600,8 +606,13 @@ int main(int argc, char *argv[]){
 		printf("\n+---	-------------------+\n | Fatal error in running. | \n | The CUDA did not run well. |\n+-----------------------+\n");
 	}else{
 		printf("\n	Memcopy OK.\n");
-	}	
-
+	}
+	
+	if (shot.debug == 1)
+		for (int i=0;i<10;i++) {
+			printf("TMP%d\t%lf\n",i,TMP[i]);
+		}
+	}
 	//! CUDA profiler STOP
 	cudaProfilerStop();
 
