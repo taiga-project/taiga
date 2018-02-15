@@ -608,7 +608,7 @@ int main(int argc, char *argv[]){
 		printf("\n	Memcopy OK.\n");
 	}
 	
-	if (shot.debug == 1)
+	if (shot.debug == 1){
 		for (int i=0;i<10;i++) {
 			printf("TMP%d\t%lf\n",i,TMP[i]);
 		}
