@@ -117,6 +117,9 @@ struct shot_prop{
     int debug = 0;
     int block_size = BLOCK_SIZE;
     int block_number = N_BLOCKS;
+    int step_host = 1; // on HDD
+    int step_device = 2000; // on GPU
+    int fulltrace = 0;
 };
 
 inline void cErrorCheck(const char *file, int line) {
@@ -315,9 +318,11 @@ int main(int argc, char *argv[]){
 	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_number+1;    
 		else	max_blocks=shot.block_size;	
         
-    if (argc > 9) shot.electric_field_module = atof(argv[9]); 
+    if (argc > 9) shot.electric_field_module = atof(argv[9]);     
+    
+    if (argc > 10) shot.fulltrace = atof(argv[10]); 
 	
-    if (argc > 10) shot.debug = atof(argv[10]); 
+    if (argc > 11) shot.debug = atof(argv[11]); 
     
 	NX = shot.block_number * max_blocks;
 	
@@ -354,9 +359,9 @@ int main(int argc, char *argv[]){
 	printf("=============================\n");
 	printf("Number of blocks (threads): %d\n", max_blocks);
 	printf("Block size: %d\n", shot.block_size);
-	printf("Number of parts: %d\n", NX);
-	printf("length of a loop: %d\n", Nstep);
-	printf("Number of loops: %d\n", Nloop);
+	printf("Number of particles: %d\n", NX);
+	printf("Max steps on device (GPU): %d\n", shot.step_device);
+	printf("Max steps on host (HDD): %d\n", shot.step_host);
 	
 	XR = (double*)malloc(sizeof(double)*NX);
 	XZ = (double*)malloc(sizeof(double)*NX);
@@ -521,7 +526,7 @@ int main(int argc, char *argv[]){
 		addData1(VT,NX,folder_out,timestamp,"d_vt.dat");
 	}	
 	
-	for (int step_i=0;step_i<Nloop;step_i++){
+	for (int step_i=0;step_i<shot.step_host;step_i++){
 		
 		// ION COORDS (HOST2device)
 		cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
@@ -541,9 +546,9 @@ int main(int argc, char *argv[]){
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
 			printf("electric_field_module ON\n");            
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
 		}else{
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
 		}
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
@@ -560,7 +565,7 @@ int main(int argc, char *argv[]){
 		cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
 		//ERRORCHECK();
 		// Save data to files
-		printf("Step\t%d/%d\n",step_i,Nloop);
+		printf("Step\t%d/%d\n",step_i,shot.step_host);
 		addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
 		addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
 		addData1(XZ,NX,folder_out,timestamp,"t_tor.dat");
@@ -572,6 +577,12 @@ int main(int argc, char *argv[]){
             printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
             printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
             printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
+        }
+        
+		if (shot.step_host > 1){            
+			for (int i = 1; (i < NX && XR[i] == beam.detector_R); i++){;
+				if (i == NX-1) shot.step_host = step_i;
+			}
         }
 	}	
 	
@@ -641,8 +652,8 @@ int main(int argc, char *argv[]){
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	saveDataH("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
 	saveDataH("Block size", "", shot.block_size,folder_out,timestamp);
-	saveDataH("Length of a loop", "", Nstep,folder_out,timestamp);
-	saveDataH("Number of loops", "", Nloop,folder_out,timestamp);		
+	saveDataH("Length of a loop", "", shot.step_device,folder_out,timestamp);
+	saveDataH("Number of loops", "", shot.step_host,folder_out,timestamp);		
 
 	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
 
