@@ -320,7 +320,11 @@ int main(int argc, char *argv[]){
         
     if (argc > 9) shot.electric_field_module = atof(argv[9]);     
     
-    if (argc > 10) shot.step_host = atof(argv[10]); 
+    if (argc > 10){ 
+        shot.step_host = atof(argv[10]); 
+        shot.step_device = 1;
+    }
+    
     if (argc > 11) shot.step_device = atof(argv[11]); 
 	
     if (argc > 12) shot.debug = atof(argv[12]); 
