@@ -7,7 +7,7 @@ function cdb_reader(varargin)
     in.majorradius=0.56;  
     
     in.plot = false;
-    
+    in.renate = false;
     in.folder = '../input/cdb';
     out.folder.renate = '../input/renate110';
     out.folder.grid = '../input/fieldGrid/';
@@ -38,26 +38,27 @@ function cdb_reader(varargin)
     
     efit = readToroidalFlux(in, out, efit);
     efit = readPoloidalFlux(in, out, efit);
-    
+
     efit = makeMagneticGrid (in, out, efit);
     out = normaliseFlux(in, out, efit);
     
-    ts = readThomsonData(in, out, ts);
-        
-    out.efit.z      = linspace(min(ts.z),max(ts.z),200);
-    out.efit.r      = ones(size(out.efit.z))*in.majorradius;
-    
-    out = fitProfilesNT(ts, out);
-            
-    saveRenateFlux(in, out);    
-    saveRenateNT (in, out);
-    
     saveMagneticGrid (in, out, efit);    
     saveMagneticSpline (in, out, efit);
-
-    if in.plot
-        plotProfilesNT (in, out, ts);        
-        plotNormFlux (in, out, efit);
+    if in.renate
+        ts = readThomsonData(in, out, ts);
+    
+        out.efit.z      = linspace(min(ts.z),max(ts.z),200);
+        out.efit.r      = ones(size(out.efit.z))*in.majorradius;
+        
+        out = fitProfilesNT(ts, out);
+            
+        saveRenateFlux(in, out);    
+        saveRenateNT (in, out);
+    
+        if in.plot
+            plotProfilesNT (in, out, ts);        
+            plotNormFlux (in, out, efit);
+        end
     end
 
 end
@@ -149,7 +150,7 @@ function saveMagneticSpline (in, out, efit)
             end
         end
         disp(comp)
-        disp('Spline saved')
+        disp(['Spline saved to ',foldername])
     end
 end
 
@@ -346,7 +347,7 @@ function saveRenateFlux(in, out)
 end
 
 
-function ts = profileHack(ts)
+function ts = profileHack(ts,out)
 	density = ts.density;
 	densityErr = ts.densityErr;
 	temperature = ts.temperature;
@@ -355,7 +356,7 @@ function ts = profileHack(ts)
 	psi_out=[];
 	Te_out=[];
 	ne_out=[];
-	l = length(flux);
+	l = length(out.flux.r);
 	l2=100;
 	for i = 1:l
 		psi_out=[psi_out,psi_in(i)*ones(1,l2)];		
@@ -371,7 +372,10 @@ end
 
 function out = fitProfilesNT(ts, out)
     
-    ts = profileHack(ts);
+    try 
+        ts = profileHack(ts,out);
+    catch e
+    end
     
     in = find(ts.psi<max(out.nt.psi_in) & ts.psi > min(out.nt.psi_in));
     
