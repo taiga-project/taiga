@@ -34,7 +34,6 @@ __global__ void banCtrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double
 }
 
 __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri, int Nstep){
-
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -76,7 +75,6 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 }
 
 __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri, int Nstep){
-
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
