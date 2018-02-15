@@ -33,7 +33,7 @@ __global__ void banCtrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double
 
 }
 
-__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri, int Nstep){
+__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri, int N_step){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -57,7 +57,7 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
 	
-	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,l_ri,Nstep);
+	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,l_ri,N_step);
 	//if(idx<20) tmp[idx]=temp;
 
 
@@ -74,7 +74,7 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	}
 }
 
-__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri, int Nstep){
+__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri, int N_step){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -98,7 +98,7 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
 	
-	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,l_ri,Nstep);
+	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,l_ri,N_step);
 	//if(idx<20) tmp[idx]=temp;
 
 

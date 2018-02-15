@@ -62,7 +62,7 @@ __device__ double localField(double *lp_b, double dr, double dz){
 l_x local coordinates
 
 */
-__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double l_ri, int Nstep){
+__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double l_ri, int N_step){
 
 	// next grid
 	int rzci[2];
@@ -102,7 +102,7 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	l_x[0]=0.0;
 	
 	int loopi;
-	for (loopi=0;(loopi<Nstep && (!finished));loopi++){
+	for (loopi=0;(loopi<N_step && (!finished));loopi++){
 		// Get local magnetic field	
 
 		l_rT = cyl2tor_coord(l_r, l_t);
@@ -169,7 +169,7 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 }
 
 
-__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double l_ri, int Nstep){
+__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double l_ri, int N_step){
 
 	// next grid
 	int rzci[2];
@@ -207,7 +207,7 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	l_x[0]=0.0;
 	
 	int loopi;
-	for (loopi=0;(loopi<Nstep && (!finished));loopi++){
+	for (loopi=0;(loopi<N_step && (!finished));loopi++){
 		// Get local magnetic field	
 
 		l_rT = cyl2tor_coord(l_r, l_t);
