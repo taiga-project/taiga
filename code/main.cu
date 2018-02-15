@@ -119,7 +119,6 @@ struct shot_prop{
     int block_number = N_BLOCKS;
     int step_host = 1; // on HDD
     int step_device = 2000; // on GPU
-    int fulltrace = 0;
 };
 
 inline void cErrorCheck(const char *file, int line) {
