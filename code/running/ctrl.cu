@@ -58,7 +58,7 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
 	
-	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,l_ri,N_step);
+	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,l_ri,Nstep);
 	//if(idx<20) tmp[idx]=temp;
 
 
