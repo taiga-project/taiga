@@ -252,7 +252,7 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 		free(S12);	free(S13);	free(S14);	free(S15);
 	}
 	
-	if (shot.debug == 1)
+	if (shot.debug == 1){
 		for (int i=0;i<10;i++){
 			printf("spline s0 %d %lf\n",i,S0[i]);
 		}
