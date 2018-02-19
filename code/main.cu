@@ -12,8 +12,8 @@
 
 #define $RENATE		0//110
 
-#define N_BLOCKS     192		//! @param N_BLOCKS Number of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
-#define BLOCK_SIZE 	 1//30*4 		//! @param BLOCK_SIZE smaller is better (max 1M)
+#define N_BLOCKS     1		//! @param N_BLOCKS number of blocks (max 1M)
+#define BLOCK_SIZE 	 192 		//! @param BLOCK_SIZE size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
 
 #define R_midions	 0.695		//! @param R_midions mid of ions at BANANA and no-RADIONS
 
@@ -324,8 +324,8 @@ int main(int argc, char *argv[]){
 		
 	int NX;
 	int max_blocks;
-	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_number+1;    
-		else	max_blocks=shot.block_size;	
+	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_size+1;    
+		else	max_blocks=shot.block_number;	
         
     if (argc > 9) shot.electric_field_module = atof(argv[9]);     
     
@@ -339,13 +339,12 @@ int main(int argc, char *argv[]){
     if (argc > 12) shot.debug = atof(argv[12]); 
     
 	
-	NX = shot.block_number * max_blocks;
+	NX = shot.block_size * max_blocks;
     
 	if ($3DINPUTPROF == 1){
         double *XR;
 		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
-        max_blocks = NX / shot.block_number+1;
-        //shot.block_size = max_blocks;//NX;
+        max_blocks = NX / shot.block_size+1;
 	}	
 	
     
@@ -381,7 +380,7 @@ int main(int argc, char *argv[]){
     
     
 	//! position and velocity array allocation
-	size_t dimX = shot.block_number * max_blocks * sizeof(double);
+	size_t dimX = shot.block_size * max_blocks * sizeof(double);
 	
 	XR = (double*)malloc(dimX);
 	XZ = (double*)malloc(dimX);
@@ -534,7 +533,7 @@ int main(int argc, char *argv[]){
 		cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
 		cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
 				
-		banCtrl <<< max_blocks, shot.block_number >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,bd1,bd2);
+		banCtrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,bd1,bd2);
 		cudaMemcpy(BD1, bd1, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(BD2, bd2, dimX, cudaMemcpyDeviceToHost);
 		addData1(BD1,NX,folder_out,timestamp,"d_b1.dat");
@@ -564,9 +563,9 @@ int main(int argc, char *argv[]){
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
 			printf("electric_field_module ON\n");            
-			ctrl <<< max_blocks, shot.block_number >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
 		}else{
-			ctrl <<< max_blocks, shot.block_number >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
 		}
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
