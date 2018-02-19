@@ -191,7 +191,7 @@ double get_mass(char *s){
     }else{
         try{
             mass = atof(s);
-        }catch{
+        }catch (...){
             mass = (double)$mass;
         }
     }
