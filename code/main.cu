@@ -338,7 +338,6 @@ int main(int argc, char *argv[]){
 	
     if (argc > 12) shot.debug = atof(argv[12]); 
     
-	NX = shot.block_number * max_blocks;
 	
 	if ($3DINPUTPROF == 1){
         double *XR;
@@ -346,7 +345,9 @@ int main(int argc, char *argv[]){
         max_blocks = NX / shot.block_number+1;
         //shot.block_size = max_blocks;//NX;
 	}	
-		
+	
+	NX = shot.block_number * max_blocks;
+    
 	char* folder_out=concat("results/", shot.name);
 	
 	set_cuda();
