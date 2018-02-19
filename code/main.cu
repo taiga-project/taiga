@@ -177,19 +177,23 @@ double get_mass(char *s){
     }else if (strcmp(s,"Li")==0){
         mass = 7.016004558;
     }else if (strcmp(s,"Na")==0){
-        mass = 20.0073517;
+        mass = 22.98976928;
     }else if (strcmp(s,"K")==0){
         mass = 39.9639984821;
     }else if (strcmp(s,"H2")==0){
         mass = 2.013553212724;
     }else if (strcmp(s,"Li7")==0){
         mass = 7.016004558;
-    }else if (strcmp(s,"Na20")==0){
-        mass = 20.0073517;
+    }else if (strcmp(s,"Na23")==0){
+        mass = 22.98976928
     }else if (strcmp(s,"K40")==0){
         mass = 39.9639984821;
     }else{
-        mass = (double)$mass;
+        try{
+            mass = atof(s);
+        }catch{
+            mass = (double)$mass;
+        }
     }
     
     return mass;
@@ -488,10 +492,10 @@ int main(int argc, char *argv[]){
 	// EXECUTION
 	addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
 	addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
-	addData1(XZ,NX,folder_out,timestamp,"t_tor.dat");
+	addData1(XT,NX,folder_out,timestamp,"t_tor.dat");
 	addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
 	addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
-	addData1(VZ,NX,folder_out,timestamp,"t_vtor.dat");
+	addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
 
 	//! Set CUDA timer 
 	cudaEvent_t start, stop;
