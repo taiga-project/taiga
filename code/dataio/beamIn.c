@@ -16,7 +16,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 
 	double *Rv, V_temp;
 
-	int nrv = vectorReader0(&Rv, "dataio/data/rad.dat");
+	int nrv = vectorReader0(&Rv, "input/manual_profile/rad.dat");
 	printf("SIZEOF: %d\n",nrv);
 	
 	if(nrv<beam_number){
