@@ -339,6 +339,8 @@ int main(int argc, char *argv[]){
     if (argc > 12) shot.debug = atof(argv[12]); 
     
 	
+	NX = shot.block_number * max_blocks;
+    
 	if ($3DINPUTPROF == 1){
         double *XR;
 		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
@@ -346,7 +348,6 @@ int main(int argc, char *argv[]){
         //shot.block_size = max_blocks;//NX;
 	}	
 	
-	NX = shot.block_number * max_blocks;
     
 	char* folder_out=concat("results/", shot.name);
 	
@@ -533,7 +534,7 @@ int main(int argc, char *argv[]){
 		cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
 		cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
 				
-		banCtrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,bd1,bd2);
+		banCtrl <<< max_blocks, shot.block_number >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,bd1,bd2);
 		cudaMemcpy(BD1, bd1, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(BD2, bd2, dimX, cudaMemcpyDeviceToHost);
 		addData1(BD1,NX,folder_out,timestamp,"d_b1.dat");
@@ -563,9 +564,9 @@ int main(int argc, char *argv[]){
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
 			printf("electric_field_module ON\n");            
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
+			ctrl <<< max_blocks, shot.block_number >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
 		}else{
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
+			ctrl <<< max_blocks, shot.block_number >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
 		}
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
