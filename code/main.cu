@@ -379,7 +379,7 @@ int main(int argc, char *argv[]){
     
     
 	//! position and velocity array allocation
-	size_t dimX = NX * sizeof(double);
+	size_t dimX = /*NX*/shot.block_number * max_blocks * sizeof(double);
 	
 	XR = (double*)malloc(dimX);
 	XZ = (double*)malloc(dimX);
