@@ -376,14 +376,18 @@ int main(int argc, char *argv[]){
 	printf("Number of particles: %d\n", NX);
 	printf("Max steps on device (GPU): %d\n", shot.step_device);
 	printf("Max steps on host (HDD): %d\n", shot.step_host);
+    
+    
+	//! position and velocity array allocation
+	size_t dimX = NX * sizeof(double);
 	
-	XR = (double*)malloc(sizeof(double)*NX);
-	XZ = (double*)malloc(sizeof(double)*NX);
-	XT = (double*)malloc(sizeof(double)*NX);
+	XR = (double*)malloc(dimX);
+	XZ = (double*)malloc(dimX);
+	XT = (double*)malloc(dimX);
 
-	VR = (double*)malloc(sizeof(double)*NX);
-	VZ = (double*)malloc(sizeof(double)*NX);
-	VT = (double*)malloc(sizeof(double)*NX);
+	VR = (double*)malloc(dimX);
+	VZ = (double*)malloc(dimX);
+	VT = (double*)malloc(dimX);
 
 	// phys. constants
 	double eperm;
@@ -391,8 +395,6 @@ int main(int argc, char *argv[]){
 
 	beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflation, beam.vertical_deflation);
 
-	//! position and velocity array allocation
-	size_t dimX = NX * sizeof(double);
 
 	cudaMalloc((void **) &xr,  dimX); 
 	cudaMalloc((void **) &xz,  dimX); 
