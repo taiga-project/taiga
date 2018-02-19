@@ -582,10 +582,10 @@ int main(int argc, char *argv[]){
 		printf("Step\t%d/%d\n",step_i,shot.step_host);
 		addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
 		addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
-		addData1(XZ,NX,folder_out,timestamp,"t_tor.dat");
+		addData1(XT,NX,folder_out,timestamp,"t_tor.dat");
 		addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
 		addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
-		addData1(VZ,NX,folder_out,timestamp,"t_vtor.dat");
+		addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
 		
         if (shot.debug == 1){
             printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
