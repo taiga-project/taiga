@@ -344,7 +344,7 @@ int main(int argc, char *argv[]){
         double *XR;
 		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
         max_blocks = NX / shot.block_number+1;
-        shot.block_size = max_blocks;//NX;
+        //shot.block_size = max_blocks;//NX;
 	}	
 		
 	char* folder_out=concat("results/", shot.name);
