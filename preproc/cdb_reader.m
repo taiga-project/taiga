@@ -115,42 +115,52 @@ function saveMagneticSpline (in, out, efit)
 	complist = {'brad','bz','btor'};
     for i=1:length(complist)
         comp=complist{i};
-        sp = csapi({efit.r,efit.z},efit.(comp));
+        try
+            sp = csapi({efit.r,efit.z},efit.(comp));
 
-        i11=1:sp.pieces(1);
-        i12=i11+1*sp.pieces(1);
-        i13=i11+2*sp.pieces(1);
-        i14=i11+3*sp.pieces(1);
+            i11=1:sp.pieces(1);
+            i12=i11+1*sp.pieces(1);
+            i13=i11+2*sp.pieces(1);
+            i14=i11+3*sp.pieces(1);
 
-        i21=1:sp.pieces(2);
-        i22=i21+1*sp.pieces(2);
-        i23=i21+2*sp.pieces(2);
-        i24=i21+3*sp.pieces(2);
+            i21=1:sp.pieces(2);
+            i22=i21+1*sp.pieces(2);
+            i23=i21+2*sp.pieces(2);
+            i24=i21+3*sp.pieces(2);
 
 
-        c=reshape(sp.coefs,size(sp.coefs,2),[]);
-        b = sp.breaks{1};
-        b2 = sp.breaks{2};
+            c=reshape(sp.coefs,size(sp.coefs,2),[]);
+            b = sp.breaks{1};
+            b2 = sp.breaks{2};
 
-	    mkdir(out.folder.spline)
-	    foldername = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
-	    mkdir(foldername)
-        save([foldername,'/r.spline'],'-ascii','-tabs','-double','b')
-        save([foldername,'/z.spline'],'-ascii','-tabs','-double','b2')
-        disp('Spline calculated')        
-        
-        c11 = c(i11,i21);    c12 = c(i11,i22);    c13 = c(i11,i23);    c14 = c(i11,i24);
-        c21 = c(i12,i21);    c22 = c(i12,i22);    c23 = c(i12,i23);    c24 = c(i12,i24);
-        c31 = c(i13,i21);    c32 = c(i13,i22);    c33 = c(i13,i23);    c34 = c(i13,i24);
-        c41 = c(i14,i21);    c42 = c(i14,i22);    c43 = c(i14,i23);    c44 = c(i14,i24);
-        
-        for fi1 = 1:4
-        	for fi2 = 1:4        	
-		        save([foldername,'/',comp,'.spl',num2str(fi1),num2str(fi2)],'-ascii','-tabs','-double',['c',num2str(fi1),num2str(fi2)])
+            mkdir(out.folder.spline)
+            foldername = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
+            mkdir(foldername)
+            save([foldername,'/r.spline'],'-ascii','-tabs','-double','b')
+            save([foldername,'/z.spline'],'-ascii','-tabs','-double','b2')
+            disp('Spline calculated')        
+            
+            c11 = c(i11,i21);    c12 = c(i11,i22);    c13 = c(i11,i23);    c14 = c(i11,i24);
+            c21 = c(i12,i21);    c22 = c(i12,i22);    c23 = c(i12,i23);    c24 = c(i12,i24);
+            c31 = c(i13,i21);    c32 = c(i13,i22);    c33 = c(i13,i23);    c34 = c(i13,i24);
+            c41 = c(i14,i21);    c42 = c(i14,i22);    c43 = c(i14,i23);    c44 = c(i14,i24);
+            
+            for fi1 = 1:4
+                for fi2 = 1:4        	
+                    save([foldername,'/',comp,'.spl',num2str(fi1),num2str(fi2)],'-ascii','-tabs','-double',['c',num2str(fi1),num2str(fi2)])
+                end
             end
+            disp(comp)
+            disp(['Spline saved to ',foldername])
+        catch
+            folder_grid = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
+
+            mkdir(out.folder.spline)
+            folder_spl = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
+            mkdir(folder_spl)
+
+            disp(['octave --eval saveMagneticSplineOctave(',comp,',',folder_grid,',',folder_spl,') '])
         end
-        disp(comp)
-        disp(['Spline saved to ',foldername])
     end
 end
 
