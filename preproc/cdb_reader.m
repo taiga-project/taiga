@@ -117,7 +117,7 @@ function efit = makeElectricGrid (in, out, efit)
         eval([electric_field_components,';'])
     catch
         disp(['ERROR: electric_field_value is invalid (',in.electric_field_value,')'])
-        dbcont
+        keyboard
     end       
     
     if size(erad)==1
