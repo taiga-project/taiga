@@ -169,7 +169,7 @@ function saveSplineCoeffs (in, out, efit,complist)
       
     for i=1:length(complist)
         comp=complist{i};
-        try
+        %try
             sp = csapi({efit.r,efit.z},efit.(comp));
 
             i11=1:sp.pieces(1);
@@ -206,14 +206,14 @@ function saveSplineCoeffs (in, out, efit,complist)
             end
             disp(comp)
             disp(['Spline saved to ',foldername])
-        catch
-            folder_grid = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
+        %catch
+        %    folder_grid = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
 
-            mkdir(out.folder.spline)
-            folder_spl = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
-            mkdir(folder_spl)
+        %    mkdir(out.folder.spline)
+        %    folder_spl = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
+        %    mkdir(folder_spl)
 
-            disp(['octave --eval saveMagneticSplineOctave(',comp,',',folder_grid,',',folder_spl,') '])
+        %    disp(['octave --eval saveMagneticSplineOctave(',comp,',',folder_grid,',',folder_spl,') '])
         end
     end
 end
