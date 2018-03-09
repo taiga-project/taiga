@@ -102,7 +102,7 @@ function efit = makeElectricGrid (in, out, efit)
     electric_field_components = lower(in.electric_field_value);
     electric_field_components = regexprep(electric_field_components,'*','.*');
     electric_field_components = regexprep(electric_field_components,'/','./');
-    electric_field_components = regexprep(electric_field_components,'^','.^');
+    electric_field_components = regexprep(electric_field_components,'\^','.\^');
 
     r = efit.r;
     z = efit.z;
