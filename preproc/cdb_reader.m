@@ -25,6 +25,13 @@ function cdb_reader(varargin)
         in.shotNumber = varargin{1};
         in.time = varargin{2};
     end    
+    
+    if nargin >=4
+        in.electric_field_module = varargin{3};
+        in.electric_field_value = varargin{4};
+    else
+        in.electric_field_module = 0;
+    end
           
     out = getHiddenParameters(out);
     
@@ -44,6 +51,14 @@ function cdb_reader(varargin)
     
     saveMagneticGrid (in, out, efit);    
     saveMagneticSpline (in, out, efit);
+    
+    if in.electric_field_module        
+        efit = makeElectricGrid (in, out, efit);
+        saveElectricGrid (in, out, efit);    
+        saveElectricSpline (in, out, efit);    
+    end
+    
+    
     if in.renate
         ts = readThomsonData(in, out, ts);
     
@@ -76,28 +91,58 @@ function efit = makeMagneticGrid (in, out, efit)
     psi_dR = (psi_dR2-psi_dR1)/dx;
     psi_dZ = (psi_dZ2-psi_dZ1)/dx;
 
-
-    
-
     brad = -psi_dZ./R_M;%*pi;
     bz   =  psi_dR./R_M;%*pi;	
     efit.brad=brad';
-    efit.bz=bz';
+    efit.bz=bz';    
 end
 
-function saveMagneticGrid (in, out, efit)    
+function efit = makeElectricGrid (in, out, efit)    
+
+    electric_field_components = lower(in.electric_field_value);
+    electric_field_components = regexpr(electric_field_components,'*','.*');
+    electric_field_components = regexpr(electric_field_components,'/','./');
+    electric_field_components = regexpr(electric_field_components,'^','.^');
+
+    r = out.flux.r';
+    z = out.flux.z';
+    
+    erad=zeros(size(efit.brad));
+    ez=zeros(size(efit.brad));
+    etor=zeros(size(efit.brad));
+    
+    try
+        eval([electric_field_components,';'])
+    catch
+        disp(['ERROR: electric_field_value is invalid (',in.electric_field_value,')'])
+    end
+    
+    efit.erad=erad;
+    efit.ez=ez;
+    efit.etor=etor;    
+end
+
+
+function saveMagneticGrid (in, out, efit) 
+    complist = {'r',    'z',    'brad','bz','btor','polflux'};
+    filelist = {'rcord','zcord','brad','bz','btor','psi2'};
+    saveGrid (in, out, efit, complist, filelist);
+end
+
+function saveElectricGrid (in, out, efit) 
+    complist = {'erad','ez','etor'};
+    filelist = complist;
+    saveGrid (in, out, efit, complist, filelist);
+end
+
+function saveGrid (in, out, efit, complist, filelist)    
     
     foldername = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
     mkdir(foldername)
     
-    dlmwrite([foldername, 'rcord.dat'],efit.r, 'precision','%.16e','delimiter','\t');
-    dlmwrite([foldername, 'zcord.dat'],efit.z, 'precision','%.16e','delimiter','\t');
-    dlmwrite([foldername, 'brad.dat'],efit.brad, 'precision','%.16e','delimiter','\t');
-    dlmwrite([foldername, 'bz.dat'],efit.bz, 'precision','%.16e','delimiter','\t');
-    dlmwrite([foldername, 'btor.dat'],efit.btor, 'precision','%.16e','delimiter','\t');    
-    dlmwrite([foldername, 'psi2.dat'],efit.polflux, 'precision','%.16e','delimiter','\t');    
-    
-    % a btor szar
+    for i = 1:length(complist)
+        dlmwrite([foldername, [filelist{i}'.dat']],efit.(complist{i}), 'precision','%.16e','delimiter','\t');
+    end    
     
 end
 
@@ -111,8 +156,17 @@ function savePlot (in, out, plotname)
 end
 
 function saveMagneticSpline (in, out, efit)
+    complist = {'brad','bz','btor'};
+    saveSplineCoeffs (in, out, efit,complist);
+end
+
+function saveElectricSpline (in, out, efit)
+    complist = {'erad','ez','etor'};
+    saveSplineCoeffs (in, out, efit,complist);
+end
+
+function saveSplineCoeffs (in, out, efit,complist)
       
-	complist = {'brad','bz','btor'};
     for i=1:length(complist)
         comp=complist{i};
         try
@@ -267,12 +321,9 @@ function efit = readPoloidalFlux(in, out, efit)
     in.source = 'efitxx';
     % EFIT poloidal flux
     in.hdf5flag = '/output/profiles2D/poloidalFlux';
-    efit.polflux    = readMatrixData(in);        
-
-    
+    efit.polflux    = readMatrixData(in);      
     
 end
-
 
 
 function efit = readMagneticAxis(in, efit)
@@ -303,9 +354,8 @@ function efit = readMagneticBoundary(in, efit)
     efit.limiter.r     = readScalarData(in);
     in.hdf5flag = '/output/separatrixGeometry/limiterCoordsZ';
     efit.limiter.z     = readScalarData(in);
-end
-    
-    
+end    
+   
 
 function out = normaliseFlux(in, out, efit)
     
@@ -358,25 +408,24 @@ end
 
 
 function ts = profileHack(ts,out)
-	density = ts.density;
-	densityErr = ts.densityErr;
-	temperature = ts.temperature;
-	temperatureErr = ts.temperatureErr;
-	psi_in = ts.psi;
-	psi_out=[];
-	Te_out=[];
-	ne_out=[];
-	l = length(out.flux.r);
-	l2=100;
-	for i = 1:l
-		psi_out=[psi_out,psi_in(i)*ones(1,l2)];		
-		ne_out=[Te_out,random('norm',density(i),densityErr(i),l2)];
-		Te_out=[Te_out,random('norm',temperature(i),temperatureErr(i),l2)];
-	end
-	ts.psi=psi_out;
-	ts.temperature=Te_out;
-	ts.density=ne_out;
-	
+    density = ts.density;
+    densityErr = ts.densityErr;
+    temperature = ts.temperature;
+    temperatureErr = ts.temperatureErr;
+    psi_in = ts.psi;
+    psi_out=[];
+    Te_out=[];
+    ne_out=[];
+    l = length(out.flux.r);
+    l2=100;
+    for i = 1:l
+        psi_out=[psi_out,psi_in(i)*ones(1,l2)];		
+        ne_out=[Te_out,random('norm',density(i),densityErr(i),l2)];
+        Te_out=[Te_out,random('norm',temperature(i),temperatureErr(i),l2)];
+    end
+    ts.psi=psi_out;
+    ts.temperature=Te_out;
+    ts.density=ne_out;
 
 end
 
