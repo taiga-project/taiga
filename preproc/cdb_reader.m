@@ -115,11 +115,25 @@ function efit = makeElectricGrid (in, out, efit)
         eval([electric_field_components,';'])
     catch
         disp(['ERROR: electric_field_value is invalid (',in.electric_field_value,')'])
+    end       
+    
+    if size(erad)==1
+        erad = erad*ones(size(efit.brad));
+    end    
+    
+    if size(etor)==1
+        etor = erad*ones(size(efit.brad));
+    end    
+    
+    if size(ez)==1
+        ez = erad*ones(size(efit.brad));
     end
     
     efit.erad=erad;
     efit.ez=ez;
     efit.etor=etor;   
+    
+    
 end
 
 
