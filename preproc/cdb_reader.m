@@ -141,7 +141,7 @@ function saveGrid (in, out, efit, complist, filelist)
     mkdir(foldername)
     
     for i = 1:length(complist)
-        dlmwrite([foldername, [filelist{i}'.dat']],efit.(complist{i}), 'precision','%.16e','delimiter','\t');
+        dlmwrite([foldername, filelist{i},'.dat'],efit.(complist{i}), 'precision','%.16e','delimiter','\t');
     end    
     
 end
