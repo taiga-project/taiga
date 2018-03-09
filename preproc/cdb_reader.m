@@ -119,16 +119,16 @@ function efit = makeElectricGrid (in, out, efit)
         %keyboard
     end       
     
-    if size(erad)==1
-        erad = erad*ones(size(efit.r));
+    if ndims(erad) < 2
+        erad = erad.*ones(size(efit.r));
     end    
     
-    if size(etor)==1
-        etor = etor*ones(size(efit.r));
+    if ndims(etor) < 2
+        etor = etor.*ones(size(efit.r));
     end    
     
-    if size(ez)==1
-        ez = ez*ones(size(efit.r));
+    if ndims(ez) < 2
+        ez = ez.*ones(size(efit.r));
     end
     
     efit.erad=erad;
