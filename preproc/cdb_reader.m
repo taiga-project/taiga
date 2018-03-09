@@ -26,7 +26,7 @@ function cdb_reader(varargin)
         in.time = varargin{2};
     end    
     
-    if nargin >=4
+    if (nargin >=4 && isempty( varargin{4}) )
         in.electric_field_module = varargin{3};
         in.electric_field_value = varargin{4};
     else
@@ -112,6 +112,8 @@ function efit = makeElectricGrid (in, out, efit)
     etor=zeros(size(efit.brad));
     
     try
+        disp
+        eval([electric_field_components,';'])
         eval([electric_field_components,';'])
     catch
         disp(['ERROR: electric_field_value is invalid (',in.electric_field_value,')'])
