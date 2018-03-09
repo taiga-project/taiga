@@ -26,7 +26,7 @@ function cdb_reader(varargin)
         in.time = varargin{2};
     end    
     
-    if (nargin >=4 && isempty( varargin{4}) )
+    if (nargin >=4 && ~isempty( varargin{4}) )
         in.electric_field_module = varargin{3};
         in.electric_field_value = varargin{4};
     else
