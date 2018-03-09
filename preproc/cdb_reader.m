@@ -214,7 +214,7 @@ function saveSplineCoeffs (in, out, efit,complist)
         %    mkdir(folder_spl)
 
         %    disp(['octave --eval saveMagneticSplineOctave(',comp,',',folder_grid,',',folder_spl,') '])
-        end
+        %end
     end
 end
 
