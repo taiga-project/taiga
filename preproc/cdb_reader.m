@@ -112,12 +112,11 @@ function efit = makeElectricGrid (in, out, efit)
     etor=zeros(size(efit.brad));
     
     try
-        disp
-        eval([electric_field_components,';'])
+        disp([electric_field_components,';'])
         eval([electric_field_components,';'])
     catch
         disp(['ERROR: electric_field_value is invalid (',in.electric_field_value,')'])
-        keyboard
+        %keyboard
     end       
     
     if size(erad)==1
