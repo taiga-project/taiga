@@ -117,24 +117,11 @@ function efit = makeElectricGrid (in, out, efit)
     catch
         disp(['ERROR: electric_field_value is invalid (',in.electric_field_value,')'])
         %keyboard
-    end       
+    end           
     
-    if ndims(erad) < 2
-        erad = erad.*ones(size(efit.r));
-    end    
-    
-    if ndims(etor) < 2
-        etor = etor.*ones(size(efit.r));
-    end    
-    
-    if ndims(ez) < 2
-        ez = ez.*ones(size(efit.r));
-    end
-    
-    efit.erad=erad;
-    efit.ez=ez;
-    efit.etor=etor;   
-    
+    efit.erad = erad .* ones(size(efit.r));
+    efit.ez   = ez   .* ones(size(efit.r));
+    efit.etor = etor .* ones(size(efit.r));       
     
 end
 
