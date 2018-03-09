@@ -104,8 +104,8 @@ function efit = makeElectricGrid (in, out, efit)
     electric_field_components = regexpr(electric_field_components,'/','./');
     electric_field_components = regexpr(electric_field_components,'^','.^');
 
-    r = out.flux.r';
-    z = out.flux.z';
+    r = out.efit.r;
+    z = out.efit.z;
     
     erad=zeros(size(efit.brad));
     ez=zeros(size(efit.brad));
@@ -119,7 +119,7 @@ function efit = makeElectricGrid (in, out, efit)
     
     efit.erad=erad;
     efit.ez=ez;
-    efit.etor=etor;    
+    efit.etor=etor;   
 end
 
 
