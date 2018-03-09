@@ -124,11 +124,11 @@ function efit = makeElectricGrid (in, out, efit)
     end    
     
     if size(etor)==1
-        etor = erad*ones(size(efit.brad));
+        etor = etor*ones(size(efit.brad));
     end    
     
     if size(ez)==1
-        ez = erad*ones(size(efit.brad));
+        ez = ez*ones(size(efit.brad));
     end
     
     efit.erad=erad;
