@@ -185,7 +185,7 @@ function saveSplineCoeffs (in, out, efit,complist)
       
     for i=1:length(complist)
         comp=complist{i};
-        %try
+        try
             sp = csapi({efit.r,efit.z},efit.(comp));
 
             i11=1:sp.pieces(1);
@@ -222,7 +222,11 @@ function saveSplineCoeffs (in, out, efit,complist)
             end
             disp(comp)
             disp(['Spline saved to ',foldername])
-        %catch
+        catch
+            disp(['sizeof r: ',size(efit.r)])            
+            disp(['sizeof r: ',size(efit.z)])
+            disp(['sizeof ',comp,': ',size(efit.(comp))])
+        end
         %    folder_grid = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
 
         %    mkdir(out.folder.spline)
