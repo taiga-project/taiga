@@ -223,7 +223,7 @@ function saveSplineCoeffs (in, out, efit,complist)
             disp(comp)
             disp(['Spline saved to ',foldername])
         catch
-            error(['Error in spline fitting: \n sizeof ',comp,': ',num2str(size(efit.(comp))),' must be ',num2str(size(efit.r)),' x ',num2str(size(efit.z))])
+            error(['Error in spline fitting: \n sizeof ',comp,': ',num2str(size(efit.(comp))),' must be ',num2str(length(efit.r)),' x ',num2str(length(efit.z))])
         end
         %    folder_grid = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
 
