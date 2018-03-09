@@ -2,7 +2,7 @@
 
 function cdb_reader(varargin)
     startclean
-
+    addpath('/home/maradi/public/splines'
     in.tokamak = 'compass';
     in.majorradius=0.56;  
     
