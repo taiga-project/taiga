@@ -68,7 +68,7 @@ __device__ void rk4op(double *X, double *S, double *Sp, double mSp, double l_br,
 	S[0] = S[1]; // f(R) = vR
 	S[2] = S[3]; // f(Z) = vZ
 	S[4] = S[5]; // f(T) = vT
-
+l_er=0;l_ez=0;l_et=0;
 	S[1] = eperm*(l_er + S[2]*l_bt - S[4]*l_bz);		// q/m * (E1+X4*B3-X6*B2)  = q/m * (E1+v2*B3-v3*B2)
 	S[3] = eperm*(l_ez + S[4]*l_br - S[0]*l_bt);		// q/m * (E2+X6*B1-X2*B3)  = q/m * (E2+v3*B1-v1*B3)
 	S[5] = eperm*(l_et + S[0]*l_bz - S[2]*l_br);		// q/m * (E3+X2*B2-X4*B1)  = q/m * (E3+v1*B2-v2*B1)
