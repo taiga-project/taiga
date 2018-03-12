@@ -168,7 +168,6 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	
 }
 
-
 __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double l_ri, int N_step){
 
 	// next grid

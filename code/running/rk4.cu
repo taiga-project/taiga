@@ -59,7 +59,7 @@ __device__ void rk4op(double *X, double *S, double *Sp, double mSp, double l_br,
 
 }
 
-__device__ void rk4op(double *X, double *S, double *Sp, double mSp, double l_br, double l_bz, double l_er, double l_ez, double l_et, double l_bt, double eperm){
+__device__ void rk4op(double *X, double *S, double *Sp, double mSp, double l_br, double l_bz,  double l_bt, double l_er, double l_ez, double l_et, double eperm){
 
 	for (int i=0;i<6;i++){
 		S[i] = X[i] + mSp * Sp[i];
