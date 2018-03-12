@@ -121,10 +121,10 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 		tmp[2]=er_ptr[15][0];  
 	}
 	if(idx==3){
-		tmp[1]=br_ptr[0][0];  
+		tmp[3]=br_ptr[0][0];  
 	}
 	if(idx==4){
-		tmp[2]=br_ptr[15][0];  
+		tmp[4]=br_ptr[15][0];  
 	}
 }
 
