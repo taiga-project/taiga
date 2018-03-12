@@ -113,6 +113,19 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	if(idx==0){
 		 tmp[0] = 42.24;
 	}
+	
+	if(idx==1){
+		tmp[1]=er_ptr[0][0];  
+	}
+	if(idx==2){
+		tmp[2]=er_ptr[15][0];  
+	}
+	if(idx==3){
+		tmp[1]=br_ptr[0][0];  
+	}
+	if(idx==4){
+		tmp[2]=br_ptr[15][0];  
+	}
 }
 
 /*
