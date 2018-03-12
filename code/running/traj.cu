@@ -257,12 +257,12 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 		l_br = cyl2tor_rad(l_br, l_bt, l_r, l_t);
 		l_bt = cyl2tor_tor(l_br, l_bt, l_r, l_t);
 		
-		/*l_er =  localField(lp_er,dr,dz);
+		l_er =  localField(lp_er,dr,dz);
 		l_ez =  localField(lp_ez,dr,dz);
 		l_et =  localField(lp_et,dr,dz);		
 		l_er = cyl2tor_rad(l_er, l_et, l_r, l_t);
 		l_et = cyl2tor_tor(l_er, l_et, l_r, l_t);
-	l_er=0;l_ez=0;l_et=0;*/
+	/*l_er=0;l_ez=0;l_et=0;*/
 
 		// archivate coordinates
 		l_or  = l_r;	l_oz  = l_z;	l_ot  = l_t;
