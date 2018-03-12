@@ -2,12 +2,12 @@
 
 function cdb_reader(varargin)
     startclean
-
+    addpath('/home/maradi/public/splines')
     in.tokamak = 'compass';
     in.majorradius=0.56;  
     
     in.plot = false;
-    
+    in.renate = false;
     in.folder = '../input/cdb';
     out.folder.renate = '../input/renate110';
     out.folder.grid = '../input/fieldGrid/';
@@ -25,6 +25,13 @@ function cdb_reader(varargin)
         in.shotNumber = varargin{1};
         in.time = varargin{2};
     end    
+    
+    if (nargin >=4 && ~isempty( varargin{4}) )
+        in.electric_field_module = varargin{3};
+        in.electric_field_value = varargin{4};
+    else
+        in.electric_field_module = 0;
+    end
           
     out = getHiddenParameters(out);
     
@@ -38,26 +45,35 @@ function cdb_reader(varargin)
     
     efit = readToroidalFlux(in, out, efit);
     efit = readPoloidalFlux(in, out, efit);
-    
+
     efit = makeMagneticGrid (in, out, efit);
     out = normaliseFlux(in, out, efit);
     
-    ts = readThomsonData(in, out, ts);
-        
-    out.efit.z      = linspace(min(ts.z),max(ts.z),200);
-    out.efit.r      = ones(size(out.efit.z))*in.majorradius;
-    
-    out = fitProfilesNT(ts, out);
-            
-    saveRenateFlux(in, out);    
-    saveRenateNT (in, out);
-    
     saveMagneticGrid (in, out, efit);    
     saveMagneticSpline (in, out, efit);
-
-    if in.plot
-        plotProfilesNT (in, out, ts);        
-        plotNormFlux (in, out, efit);
+    
+    if in.electric_field_module        
+        efit = makeElectricGrid (in, out, efit);
+        saveElectricGrid (in, out, efit);    
+        saveElectricSpline (in, out, efit);    
+    end
+    
+    
+    if in.renate
+        ts = readThomsonData(in, out, ts);
+    
+        out.efit.z      = linspace(min(ts.z),max(ts.z),200);
+        out.efit.r      = ones(size(out.efit.z))*in.majorradius;
+        
+        out = fitProfilesNT(ts, out);
+            
+        saveRenateFlux(in, out);    
+        saveRenateNT (in, out);
+    
+        if in.plot
+            plotProfilesNT (in, out, ts);        
+            plotNormFlux (in, out, efit);
+        end
     end
 
 end
@@ -75,28 +91,61 @@ function efit = makeMagneticGrid (in, out, efit)
     psi_dR = (psi_dR2-psi_dR1)/dx;
     psi_dZ = (psi_dZ2-psi_dZ1)/dx;
 
-
-    
-
     brad = -psi_dZ./R_M;%*pi;
     bz   =  psi_dR./R_M;%*pi;	
     efit.brad=brad';
-    efit.bz=bz';
+    efit.bz=bz';    
 end
 
-function saveMagneticGrid (in, out, efit)    
+function efit = makeElectricGrid (in, out, efit)    
+
+    electric_field_components = lower(in.electric_field_value);
+    electric_field_components = regexprep(electric_field_components,'*','.*');
+    electric_field_components = regexprep(electric_field_components,'/','./');
+    electric_field_components = regexprep(electric_field_components,'\^','.\^');
+
+    r = efit.r;
+    z = efit.z;    
+    
+    erad=zeros(size(efit.brad));
+    ez=zeros(size(efit.brad));
+    etor=zeros(size(efit.brad));
+    
+    try
+        disp([electric_field_components,';'])
+        eval([electric_field_components,';'])
+    catch
+        disp(['ERROR: electric_field_value is invalid (',in.electric_field_value,')'])
+        %keyboard
+    end           
+    
+    efit.erad = erad .* ones(size(efit.brad));
+    efit.ez   = ez   .* ones(size(efit.brad));
+    efit.etor = etor .* ones(size(efit.brad));       
+    
+end
+
+
+function saveMagneticGrid (in, out, efit) 
+    complist = {'r',    'z',    'brad','bz','btor','polflux'};
+    filelist = {'rcord','zcord','brad','bz','btor','psi2'};
+    saveGrid (in, out, efit, complist, filelist);
+end
+
+function saveElectricGrid (in, out, efit) 
+    complist = {'erad','ez','etor'};
+    filelist = complist;
+    saveGrid (in, out, efit, complist, filelist);
+end
+
+function saveGrid (in, out, efit, complist, filelist)    
     
     foldername = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
     mkdir(foldername)
     
-    dlmwrite([foldername, 'rcord.dat'],efit.r, 'precision','%.16e','delimiter','\t');
-    dlmwrite([foldername, 'zcord.dat'],efit.z, 'precision','%.16e','delimiter','\t');
-    dlmwrite([foldername, 'brad.dat'],efit.brad, 'precision','%.16e','delimiter','\t');
-    dlmwrite([foldername, 'bz.dat'],efit.bz, 'precision','%.16e','delimiter','\t');
-    dlmwrite([foldername, 'btor.dat'],efit.btor, 'precision','%.16e','delimiter','\t');    
-    dlmwrite([foldername, 'psi2.dat'],efit.polflux, 'precision','%.16e','delimiter','\t');    
-    
-    % a btor szar
+    for i = 1:length(complist)
+        dlmwrite([foldername, filelist{i},'.dat'],efit.(complist{i}), 'precision','%.16e','delimiter','\t');
+    end    
     
 end
 
@@ -110,46 +159,67 @@ function savePlot (in, out, plotname)
 end
 
 function saveMagneticSpline (in, out, efit)
+    complist = {'brad','bz','btor'};
+    saveSplineCoeffs (in, out, efit,complist);
+end
+
+function saveElectricSpline (in, out, efit)
+    complist = {'erad','ez','etor'};
+    saveSplineCoeffs (in, out, efit,complist);
+end
+
+function saveSplineCoeffs (in, out, efit,complist)
       
-	complist = {'brad','bz','btor'};
     for i=1:length(complist)
         comp=complist{i};
-        sp = csapi({efit.r,efit.z},efit.(comp));
+        try
+            sp = csapi({efit.r,efit.z},efit.(comp));
 
-        i11=1:sp.pieces(1);
-        i12=i11+1*sp.pieces(1);
-        i13=i11+2*sp.pieces(1);
-        i14=i11+3*sp.pieces(1);
+            i11=1:sp.pieces(1);
+            i12=i11+1*sp.pieces(1);
+            i13=i11+2*sp.pieces(1);
+            i14=i11+3*sp.pieces(1);
 
-        i21=1:sp.pieces(2);
-        i22=i21+1*sp.pieces(2);
-        i23=i21+2*sp.pieces(2);
-        i24=i21+3*sp.pieces(2);
+            i21=1:sp.pieces(2);
+            i22=i21+1*sp.pieces(2);
+            i23=i21+2*sp.pieces(2);
+            i24=i21+3*sp.pieces(2);
 
 
-        c=reshape(sp.coefs,size(sp.coefs,2),[]);
-        b = sp.breaks{1};
-        b2 = sp.breaks{2};
+            c=reshape(sp.coefs,size(sp.coefs,2),[]);
+            b = sp.breaks{1};
+            b2 = sp.breaks{2};
 
-	    mkdir(out.folder.spline)
-	    foldername = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
-	    mkdir(foldername)
-        save([foldername,'/r.spline'],'-ascii','-tabs','-double','b')
-        save([foldername,'/z.spline'],'-ascii','-tabs','-double','b2')
-        disp('Spline calculated')        
-        
-        c11 = c(i11,i21);    c12 = c(i11,i22);    c13 = c(i11,i23);    c14 = c(i11,i24);
-        c21 = c(i12,i21);    c22 = c(i12,i22);    c23 = c(i12,i23);    c24 = c(i12,i24);
-        c31 = c(i13,i21);    c32 = c(i13,i22);    c33 = c(i13,i23);    c34 = c(i13,i24);
-        c41 = c(i14,i21);    c42 = c(i14,i22);    c43 = c(i14,i23);    c44 = c(i14,i24);
-        
-        for fi1 = 1:4
-        	for fi2 = 1:4        	
-		        save([foldername,'/',comp,'.spl',num2str(fi1),num2str(fi2)],'-ascii','-tabs','-double',['c',num2str(fi1),num2str(fi2)])
+            mkdir(out.folder.spline)
+            foldername = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
+            mkdir(foldername)
+            save([foldername,'/r.spline'],'-ascii','-tabs','-double','b')
+            save([foldername,'/z.spline'],'-ascii','-tabs','-double','b2')
+            disp('Spline calculated')        
+            
+            c11 = c(i11,i21);    c12 = c(i11,i22);    c13 = c(i11,i23);    c14 = c(i11,i24);
+            c21 = c(i12,i21);    c22 = c(i12,i22);    c23 = c(i12,i23);    c24 = c(i12,i24);
+            c31 = c(i13,i21);    c32 = c(i13,i22);    c33 = c(i13,i23);    c34 = c(i13,i24);
+            c41 = c(i14,i21);    c42 = c(i14,i22);    c43 = c(i14,i23);    c44 = c(i14,i24);
+            
+            for fi1 = 1:4
+                for fi2 = 1:4        	
+                    save([foldername,'/',comp,'.spl',num2str(fi1),num2str(fi2)],'-ascii','-tabs','-double',['c',num2str(fi1),num2str(fi2)])
+                end
             end
+            disp(comp)
+            disp(['Spline saved to ',foldername])
+        catch
+            error(['Error in spline fitting: \n sizeof ',comp,': ',num2str(size(efit.(comp))),' must be ',num2str(length(efit.r)),' x ',num2str(length(efit.z))])
         end
-        disp(comp)
-        disp('Spline saved')
+        %    folder_grid = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
+
+        %    mkdir(out.folder.spline)
+        %    folder_spl = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
+        %    mkdir(folder_spl)
+
+        %    disp(['octave --eval saveMagneticSplineOctave(',comp,',',folder_grid,',',folder_spl,') '])
+        %end
     end
 end
 
@@ -256,12 +326,9 @@ function efit = readPoloidalFlux(in, out, efit)
     in.source = 'efitxx';
     % EFIT poloidal flux
     in.hdf5flag = '/output/profiles2D/poloidalFlux';
-    efit.polflux    = readMatrixData(in);        
-
-    
+    efit.polflux    = readMatrixData(in);      
     
 end
-
 
 
 function efit = readMagneticAxis(in, efit)
@@ -292,9 +359,8 @@ function efit = readMagneticBoundary(in, efit)
     efit.limiter.r     = readScalarData(in);
     in.hdf5flag = '/output/separatrixGeometry/limiterCoordsZ';
     efit.limiter.z     = readScalarData(in);
-end
-    
-    
+end    
+   
 
 function out = normaliseFlux(in, out, efit)
     
@@ -346,32 +412,34 @@ function saveRenateFlux(in, out)
 end
 
 
-function ts = profileHack(ts)
-	density = ts.density;
-	densityErr = ts.densityErr;
-	temperature = ts.temperature;
-	temperatureErr = ts.temperatureErr;
-	psi_in = ts.psi;
-	psi_out=[];
-	Te_out=[];
-	ne_out=[];
-	l = length(flux);
-	l2=100;
-	for i = 1:l
-		psi_out=[psi_out,psi_in(i)*ones(1,l2)];		
-		ne_out=[Te_out,random('norm',density(i),densityErr(i),l2)];
-		Te_out=[Te_out,random('norm',temperature(i),temperatureErr(i),l2)];
-	end
-	ts.psi=psi_out;
-	ts.temperature=Te_out;
-	ts.density=ne_out;
-	
+function ts = profileHack(ts,out)
+    density = ts.density;
+    densityErr = ts.densityErr;
+    temperature = ts.temperature;
+    temperatureErr = ts.temperatureErr;
+    psi_in = ts.psi;
+    psi_out=[];
+    Te_out=[];
+    ne_out=[];
+    l = length(out.flux.r);
+    l2=100;
+    for i = 1:l
+        psi_out=[psi_out,psi_in(i)*ones(1,l2)];		
+        ne_out=[Te_out,random('norm',density(i),densityErr(i),l2)];
+        Te_out=[Te_out,random('norm',temperature(i),temperatureErr(i),l2)];
+    end
+    ts.psi=psi_out;
+    ts.temperature=Te_out;
+    ts.density=ne_out;
 
 end
 
 function out = fitProfilesNT(ts, out)
     
-    ts = profileHack(ts);
+    try 
+        ts = profileHack(ts,out);
+    catch e
+    end
     
     in = find(ts.psi<max(out.nt.psi_in) & ts.psi > min(out.nt.psi_in));
     

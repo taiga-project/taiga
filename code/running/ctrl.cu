@@ -33,8 +33,7 @@ __global__ void banCtrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double
 
 }
 
-__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri){
-
+__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri, int N_step){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -58,7 +57,7 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
 	
-	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,l_ri);
+	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,l_ri,N_step);
 	//if(idx<20) tmp[idx]=temp;
 
 
@@ -73,6 +72,61 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	if(idx==0){
 		 tmp[0] = 42.24;
 	}
+}
+
+__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double l_ri, int N_step){
+	// thread index
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+	//		double temp;
+	
+	// grid pointer
+	double *rg, *zg;
+	rg = g_ptr[0];	
+	zg = g_ptr[1];
+	
+	//double valR=0.72, valZ=0.0;
+	double sRZT[3], svRZT[3];
+	//double *trp;
+	//int i,j;
+
+	sRZT[0] = x_ptr[0][idx];
+	sRZT[1] = x_ptr[1][idx];
+	sRZT[2] = x_ptr[2][idx];
+
+	svRZT[0] = v_ptr[0][idx];
+	svRZT[1] = v_ptr[1][idx];
+	svRZT[2] = v_ptr[2][idx];
+	
+	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,l_ri,N_step);
+	//if(idx<20) tmp[idx]=temp;
+
+
+	x_ptr[0][idx]=sRZT[0];
+	x_ptr[1][idx]=sRZT[1];
+	x_ptr[2][idx]=sRZT[2];
+
+	v_ptr[0][idx]=svRZT[0];
+	v_ptr[1][idx]=svRZT[1];
+	v_ptr[2][idx]=svRZT[2];
+
+	if(idx==0){
+		 tmp[0] = 42.24;
+	}
+	
+	if(idx==1){
+		tmp[1]=er_ptr[0][0];  
+	}
+	if(idx==2){
+		tmp[2]=er_ptr[15][0];  
+	}
+	if(idx==3){
+		tmp[3]=br_ptr[0][0];  
+	}
+	if(idx==4){
+		tmp[4]=br_ptr[15][0];  
+	}
+}
 
 /*
 	sRZT[0]=valR;
@@ -129,5 +183,3 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	
 //	if(idx==0) tmp[0] = idx+0.42;*/
 //	return 1;	
-}
-
