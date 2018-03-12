@@ -3,8 +3,8 @@ function saveMagneticSplineOctave (comp,folder_grid,folder_spl)
 efit_r = load([folder_grid, 'rcord.dat'])
 efit_z = load([folder_grid, 'rcord.dat'])
 efit_comp = load([folder_grid, comp, '.dat'])
-      
-        sp = csapi({efit_r,efit_z},efit_comp);
+      sp = spline({efit_r,efit_z},efit_comp)
+        %sp = csapi({efit_r,efit_z},efit_comp);
 
         i11=1:sp.pieces(1);
         i12=i11+1*sp.pieces(1);
