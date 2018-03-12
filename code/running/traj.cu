@@ -5,11 +5,9 @@ __device__ /*double int*/ void copyLocal(double *rg, int NR, double *zg, int NZ,
 	int rci, zci;
 	int i, i2;
 	
-	for(rci=0;(rg[rci+1]<l_r)&&(rci<NR-1);rci++){;}
+	for(rci=0;(rg[rci+1]<l_r)&&(rci<NR-1);rci++){;}	
 	
-	
-	for(zci=0;(zg[zci+1]<l_z)&&(zci<NR-1);zci++){;}
-	
+	for(zci=0;(zg[zci+1]<l_z)&&(zci<NR-1);zci++){;}	
 	
 	// Particle leave out the cell
 	if ((rzci[0]!=rci)||(rzci[1]!=zci)){
@@ -35,11 +33,9 @@ __device__ /*double int*/ void copyLocal(double *rg, int NR, double *zg, int NZ,
 	int rci, zci;
 	int i, i2;
 	
-	for(rci=0;(rg[rci+1]<l_r)&&(rci<NR-1);rci++){;}
+	for(rci=0;(rg[rci+1]<l_r)&&(rci<NR-1);rci++){;}	
 	
-	
-	for(zci=0;(zg[zci+1]<l_z)&&(zci<NR-1);zci++){;}
-	
+	for(zci=0;(zg[zci+1]<l_z)&&(zci<NR-1);zci++){;}	
 	
 	// Particle leave out the cell
 	if ((rzci[0]!=rci)||(rzci[1]!=zci)){
@@ -62,9 +58,6 @@ __device__ /*double int*/ void copyLocal(double *rg, int NR, double *zg, int NZ,
 	
 	//return i2;	
 }
-
-
-
 
 
 __device__ double localField(double *lp_b, double dr, double dz){
@@ -170,8 +163,6 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 		X[3] = l_vz;
 		X[5] = l_vt;
 	
-
-	
 		rk4lin(X, l_br, l_bz, l_bt, eperm);
 		
 		// new coordinates
@@ -184,17 +175,14 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 		l_vz = X[3];
 		l_vt = X[5];
 	
-	
 		// finished? (interpolation)
 		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, l_ri, l_x, l_vr);
 
 	}
-
 	
 	l_v[0] = l_vr;
 	l_v[1] = l_vz;
 	l_v[2] = l_vt;
-	
 
 	if (!finished){
 		l_x[0] = l_r;
@@ -262,7 +250,6 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 		l_et =  localField(lp_et,dr,dz);		
 		l_er = cyl2tor_rad(l_er, l_et, l_r, l_t);
 		l_et = cyl2tor_tor(l_er, l_et, l_r, l_t);
-	/*l_er=0;l_ez=0;l_et=0;*/
 
 		// archivate coordinates
 		l_or  = l_r;	l_oz  = l_z;	l_ot  = l_t;
