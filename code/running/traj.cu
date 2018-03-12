@@ -30,6 +30,42 @@ __device__ /*double int*/ void copyLocal(double *rg, int NR, double *zg, int NZ,
 	//return i2;	
 }
 
+__device__ /*double int*/ void copyLocal(double *rg, int NR, double *zg, int NZ, double l_r, double l_z, int *rzci, double *lp_br, double *lp_bz, double *lp_bt,  double **br_ptr, double **bz_ptr, double **bt_ptr,
+										double *lp_er, double *lp_ez, double *lp_et,  double **er_ptr, double **ez_ptr, double **et_ptr){
+	int rci, zci;
+	int i, i2;
+	
+	for(rci=0;(rg[rci+1]<l_r)&&(rci<NR-1);rci++){;}
+	
+	
+	for(zci=0;(zg[zci+1]<l_z)&&(zci<NR-1);zci++){;}
+	
+	
+	// Particle leave out the cell
+	if ((rzci[0]!=rci)||(rzci[1]!=zci)){
+		rzci[0]=rci; 	
+		rzci[1]=zci; 	
+	
+		for(i=0;i<16;i++){
+	
+			i2 = (rzci[0])*(NZ-1)+rzci[1];
+		
+			lp_br[i]=br_ptr[i][i2];			
+			lp_bz[i]=bz_ptr[i][i2];			
+			lp_bt[i]=bt_ptr[i][i2];
+			lp_er[i]=er_ptr[i][i2];			
+			lp_ez[i]=ez_ptr[i][i2];			
+			lp_et[i]=et_ptr[i][i2];
+		
+		}
+	}
+	
+	//return i2;	
+}
+
+
+
+
 
 __device__ double localField(double *lp_b, double dr, double dz){
 
@@ -210,8 +246,7 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 		// Get local magnetic field	
 
 		l_rT = cyl2tor_coord(l_r, l_t);
-		copyLocal(rg,NR,zg,NZ,l_rT,l_z,rzci,lp_br,lp_bz,lp_bt,br_ptr,bz_ptr,bt_ptr);	
-		copyLocal(rg,NR,zg,NZ,l_rT,l_z,rzci,lp_er,lp_ez,lp_et,er_ptr,ez_ptr,et_ptr);
+		copyLocal(rg,NR,zg,NZ,l_rT,l_z,rzci,lp_br,lp_bz,lp_bt,br_ptr,bz_ptr,bt_ptr,lp_er,lp_ez,lp_et,er_ptr,ez_ptr,et_ptr);	
 		
 		dr = l_rT-rg[rzci[0]];
 		dz = l_z-zg[rzci[1]];
