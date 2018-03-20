@@ -12,4 +12,4 @@ else
 	echo "Error in initialisation. Please run init_debug.sh"
 fi
 
-echo $matlabscript>"input/fieldGrid/"$shotnumber"_"$time"/matlab.txt
+echo $matlabscript>"input/fieldGrid/"$shotnumber"_"$time"/matlab.txt"
