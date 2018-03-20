@@ -118,10 +118,12 @@ function efit = makeMagneticGrid (in, out, efit)
     e = regexprep(e,'*','.*');
     e = regexprep(e,'/','./');
     e = regexprep(e,'\^','.\^');
-
+      
+    s = [50,50];
+    efit.r = linspace(0.5,1.5,50)'*ones(s);
+    efit.z = linspace(-0.5,0.5,50)*ones(s);
     r = efit.r;
-    z = efit.z;    
-    s = 
+    z = efit.z;  
     
     brad=zeros(s);
     bz=zeros(s);
