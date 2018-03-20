@@ -35,7 +35,7 @@ function cdb_reader(varargin)
         in.make_field.e.loaded = 0;
     end
         
-    if (in.shotNumber == 'test' && nargin >=5 && ~isempty( varargin{5}) )
+    if (strcmp(in.shotNumber,'test') && nargin >=5 && ~isempty( varargin{5}) )
         in.make_field.b.equation = varargin{5};
         in.make_field.b.loaded = 1;
     else
