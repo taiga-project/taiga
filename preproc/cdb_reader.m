@@ -2,7 +2,8 @@
 
 function cdb_reader(varargin)
     startclean
-    addpath('/home/maradi/public/splines')
+    %addpath('/home/maradi/public/splines')
+    
     in.tokamak = 'compass';
     in.majorradius=0.56;  
     
@@ -14,6 +15,7 @@ function cdb_reader(varargin)
     out.folder.spline = '../input/fieldSpl/';
     out.folder.plot = '../results/';
     
+    %% input
 
     if nargin == 0
         in.shotNumber = '11774';
@@ -27,39 +29,52 @@ function cdb_reader(varargin)
     end    
     
     if (nargin >=4 && ~isempty( varargin{4}) )
-        in.electric_field_module = varargin{3};
-        in.electric_field_value = varargin{4};
+        in.make_field.e.loaded = varargin{3};
+        in.make_field.e.equation = varargin{4};
     else
-        in.electric_field_module = 0;
+        in.make_field.e.loaded = 0;
     end
-          
+        
+    if (in.shotNumber == 'test' && nargin >=5 && ~isempty( varargin{5}) )
+        in.make_field.b.equation = varargin{5};
+        in.make_field.b.loaded = 1;
+    else
+        in.make_field.b.loaded = 0;
+    end
+    
+    %% start  
+    
     out = getHiddenParameters(out);
-    
-    %   start    
+      
     [efit, ts] = initEmpty;
-    in = readTimes(in);
-    [efit, out] = readEfitGrid(in, out, efit);
     
-    efit = readMagneticAxis(in, efit);
-    efit = readMagneticBoundary(in, efit);
-    
-    efit = readToroidalFlux(in, out, efit);
-    efit = readPoloidalFlux(in, out, efit);
+    if in.make_field.b.loaded  
+        efit = makeMagneticGrid (in, out, efit);        
+    else
+        in = readTimes(in);
+        [efit, out] = readEfitGrid(in, out, efit);
+        
+        efit = readMagneticAxis(in, efit);
+        efit = readMagneticBoundary(in, efit);
+        
+        efit = readToroidalFlux(in, out, efit);
+        efit = readPoloidalFlux(in, out, efit);
 
-    efit = makeMagneticGrid (in, out, efit);
-    out = normaliseFlux(in, out, efit);
+        efit = calcMagneticGrid (in, out, efit);
+        out = normaliseFlux(in, out, efit);    
+    end
     
     saveMagneticGrid (in, out, efit);    
     saveMagneticSpline (in, out, efit);
     
-    if in.electric_field_module        
+    if in.make_field.e.loaded        
         efit = makeElectricGrid (in, out, efit);
         saveElectricGrid (in, out, efit);    
         saveElectricSpline (in, out, efit);    
     end
     
     
-    if in.renate
+    if (in.renate && ~in.make_field.b.loaded)
         ts = readThomsonData(in, out, ts);
     
         out.efit.z      = linspace(min(ts.z),max(ts.z),200);
@@ -78,7 +93,7 @@ function cdb_reader(varargin)
 
 end
 
-function efit = makeMagneticGrid (in, out, efit)
+function efit = calcMagneticGrid (in, out, efit)
     psi_RZ = efit.polflux;
     R_M = out.flux.r;
     Z_M = out.flux.z;
@@ -97,31 +112,61 @@ function efit = makeMagneticGrid (in, out, efit)
     efit.bz=bz';    
 end
 
-function efit = makeElectricGrid (in, out, efit)    
+function efit = makeMagneticGrid (in, out, efit)    
 
-    electric_field_components = lower(in.electric_field_value);
-    electric_field_components = regexprep(electric_field_components,'*','.*');
-    electric_field_components = regexprep(electric_field_components,'/','./');
-    electric_field_components = regexprep(electric_field_components,'\^','.\^');
+    e = lower(in.make_field.b.equation);
+    e = regexprep(e,'*','.*');
+    e = regexprep(e,'/','./');
+    e = regexprep(e,'\^','.\^');
 
     r = efit.r;
     z = efit.z;    
+    s = 
     
-    erad=zeros(size(efit.brad));
-    ez=zeros(size(efit.brad));
-    etor=zeros(size(efit.brad));
+    brad=zeros(s);
+    bz=zeros(s);
+    btor=zeros(s);
     
     try
-        disp([electric_field_components,';'])
-        eval([electric_field_components,';'])
+        disp([e,';'])
+        eval([e,';'])
     catch
-        disp(['ERROR: electric_field_value is invalid (',in.electric_field_value,')'])
+        disp(['ERROR: magnetic_field_value is invalid (',in.make_field.b.equation,')'])
         %keyboard
     end           
     
-    efit.erad = erad .* ones(size(efit.brad));
-    efit.ez   = ez   .* ones(size(efit.brad));
-    efit.etor = etor .* ones(size(efit.brad));       
+    efit.brad = brad .* ones(s);
+    efit.bz   = bz   .* ones(s);
+    efit.btor = btor .* ones(s);       
+    
+end
+
+function efit = makeElectricGrid (in, out, efit)    
+
+    e = lower(in.make_field.e.equation);
+    e = regexprep(e,'*','.*');
+    e = regexprep(e,'/','./');
+    e = regexprep(e,'\^','.\^');
+
+    r = efit.r;
+    z = efit.z;    
+    s = size(efit.brad);
+    
+    erad=zeros(s);
+    ez=zeros(s);
+    etor=zeros(s);
+    
+    try
+        disp([e,';'])
+        eval([e,';'])
+    catch
+        disp(['ERROR: electric_field_value is invalid (',in.make_field.e.equation,')'])
+        %keyboard
+    end           
+    
+    efit.erad = erad .* ones(s);
+    efit.ez   = ez   .* ones(s);
+    efit.etor = etor .* ones(s);       
     
 end
 
