@@ -1,8 +1,8 @@
 % //! read hdf5 data files
 
 function cdb_reader(varargin)
-    startclean
-    %addpath('/home/maradi/public/splines')
+    startclean    
+    add_csapi_if_its_not_installed
     
     in.tokamak = 'compass';
     in.majorradius=0.56;  
@@ -640,4 +640,12 @@ function startclean
     clear all
     clc
     close all
+end
+
+function add_csapi_if_its_not_installed
+    if ~exist('csapi')
+        p = '/home/maradi/public/splines';
+        addpath(p)
+        disp(['CSAPI loaded from ',p])
+    end
 end
