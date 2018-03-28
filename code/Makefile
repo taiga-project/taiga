@@ -7,4 +7,5 @@ all: taiga.exe
 taiga.exe: main.cu
 	$(NVCC) $(CFLAGS) -o taiga.exe  main.cu
 	
-clean: rm taiga.exe
+clean: 
+	rm taiga.exe
