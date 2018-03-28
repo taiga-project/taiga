@@ -654,10 +654,14 @@ int main(int argc, char *argv[]){
 		}
 	}
 	saveDataHT("-----------------------------------",folder_out,timestamp);
-	saveDataH("Beam energy","keV",beam.energy,folder_out,timestamp);
-	saveDataH("Atomic mass","AMU",beam.mass,folder_out,timestamp);
-	saveDataH("Beam diameter","mm",beam.diameter,folder_out,timestamp);
-	saveDataH2("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
+
+	if(!$3DINPUTPROF){
+		saveDataH("Beam energy","keV",beam.energy,folder_out,timestamp);
+		saveDataH("Atomic mass","AMU",beam.mass,folder_out,timestamp);
+		saveDataH("Beam diameter","mm",beam.diameter,folder_out,timestamp);
+		saveDataH2("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
+	}
+	
 	if(!RADIONS&&!BANANA){	
 		saveDataH("Ion. position (R)","m",R_midions,folder_out,timestamp);
 	}
