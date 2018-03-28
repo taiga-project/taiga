@@ -53,6 +53,7 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
+#include <filesystem.h>
 
 #include <cuda_profiler_api.h>
 #include "cuda/nvToolsExt.h"
@@ -634,6 +635,8 @@ int main(int argc, char *argv[]){
 	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
 	saveDataHT(concat("Run ID:  ",timestamp),folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
+	saveDataHT(concat("version: r ",SVN_REV),folder_out,timestamp);
+	saveDataHT("-----------------------------------",folder_out,timestamp);
 	if(BANANA){
 		saveDataHT("BANANA ORBITS",folder_out,timestamp);
 	}else{		
@@ -678,6 +681,16 @@ int main(int argc, char *argv[]){
 	saveDataH("Number of loops", "", shot.step_host,folder_out,timestamp);		
 
 	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
+	
+	try{
+		std::filesystem::create_directories(concat("/home/maradi/log",folder_out));
+		std::filesystem::copy(concat(folder_out,"header.dat"),concat("/home/maradi/log",folder_out));
+		std::filesystem::copy("parameters.sh",concat("/home/maradi/log",folder_out));
+	}catch{
+		
+	}
+    
+    
 
 	//! Free CUDA
 	cudaFree(x_ptr);	cudaFree(xr);	cudaFree(xz);	cudaFree(xt);
