@@ -53,7 +53,7 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
-#include <filesystem>
+//#include <filesystem>
 
 #include <cuda_profiler_api.h>
 #include "cuda/nvToolsExt.h"
@@ -682,14 +682,14 @@ int main(int argc, char *argv[]){
 
 	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
 	
-	try{
+/*	try{
 		std::filesystem::create_directories(concat("/home/maradi/log",folder_out));
 		std::filesystem::copy(concat(folder_out,"header.dat"),concat("/home/maradi/log",folder_out));
 		std::filesystem::copy("parameters.sh",concat("/home/maradi/log",folder_out));
 	}catch{
 		
 	}
-    
+*/    
     
 
 	//! Free CUDA
