@@ -33,22 +33,26 @@ function traj_plotter(varargin)
     subplot(2,2,1)
     plot(t_tor,t_z)
     xlabel('tor')
-    ylabel('z')    
+    ylabel('z')
+    axis equal
     
     subplot(2,2,2)
     plot(t_rad,t_z)
     xlabel('R')
-    ylabel('z')    
+    ylabel('z')   
+    axis equal 
     
     subplot(2,2,3)
     plot(t_tor,t_rad)
     xlabel('tor')
-    ylabel('R')    
+    ylabel('R')   
+    axis equal 
     
     subplot(2,2,4)
     plot3(t_rad,t_z,t_tor)
     xlabel('R')
     ylabel('z')
     zlabel('tor')
+    axis equal
     
 end
