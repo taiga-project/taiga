@@ -20,11 +20,12 @@
     
     zi = zeros(size(I));
 for i = 1:length(I)    
-    J = I(i);
-    J1 = I1(i);
+   % J = I(i);
+    %J1 = I1(i);
     
-    zi(i) = interp1([t_rad(J-2) t_rad(J-1) t_rad(J) t_rad(J+1) t_rad(J+2)],[t_z(J-2)  t_z(J-1) t_z(J) t_z(J+1) t_z(J+2)],t_rad(J1,1));
+    %zi(i) = interp1([t_rad(J-2) t_rad(J-1) t_rad(J) t_rad(J+1) t_rad(J+2)],[t_z(J-2)  t_z(J-1) t_z(J) t_z(J+1) t_z(J+2)],t_rad(J1,1));
     
 end
     
     
+zi = t_z(I) + (t_rad(I+1) - t_rad(I)) / (t_z(I+1) - t_z(I));
