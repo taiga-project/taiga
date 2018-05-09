@@ -16,8 +16,15 @@
     [I1,I2] = find(L1.*L2);
     I = find(L1.*L2);
     
-    zi = interp1([t_rad(I) t_rad(I+1)],[t_z(I) t_z(I+1)],t_rad(I1,1));
+    %zi = interp1([t_rad(I-2) t_rad(I-1) t_rad(I) t_rad(I+1) t_rad(I+2)],[t_z(I-2)  t_z(I-1) t_z(I) t_z(I+1) t_z(I+2)],t_rad(I1,1));
     
+    zi = zeros(size(I));
+for i = 1:length(I)    
+    J = I(i);
+    J1 = I1(i);
     
+    zi(i) = interp1([t_rad(J-2) t_rad(J-1) t_rad(J) t_rad(J+1) t_rad(J+2)],[t_z(J-2)  t_z(J-1) t_z(J) t_z(J+1) t_z(J+2)],t_rad(J1,1));
+    
+end
     
     
