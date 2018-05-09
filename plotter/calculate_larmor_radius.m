@@ -28,4 +28,4 @@ for i = 1:length(I)
 end
     
     
-zi = t_z(I) + (t_rad(I+1) - t_rad(I)) / (t_z(I+1) - t_z(I));
+zi = t_z(I) + (t_rad(I+1) - t_rad(I)) ./ (t_z(I+1) - t_z(I));
