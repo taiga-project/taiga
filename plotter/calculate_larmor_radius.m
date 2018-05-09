@@ -1,7 +1,7 @@
 
     mainfolder = '../results';
-    shotnumber = '11774_1000';
-    runnumber = '0';
+    shotnumber = 'test_1';
+    runnumber = '120';
     
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_rad.dat']);
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_z.dat']);
