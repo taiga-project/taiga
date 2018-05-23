@@ -3,6 +3,7 @@ clear all
     shotnumber = 'test_1';    runnumber = '120';
     shotnumber = 'test_2';    runnumber = '128';
     shotnumber = 'test_5';    runnumber = '129';
+    shotnumber = 'test_6';    runnumber = '130';
     
     
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_rad.dat']);
@@ -88,7 +89,7 @@ disp(['Av. drift: ',num2str(mean(av*1e6),'%.4f'), ' +/- ',num2str(std(avs*1e6),'
 
 
 B = 1;
-dB = 0.01;
+dB = 0.002;
 dt = 1e-9;
 
 
