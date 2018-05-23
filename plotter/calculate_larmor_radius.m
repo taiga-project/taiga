@@ -89,13 +89,14 @@ disp(['Av. drift: ',num2str(mean(av*1e6),'%.4f'), ' +/- ',num2str(std(avs*1e6),'
 
 
 B = 1;
-dB = 0.002;
+dB = 0.002  ;
 dt = 1e-9;
-
+E = 10
 
 xgradB = mean(60 * 1000 ./ (B +dB*t_rad(:,1)).^ 2 *dB *dt);
+xE = mean(60 * 1000 /B*E *dt);
 disp(['expected gradB drift: ',num2str(xgradB*1e6,'%.4f'),' um/step'])
-
+disp(['expected E field drift: ',num2str(xE*1e6,'%.4f'),' um/step'])
 
 if true
     close all
