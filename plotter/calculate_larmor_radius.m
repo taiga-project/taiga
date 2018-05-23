@@ -95,7 +95,7 @@ dt = 1e-9;
 E = 10
 
 xgradB = mean(60 * 1000 ./ (B +dB*t_rad(:,1)).^ 2 *dB *dt);
-xE = E / B * dt;
+xE = - E / B * dt;
 disp(['expected gradB drift: ',num2str(xgradB*1e6,'%.4f'),' um/step'])
 disp(['expected E field drift: ',num2str(xE*1e6,'%.4f'),' um/step'])
 
