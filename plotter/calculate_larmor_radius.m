@@ -4,6 +4,7 @@ clear all
     shotnumber = 'test_2';    runnumber = '128';
     shotnumber = 'test_5';    runnumber = '129';
     shotnumber = 'test_6';    runnumber = '130';
+    shotnumber = 'test_10';    runnumber = '131';
     
     
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_rad.dat']);
