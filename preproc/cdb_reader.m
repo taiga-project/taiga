@@ -146,9 +146,9 @@ function efit = makeMagneticGrid (in, out, efit)
         %keyboard
     end           
     
-    efit.brad = brad' .* ones(s);
-    efit.bz   = bz'   .* ones(s);
-    efit.btor = btor' .* ones(s);       
+    efit.brad = brad .* ones(s);    efit.brad = efit.brad';
+    efit.bz   = bz   .* ones(s);    efit.bz   = efit.bz';
+    efit.btor = btor .* ones(s);    efit.btor = efit.btor';   
     
 end
 
@@ -175,9 +175,9 @@ function efit = makeElectricGrid (in, out, efit)
         %keyboard
     end           
     
-    efit.erad = erad' .* ones(s);
-    efit.ez   = ez'   .* ones(s);
-    efit.etor = etor' .* ones(s);       
+    efit.erad = erad .* ones(s);    efit.erad = efit.erad';
+    efit.ez   = ez   .* ones(s);    efit.ez   = efit.ez';
+    efit.etor = etor .* ones(s);    efit.etor = efit.etor';       
     
 end
 
