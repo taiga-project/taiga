@@ -80,15 +80,23 @@ function cdb_reader(varargin)
         out.efit.z      = linspace(min(ts.z),max(ts.z),200);
         out.efit.r      = ones(size(out.efit.z))*in.majorradius;
         
-        out = fitProfilesNT(ts, out);
+    out.efit.z      = linspace(min(ts.z),max(ts.z),200);
+    out.efit.r      = ones(size(out.efit.z))*in.majorradius;
+    out.spx = efit.spx.rout;
+    
+    out = fitProfilesNT(ts, out);
             
         saveRenateFlux(in, out);    
         saveRenateNT (in, out);
     
-        if in.plot
-            plotProfilesNT (in, out, ts);        
-            plotNormFlux (in, out, efit);
-        end
+    saveMagneticGrid (in, out, efit);    
+    saveMagneticSpline (in, out, efit);
+
+    saveSpxOut(in, out);  
+
+    if in.plot
+        plotProfilesNT (in, out, ts);        
+        plotNormFlux (in, out, efit);
     end
 
 end
@@ -138,9 +146,9 @@ function efit = makeMagneticGrid (in, out, efit)
         %keyboard
     end           
     
-    efit.brad = brad .* ones(s);
-    efit.bz   = bz   .* ones(s);
-    efit.btor = btor .* ones(s);       
+    efit.brad = brad' .* ones(s);
+    efit.bz   = bz'   .* ones(s);
+    efit.btor = btor' .* ones(s);       
     
 end
 
@@ -167,9 +175,9 @@ function efit = makeElectricGrid (in, out, efit)
         %keyboard
     end           
     
-    efit.erad = erad .* ones(s);
-    efit.ez   = ez   .* ones(s);
-    efit.etor = etor .* ones(s);       
+    efit.erad = erad' .* ones(s);
+    efit.ez   = ez'   .* ones(s);
+    efit.etor = etor' .* ones(s);       
     
 end
 
@@ -407,8 +415,13 @@ function efit = readMagneticBoundary(in, efit)
     efit.limiter.r     = readScalarData(in);
     in.hdf5flag = '/output/separatrixGeometry/limiterCoordsZ';
     efit.limiter.z     = readScalarData(in);
-end    
-   
+    
+    %separatrix out    
+    in.hdf5flag = '/output/separatrixGeometry/rmidplaneOut';
+    efit.spx.rout     = readScalarData(in);
+end
+    
+    
 
 function out = normaliseFlux(in, out, efit)
     
@@ -427,6 +440,17 @@ function out = normaliseFlux(in, out, efit)
     out.flux.normPolFlux = (efit.polflux - polfluxMagnAx) / (polflux1dEFIT - polfluxMagnAx) * polflux1dfactorEFIT;
 end
 
+
+function saveSpxOut(in, out)
+        
+    if exist(out.folder.renate) ~= 7
+        mkdir(out.folder.renate);
+    end
+    
+    filename = [out.folder.renate,'/spx_',in.tokamak,in.shotNumber,'_',int2str(in.time),'.txt'];    
+    disp(['Writing density profile into ',filename]);
+    dlmwrite(filename, out.spx, 'precision','%.4E','delimiter','\t');
+end
 
 % nt_compass_mx matrix for RENATE 1.1.0
 function saveRenateNT(in, out)
