@@ -4,6 +4,7 @@ clear all
     shotnumber = 'test_2';    runnumber = '128';
     shotnumber = 'test_5';    runnumber = '129';
     
+    
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_rad.dat']);
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_z.dat']);
     load([mainfolder,'/',shotnumber,'/',runnumber,'/t_tor.dat']);
@@ -27,22 +28,17 @@ end
     I = find(L1.*L2);
     
     zi = zeros(size(I));
+ri = zi;
     ind = cell(max(I1),1);
 
 for i = 1:length(I)    
-    ind{I1(i)}=[ind{I1(i)},i];    
+    ind{I1(i)}=[ind{I1(i)},i];  
+    ri(i) = t_rad(I1(i),1);   
 end
+   
+s1 = size(t_rad,1) 
     
-    
-zi = t_z(I) + (t_z(I+1) - t_z(I)) ./ (t_rad(I+1) - t_rad(I)) ;
-
-if true
-    close all
-    figure
-    plot(t_rad(1,:),t_z(1,:))
-    hold on 
-    plot(t_rad(1,1)*ones(size(ind{1})),zi(ind{1}),'rx')
-end
+zi = t_z(I) + (t_z(I+s1) - t_z(I)) ./ (t_rad(I+s1) - t_rad(I)) .* (t_rad(I+s1) - ri) ;
 
 
 
@@ -51,14 +47,15 @@ end
     [I1r,I2r] = find(L1r.*L2r);
     Ir = find(L1r.*L2r);
     
-    zir = zeros(size(Ir));
+    zir = zeros(size(Ir)); rir=zir;
     indr = cell(max(I1r),1);
 
 for i = 1:length(Ir)    
-    indr{I1r(i)}=[ind{I1r(i)},i];    
+    indr{I1r(i)}=[indr{I1r(i)},i];    
+    rir(i) = t_rad(I1r(i),1);   
 end
     
-zir = t_z(Ir) + (t_z(Ir+1) - t_z(Ir)) ./ (t_rad(Ir+1) - t_rad(Ir)) ;
+zir = t_z(Ir) + (t_z(Ir+s1) - t_z(Ir)) ./ (t_rad(Ir+s1) - t_rad(Ir)).* (t_rad(Ir+s1) - rir) ;
 
 
 
@@ -70,28 +67,42 @@ zir = t_z(Ir) + (t_z(Ir+1) - t_z(Ir)) ./ (t_rad(Ir+1) - t_rad(Ir)) ;
 for i=1:length(indr)
     r = zir(indr{i});
     l = zi(ind{i});
+    r_i = I2r(indr{i});
+    l_i = I2(ind{i});
+    
     m = min([length(l),length(r)]);
     ix = [l(1:m),r(1:m)]';
     ix = ix(:);
 
-av(i) = mean([r(2:end)-r(1:end-1);l(2:end)-l(1:end-1)]); %mean(ix(2:end)-ix(1:end-1));
-avs(i) = std([r(2:end)-r(1:end-1);l(2:end)-l(1:end-1)]);
-dif(i) = mean(l(1:m)-r(1:m));
-difs(i) = std(l(1:m)-r(1:m));    
+
+av(i) = mean([diff(r)./diff(r_i);diff(l)./diff(l_i)]); 
+avs(i) = std([(r(2:end)-r(1:end-1))./(r_i(2:end)-r_i(1:end-1));(l(2:end)-l(1:end-1))./(l_i(2:end)-l_i(1:end-1))]); 
+dif(i) = mean((l(1:m)-r(1:m)));
+difs(i) = std((l(1:m)-r(1:m))); 
 end
 
 
 disp(['Larmor radius: ',num2str(mean(dif*100),'%.4f'), ' +/- ',num2str(std(difs*100),'%.4f'),' cm'])
 
-disp(['drift: ',num2str(mean(av*100),'%.4f'), ' +/- ',num2str(std(avs*100),'%.4f'),' cm'])
+disp(['Av. drift: ',num2str(mean(av*1e6),'%.4f'), ' +/- ',num2str(std(avs*1e6),'%.4f'),' um/step'])
 
 
 B = 1;
 dB = 0.01;
 dt = 1e-9;
-t_step=2000;
 
-xgradB = 60 * 1000 / B ^ 2 *dB *dt*t_step;
-disp(['expected gradB drift: ',num2str(xgradB*100,'%.4f'),' cm'])
 
+xgradB = mean(60 * 1000 ./ (B +dB*t_rad(:,1)).^ 2 *dB *dt);
+disp(['expected gradB drift: ',num2str(xgradB*1e6,'%.4f'),' um/step'])
+
+
+if true
+    close all
+    figure
+    plot(t_rad(1,:),t_z(1,:))
+    hold on 
+    plot(t_rad(1,1)*ones(size(ind{1})),zi(ind{1}),'rx')
+%plot(t_rad(I(indr{1})),t_z(I(indr{1})),'rx')
+ %   plot(t_rad(1,1)*ones(size(indr{1})),zir(indr{1}),'gx')
+end
 
