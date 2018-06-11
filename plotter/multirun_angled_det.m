@@ -14,8 +14,7 @@ function multirun_angled_det(r)
             t_z = load([d(i).folder,'/',d(i).name,'/t_z.dat']);
             t_tor = load([d(i).folder,'/',d(i).name,'/t_tor.dat']);
         
-            t_plane = (t_rad-det_mid(1)) + (t_z-det_mid(2))*det_ang(1) + (t_tor-det_mid(3))*det_ang(2);
-        
+            t_plane = (t_rad-det_mid(1)) + (t_z-det_mid(2))*det_ang(1) + (t_tor-det_mid(3))*det_ang(2);        
         
             ix = nan(1,size(t_rad,2));
         
@@ -29,16 +28,17 @@ function multirun_angled_det(r)
         end
     end
     
-    plane = (rad-det_mid(1)) + (z-det_mid(2))*det_ang(1) + (tor-det_mid(3))*det_ang(2);
-    keyboard    
-
+    %plane = (rad-det_mid(1)) + (z-det_mid(2))*det_ang(1) + (tor-det_mid(3))*det_ang(2);
+    
+    outdir = [d(i).folder,'/all/'];
+    mkdir(outdir)    
+    save([outdir,'rad.dat'],'rad','-ascii')
+    save([outdir,'z.dat'  ],'z',  '-ascii')
+    save([outdir,'tor.dat'],'tor','-ascii')
 end
 
-
 function I = mx_interp(A,B,ix);
-
     s = size(A);
     n = ix + s(1).*(0:s(2)-1);
     I = A(n-1) - ( B(n)  ) ./ ( B(n) - B(n-1) ) .* ( A(n) - A(n-1) );
-
 end
