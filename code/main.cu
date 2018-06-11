@@ -61,7 +61,7 @@
 #if BANANA == 1
 	#include "dataio/beamInBan.c"
 #elif RADIONS == 1
-	#if 3DINPUTPROF == 1
+	#if READINPUTPROF == 1
 		#include "dataio/beamInFull.c"
 	#elif RENATE == 110
 		#include "dataio/beamInRenate110.c"
@@ -340,7 +340,7 @@ int main(int argc, char *argv[]){
 	
 	NX = shot.block_size * max_blocks;
     
-	if (3DINPUTPROF == 1){
+	if (READINPUTPROF == 1){
         double *XR;
 		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
         max_blocks = NX / shot.block_size+1;
@@ -641,7 +641,7 @@ int main(int argc, char *argv[]){
 		saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
 		if(RADIONS){
 			saveDataHT("(Real ionization position)",folder_out,timestamp); 
-			if(3DINPUTPROF==1){
+			if(READINPUTPROF==1){
 				saveDataHT("(3D input)",folder_out,timestamp);			
             }else if(RENATE==110){
 				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
@@ -653,7 +653,7 @@ int main(int argc, char *argv[]){
 	}
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 
-	if(!3DINPUTPROF){
+	if(!READINPUTPROF){
 		saveDataH("Beam energy","keV",beam.energy,folder_out,timestamp);
 		saveDataH("Atomic mass","AMU",beam.mass,folder_out,timestamp);
 		saveDataH("Beam diameter","mm",beam.diameter,folder_out,timestamp);
