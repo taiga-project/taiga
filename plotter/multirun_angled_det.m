@@ -9,7 +9,7 @@ function multirun_angled_det(r)
     tor = []; newttor = [];
     
     for i = 3:length(d)
-        if d(i).isdir
+        if d(i).isdir && ~strcmp(d(i).name,'all')
             t_rad = load([d(i).folder,'/',d(i).name,'/t_rad.dat']);
             t_z = load([d(i).folder,'/',d(i).name,'/t_z.dat']);
             t_tor = load([d(i).folder,'/',d(i).name,'/t_tor.dat']);
