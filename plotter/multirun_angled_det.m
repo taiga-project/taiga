@@ -18,7 +18,7 @@ function multirun_angled_det(r)
         
             ix = nan(1,size(t_rad,2));
             for j = 1:size(t_rad,2)            
-                ix(j) = find(t_plane(:,j)>0);
+                ix(j) = find((t_plane(:,j)>0),1);
             end
             rad = [rad, mx_interp(t_rad,t_plane,ix)];            
             z   = [z,   mx_interp(t_z,  t_plane,ix)];
