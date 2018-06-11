@@ -11,4 +11,4 @@ cp parameters.sh "results/"$shotnumber"_"$time"/"$newnum
 
 #./taiga.exe $shotnumber"_"$time $particles $angle
 #                   <------ 1 -------> <- 2 ->  <-- 3 ---> <- 4 -> <-5->  <-- 6 --> <--- 7 ---> <-- 8 -->  <--------- 9 --------> (<10> <11> <12>)
-./taiga_renate.exe $shotnumber"_"$time $newnum $beammatter $energy $angle $diameter $detector_R $particles $electric_field_module 2000
+./taiga_renate.exe $shotnumber"_"$time $newnum $beammatter $energy $angle $diameter $detector_R $particles $electric_field_module 400
