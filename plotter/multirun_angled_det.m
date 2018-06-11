@@ -1,7 +1,7 @@
 function multirun_angled_det(r)
     d = dir(['../results/',r]);
     
-    det_mid = [0.8 0.2 0];
+    det_mid = [0.7 0.2 0];
     det_ang = [1 0]; %z/R tor/R   
     
     rad = [];
@@ -17,6 +17,7 @@ function multirun_angled_det(r)
             t_plane = (t_rad-det_mid(1)) + (t_z-det_mid(2))*det_ang(1) + (t_tor-det_mid(3))*det_ang(2);
         
             ix = nan(1,size(t_rad,2));
+        
             for j = 1:size(t_rad,2)            
                 ix(j) = find((t_plane(:,j)>0),1);
             end
@@ -34,7 +35,7 @@ end
 function I = mx_interp(A,B,ix);
 
     s = size(A);
-    n = 1+ix*s(1);
+    n = 1+ix*s(1).*(0:s(2)-1);
     I = A(n) - ( B(n) - B(n-1) ) ./ ( B(n)  ) .* ( A(n) - A(n-1) );
 
 end
