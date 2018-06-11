@@ -25,8 +25,8 @@ function multirun_angled_det(r)
             z   = [z,   mx_interp(t_z,  t_plane,ix)];
             tor = [tor, mx_interp(t_tor,t_plane,ix)];
             newtrad = [newtrad,t_rad(1,:)];
-            newtz   = [newtrad,t_z(1,:)];
-            newttor = [newtrad,t_tor(1,:)];
+            newtz   = [newtz,t_z(1,:)];
+            newttor = [newttor,t_tor(1,:)];
             
         end
     end
