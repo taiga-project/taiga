@@ -63,9 +63,19 @@ function detPlot(varargin)
     end
     
     
+    in.tokamak = 'compass';    
+    in.folder = '../input/renate110';
+    in.shotNumber=shotnumber;
+    in.time=1150;
+    in.filepath = [in.folder,'/spx_',in.tokamak,in.shotNumber,'_',num2str(in.time),'.txt'];    
+  	in.spx = load(in.filepath);
+    
     
     %! detector position
     detpos = 0.7089;
+    
+	det_R = 0.7079;
+	det_z = 0.22;
 
     TORLIM = [TMID_DET-0.04 TMID_DET+0.04];
     ZLIM = [ZMID_DET-0.04 ZMID_DET+0.04];
@@ -97,6 +107,13 @@ function detPlot(varargin)
     s_tor = (t_tor(1,:));
 
     %ind = find(rad==rad(1,1));
+    
+    %trafo
+    
+    rad = (z-det_z)+rad;
+    z = det_z + (z-det_z)*sqrt(2);
+    
+    
     ind = find(rad==detpos);
     
     aaa=find(abs(tor(ind))<1);
@@ -104,7 +121,7 @@ function detPlot(varargin)
     ind=ind(aaa);
     
     if strcmp(scenario,'_spx')
-		aaa=find(s_rad(ind)<0.72 && s_rad(ind)>0.70)
+		aaa=find(s_rad(ind)<in.spx-0.01 && s_rad(ind)>in.spx+0.01)
 		
 		ind=ind(aaa);
 		
