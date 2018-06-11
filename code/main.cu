@@ -10,7 +10,7 @@
 
 #define $3DINPUTPROF 1
 
-#define $RENATE		0//110
+#define RENATE		0//110
 
 #define N_BLOCKS     1		//! @param N_BLOCKS number of blocks (max 1M)
 #define BLOCK_SIZE 	 192 		//! @param BLOCK_SIZE size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
@@ -65,7 +65,7 @@
 #elif RADIONS == 1
 	#if $3DINPUTPROF == 1
 		#include "dataio/beamInFull.c"
-	#elif $RENATE == 110
+	#elif RENATE == 110
 		#include "dataio/beamInRenate110.c"
 	#else
 		#include "dataio/beamIn.c"
@@ -645,7 +645,7 @@ int main(int argc, char *argv[]){
 			saveDataHT("(Real ionization position)",folder_out,timestamp); 
 			if($3DINPUTPROF==1){
 				saveDataHT("(3D input)",folder_out,timestamp);			
-            }else if($RENATE==110){
+            }else if(RENATE==110){
 				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
 			}
 			
