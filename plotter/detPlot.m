@@ -108,11 +108,11 @@ function detPlot(varargin)
     
     %trafo
     
-    rad = (z-det_z)+rad;
+ %   rad = (z-det_z)+rad;
     z = det_z + (z-det_z)*sqrt(2);
     
-    
-    ind = find(rad==detpos);
+  ind = find(abs((rad-det_R)+(z-det_Z))<1e-4);
+%    ind = find(rad==detpos);
     
     aaa=find(abs(tor(ind))<1);
     
