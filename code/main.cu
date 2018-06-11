@@ -8,8 +8,6 @@
 
 #define RKOLD		 0		//! @param RKOLD do not set! 0 (semi-RK: 1)
 
-#define RENATE		0//110
-
 #define N_BLOCKS     1		//! @param N_BLOCKS number of blocks (max 1M)
 #define BLOCK_SIZE 	 192 		//! @param BLOCK_SIZE size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
 
