@@ -92,7 +92,24 @@ function detPlot(varargin)
     load([mainfolder,'/',shotnumber,'/',runnumber,'/z.dat'])
     load([mainfolder,'/',shotnumber,'/',runnumber,'/tor.dat'])
 
-    load([o
+    load([mainfolder,'/',shotnumber,'/',runnumber,'/t_rad.dat'])
+    load([mainfolder,'/',shotnumber,'/',runnumber,'/t_z.dat'])
+    load([mainfolder,'/',shotnumber,'/',runnumber,'/t_tor.dat'])
+
+
+
+
+
+    s_rad = (t_rad(1,:));
+    s_z   = (t_z(1,:));
+    s_tor = (t_tor(1,:));
+
+    %ind = find(rad==rad(1,1));
+    
+    %trafo
+    
+    rad = (z-det_z)+rad;
+    z = det_z + (z-det_z)*sqrt(2);
     
     
     ind = find(rad==detpos);
@@ -102,9 +119,9 @@ function detPlot(varargin)
     ind=ind(aaa);
     
     if strcmp(scenario,'_spx')
-    
-%    in.filepath = [in.folder,'/spx_',in.tokamak,in.shotNumber,'_',num2str(in.time),'.txt'];    
-%  	in.spx = load(in.filepath);
+	
+    in.filepath = [in.folder,'/spx_',in.tokamak,in.shotNumber,'_',num2str(in.time),'.txt'];    
+  	in.spx = load(in.filepath);
 		aaa=find(s_rad(ind)<in.spx-0.01 && s_rad(ind)>in.spx+0.01)
 		
 		ind=ind(aaa);
