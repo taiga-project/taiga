@@ -6,9 +6,9 @@ function multirun_angled_det(r)
     
     
     for i = 3:length(d)
-        t_rad = load([d(i).name,'/t_rad.dat']);
-        t_z = load([d(i).name,'/t_z.dat']);
-        t_tor = load([d(i).name,'/t_tor.dat']);
+        t_rad = load([d(i).folder,'/',d(i).name,'/t_rad.dat']);
+        t_z = load([d(i).folder,'/',d(i).name,'/t_z.dat']);
+        t_tor = load([d(i).folder,'/',d(i).name,'/t_tor.dat']);
         
     end
     keyboard    
