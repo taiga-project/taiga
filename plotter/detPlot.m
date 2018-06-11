@@ -92,7 +92,6 @@ function detPlot(varargin)
 
 
 
-
     s_rad = (t_rad(1,:));
     s_z   = (t_z(1,:));
     s_tor = (t_tor(1,:));
