@@ -40,7 +40,7 @@ function detPlot(varargin)
     if nargin >= 6
         ZMID_DET = varargin{6};
     else
-        ZMID_DET = 0.25;
+        ZMID_DET = 0.22;
     end
     
     if nargin >= 7
@@ -109,7 +109,7 @@ function detPlot(varargin)
     %trafo
     
  %   rad = (z-det_z)+rad;
-    z = det_z + (z-det_z)*sqrt(2);
+%    z = det_z + (z-det_z)*sqrt(2);
     
   ind = find(abs((rad-det_R)+(z-det_z))<1e-4);
 %    ind = find(rad==detpos);
