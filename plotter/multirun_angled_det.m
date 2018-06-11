@@ -35,7 +35,7 @@ end
 function I = mx_interp(A,B,ix);
 
     s = size(A);
-    n = 1+ix*s(1).*(0:s(2)-1);
+    n = ix + s(1).*(0:s(2)-1);
     I = A(n) - ( B(n) - B(n-1) ) ./ ( B(n)  ) .* ( A(n) - A(n-1) );
 
 end
