@@ -6,8 +6,8 @@ CFLAGS = -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -
 SVNDEV = -D'SVN_REV="$(shell svnversion -n .)"' 
 
 INPUT_FLAGS = $(SVNDEV)
-DEFAULT_FLAGS = -D'RENATE=0' 3DINPUTPROF=1
-RENATE_FLAGS = -D'RENATE=110' 3DINPUTPROF=0
+DEFAULT_FLAGS = -D'RENATE=0' -D'3DINPUTPROF=1'
+RENATE_FLAGS = -D'RENATE=110' -D'3DINPUTPROF=0'
 
 all: taiga.exe taiga_renate.exe
 
