@@ -7,7 +7,7 @@ SVNDEV = -D'SVN_REV="$(shell svnversion -n .)"'
 
 INPUT_FLAGS = $(SVNDEV)
 
-all: taiga.exe
+all: taiga.exe taiga_renate.exe
 
 taiga.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) -D'RENATE=0' -o taiga.exe  main.cu
