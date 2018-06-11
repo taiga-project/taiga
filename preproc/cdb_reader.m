@@ -7,8 +7,8 @@ function cdb_reader(varargin)
     in.tokamak = 'compass';
     in.majorradius=0.56;  
     
-    in.plot = false;
-    in.renate = false;
+    in.plot = true;
+    in.renate = true;
     in.folder = '../input/cdb';
     out.folder.renate = '../input/renate110';
     out.folder.grid = '../input/fieldGrid/';
