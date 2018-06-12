@@ -35,7 +35,7 @@ function pavel_profile_to_taiga(varargin)
 	mkdir(foldername)
 	
 	out.rad      = data.R';
-	out.ionrate = data.ion_prob;
+	out.ionrate = data.ion_prob';
 	out.ionyeald = 1-cumsum(d1.ion_prob);
 	
 	dlmwrite([foldername, 'rad.dat']     , out.rad     , 'precision','%.16e','delimiter','\t');  
