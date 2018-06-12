@@ -128,6 +128,7 @@ function detPlot(varargin)
 	
 figure
 hist(s_rad,100)
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/ionprof',scenario,'.pdf'])
 
     rions = [0.7,0.68,0.66,0.64];
 
@@ -290,4 +291,11 @@ hist(s_rad,100)
     %saveas(gcf,['plots/',shotnumber,'/',runnumber,'_detector',num2str(ZMID_DET),'.pdf'])
     disp(['Saved to ',mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.pdf'])
     saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.pdf'])
+    
+    figure 
+    plot(rad(ind),z(ind))
+    xlabel('R [m]')
+    ylabel('z [m]')
+    
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/RZ',scenario,'.pdf'])
 end
