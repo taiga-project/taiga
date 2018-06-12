@@ -10,7 +10,7 @@ function pavel_profile_to_taiga(varargin)
     
 	in.index.rad = 1;
 	in.index.ionyeald = 3;
-    in.ionrate=false;
+    in.ionrate=true;
     in.plot=false;
 
     if nargin == 0
@@ -42,7 +42,7 @@ function pavel_profile_to_taiga(varargin)
 	dlmwrite([foldername, 'rad.dat']     , out.rad     , 'precision','%.16e','delimiter','\t');  
 	dlmwrite([foldername, 'ionyeald.dat'], out.ionyeald, 'precision','%.16e','delimiter','\t'); 
     if in.ionrate
-	    dlmwrite([foldername, 'ionrate.dat'], out.ionyeald, 'precision','%.16e','delimiter','\t'); 
+	    dlmwrite([foldername, 'ionrate.dat'], out.ionrate, 'precision','%.16e','delimiter','\t'); 
     end	
 	
 
