@@ -72,8 +72,8 @@ function detPlot(varargin)
     %! detector position
     detpos = 0.7089;
     
-	det_R = 0.7079;
-	det_z = 0.22;
+	det_R = 0.684618;
+	det_z = 0.2215;
 
     TORLIM = [TMID_DET-0.04 TMID_DET+0.04];
     ZLIM = [ZMID_DET-0.04 ZMID_DET+0.04];
