@@ -16,7 +16,7 @@ __device__ int ipol(double l_r, double l_z, double l_t, double l_or, double l_oz
 	
 	}*/
 	
-	double det_R = 0.684618;
+	double det_R = 0.7089;
 	double det_z = 0.2215;
 	double det_tan = 1;
 	

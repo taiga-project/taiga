@@ -69,10 +69,8 @@ function detPlot(varargin)
     in.time=1150;
     
     
-    %! detector position
-    detpos = 0.7089;
-    
-	det_R = 0.684618;
+    %! detector position    
+	det_R = 0.7089; %0.684618;
 	det_z = 0.2215;
 
     TORLIM = [TMID_DET-0.04 TMID_DET+0.04];
@@ -165,7 +163,7 @@ hist(s_rad,100)
         
     ylim([0.04 0.16])
         axis equal
-		    title(['$R_\mathrm{detector} = ',num2str(detpos),'$'],'interpreter','latex','fontsize',14)
+		    title(['$z_\mathrm{detector} = ',num2str(det_z),'$'],'interpreter','latex','fontsize',14)
 
         xlabel('{$T$ (m)}','interpreter','latex','fontsize',14)
         ylabel('{$Z$ (m)}','interpreter','latex','fontsize',14)
@@ -282,7 +280,7 @@ hist(s_rad,100)
     
 
 	title(['$\#',runshot,...
-        '~~R_\mathrm{detector} = ',num2str(detpos),'\mathrm{~m}~~(\varphi_\mathrm{in}=',...
+        '~~z_\mathrm{detector} = ',num2str(det_z),'\mathrm{~m}~~(\varphi_\mathrm{in}=',...
         num2str(runangle),'^\circ) E=',num2str(energy),'~\mathrm{keV} $'],'interpreter','latex','fontsize',14)
     xlabel('{$T$ (m)}','interpreter','latex','fontsize',14)
     ylabel('{$Z$ (m)}','interpreter','latex','fontsize',14)
