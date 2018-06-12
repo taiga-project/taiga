@@ -42,7 +42,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 	/* one-ion beam */ 
     
 	if (profx_r_length > 0){
-		for (i(0; i<profx_r_length; i++){
+		for (i=0; i<profx_r_length; i++){
 			profx_d[i] /= profx_r[i];
 		}
 	}
@@ -61,7 +61,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 				XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
 			}else{
 				ionisation_yeald = (double)rand()/RAND_MAX;
-				xsec_ang = (double)rand()/RAND_MAX*2*pi;
+				xsec_ang = (double)rand()/RAND_MAX*2*PI;
 				xsec_rad = linear_interpolate(profx_d, profx_d_length, profx_r, profx_r_length, ionisation_yeald)*(diam/2);
                 XZ[i]= sin(xsec_ang) * xsec_rad;
                 XT[i]= cos(xsec_ang) * xsec_rad;
