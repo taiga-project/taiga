@@ -128,6 +128,7 @@ function detPlot(varargin)
 	
 figure
 hist(s_rad,100)
+keyboard
     saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/ionprof',scenario,'.pdf'])
 
     rions = [0.7,0.68,0.66,0.64];
