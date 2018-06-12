@@ -65,6 +65,7 @@ function detPlot(varargin)
     
     in.tokamak = 'compass';    
     in.folder = '../input/renate110';
+    in.prof_folder = '../input/ionProf';
     in.shotNumber=shotnumber;
     in.time=1150;
     
@@ -126,9 +127,16 @@ function detPlot(varargin)
 		
 	end
 	
-figure
-hist(s_rad,100)
-keyboard
+    figure
+    h = hist(s_rad,100);    
+    
+    try
+        ionrate = load([in.prof_folder,'/',shotnumber,'/ionrate.dat']);
+        ionrad = load([in.prof_folder,'/',shotnumber,'/rad.dat']);
+        
+        hold on        
+        plot(ionrad,ionrate/max(ionrate)*max(h),'r')
+    end
     saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/ionprof',scenario,'.pdf'])
 
     rions = [0.7,0.68,0.66,0.64];
