@@ -129,6 +129,7 @@ function detPlot(varargin)
 	
     figure
     h = hist(s_rad,100);    
+    hist(s_rad,100); 
     
     try
         ionrate = load([in.prof_folder,'/',shotnumber,'/ionrate.dat']);
