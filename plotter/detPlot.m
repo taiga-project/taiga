@@ -199,7 +199,7 @@ hist(s_rad,100)
     %rectangle('Position',[TORLIM(2) ZLIM(1) TORLIM(2)-TORLIM(1) ZLIM(2)-ZLIM(1)],'FaceColor','k','EdgeColor','none')
     hold on
     X = [X; TORLIM(2) ZLIM(1); TORLIM(1) ZLIM(2)]
-           smoothhist2D(X,1,[100, 100],-0.1);
+           smoothhist2D(X,1,[150, 150],-0.1);
       set(gca,'xdir','reverse','ydir','normal')
         colorbar('YTick', [0, 64 ,128, 192, 256],'YTickLabel',{'0%','25%','50%','75%','100%'})
 
