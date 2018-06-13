@@ -297,7 +297,7 @@ function detPlot(varargin)
 	title(['$\#',runshot,' $'],'interpreter','latex','fontsize',14)
     xlabel('{$T$ (m)}','interpreter','latex','fontsize',14)
     ylabel('{$Z$ (m)}','interpreter','latex','fontsize',14)
-    xticks(xlim0(1):-0.01:xlim0(2));
+    xticks(xlim0(2):-0.01:xlim0(1));
     yticks(ylim0(1):0.01:ylim0(2));
     
     mkdir('plots')
