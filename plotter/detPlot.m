@@ -301,7 +301,8 @@ function detPlot(varargin)
     mkdir(['plots/',shotnumber])
     %saveas(gcf,['plots/',shotnumber,'/',runnumber,'_detector',num2str(ZMID_DET),'.pdf'])
     disp(['Saved to ',mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.pdf'])
-    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.pdf'])
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.pdf'])    
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.fig'])
     
     figure 
     plot(rad(ind),z(ind))
