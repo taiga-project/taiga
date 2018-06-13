@@ -289,7 +289,7 @@ function detPlot(varargin)
     ttli = [0 strfind(runnumber,'_') length(runnumber)+1];
     %runshot = runnumber(ttli(1)+1:ttli(2)-1);
     shotnumber_array = strsplit(shotnumber,'_');
-    runshot = [shotnumber_array{1},' (t = ',shotnumber_array{2},'\mathrm{~s})'];
+    runshot = [shotnumber_array{1},'~~(t = ',shotnumber_array{2},'\mathrm{~s})'];
 
 %	title(['$\#',runshot,...
 %        '~~z_\mathrm{detector} = ',num2str(det_z),'\mathrm{~m}~~(\varphi_\mathrm{in}=',...
