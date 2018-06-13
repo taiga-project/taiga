@@ -297,12 +297,36 @@ function detPlot(varargin)
 	title(['$\#',runshot,' $'],'interpreter','latex','fontsize',14)
     xlabel('{$T$ (m)}','interpreter','latex','fontsize',14)
     ylabel('{$Z$ (m)}','interpreter','latex','fontsize',14)
+    xticks(xlim0(1):-0.01:xlim0(2));
+    yticks(ylim0(1):0.01:ylim0(2));
+    
     mkdir('plots')
     mkdir(['plots/',shotnumber])
     %saveas(gcf,['plots/',shotnumber,'/',runnumber,'_detector',num2str(ZMID_DET),'.pdf'])
-    disp(['Saved to ',mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.pdf'])
-    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.pdf'])    
-    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector',scenario,'.fig'])
+    disp(['Saved to ',mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'.pdf'])
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'.pdf'])    
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'.fig'])
+
+
+    xt = xticklabels;
+    yt = yticklabels;
+    
+    for i=1:length(xt)
+        xt{i} = num2str(str2num(xt{i})*100);
+    end
+    for i=1:length(yt)
+        yt{i} = num2str(str2num(yt{i})*100);
+    end
+    
+    xticklabels(xt)
+    yticklabels(yt)
+    xlabel('{vertical position (cm)}','interpreter','latex','fontsize',14)
+    ylabel('{horizontal position (cm)}','interpreter','latex','fontsize',14)
+    
+    disp(['Saved to ',mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'_cm.pdf'])
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'_cm.pdf'])    
+    saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'_cm.fig'])
+    
     
     figure 
     plot(rad(ind),z(ind))
