@@ -6,9 +6,7 @@
 
 #define $ELM		 0		//! @param $ELM turn on <<ELM current perturbation>> mode
 
-#define RKOLD		 0		//! @param RKOLD do not set! 0 (semi-RK: 1)
-
-#define N_BLOCKS     1		//! @param N_BLOCKS number of blocks (max 1M)
+#define N_BLOCKS	 1		//! @param N_BLOCKS number of blocks (max 1M)
 #define BLOCK_SIZE 	 192 		//! @param BLOCK_SIZE size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
 
 #define R_midions	 0.695		//! @param R_midions mid of ions at BANANA and no-RADIONS
@@ -20,21 +18,21 @@
 
 
 #if BANANA == 1
-    #define $energy   0.5            // in keV
-    #define $mass     2.013553212724 // in AMU (D)
-    #define $diameter 50e-20         // in mm 
-    #define $DETPOS 1 //! detector position
+	#define $energy   0.5			// in keV
+	#define $mass	 2.013553212724 // in AMU (D)
+	#define $diameter 50e-20		 // in mm 
+	#define $DETPOS 1 //! detector position
 	#define dt		 1e-12			// timestep in seconds
 	#define Nstep	 100000//00		// max step of a loop
 	#define Nloop	 1000			// number of loops	
 #else
 	#define $energy   60				//! @param energy in keV
-	#define $mass     7.016004558	//! @param mass in AMU (Li-7)
-    #define $DETPOS 0.7089 //! detector position
-    #define $diameter 25//4/*e-20*/      //! @param diameter in mm
-    #define dt       1e-9			//! @param dt timestep in seconds
-    #define Nstep    2000//000			//! @param Nstep max step of a loop
-    #define Nloop    1//000				//! @param Nloop number of loops
+	#define $mass	 7.016004558	//! @param mass in AMU (Li-7)
+	#define $DETPOS 0.7089 //! detector position
+	#define $diameter 25//4/*e-20*/	  //! @param diameter in mm
+	#define dt	   1e-9			//! @param dt timestep in seconds
+	#define Nstep	2000//000			//! @param Nstep max step of a loop
+	#define Nloop	1//000				//! @param Nloop number of loops
 
 #endif
 
@@ -72,59 +70,43 @@
 #endif
 #include "dataio/beamOut.c"
 
-
-
-
-#if RKOLD == 0
-	#include "running/rk4.cu"
-#else
-	#include "running/rk4old.cu"
-#endif
-
 #include "running/ipol.cu"
 #include "running/cyl2tor.cu"
-
-
-#if RKOLD == 0
-	#include "running/traj.cu"
-#else
-	#include "running/trajold.cu"
-#endif
-
-
+#include "running/traj.cu"
 #include "running/ctrl.cu"
+#include "running/rk4.cu"
 
 char* concat(const char *s1, const char *s2);
 
 
 struct beam_prop{
-    char* matter = "Li";
-    double mass = 7.016004558;
-    double energy = (double)$energy ;
-    double diameter = (double)$diameter;
-    double toroidal_deflation = (double)$deflH;   
-    double vertical_deflation = (double)$deflV;
-    
+	char* matter = "Li";
+	double mass = 7.016004558;
+	double energy = (double)$energy ;
+	double diameter = (double)$diameter;
+	double toroidal_deflation = (double)$deflH;   
+	double vertical_deflation = (double)$deflV;
+	
 };
 
 struct shot_prop{
-    char* name = "11347";
-    int runnumber = 0;  
-    int electric_field_module = 0;
-    int debug = 0;
-    int block_size = BLOCK_SIZE;
-    int block_number = N_BLOCKS;
-    int step_host = 1; // on HDD
-    int step_device = 2000; // on GPU
+	char* name = "11347";
+	int runnumber = 0;  
+	int electric_field_module = 0;
+	int debug = 0;
+	int block_size = BLOCK_SIZE;
+	int block_number = N_BLOCKS;
+	int step_host = 1; // on HDD
+	int step_device = 2000; // on GPU
 };
 
 inline void cErrorCheck(const char *file, int line) {
   cudaThreadSynchronize();
   cudaError_t err = cudaGetLastError();
   if (err != cudaSuccess) {
-    printf("Error: %s\n", cudaGetErrorString(err));
-    printf(" @ %s: %d\n", file, line);
-    exit(-1);
+	printf("Error: %s\n", cudaGetErrorString(err));
+	printf(" @ %s: %d\n", file, line);
+	exit(-1);
   }
 }
 
@@ -134,66 +116,66 @@ int set_cuda(){
 	printf("Number of devices: %d\n",num_devices);
 	
 	if (num_devices > 1) {
-        int max_multiprocessors = 0, max_device = 0;
-        for (device = 0; device < num_devices; device++) {
-            cudaDeviceProp properties;
-            cudaGetDeviceProperties(&properties, device);
-            if (max_multiprocessors < properties.multiProcessorCount) {
-                max_multiprocessors = properties.multiProcessorCount;
-                max_device = device;
-            }
-	      /*  printf("%d:%s\n",device,&properties.name);
-	        printf("\tL2Cache:\t%d",	properties.l2CacheSize);
-	        printf("\tNumber of cores:\t%d",	properties.warpSize);
+		int max_multiprocessors = 0, max_device = 0;
+		for (device = 0; device < num_devices; device++) {
+			cudaDeviceProp properties;
+			cudaGetDeviceProperties(&properties, device);
+			if (max_multiprocessors < properties.multiProcessorCount) {
+				max_multiprocessors = properties.multiProcessorCount;
+				max_device = device;
+			}
+		  /*  printf("%d:%s\n",device,&properties.name);
+			printf("\tL2Cache:\t%d",	properties.l2CacheSize);
+			printf("\tNumber of cores:\t%d",	properties.warpSize);
 	
-	        printf("\tKernels:\t%d",	properties.concurrentKernels);
-	        printf("\tThreads:\t%d",	properties.maxThreadsPerMultiProcessor);
-	        printf("\tClock:\t%d",	properties.clockRate/1024);
-	        printf("\n");*/
-        }
-        cudaSetDevice(max_device);
-        for (device = 0; device < num_devices; device++) {
-        	if(device==max_device) printf("-->");
-            cudaDeviceProp properties;
-            cudaGetDeviceProperties(&properties, device);
-        	printf("\t%d:\t%s\n",device,&properties.name);
-        }
-        
-    }
-	
+			printf("\tKernels:\t%d",	properties.concurrentKernels);
+			printf("\tThreads:\t%d",	properties.maxThreadsPerMultiProcessor);
+			printf("\tClock:\t%d",	properties.clockRate/1024);
+			printf("\n");*/
+		}
+		cudaSetDevice(max_device);
+		for (device = 0; device < num_devices; device++) {
+			if(device==max_device) printf("-->");
+			cudaDeviceProp properties;
+			cudaGetDeviceProperties(&properties, device);
+			printf("\t%d:\t%s\n",device,&properties.name);
+		}
+
+	}
+
 	cudaDeviceProp prop;
 	cudaGetDevice(&max_device);
 	cudaGetDeviceProperties(&prop, 0) ;  
 }
 
 double get_mass(char *s){
-    double mass;
-    
-    if (strcmp(s,"D")==0){
-        mass = 2.013553212724;
-    }else if (strcmp(s,"Li")==0){
-        mass = 7.016004558;
-    }else if (strcmp(s,"Na")==0){
-        mass = 22.98976928;
-    }else if (strcmp(s,"K")==0){
-        mass = 39.9639984821;
-    }else if (strcmp(s,"H2")==0){
-        mass = 2.013553212724;
-    }else if (strcmp(s,"Li7")==0){
-        mass = 7.016004558;
-    }else if (strcmp(s,"Na23")==0){
-        mass = 22.98976928;
-    }else if (strcmp(s,"K40")==0){
-        mass = 39.9639984821;
-    }else{
-        try{
-            mass = atof(s);
-        }catch (...){
-            mass = (double)$mass;
-        }
-    }
-    
-    return mass;
+	double mass;
+	
+	if (strcmp(s,"D")==0){
+		mass = 2.013553212724;
+	}else if (strcmp(s,"Li")==0){
+		mass = 7.016004558;
+	}else if (strcmp(s,"Na")==0){
+		mass = 22.98976928;
+	}else if (strcmp(s,"K")==0){
+		mass = 39.9639984821;
+	}else if (strcmp(s,"H2")==0){
+		mass = 2.013553212724;
+	}else if (strcmp(s,"Li7")==0){
+		mass = 7.016004558;
+	}else if (strcmp(s,"Na23")==0){
+		mass = 22.98976928;
+	}else if (strcmp(s,"K40")==0){
+		mass = 39.9639984821;
+	}else{
+		try{
+			mass = atof(s);
+		}catch (...){
+			mass = (double)$mass;
+		}
+	}
+	
+	return mass;
 
 }
 
@@ -203,7 +185,7 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 
 	char* spline_folder = "input/fieldSpl";
 	int suc[1] = {1};
-    
+	
 	double *S0,  *s0;  vectorReader(&S0, "input/fieldSpl", shot.name, concat(field_name ,".spl11"), suc);	cudaMalloc((void **) &s0,  dimRZ); 
 	double *S1,  *s1;  vectorReader(&S1, "input/fieldSpl", shot.name, concat(field_name ,".spl12"), suc);	cudaMalloc((void **) &s1,  dimRZ);
 	double *S2,  *s2;  vectorReader(&S2, "input/fieldSpl", shot.name, concat(field_name ,".spl13"), suc);	cudaMalloc((void **) &s2,  dimRZ);
@@ -220,9 +202,9 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 	double *S13, *s13; vectorReader(&S13,"input/fieldSpl", shot.name, concat(field_name ,".spl42"), suc);	cudaMalloc((void **) &s13,  dimRZ); 
 	double *S14, *s14; vectorReader(&S14,"input/fieldSpl", shot.name, concat(field_name ,".spl43"), suc);	cudaMalloc((void **) &s14,  dimRZ); 
 	double *S15, *s15; vectorReader(&S15,"input/fieldSpl", shot.name, concat(field_name ,".spl44"), suc);	cudaMalloc((void **) &s15,  dimRZ);
-    
+	
 	size_t dimB = 16*sizeof(double*);		
-	double *S_PTR[16];	double **s_ptr;	cudaMalloc((void **) &s_ptr,  dimB);     
+	double *S_PTR[16];	double **s_ptr;	cudaMalloc((void **) &s_ptr,  dimB);	 
 
 	S_PTR[0]  = s0; 	S_PTR[1]  = s1 ;	S_PTR[2]  = s2; 	S_PTR[3]  = s3;
 	S_PTR[4]  = s4; 	S_PTR[5]  = s5; 	S_PTR[6]  = s6; 	S_PTR[7]  = s7;
@@ -261,21 +243,21 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 	
 	*return_s_ptr = s_ptr; 
 	return suc[0];	
-    
+
 }
 
-int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){    
-    
+int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){
+
 	size_t dimB = 16*sizeof(double*);	
 	double *BR_PTR[16];	double **br_ptr;	cudaMalloc((void **) &br_ptr,  dimB); 
 	double *BT_PTR[16];	double **bt_ptr;	cudaMalloc((void **) &bt_ptr,  dimB); 
-	double *BZ_PTR[16];	double **bz_ptr;	cudaMalloc((void **) &bz_ptr,  dimB);     
+	double *BZ_PTR[16];	double **bz_ptr;	cudaMalloc((void **) &bz_ptr,  dimB);
 
-	int s;    
-	s = spline_read_and_init(shot, "brad", &br_ptr, dimRZ);    
-	s = spline_read_and_init(shot, "bz",   &bz_ptr, dimRZ);    
-	s = spline_read_and_init(shot, "btor", &bt_ptr, dimRZ);     
-    
+	int s;
+	s = spline_read_and_init(shot, "brad", &br_ptr, dimRZ);
+	s = spline_read_and_init(shot, "bz",   &bz_ptr, dimRZ);
+	s = spline_read_and_init(shot, "btor", &bt_ptr, dimRZ);
+
 	*return_br_ptr = br_ptr;
 	*return_bz_ptr = bz_ptr;
 	*return_bt_ptr = bt_ptr;
@@ -285,7 +267,7 @@ int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double
 
 void fill_detector(double *DETECTOR, char* values){
 
-	char *el;      
+	char *el; 
 	el = strtok(values,",");	DETECTOR[0] = strtod (el, NULL);
 	el = strtok(NULL,",");	DETECTOR[1] = strtod (el, NULL);
 	el = strtok(NULL,",");	DETECTOR[2] = strtod (el, NULL);
@@ -294,19 +276,19 @@ void fill_detector(double *DETECTOR, char* values){
 }
 
 
-int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){    
-    
+int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){	
+
 	size_t dimB = 16*sizeof(double*);	
-	double *ER_PTR[16];	double **er_ptr;	cudaMalloc((void **) &er_ptr,  dimB); 
-	double *ET_PTR[16];	double **et_ptr;	cudaMalloc((void **) &et_ptr,  dimB); 
-	double *EZ_PTR[16];	double **ez_ptr;	cudaMalloc((void **) &ez_ptr,  dimB);     
+	double *ER_PTR[16];	double **er_ptr;	cudaMalloc((void **) &er_ptr,  dimB);
+	double *ET_PTR[16];	double **et_ptr;	cudaMalloc((void **) &et_ptr,  dimB);
+	double *EZ_PTR[16];	double **ez_ptr;	cudaMalloc((void **) &ez_ptr,  dimB);
 
 	int s;   
 
-	s = spline_read_and_init(shot, "erad", &er_ptr, dimRZ);    
-	s = spline_read_and_init(shot, "ez",   &ez_ptr, dimRZ);    
-	s = spline_read_and_init(shot, "etor", &et_ptr, dimRZ);     
-    
+	s = spline_read_and_init(shot, "erad", &er_ptr, dimRZ);
+	s = spline_read_and_init(shot, "ez",   &ez_ptr, dimRZ);
+	s = spline_read_and_init(shot, "etor", &et_ptr, dimRZ);
+
 	*return_er_ptr = er_ptr;
 	*return_ez_ptr = ez_ptr;
 	*return_et_ptr = et_ptr;
@@ -319,32 +301,29 @@ int main(int argc, char *argv[]){
 	
 	shot_prop shot;
 	beam_prop beam;
-//     
+  
 	size_t dimD = 5 * sizeof(double);
 	double *DETECTOR, *detector;
 	DETECTOR = (double *)malloc(dimD);	cudaMalloc((void **) &detector,  dimD); 
 	
 	if (argc > 1)	shot.name = argv[1];	
 	if (argc > 2)	shot.runnumber = atoi(argv[2]);
-	if (argc > 3)	beam.matter = argv[3];			
-	if (argc > 4)	beam.energy = atof(argv[4]);    
-	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);    
+	if (argc > 3)	beam.matter = argv[3];
+	if (argc > 4)	beam.energy = atof(argv[4]);
+	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);
 	if (argc > 6)	beam.diameter = atof(argv[6]);   
 	if (argc > 7)	fill_detector(DETECTOR, argv[7]);
-    
+
 	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
 	printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 	int NX;
 	int max_blocks;
-	if (argc > 8){
-		max_blocks = atoi(argv[8])/shot.block_size+1;    printf("arg8 %d" , atoi(argv[8]));
-	}else{
-		max_blocks=shot.block_number;	
-	}
-        
-	if (argc > 9) shot.electric_field_module = atof(argv[9]);     
+	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_size+1; 
+		else	max_blocks=shot.block_number;
+
+	if (argc > 9) shot.electric_field_module = atof(argv[9]);
 
 	if (argc > 10){ 
 		shot.step_host = atof(argv[10]); 
@@ -356,14 +335,13 @@ int main(int argc, char *argv[]){
 	if (argc > 12) shot.debug = atof(argv[12]); 
 
 	NX = shot.block_size * max_blocks;
-    
+
 	if (READINPUTPROF == 1){
-        double *XR;
+		double *XR;
 		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
-        max_blocks = NX / shot.block_size+1;
-	}	
-	
-    
+		max_blocks = NX / shot.block_size+1;
+	}
+
 	char* folder_out=concat("results/", shot.name);
 	
 	set_cuda();
@@ -374,7 +352,7 @@ int main(int argc, char *argv[]){
 	char timestamp[80];
 	sprintf(timestamp, "%d", shot.runnumber);
 
-	// coords	
+	// coords
 	double *X_PTR[3], **x_ptr;
 	double *V_PTR[3], **v_ptr;
 	size_t dimXP = 3*sizeof(double*);
@@ -385,16 +363,16 @@ int main(int argc, char *argv[]){
 
 	double *VR,  *vr; 
 	double *VZ,  *vz;
-	double *VT,  *vt;	
-	
+	double *VT,  *vt;
+
 	printf("=============================\n");
 	printf("Number of blocks (threads): %d\n", max_blocks);
 	printf("Block size: %d\n", shot.block_size);
 	printf("Number of particles: %d\n", NX);
 	printf("Max steps on device (GPU): %d\n", shot.step_device);
 	printf("Max steps on host (HDD): %d\n", shot.step_host);
-    
-    
+
+
 	//! position and velocity array allocation
 	size_t dimX = shot.block_size * max_blocks * sizeof(double);
 	
@@ -471,16 +449,15 @@ int main(int argc, char *argv[]){
 	G_PTR[0] = rg;
 	G_PTR[1] = zg;
 
-	//! MAGN. FIELD (HOST, device) ALLOCATION          
-    
-    double **br_ptr, **bz_ptr, **bt_ptr;
-    double **er_ptr, **ez_ptr, **et_ptr;
-    
+	//! MAGN. FIELD (HOST, device) ALLOCATION  
+	double **br_ptr, **bz_ptr, **bt_ptr;
+	double **er_ptr, **ez_ptr, **et_ptr;
+	
 	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
 	
 	if (shot.electric_field_module){
 		shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
-    }
+	}
 	
 	// temporary test data
 	double *TMP, *tmp;
@@ -523,19 +500,19 @@ int main(int argc, char *argv[]){
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 
-    if (shot.debug == 1){
-        printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
-        printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-        printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
-        
-        printf("----------------------------------------------------------\n");
-        printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-        printf("----------------------------------------------------------\n");
-        for(int i=1; i<20; i++){
-            printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
-        }
-        printf("----------------------------------------------------------\n");
-    }
+	if (shot.debug == 1){
+		printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
+		printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
+		printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
+		
+		printf("----------------------------------------------------------\n");
+		printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
+		printf("----------------------------------------------------------\n");
+		for(int i=1; i<20; i++){
+			printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
+		}
+		printf("----------------------------------------------------------\n");
+	}
 	// BANANA
 	if (BANANA==1){
 		printf("BANANA CTRL\n");
@@ -579,7 +556,7 @@ int main(int argc, char *argv[]){
 		//ERRORCHECK();
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
-			printf("electric_field_module ON\n");            
+			printf("electric_field_module ON\n");
 			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
 		}else{
 			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
@@ -607,17 +584,17 @@ int main(int argc, char *argv[]){
 		addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
 		addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
 		
-        if (shot.debug == 1){
-            printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-            printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
-            printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
-        }
+		if (shot.debug == 1){
+			printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
+			printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
+			printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
+		}
 
-		/*if (shot.step_host > 1){            
+		/*if (shot.step_host > 1){
 			for (int i = 1; (i < NX && XR[i] == detector); i++){;
 				if (i == NX-1) shot.step_host = step_i;
 			}
-        }*/
+		}*/
 	}	
 	
 	// Get CUDA timer 
@@ -661,7 +638,7 @@ int main(int argc, char *argv[]){
 			saveDataHT("(Real ionization position)",folder_out,timestamp); 
 			if(READINPUTPROF==1){
 				saveDataHT("(3D input)",folder_out,timestamp);			
-            }else if(RENATE==110){
+			}else if(RENATE==110){
 				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
 			}
 			
@@ -684,7 +661,7 @@ int main(int argc, char *argv[]){
 	
 	saveDataH("Number of ions","",NX,folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
-    
+	
 	 // DETECTOR
 	saveDataH("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
 	saveDataH("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
@@ -714,25 +691,24 @@ int main(int argc, char *argv[]){
 	}catch{
 		
 	}
-*/    
-    
+*/
 
 	//! Free CUDA
 	cudaFree(x_ptr);	cudaFree(xr);	cudaFree(xz);	cudaFree(xt);
 	cudaFree(g_ptr);	cudaFree(rg);	cudaFree(zg);		
 	cudaFree(br_ptr);	cudaFree(bz_ptr);	cudaFree(bt_ptr);
-    cudaFree(er_ptr);	cudaFree(ez_ptr);	cudaFree(et_ptr);
-    /*
+	cudaFree(er_ptr);	cudaFree(ez_ptr);	cudaFree(et_ptr);
+	/*
 	cudaFree(br0);	cudaFree(br1);	cudaFree(br2);	cudaFree(br3);	
 	cudaFree(br4);	cudaFree(br5);	cudaFree(br6);	cudaFree(br7);	
 	cudaFree(br8);	cudaFree(br9);	cudaFree(br10);	cudaFree(br11);	
 	cudaFree(br12);	cudaFree(br13);	cudaFree(br14);	cudaFree(br15);
-		
+
 	cudaFree(bz0);	cudaFree(bz1);	cudaFree(bz2);	cudaFree(bz3);
 	cudaFree(bz4);	cudaFree(bz5);	cudaFree(bz6);	cudaFree(bz7);
 	cudaFree(bz8);	cudaFree(bz9);	cudaFree(bz10);	cudaFree(bz11);
 	cudaFree(bz12);	cudaFree(bz13);	cudaFree(bz14);	cudaFree(bz15);
-	
+
 	cudaFree(bt0);	cudaFree(bt1);	cudaFree(bt2);	cudaFree(bt3);	
 	cudaFree(bt4);	cudaFree(bt5);	cudaFree(bt6);	cudaFree(bt7);	
 	cudaFree(bt8);	cudaFree(bt9);	cudaFree(bt10);	cudaFree(bt11);	
@@ -766,8 +742,8 @@ int main(int argc, char *argv[]){
 }
 
 char* concat(const char *s1, const char *s2){
-    char *result = (char*)malloc(strlen(s1)+strlen(s2)+1);
-    strcpy(result, s1);
-    strcat(result, s2);
-    return result;
+	char *result = (char*)malloc(strlen(s1)+strlen(s2)+1);
+	strcpy(result, s1);
+	strcat(result, s2);
+	return result;
 }
