@@ -285,9 +285,9 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	
 
 	if (!finished){
-		l_x[0] = NAN;//l_r;
-		l_x[1] = NAN;//l_z;
-		l_x[2] = NAN;//l_t;
+		l_x[0] = l_r; //NAN;
+		l_x[1] = l_z;
+		l_x[2] = l_t;
 	}
 	
 }

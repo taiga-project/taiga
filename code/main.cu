@@ -287,7 +287,7 @@ void fill_detector(double *DETECTOR, char* values){
 
   char* pEnd;  
   
-  DETECTOR[0] = strtod (szOrbits, &pEnd);
+  DETECTOR[0] = strtod (values, &pEnd);
   DETECTOR[1] = strtod (pEnd, &pEnd);
   DETECTOR[2] = strtod (pEnd, &pEnd);
   DETECTOR[3] = strtod (pEnd, &pEnd);
@@ -331,8 +331,8 @@ int main(int argc, char *argv[]){
 	if (argc > 3)	beam.matter = argv[3];			
 	if (argc > 4)	beam.energy = atof(argv[4]);    
 	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);    
-	if (argc > 6)	fill_detector(DETECTOR, atof(argv[6]));
-	if (argc > 7)	detector = atof(argv[7]); // NEW FUNCTION
+	if (argc > 6)	beam.diameter = atof(argv[6]);   
+	if (argc > 7)	fill_detector(DETECTOR, argv[7]); // NEW FUNCTION
     
 	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
@@ -614,12 +614,12 @@ int main(int argc, char *argv[]){
             printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
             printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
         }
-        
-		if (shot.step_host > 1){            
-			//for (int i = 1; (i < NX && XR[i] == detector); i++){;
+
+		/*if (shot.step_host > 1){            
+			for (int i = 1; (i < NX && XR[i] == detector); i++){;
 				if (i == NX-1) shot.step_host = step_i;
-			//}
-        }
+			}
+        }*/
 	}	
 	
 	// Get CUDA timer 
@@ -686,8 +686,13 @@ int main(int argc, char *argv[]){
 	
 	saveDataH("Number of ions","",NX,folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
-	
-	saveDataH("Detector position (R)","m",detector,folder_out,timestamp); // DETECTOR
+    
+	 // DETECTOR
+	saveDataH("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
+	saveDataH("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
+	saveDataH("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
+	saveDataH("Detector angle (Z/R)","",DETECTOR[3],folder_out,timestamp);
+	saveDataH("Detector angle (T/R)","",DETECTOR[4],folder_out,timestamp);
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
