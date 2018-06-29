@@ -290,7 +290,6 @@ void fill_detector(double *DETECTOR, char* values){
 	el = strtok(NULL,",");	DETECTOR[1] = strtod (el, NULL);
 	el = strtok(NULL,",");	DETECTOR[2] = strtod (el, NULL);
 	el = strtok(NULL,",");	DETECTOR[3] = strtod (el, NULL);
-	printf("detector (fill_detector): %s \t %lf %lf %lf %lf %lf\n", values, DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 }
 
@@ -335,25 +334,27 @@ int main(int argc, char *argv[]){
     
 	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
-	printf("detector: %s \t %lf %lf %lf %lf %lf\n", argv[7], DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+	printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 	int NX;
 	int max_blocks;
-	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_size+1;    
-		else	max_blocks=shot.block_number;	
+	if (argc > 8){
+		max_blocks = atoi(argv[8])/shot.block_size+1;    printf("arg8 %d" , atoi(argv[8]));
+	}else{
+		max_blocks=shot.block_number;	
+	}
         
-    if (argc > 9) shot.electric_field_module = atof(argv[9]);     
-    
-    if (argc > 10){ 
-        shot.step_host = atof(argv[10]); 
-        shot.step_device = 1;
-    }
-    
-    if (argc > 11) shot.step_device = atof(argv[11]); 
+	if (argc > 9) shot.electric_field_module = atof(argv[9]);     
+
+	if (argc > 10){ 
+		shot.step_host = atof(argv[10]); 
+		shot.step_device = 1;
+	}
+
+	if (argc > 11) shot.step_device = atof(argv[11]); 
 	
-    if (argc > 12) shot.debug = atof(argv[12]); 
-    
-	
+	if (argc > 12) shot.debug = atof(argv[12]); 
+
 	NX = shot.block_size * max_blocks;
     
 	if (READINPUTPROF == 1){
