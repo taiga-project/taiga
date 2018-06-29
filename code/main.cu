@@ -285,12 +285,11 @@ int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double
 
 void fill_detector(double *DETECTOR, char* values){
 
-	char* pEnd;   
-	DETECTOR[0] = strtod (values, &pEnd);
-	DETECTOR[1] = strtod (pEnd, &pEnd);
-	DETECTOR[2] = strtod (pEnd, &pEnd);
-	DETECTOR[3] = strtod (pEnd, &pEnd);
-	DETECTOR[4] = strtod (pEnd, &pEnd);  
+	char *el;      
+	el = strtok(values,",");	DETECTOR[0] = strtod (el, NULL);
+	el = strtok(el,",");	DETECTOR[1] = strtod (el, NULL);
+	el = strtok(el,",");	DETECTOR[2] = strtod (el, NULL);
+	el = strtok(el,",");	DETECTOR[3] = strtod (el, NULL);
 	printf("detector (fill_detector): %s \t %lf %lf %lf %lf %lf\n", values, DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 }
