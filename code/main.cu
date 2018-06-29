@@ -70,11 +70,11 @@
 #endif
 #include "dataio/beamOut.c"
 
+#include "running/rk4.cu"
 #include "running/ipol.cu"
 #include "running/cyl2tor.cu"
 #include "running/traj.cu"
 #include "running/ctrl.cu"
-#include "running/rk4.cu"
 
 char* concat(const char *s1, const char *s2);
 
