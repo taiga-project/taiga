@@ -37,7 +37,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 	}else{
 		printf("Radial beam profile: ON\n");
 		if (profx_r_length != prof_r_length){
-			printf("ERROR: Length of PROFX_R and PROF_R are different!\n");
+			printf("ERROR: Length of PROFX_R (%d) and PROF_R (%d) are different!\n", profx_r_length, prof_r_length);
 		}
 	}
 	
@@ -66,7 +66,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 			XR[i] = linear_interpolate(prof_d, prof_d_length, prof_r, prof_r_length, ionisation_yeald);
 		}while (isnan(XR[i])||XR[i]<0);
 		do{
-			if (profx_r_length == 0){
+			if (profx_r_length == 0)&&(profx_r_length == prof_r_length){
 				XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
 				XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
 			}else{
