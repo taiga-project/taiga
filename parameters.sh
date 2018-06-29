@@ -1,6 +1,6 @@
 ##!/usr/bin/bash
-shotnumber='test'
-time='1'
+shotnumber='14405'
+time='1250'
 beammatter='Li'
 energy=60 #keV
 angle=0 #degree
