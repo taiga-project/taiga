@@ -91,7 +91,7 @@ __device__ double localField(double *lp_b, double dr, double dz){
 l_x local coordinates
 
 */
-__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double l_ri, int N_step){
+__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double *det, int N_step){
 
 	// next grid
 	int rzci[2];
@@ -113,13 +113,8 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	// X = [R,vR,z,vZ,T,vT]
 	double X[6];
 	
-	int finished = 0;	
+	int finished = 0;
 	
-	// Temporary data -- from here
-//	double temp;
-	//double l_ri = /*0.725; =*/ 0.7089;
-	// Temp. data -- until here	
-
 	l_r  = l_x[0];
 	l_z  = l_x[1];
 	l_t  = l_x[2];
@@ -176,7 +171,7 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 		l_vt = X[5];
 	
 		// finished? (interpolation)
-		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, l_ri, l_x, l_vr);
+		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, det, l_x, l_vr);
 
 	}
 	
@@ -192,7 +187,7 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	
 }
 
-__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double l_ri, int N_step){
+__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double *det, int N_step){
 
 	// next grid
 	int rzci[2];
@@ -279,7 +274,7 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	
 	
 		// finished? (interpolation)
-		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, l_ri, l_x, l_vr);
+		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, det, l_x, l_vr);
 
 	}
 

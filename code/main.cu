@@ -44,6 +44,7 @@
 #define PI 3.141592653589792346
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <time.h>
@@ -103,7 +104,6 @@ struct beam_prop{
     double diameter = (double)$diameter;
     double toroidal_deflation = (double)$deflH;   
     double vertical_deflation = (double)$deflV;
-    double detector_R = (double)$DETPOS;
     
 };
 
@@ -282,6 +282,20 @@ int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double
 
 	return s;
 }
+
+void fill_detector(double *DETECTOR, char* values){
+
+  char* pEnd;  
+  
+  DETECTOR[0] = strtod (szOrbits, &pEnd);
+  DETECTOR[1] = strtod (pEnd, &pEnd);
+  DETECTOR[2] = strtod (pEnd, &pEnd);
+  DETECTOR[3] = strtod (pEnd, &pEnd);
+  DETECTOR[4] = strtod (pEnd, &pEnd);
+
+}
+
+
 int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){    
     
 	size_t dimB = 16*sizeof(double*);	
@@ -303,21 +317,28 @@ int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double
 }
 
 int main(int argc, char *argv[]){
-    //! @param shotname name of shot folder input folder (8714,11344,11347)	
-    
-    shot_prop shot;
-    beam_prop beam;
+	//! @param shotname name of shot folder input folder (8714,11344,11347)	
+	
+	shot_prop shot;
+	beam_prop beam;
+//     
+	size_t dimD = 5 * sizeof(double);
+	double *DETECTOR, *detector;
+	DETECTOR = (double *)malloc(dimD);	cudaMalloc((void **) &detector,  dimD); 
 	
 	if (argc > 1)	shot.name = argv[1];	
 	if (argc > 2)	shot.runnumber = atoi(argv[2]);
 	if (argc > 3)	beam.matter = argv[3];			
 	if (argc > 4)	beam.energy = atof(argv[4]);    
 	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);    
-	if (argc > 6)	beam.diameter = atof(argv[6]);
-	if (argc > 7)	beam.detector_R = atof(argv[7]);
+	if (argc > 6)	fill_detector(DETECTOR, atof(argv[6]));
+	if (argc > 7)	detector = atof(argv[7]); // NEW FUNCTION
     
 	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
+    
+  
+  printf("detector: %d %d %d %d %d", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 		
 	int NX;
 	int max_blocks;
@@ -480,14 +501,15 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(rg, RG, dimR, cudaMemcpyHostToDevice);
 	cudaMemcpy(zg, ZG, dimZ, cudaMemcpyHostToDevice);
 	cudaMemcpy(g_ptr, G_PTR, dimG, cudaMemcpyHostToDevice);
-	
-
 
 	//! ION COORDS (HOST2device)
 	cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
 
 	//! ION SPEEDS (HOST2device)
 	cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
+
+	//! DETECTOR COORDS (HOST2device)
+	cudaMemcpy(DETECTOR, detector, dimD, cudaMemcpyHostToDevice);
 	
 	// EXECUTION
 	addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
@@ -560,9 +582,9 @@ int main(int argc, char *argv[]){
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
 			printf("electric_field_module ON\n");            
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
 		}else{
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,beam.detector_R,shot.step_device);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
 		}
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
@@ -594,9 +616,9 @@ int main(int argc, char *argv[]){
         }
         
 		if (shot.step_host > 1){            
-			for (int i = 1; (i < NX && XR[i] == beam.detector_R); i++){;
+			//for (int i = 1; (i < NX && XR[i] == detector); i++){;
 				if (i == NX-1) shot.step_host = step_i;
-			}
+			//}
         }
 	}	
 	
@@ -665,7 +687,7 @@ int main(int argc, char *argv[]){
 	saveDataH("Number of ions","",NX,folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
-	saveDataH("Detector position (R)","m",beam.detector_R,folder_out,timestamp);
+	saveDataH("Detector position (R)","m",detector,folder_out,timestamp); // DETECTOR
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	

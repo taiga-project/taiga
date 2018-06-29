@@ -1,4 +1,4 @@
-__device__ int ipol(double l_r, double l_z, double l_t, double l_or, double l_oz, double l_ot, double l_ri, double *l_x, double l_vr){
+__device__ int ipol(double l_r, double l_z, double l_t, double l_or, double l_oz, double l_ot, double *det, double *l_x, double l_vr){
 
 	int finished = 0;
 	/*double di_r  = l_ri-l_r;
@@ -16,9 +16,9 @@ __device__ int ipol(double l_r, double l_z, double l_t, double l_or, double l_oz
 	
 	}*/
 	
-	double det_R = 0.7089;
-	double det_z = 0.2215;
-	double det_tan = 1;
+	double det_R = det[0]; //0.7089;
+	double det_z = det[1]; //0.2215;
+	double det_tan = det[3]; //1;
 	
 	double det_dist, det_odist;
 	det_dist = (l_r-det_R)+det_tan*(l_z-det_z);
