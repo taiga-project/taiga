@@ -287,9 +287,9 @@ void fill_detector(double *DETECTOR, char* values){
 
 	char *el;      
 	el = strtok(values,",");	DETECTOR[0] = strtod (el, NULL);
-	el = strtok(el,",");	DETECTOR[1] = strtod (el, NULL);
-	el = strtok(el,",");	DETECTOR[2] = strtod (el, NULL);
-	el = strtok(el,",");	DETECTOR[3] = strtod (el, NULL);
+	el = strtok(NULL,",");	DETECTOR[1] = strtod (el, NULL);
+	el = strtok(NULL,",");	DETECTOR[2] = strtod (el, NULL);
+	el = strtok(NULL,",");	DETECTOR[3] = strtod (el, NULL);
 	printf("detector (fill_detector): %s \t %lf %lf %lf %lf %lf\n", values, DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 }
