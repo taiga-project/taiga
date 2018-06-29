@@ -291,7 +291,7 @@ void fill_detector(double *DETECTOR, char* values){
 	DETECTOR[2] = strtod (pEnd, &pEnd);
 	DETECTOR[3] = strtod (pEnd, &pEnd);
 	DETECTOR[4] = strtod (pEnd, &pEnd);  
-	printf("detector (fill_detector): %d %d %d %d %d\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+	printf("detector (fill_detector): %s \t %lf %lf %lf %lf %lf\n", values, DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 }
 
@@ -336,7 +336,7 @@ int main(int argc, char *argv[]){
     
 	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
-	printf("detector: %d %d %d %d %d\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+	printf("detector: %s \t %lf %lf %lf %lf %lf\n" argv[7], DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 	int NX;
 	int max_blocks;
