@@ -285,13 +285,13 @@ int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double
 
 void fill_detector(double *DETECTOR, char* values){
 
-  char* pEnd;  
-  
-  DETECTOR[0] = strtod (values, &pEnd);
-  DETECTOR[1] = strtod (pEnd, &pEnd);
-  DETECTOR[2] = strtod (pEnd, &pEnd);
-  DETECTOR[3] = strtod (pEnd, &pEnd);
-  DETECTOR[4] = strtod (pEnd, &pEnd);
+	char* pEnd;   
+	DETECTOR[0] = strtod (values, &pEnd);
+	DETECTOR[1] = strtod (pEnd, &pEnd);
+	DETECTOR[2] = strtod (pEnd, &pEnd);
+	DETECTOR[3] = strtod (pEnd, &pEnd);
+	DETECTOR[4] = strtod (pEnd, &pEnd);  
+	printf("detector (fill_detector): %d %d %d %d %d\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 }
 
@@ -332,14 +332,12 @@ int main(int argc, char *argv[]){
 	if (argc > 4)	beam.energy = atof(argv[4]);    
 	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);    
 	if (argc > 6)	beam.diameter = atof(argv[6]);   
-	if (argc > 7)	fill_detector(DETECTOR, argv[7]); // NEW FUNCTION
+	if (argc > 7)	fill_detector(DETECTOR, argv[7]);
     
 	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
-    
-  
-  printf("detector: %d %d %d %d %d", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
-		
+	printf("detector: %d %d %d %d %d\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+
 	int NX;
 	int max_blocks;
 	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_size+1;    
