@@ -32,7 +32,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 		printf("ERROR: Length of PROFX_R and PROFX_D are different!\n");
 	}
 
-	if (profx_r_length == 0){
+	if (profx_r_length <= 0){
 		printf("Radial beam profile: OFF\n");
 	}else{
 		printf("Radial beam profile: ON\n");
