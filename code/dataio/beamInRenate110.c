@@ -27,10 +27,20 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 	if (prof_r_length != prof_d_length){
 		printf("ERROR: Length of PROF_R and PROF_D are different!\n");
 	}
-	
-    if (profx_r_length != profx_d_length){
+
+	if (profx_r_length != profx_d_length){
 		printf("ERROR: Length of PROFX_R and PROFX_D are different!\n");
 	}
+
+	if (profx_r_length == 0){
+		printf("Radial beam profile: OFF\n");
+	}else{
+		printf("Radial beam profile: ON\n");
+		if (profx_r_length != prof_r_length){
+			printf("ERROR: Length of PROFX_R and PROF_R are different!\n");
+		}
+	}
+	
 
 	double diam = diameter / 1000.0;
 	double deflH = deflH_degree/180*PI;
