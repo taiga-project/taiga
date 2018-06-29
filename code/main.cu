@@ -336,7 +336,7 @@ int main(int argc, char *argv[]){
     
 	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
-	printf("detector: %s \t %lf %lf %lf %lf %lf\n" argv[7], DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+	printf("detector: %s \t %lf %lf %lf %lf %lf\n", argv[7], DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
 	int NX;
 	int max_blocks;
