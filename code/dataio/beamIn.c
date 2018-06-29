@@ -20,7 +20,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 	printf("SIZEOF: %d\n",nrv);
 	
 	if(nrv<beam_number){
-	    printf("ERROR: There is no enough beamlet in source\n");
+	    printf("ERROR: There is not enough beamlet in source\n");
     }
 
 	double diam = (double)diameter / 1000;	

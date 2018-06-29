@@ -49,7 +49,7 @@ int vectorReader(double **name, char *folder, char *shotname, char *filename0){
 		fclose(file);
 		
 	}else{
-		printf("The following file is not exists:\n%s\n\n",filename);
+		printf("The following file does not exists:\n%s\n\n",filename);
         i = -1;
 	}	
 	
@@ -120,7 +120,7 @@ int matrixColoumnReader(double **name, char *folder, char *shotname, char *filen
 		fclose(file);
 		
 	}else{
-		printf("The following file is not exists:\n%s\n\n",filename);
+		printf("The following file does not exists:\n%s\n\n",filename);
         i = -1;
 	}	
 	
@@ -171,7 +171,7 @@ int vectorReader0(double **name, char *filename){
 		fclose(file);
 		
 	}else{
-		printf("The following file is not exists:\n%s\n\n",filename);
+		printf("The following file does not exists:\n%s\n\n",filename);
         i = -1;
 	}	
 	
