@@ -506,7 +506,7 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
 
 	//! DETECTOR COORDS (HOST2device)
-	cudaMemcpy(DETECTOR, detector, dimD, cudaMemcpyHostToDevice);
+	cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
 	
 	// EXECUTION
 	addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
