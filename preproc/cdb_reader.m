@@ -481,7 +481,7 @@ function ts = profileHack(ts,out)
 
 end
 
-function out = fitProfilesNT(ts, out)
+function out = fitProfilesNT_old(ts, out)
     
     try 
         ts = profileHack(ts,out);
@@ -509,6 +509,21 @@ function out = fitProfilesNT(ts, out)
     out.nt.temperature = out.nt.temperature .* (out.nt.temperature > 0);
     
     out.nt.density     = out.nt.density .* (out.nt.density > 0);
+end
+
+
+function out = fitProfilesNT(ts, out)
+    try
+        stefanikova_l_mode = @(a,r) a(1)*exp(-(sqrt(r)/a(2)).^a(3));
+        T_init = [800,0.69,3];        
+        T_fit = nlinfit(ts.psi,ts.temperature,stefanikova_l_mode,T_init);
+        out.nt.temperature = stefanikova_l_mode(T_fit,ts.psi);
+        
+        n_init = [4e19,0.69,4.6];
+        n_fit = nlinfit(ts.psi,ts.density,stefanikova_l_mode,n_init);        
+        out.nt.density = stefanikova_l_mode(n_fit,ts.psi);
+    end
+
 end
 
 function plotProfilesNT (in, out, ts);
