@@ -5,8 +5,6 @@ from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
-xdata = np.array([-2,-1.64,-1.33,-0.7,0,0.45,1.2,1.64,2.32,2.9])
-ydata = np.array([0.699369,0.700462,0.695354,1.03905,1.97389,2.41143,1.91091,0.919576,-0.730975,-1.42001])
 
 def prof_psi(x,a,b,c):
 	return  a * np.exp(-(np.sqrt(x)/b)**c)
@@ -19,10 +17,6 @@ def prof_r2(r,a,b,c):
 
 def prof_r3(r,b,c):
 	return np.exp(-(r/b)**c)
-
-
-def parabola(x,a,b,c):
-	return a*x**2+b*x+c
 
 shotnumber =  sys.argv[1];
 
@@ -110,17 +104,12 @@ for i in range(1, len(t)):
 
 		np.savetxt('../input/tsProf/ne_'+shotnumber+'_'+str(t_int[i])+'.dat',ne[i])
 		np.savetxt('../input/tsProf/Te_'+shotnumber+'_'+str(t_int[i])+'.dat',Te[i])
-#        nt_compass_mx(i,:) = [out.nt.psi(i), out.nt.temperature(i), out.nt.density(i), out.nt.zeff, 5.0];
-#		len(psi_more)
 		o = np.ones_like(psi_more)
-		renate_iio_data = np.asarray([psi_more,Te_more/1e3,ne_more/1e19,2.0*o,5.0*o]),#2.0,5.0)
-#		renate_iio_data = np.column_stack((psi_more,Te_more/1e3,ne_more/1e19,2.0*o,5.0*o)),#2.0,5.0)
-		#print renate_iio_data
-		renate_iio_data.tofile('../input/tsProf/nt_compass'+shotnumber+'_'+str(t_int[i])+'.txt')
-#		print renate110data
+		renate_iio_data = np.matrix([psi_more,Te_more/1e3,ne_more/1e19,2.0*o,5.0*o])
+		np.savetxt('../input/tsProf/nt_compass'+shotnumber+'_'+str(t_int[i])+'.txt',renate_iio_data.getT())
 		t_all.append(t_int[i])
 	except:
 		print 'Error at '+str(t_int[i]), sys.exc_info()[0]
-#renate110data = np.concatenate(psi_more,Te_more/1e3,ne_more/1e19),#2.0,5.0)
+
 np.savetxt('../input/tsProf/'+shotnumber+'.time',t_all,fmt='%d')
 
