@@ -80,13 +80,13 @@ function cdb_reader(varargin)
         out.efit.z      = linspace(min(ts.z),max(ts.z),200);
         out.efit.r      = ones(size(out.efit.z))*in.majorradius;
         
-        out = fitProfilesNT(ts, out);
+        %out = fitProfilesNT(ts, out);
             
         saveRenateFlux(in, out);    
-        saveRenateNT (in, out);
+        %saveRenateNT (in, out);
     
         if in.plot
-            plotProfilesNT (in, out, ts);        
+            %plotProfilesNT (in, out, ts);        
             plotNormFlux (in, out, efit);
         end
     end
