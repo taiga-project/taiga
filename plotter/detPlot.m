@@ -29,35 +29,41 @@ function detPlot(varargin)
     else        
         runangle=0;
     end
-    
+
     if nargin >= 5
-        scenario = varargin{5};
+        DETECTOR_POS_ANGLE = str2num(varargin{5});
+    else
+        DETECTOR_POS_ANGLE = [0.7071 0.22 0.0 1.0 0.0] ;
+    end
+    
+    if nargin >= 6
+        scenario = varargin{6};
     else        
         scenario = '_all';
     end
     
     
-    if nargin >= 6
-        ZMID_DET = varargin{6};
+    if nargin >= 7
+        ZMID_DET = varargin{7};
     else
         ZMID_DET = 0.22;
     end
     
-    if nargin >= 7
-        TMID_DET = varargin{7};
+    if nargin >= 8
+        TMID_DET = varargin{8};
     else
         TMID_DET = 0.00;
     end
 
     
-    if nargin >= 8
-        detector_plotted = varargin{8};
+    if nargin >= 9
+        detector_plotted = varargin{9};
     else
         detector_plotted = false;
     end
     
-    if nargin >= 9
-        particle_plotted = varargin{9};
+    if nargin >= 10
+        particle_plotted = varargin{10};
     else
         particle_plotted = false;
     end
@@ -66,13 +72,13 @@ function detPlot(varargin)
     in.tokamak = 'compass';    
     in.folder = '../input/renate110';
     in.prof_folder = '../input/ionProf';
-    in.shotNumber=shotnumber;
-    in.time=1150;
-    
+    in.shotNumber=shotnumber;    
     
     %! detector position    
-	det_R = 0.7089; %0.684618;
-	det_z = 0.2215;
+
+    det_R = DETECTOR_POS_ANGLE(1); %0.684618;
+    det_z = DETECTOR_POS_ANGLE(2);
+    det_tan_Rz = DETECTOR_POS_ANGLE(4);
 
     TORLIM = [TMID_DET-0.04 TMID_DET+0.04];
     ZLIM = [ZMID_DET-0.04 ZMID_DET+0.04];
@@ -110,22 +116,19 @@ function detPlot(varargin)
  %   rad = (z-det_z)+rad;
 %    z = det_z + (z-det_z)*sqrt(2);
     
-  ind = find(abs((rad-det_R)+(z-det_z))<1e-4);
+   ind = find(abs((rad-det_R)+det_tan_Rz*(z-det_z))<1e-4);
 %    ind = find(rad==detpos);
     
     aaa=find(abs(tor(ind))<1);
     
     ind=ind(aaa);
     
-    if strcmp(scenario,'_spx')
-	
-    in.filepath = [in.folder,'/spx_',in.tokamak,in.shotNumber,'_',num2str(in.time),'.txt'];    
+    if strcmp(scenario,'_spx')	
+        in.filepath = [mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'_spx.pdf'];
   	in.spx = load(in.filepath);
-		aaa=find(s_rad(ind)<in.spx-0.01 && s_rad(ind)>in.spx+0.01)
-		
-		ind=ind(aaa);
-		
-	end
+        aaa=find(s_rad(ind)<in.spx-0.01 && s_rad(ind)>in.spx+0.01)		
+        ind=ind(aaa);		
+    end
 	
     figure
     h = hist(s_rad,100);    
@@ -289,12 +292,17 @@ function detPlot(varargin)
     ttli = [0 strfind(runnumber,'_') length(runnumber)+1];
     %runshot = runnumber(ttli(1)+1:ttli(2)-1);
     shotnumber_array = strsplit(shotnumber,'_');
-    runshot = [shotnumber_array{1},'~~(t = ',shotnumber_array{2},'\mathrm{~s})'];
+    detector_angle_RZ = round(atan2(abs(rad(ind(1))-rad(ind(end))),abs(z(ind(1))-z(ind(end))))/pi*180,1);
+
+    runshot = [shotnumber_array{1},'~~(t = ',shotnumber_array{2},'\mathrm{~s,~detector~angle:~}',num2str(detector_angle_RZ),'^\circ)'];
 
 %	title(['$\#',runshot,...
 %        '~~z_\mathrm{detector} = ',num2str(det_z),'\mathrm{~m}~~(\varphi_\mathrm{in}=',...
 %        num2str(runangle),'^\circ) E=',num2str(energy),'~\mathrm{keV} $'],'interpreter','latex','fontsize',14)
-	title(['$\#',runshot,' $'],'interpreter','latex','fontsize',14)
+
+
+
+    title(['$\#',runshot,' $'],'interpreter','latex','fontsize',14)
     xlabel('{$T$ (m)}','interpreter','latex','fontsize',14)
     ylabel('{$Z$ (m)}','interpreter','latex','fontsize',14)
     xlim0=xlim
@@ -323,6 +331,7 @@ function detPlot(varargin)
     yticklabels(yt)
     xlabel('{vertical position (cm)}','interpreter','latex','fontsize',14)
     ylabel('{horizontal position (cm)}','interpreter','latex','fontsize',14)
+
     
     disp(['Saved to ',mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'_cm.pdf'])
     saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'_cm.pdf'])    
