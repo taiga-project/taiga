@@ -130,7 +130,7 @@ function detPlot(varargin)
         ind=ind(aaa);		
     end
 	
-    figure
+    figure('visible', 'off')
     h = hist(s_rad,100);    
     hist(s_rad,100); 
     
@@ -159,7 +159,7 @@ function detPlot(varargin)
 
 
     if false
-    figure
+    figure('visible', 'off')
     %for ploti=1:9
        % subplot(3,3,ploti)
         %contour(R,Z,psi2',30)
@@ -186,7 +186,7 @@ function detPlot(varargin)
 
     end
 
-    figure
+    figure('visible', 'off')
     %for ploti=1:9
        % subplot(3,3,ploti)
         %contour(R,Z,psi2',30)
@@ -338,7 +338,7 @@ function detPlot(varargin)
     saveas(gcf,[mainfolder,'/',shotnumber,'/',runnumber,'/detector_',shotnumber,'_cm.fig'])
     
     
-    figure 
+    figure('visible', 'off')
     plot(rad(ind),z(ind))
     xlabel('R [m]')
     ylabel('z [m]')
