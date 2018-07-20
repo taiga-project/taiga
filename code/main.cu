@@ -40,6 +40,8 @@
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
 #define PI 3.141592653589792346
+#define ELEMENTARY_CHARGE 1.60217656535e-19
+#define AMU 1.66053892173e-27
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,29 +79,353 @@
 #include "running/traj.cu"
 #include "running/ctrl.cu"
 
-char* concat(const char *s1, const char *s2);
-
-
-struct beam_prop{
-	char* matter = "Li";
-	double mass = 7.016004558;
-	double energy = (double)$energy ;
-	double diameter = (double)$diameter;
-	double toroidal_deflation = (double)$deflH;   
-	double vertical_deflation = (double)$deflV;
+int main(int argc, char *argv[]){
+	//! @param shotname name of shot folder input folder (8714,11344,11347)	
 	
-};
+	shot_prop shot;
+	beam_prop beam;
+  
+	size_t dimD = 5 * sizeof(double);
+	double *DETECTOR, *detector;
+	DETECTOR = (double *)malloc(dimD);	cudaMalloc((void **) &detector,  dimD); 
+	
+	if (argc > 1)	shot.name = argv[1];	
+	if (argc > 2)	shot.runnumber = atoi(argv[2]);
+	if (argc > 3)	beam.matter = argv[3];
+	if (argc > 4)	beam.energy = atof(argv[4]);
+	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);
+	if (argc > 6)	beam.diameter = atof(argv[6]);   
+	if (argc > 7)	fill_detector(DETECTOR, argv[7]);
 
-struct shot_prop{
-	char* name = "11347";
-	int runnumber = 0;  
-	int electric_field_module = 0;
-	int debug = 0;
-	int block_size = BLOCK_SIZE;
-	int block_number = N_BLOCKS;
-	int step_host = 1; // on HDD
-	int step_device = 2000; // on GPU
-};
+	beam.mass = get_mass(beam.matter);
+	printf("shotname: %s\n",shot.name);  
+	printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+
+	int NX;
+	int max_blocks;
+	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_size+1; 
+		else	max_blocks=shot.block_number;
+
+	if (argc > 9) shot.electric_field_module = atof(argv[9]);
+
+	if (argc > 10){ 
+		shot.step_host = atof(argv[10]); 
+		shot.step_device = 1;
+	}
+
+	if (argc > 11) shot.step_device = atof(argv[11]); 
+	
+	if (argc > 12) shot.debug = atof(argv[12]); 
+
+	NX = shot.block_size * max_blocks;
+
+	if (READINPUTPROF == 1){
+		double *XR;
+		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
+		max_blocks = NX / shot.block_size+1;
+	}
+
+	char* folder_out=concat("results/", shot.name);
+	
+	set_cuda();
+
+	// set timestamp
+	time_t rawtime;
+	struct tm *info;
+	char timestamp[80];
+	sprintf(timestamp, "%d", shot.runnumber);
+
+	// coords
+	double *X_PTR[3], **x_ptr;
+	double *V_PTR[3], **v_ptr;
+	size_t dimXP = 3*sizeof(double*);
+
+	double *XR,  *xr; 
+	double *XZ,  *xz;
+	double *XT,  *xt;
+
+	double *VR,  *vr; 
+	double *VZ,  *vz;
+	double *VT,  *vt;
+
+	printf("=============================\n");
+	printf("Number of blocks (threads): %d\n", max_blocks);
+	printf("Block size: %d\n", shot.block_size);
+	printf("Number of particles: %d\n", NX);
+	printf("Max steps on device (GPU): %d\n", shot.step_device);
+	printf("Max steps on host (HDD): %d\n", shot.step_host);
+
+
+	//! position and velocity array allocation
+	size_t dimX = shot.block_size * max_blocks * sizeof(double);
+	
+	XR = (double*)malloc(dimX);
+	XZ = (double*)malloc(dimX);
+	XT = (double*)malloc(dimX);
+
+	VR = (double*)malloc(dimX);
+	VZ = (double*)malloc(dimX);
+	VT = (double*)malloc(dimX);
+
+	// phys. constants
+	double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
+
+	beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflation, beam.vertical_deflation);
+
+	cudaMalloc((void **) &xr,  dimX); 
+	cudaMalloc((void **) &xz,  dimX); 
+	cudaMalloc((void **) &xt,  dimX); 
+	cudaMalloc((void **) &x_ptr,  dimXP); 
+
+	cudaMalloc((void **) &vr,  dimX); 
+	cudaMalloc((void **) &vz,  dimX); 
+	cudaMalloc((void **) &vt,  dimX); 
+	cudaMalloc((void **) &v_ptr,  dimXP); 
+
+	//! coords pointers
+	X_PTR[0] = xr;
+	X_PTR[1] = xz;
+	X_PTR[2] = xt;
+
+	V_PTR[0] = vr;
+	V_PTR[1] = vz;
+	V_PTR[2] = vt;
+	
+	//! grid pointers
+	double *G_PTR[2];
+	double **g_ptr;
+	size_t dimG = 2*sizeof(double*);	
+	cudaMalloc((void **) &g_ptr,  dimG); 
+	double *RG, *rg;
+	double *ZG, *zg;
+
+	// size definitions
+
+	//! R-grid points
+	int NR = vectorReader(&RG, "input/fieldSpl", shot.name, "r.spline");
+	size_t dimR = NR * sizeof(double);
+	cudaMalloc((void **) &rg,  dimR); 
+	
+	//! Z-grid points
+	int NZ = vectorReader(&ZG, "input/fieldSpl", shot.name, "z.spline");
+	size_t dimZ = NZ * sizeof(double);
+	size_t dimRZ = (NR-1) * (NZ-1) * sizeof(double);
+	cudaMalloc((void **) &zg,  dimZ); 
+
+   	// grid pointer
+	G_PTR[0] = rg;
+	G_PTR[1] = zg;
+
+	//! MAGN. FIELD (HOST, device) ALLOCATION  
+	double **br_ptr, **bz_ptr, **bt_ptr;
+	double **er_ptr, **ez_ptr, **et_ptr;
+	
+	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
+	
+	if (shot.electric_field_module){
+		shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
+	}
+	
+	// temporary test data
+	double *TMP, *tmp;
+	TMP = (double *)malloc(dimR);	cudaMalloc((void **) &tmp,  dimR); 
+
+	//! CUDA profiler START
+	cudaProfilerStart();
+	
+	//! MEMCOPY (HOST2device)
+
+	//! GRID COORDS	
+	cudaMemcpy(rg, RG, dimR, cudaMemcpyHostToDevice);
+	cudaMemcpy(zg, ZG, dimZ, cudaMemcpyHostToDevice);
+	cudaMemcpy(g_ptr, G_PTR, dimG, cudaMemcpyHostToDevice);
+
+	//! ION COORDS (HOST2device)
+	cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
+
+	//! ION SPEEDS (HOST2device)
+	cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
+
+	//! DETECTOR COORDS (HOST2device)
+	cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
+	
+	// OUTPUT INIT
+	addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
+	addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
+	addData1(XT,NX,folder_out,timestamp,"t_tor.dat");
+	addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
+	addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
+	addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
+
+	//! Set CUDA timer 
+	cudaEvent_t start, stop;
+	float runtime;
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+
+	if (shot.debug == 1)	debug_message_init(XR, XZ, XT, VR, VZ, VT);
+	
+	for (int step_i=0;step_i<shot.step_host;step_i++){
+		
+		// ION COORDS (HOST2device)
+		cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
+		cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
+		cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
+		//cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
+
+		// ION SPEEDS (HOST2device)
+		cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
+		cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
+		cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
+		//cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
+				
+		//ERRORCHECK();
+		
+		cudaEventRecord(start, 0);
+		if (shot.electric_field_module){
+			printf("electric_field_module ON\n");
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
+		}else{
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
+		}
+		cudaEventRecord(stop, 0);
+		cudaEventSynchronize(stop);
+		ERRORCHECK();
+
+		// ION COORDS (device2HOST)
+		cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
+		cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
+		cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);		
+		//ERRORCHECK();
+		
+		// ION SPEEDS (device2HOST)
+		cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
+		cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
+		cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
+		//ERRORCHECK();
+		
+		// Save data to files
+		printf("Step\t%d/%d\n",step_i,shot.step_host);
+		addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
+		addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
+		addData1(XT,NX,folder_out,timestamp,"t_tor.dat");
+		addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
+		addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
+		addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
+		
+		if (shot.debug == 1)	debug_message_run(XR, XZ, XT, VR, VZ, VT);
+
+		/*if (shot.step_host > 1){
+			for (int i = 1; (i < NX && XR[i] == detector); i++){;
+				if (i == NX-1) shot.step_host = step_i;
+			}
+		}*/
+	}	
+	
+	// Get CUDA timer 
+	cudaEventElapsedTime(&runtime, start, stop);
+	printf ("Time for the kernel: %f s\n", runtime/1000.0);
+
+	//! MEMCOPY (device2HOST)
+	cudaMemcpy(TMP, tmp, dimR, cudaMemcpyDeviceToHost);
+	if(TMP[0]!=42.24){
+		printf("\n+---	-------------------+\n | Fatal error in running. | \n | The CUDA did not run well. |\n+-----------------------+\n");
+	}else{
+		printf("\n	Memcopy OK.\n");
+	}
+	
+	/*if (shot.debug == 1){
+		for (int i=0;i<10;i++) {
+			printf("TMP%d\t%lf\n",i,TMP[i]);
+		}
+	}*/
+	
+	//! CUDA profiler STOP
+	cudaProfilerStop();
+
+	//! Save data to files
+	saveData1(XR,NX,folder_out,timestamp,"rad.dat");
+	saveData1(XZ,NX,folder_out,timestamp,"z.dat");
+	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
+	saveData1(VR,NX,folder_out,timestamp,"vrad.dat");
+	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
+	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");	
+	
+	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
+	saveDataHT(concat("Run ID:  ",timestamp),folder_out,timestamp);
+	saveDataHT("-----------------------------------",folder_out,timestamp);
+	saveDataHT(concat("version: r ",SVN_REV),folder_out,timestamp);
+	saveDataHT("-----------------------------------",folder_out,timestamp);
+	if(BANANA){
+		saveDataHT("BANANA ORBITS",folder_out,timestamp);
+	}else{		
+		saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
+		if(RADIONS){
+			saveDataHT("(Real ionization position)",folder_out,timestamp); 
+			if(READINPUTPROF==1){
+				saveDataHT("(3D input)",folder_out,timestamp);			
+			}else if(RENATE==110){
+				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
+			}
+			
+		}else{
+			saveDataHT("(R=const ionization)",folder_out,timestamp);
+		}
+	}
+	saveDataHT("-----------------------------------",folder_out,timestamp);
+
+	if(!READINPUTPROF){
+		saveDataH("Beam energy","keV",beam.energy,folder_out,timestamp);
+		saveDataH("Atomic mass","AMU",beam.mass,folder_out,timestamp);
+		saveDataH("Beam diameter","mm",beam.diameter,folder_out,timestamp);
+		saveDataH2("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
+	}
+	
+	if(!RADIONS&&!BANANA){	
+		saveDataH("Ion. position (R)","m",R_midions,folder_out,timestamp);
+	}
+	
+	saveDataH("Number of ions","",NX,folder_out,timestamp);
+	saveDataHT("-----------------------------------",folder_out,timestamp);
+	
+	 // DETECTOR
+	saveDataH("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
+	saveDataH("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
+	saveDataH("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
+	saveDataH("Detector angle (Z/R)","",DETECTOR[3],folder_out,timestamp);
+	saveDataH("Detector angle (T/R)","",DETECTOR[4],folder_out,timestamp);
+	
+	saveDataHT("-----------------------------------",folder_out,timestamp);
+	
+	saveDataH("Timestep","s",dt,folder_out,timestamp);	
+	
+	saveDataHT("-----------------------------------",folder_out,timestamp);
+	
+	saveDataH("Kernel runtime", "s", runtime/1000.0,folder_out,timestamp);
+	saveDataHT("-----------------------------------",folder_out,timestamp);
+	saveDataH("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
+	saveDataH("Block size", "", shot.block_size,folder_out,timestamp);
+	saveDataH("Length of a loop", "", shot.step_device,folder_out,timestamp);
+	saveDataH("Number of loops", "", shot.step_host,folder_out,timestamp);		
+
+	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
+
+	//! Free CUDA
+	cudaFree(x_ptr);	cudaFree(xr);	cudaFree(xz);	cudaFree(xt);
+	cudaFree(g_ptr);	cudaFree(rg);	cudaFree(zg);		
+	cudaFree(br_ptr);	cudaFree(bz_ptr);	cudaFree(bt_ptr);
+	cudaFree(er_ptr);	cudaFree(ez_ptr);	cudaFree(et_ptr);
+
+	//! Free RAM
+	free(RG);	free(ZG);	
+	free(XR);	free(XZ);	free(XT);
+	
+	//! FREE TMP variables (RAM, cuda)
+	free(TMP);	cudaFree(tmp);
+
+	printf("Ready.\n\n");
+}
+
 
 inline void cErrorCheck(const char *file, int line) {
   cudaThreadSynchronize();
@@ -177,10 +503,7 @@ double get_mass(char *s){
 	}
 	
 	return mass;
-
 }
-
-
 
 int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_ptr, int dimRZ){
 
@@ -276,7 +599,6 @@ void fill_detector(double *DETECTOR, char* values){
 
 }
 
-
 int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){	
 
 	size_t dimB = 16*sizeof(double*);	
@@ -297,211 +619,18 @@ int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double
 	return s;
 }
 
-int main(int argc, char *argv[]){
-	//! @param shotname name of shot folder input folder (8714,11344,11347)	
-	
-	shot_prop shot;
-	beam_prop beam;
-  
-	size_t dimD = 5 * sizeof(double);
-	double *DETECTOR, *detector;
-	DETECTOR = (double *)malloc(dimD);	cudaMalloc((void **) &detector,  dimD); 
-	
-	if (argc > 1)	shot.name = argv[1];	
-	if (argc > 2)	shot.runnumber = atoi(argv[2]);
-	if (argc > 3)	beam.matter = argv[3];
-	if (argc > 4)	beam.energy = atof(argv[4]);
-	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);
-	if (argc > 6)	beam.diameter = atof(argv[6]);   
-	if (argc > 7)	fill_detector(DETECTOR, argv[7]);
+//
 
-	beam.mass = get_mass(beam.matter);
-	printf("shotname: %s\n",shot.name);  
-	printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+char* concat(const char *s1, const char *s2){
+	char *result = (char*)malloc(strlen(s1)+strlen(s2)+1);
+	strcpy(result, s1);
+	strcat(result, s2);
+	return result;
+}
 
-	int NX;
-	int max_blocks;
-	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_size+1; 
-		else	max_blocks=shot.block_number;
+// DEBUG
 
-	if (argc > 9) shot.electric_field_module = atof(argv[9]);
-
-	if (argc > 10){ 
-		shot.step_host = atof(argv[10]); 
-		shot.step_device = 1;
-	}
-
-	if (argc > 11) shot.step_device = atof(argv[11]); 
-	
-	if (argc > 12) shot.debug = atof(argv[12]); 
-
-	NX = shot.block_size * max_blocks;
-
-	if (READINPUTPROF == 1){
-		double *XR;
-		NX = vectorReader0(&XR, "input/manual_profile/rad.dat");
-		max_blocks = NX / shot.block_size+1;
-	}
-
-	char* folder_out=concat("results/", shot.name);
-	
-	set_cuda();
-
-	// set timestamp
-	time_t rawtime;
-	struct tm *info;
-	char timestamp[80];
-	sprintf(timestamp, "%d", shot.runnumber);
-
-	// coords
-	double *X_PTR[3], **x_ptr;
-	double *V_PTR[3], **v_ptr;
-	size_t dimXP = 3*sizeof(double*);
-
-	double *XR,  *xr; 
-	double *XZ,  *xz;
-	double *XT,  *xt;
-
-	double *VR,  *vr; 
-	double *VZ,  *vz;
-	double *VT,  *vt;
-
-	printf("=============================\n");
-	printf("Number of blocks (threads): %d\n", max_blocks);
-	printf("Block size: %d\n", shot.block_size);
-	printf("Number of particles: %d\n", NX);
-	printf("Max steps on device (GPU): %d\n", shot.step_device);
-	printf("Max steps on host (HDD): %d\n", shot.step_host);
-
-
-	//! position and velocity array allocation
-	size_t dimX = shot.block_size * max_blocks * sizeof(double);
-	
-	XR = (double*)malloc(dimX);
-	XZ = (double*)malloc(dimX);
-	XT = (double*)malloc(dimX);
-
-	VR = (double*)malloc(dimX);
-	VZ = (double*)malloc(dimX);
-	VT = (double*)malloc(dimX);
-
-	// phys. constants
-	double eperm;
-	eperm = 1.60217656535e-19/1.66053892173e-27/beam.mass;
-
-	beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflation, beam.vertical_deflation);
-
-
-	cudaMalloc((void **) &xr,  dimX); 
-	cudaMalloc((void **) &xz,  dimX); 
-	cudaMalloc((void **) &xt,  dimX); 
-	cudaMalloc((void **) &x_ptr,  dimXP); 
-
-	cudaMalloc((void **) &vr,  dimX); 
-	cudaMalloc((void **) &vz,  dimX); 
-	cudaMalloc((void **) &vt,  dimX); 
-	cudaMalloc((void **) &v_ptr,  dimXP); 
-
-	//! coords pointers
-	X_PTR[0] = xr;
-	X_PTR[1] = xz;
-	X_PTR[2] = xt;
-
-	V_PTR[0] = vr;
-	V_PTR[1] = vz;
-	V_PTR[2] = vt;
-	
-	//! grid pointers
-	double *G_PTR[2];
-	double **g_ptr;
-	size_t dimG = 2*sizeof(double*);	
-	cudaMalloc((void **) &g_ptr,  dimG); 
-	double *RG, *rg;
-	double *ZG, *zg;
-
-	// size definitions
-
-	//! R-grid points
-
-	int NR = vectorReader(&RG, "input/fieldSpl", shot.name, "r.spline");
-	/*if ($ELM == 1){
-		NR = vectorReader(&RG, "field/cuda/ipol/r.spline");
-		printf("ELM mode\n");
-	}else{
-		NR = vectorReader(&RG, "input/fieldSpl", shot.name, "r.spline");
-		printf("ELM-free mode\n");
-	}*/
-	size_t dimR = NR * sizeof(double);
-	cudaMalloc((void **) &rg,  dimR); 
-	
-	//! Z-grid points
-	int NZ = vectorReader(&ZG, "input/fieldSpl", shot.name, "z.spline");
-	/*if ($ELM == 1){
-		NZ = vectorReader(&ZG, "field/cuda/ipol/z.spline");
-	}else{
-		NZ = vectorReader(&ZG, "input/fieldSpl", shot.name, "z.spline");
-	}*/
-
-	size_t dimZ = NZ * sizeof(double);
-	size_t dimRZ = (NR-1) * (NZ-1) * sizeof(double);
-	cudaMalloc((void **) &zg,  dimZ); 
-
-   	// grid pointer
-	G_PTR[0] = rg;
-	G_PTR[1] = zg;
-
-	//! MAGN. FIELD (HOST, device) ALLOCATION  
-	double **br_ptr, **bz_ptr, **bt_ptr;
-	double **er_ptr, **ez_ptr, **et_ptr;
-	
-	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
-	
-	if (shot.electric_field_module){
-		shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
-	}
-	
-	// temporary test data
-	double *TMP, *tmp;
-	TMP = (double *)malloc(dimR);	cudaMalloc((void **) &tmp,  dimR); 
-
-	// field direction on first
-	double *BD1, *bd1;	cudaMalloc((void **) &bd1,  dimX); 	BD1 = (double *)malloc(dimX);
-	double *BD2, *bd2;	cudaMalloc((void **) &bd2,  dimX);	BD2 = (double *)malloc(dimX);
-
-	//! CUDA profiler START
-	cudaProfilerStart();
-	
-	//! MEMCOPY (HOST2device)
-
-	//! GRID COORDS	
-	cudaMemcpy(rg, RG, dimR, cudaMemcpyHostToDevice);
-	cudaMemcpy(zg, ZG, dimZ, cudaMemcpyHostToDevice);
-	cudaMemcpy(g_ptr, G_PTR, dimG, cudaMemcpyHostToDevice);
-
-	//! ION COORDS (HOST2device)
-	cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
-
-	//! ION SPEEDS (HOST2device)
-	cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
-
-	//! DETECTOR COORDS (HOST2device)
-	cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
-	
-	// EXECUTION
-	addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
-	addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
-	addData1(XT,NX,folder_out,timestamp,"t_tor.dat");
-	addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
-	addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
-	addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
-
-	//! Set CUDA timer 
-	cudaEvent_t start, stop;
-	float runtime;
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-
-	if (shot.debug == 1){
+void debug_message_init(double* XR, double* XZ, double* XT, double* VR, double* VZ, double* VT){
 		printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
 		printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
 		printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
@@ -513,238 +642,11 @@ int main(int argc, char *argv[]){
 			printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
 		}
 		printf("----------------------------------------------------------\n");
-	}
-	// BANANA
-	if (BANANA==1){
-		printf("BANANA CTRL\n");
-		// ION COORDS (HOST2device)
-		cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
-		cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
-		cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
-		//cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
+  
+}
 
-		// ION SPEEDS (HOST2device)
-		cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
-		cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
-		cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
-				
-		banCtrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,bd1,bd2);
-		cudaMemcpy(BD1, bd1, dimX, cudaMemcpyDeviceToHost);
-		cudaMemcpy(BD2, bd2, dimX, cudaMemcpyDeviceToHost);
-		addData1(BD1,NX,folder_out,timestamp,"d_b1.dat");
-		addData1(BD2,NX,folder_out,timestamp,"d_b2.dat");
-		addData1(VR,NX,folder_out,timestamp,"d_vr.dat");
-		addData1(VZ,NX,folder_out,timestamp,"d_vz.dat");
-		addData1(VT,NX,folder_out,timestamp,"d_vt.dat");
-	}	
-	
-	for (int step_i=0;step_i<shot.step_host;step_i++){
-		
-		// ION COORDS (HOST2device)
-		cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
-		cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
-		cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
-		//cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
-
-		// ION SPEEDS (HOST2device)
-		cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
-		cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
-		cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
-		//cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
-		
-		
-		// CUDA CODE, timer and Error catch	
-		//ERRORCHECK();
-		cudaEventRecord(start, 0);
-		if (shot.electric_field_module){
-			printf("electric_field_module ON\n");
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
-		}else{
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
-		}
-		cudaEventRecord(stop, 0);
-		cudaEventSynchronize(stop);
-		ERRORCHECK();
-
-		// ION COORDS (device2HOST)
-		cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
-		cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
-		cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
-		//ERRORCHECK();
-		// ION SPEEDS (device2HOST)
-		cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
-		cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
-		cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
-		//ERRORCHECK();
-		// Save data to files
-		printf("Step\t%d/%d\n",step_i,shot.step_host);
-		addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
-		addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
-		addData1(XT,NX,folder_out,timestamp,"t_tor.dat");
-		addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
-		addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
-		addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
-		
-		if (shot.debug == 1){
+void debug_message_run(double* XR, double* XZ, double* XT, double* VR, double* VZ, double* VT){
 			printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
 			printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
 			printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
-		}
-
-		/*if (shot.step_host > 1){
-			for (int i = 1; (i < NX && XR[i] == detector); i++){;
-				if (i == NX-1) shot.step_host = step_i;
-			}
-		}*/
-	}	
-	
-	// Get CUDA timer 
-	cudaEventElapsedTime(&runtime, start, stop);
-	printf ("Time for the kernel: %f s\n", runtime/1000.0);
-
-	//! MEMCOPY (device2HOST)
-	cudaMemcpy(TMP, tmp, dimR, cudaMemcpyDeviceToHost);
-	if(TMP[0]!=42.24){
-		printf("\n+---	-------------------+\n | Fatal error in running. | \n | The CUDA did not run well. |\n+-----------------------+\n");
-	}else{
-		printf("\n	Memcopy OK.\n");
-	}
-	
-	if (shot.debug == 1){
-		for (int i=0;i<10;i++) {
-			printf("TMP%d\t%lf\n",i,TMP[i]);
-		}
-	}
-	//! CUDA profiler STOP
-	cudaProfilerStop();
-
-	//! Save data to files
-	saveData1(XR,NX,folder_out,timestamp,"rad.dat");
-	saveData1(XZ,NX,folder_out,timestamp,"z.dat");
-	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
-	saveData1(VR,NX,folder_out,timestamp,"vrad.dat");
-	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
-	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");	
-	
-	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
-	saveDataHT(concat("Run ID:  ",timestamp),folder_out,timestamp);
-	saveDataHT("-----------------------------------",folder_out,timestamp);
-	saveDataHT(concat("version: r ",SVN_REV),folder_out,timestamp);
-	saveDataHT("-----------------------------------",folder_out,timestamp);
-	if(BANANA){
-		saveDataHT("BANANA ORBITS",folder_out,timestamp);
-	}else{		
-		saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
-		if(RADIONS){
-			saveDataHT("(Real ionization position)",folder_out,timestamp); 
-			if(READINPUTPROF==1){
-				saveDataHT("(3D input)",folder_out,timestamp);			
-			}else if(RENATE==110){
-				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
-			}
-			
-		}else{
-			saveDataHT("(R=const ionization)",folder_out,timestamp);
-		}
-	}
-	saveDataHT("-----------------------------------",folder_out,timestamp);
-
-	if(!READINPUTPROF){
-		saveDataH("Beam energy","keV",beam.energy,folder_out,timestamp);
-		saveDataH("Atomic mass","AMU",beam.mass,folder_out,timestamp);
-		saveDataH("Beam diameter","mm",beam.diameter,folder_out,timestamp);
-		saveDataH2("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
-	}
-	
-	if(!RADIONS&&!BANANA){	
-		saveDataH("Ion. position (R)","m",R_midions,folder_out,timestamp);
-	}
-	
-	saveDataH("Number of ions","",NX,folder_out,timestamp);
-	saveDataHT("-----------------------------------",folder_out,timestamp);
-	
-	 // DETECTOR
-	saveDataH("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
-	saveDataH("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
-	saveDataH("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
-	saveDataH("Detector angle (Z/R)","",DETECTOR[3],folder_out,timestamp);
-	saveDataH("Detector angle (T/R)","",DETECTOR[4],folder_out,timestamp);
-	
-	saveDataHT("-----------------------------------",folder_out,timestamp);
-	
-	saveDataH("Timestep","s",dt,folder_out,timestamp);	
-	
-	saveDataHT("-----------------------------------",folder_out,timestamp);
-	
-	saveDataH("Kernel runtime", "s", runtime/1000.0,folder_out,timestamp);
-	saveDataHT("-----------------------------------",folder_out,timestamp);
-	saveDataH("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
-	saveDataH("Block size", "", shot.block_size,folder_out,timestamp);
-	saveDataH("Length of a loop", "", shot.step_device,folder_out,timestamp);
-	saveDataH("Number of loops", "", shot.step_host,folder_out,timestamp);		
-
-	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
-	
-/*	try{
-		std::filesystem::create_directories(concat("/home/maradi/log",folder_out));
-		std::filesystem::copy(concat(folder_out,"header.dat"),concat("/home/maradi/log",folder_out));
-		std::filesystem::copy("parameters.sh",concat("/home/maradi/log",folder_out));
-	}catch{
-		
-	}
-*/
-
-	//! Free CUDA
-	cudaFree(x_ptr);	cudaFree(xr);	cudaFree(xz);	cudaFree(xt);
-	cudaFree(g_ptr);	cudaFree(rg);	cudaFree(zg);		
-	cudaFree(br_ptr);	cudaFree(bz_ptr);	cudaFree(bt_ptr);
-	cudaFree(er_ptr);	cudaFree(ez_ptr);	cudaFree(et_ptr);
-	/*
-	cudaFree(br0);	cudaFree(br1);	cudaFree(br2);	cudaFree(br3);	
-	cudaFree(br4);	cudaFree(br5);	cudaFree(br6);	cudaFree(br7);	
-	cudaFree(br8);	cudaFree(br9);	cudaFree(br10);	cudaFree(br11);	
-	cudaFree(br12);	cudaFree(br13);	cudaFree(br14);	cudaFree(br15);
-
-	cudaFree(bz0);	cudaFree(bz1);	cudaFree(bz2);	cudaFree(bz3);
-	cudaFree(bz4);	cudaFree(bz5);	cudaFree(bz6);	cudaFree(bz7);
-	cudaFree(bz8);	cudaFree(bz9);	cudaFree(bz10);	cudaFree(bz11);
-	cudaFree(bz12);	cudaFree(bz13);	cudaFree(bz14);	cudaFree(bz15);
-
-	cudaFree(bt0);	cudaFree(bt1);	cudaFree(bt2);	cudaFree(bt3);	
-	cudaFree(bt4);	cudaFree(bt5);	cudaFree(bt6);	cudaFree(bt7);	
-	cudaFree(bt8);	cudaFree(bt9);	cudaFree(bt10);	cudaFree(bt11);	
-	cudaFree(bt12);	cudaFree(bt13);	cudaFree(bt14);	cudaFree(bt15);	*/
-
-	//! Free RAM
-	free(RG);	free(ZG);	
-	free(XR);	free(XZ);	free(XT);
-	//	free(G_PTR);
-	//	free(BR_PTR);	free(BZ_PTR);	free(BT_PTR);	
-	
-	/*free(BR0);	free(BR1);	free(BR2);	free(BR3);
-	free(BR4);	free(BR5);	free(BR6);	free(BR7);	
-	free(BR8);	free(BR9);	free(BR10);	free(BR11);	
-	free(BR12);	free(BR13);	free(BR14);	free(BR15);
-		
-	free(BZ0);	free(BZ1);	free(BZ2);	free(BZ3);	
-	free(BZ4);	free(BZ5);	free(BZ6);	free(BZ7);	
-	free(BZ8);	free(BZ9);	free(BZ10);	free(BZ11);	
-	free(BZ12);	free(BZ13);	free(BZ14);	free(BZ15);
-	
-	free(BT0);	free(BT1);	free(BT2);	free(BT3);
-	free(BT4);	free(BT5);	free(BT6);	free(BT7);
-	free(BT8);	free(BT9);	free(BT10);	free(BT11);
-	free(BT12);	free(BT13);	free(BT14);	free(BT15);		*/
-	
-	//! FREE TMP variables (RAM, cuda)
-	free(TMP);	cudaFree(tmp);
-
-	printf("Ready.\n\n");
-}
-
-char* concat(const char *s1, const char *s2){
-	char *result = (char*)malloc(strlen(s1)+strlen(s2)+1);
-	strcpy(result, s1);
-	strcat(result, s2);
-	return result;
 }
