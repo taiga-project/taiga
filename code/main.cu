@@ -53,6 +53,7 @@
 #include <cuda_profiler_api.h>
 #include "cuda/nvToolsExt.h"
 
+#include "main.cuh"
 #include "dataio/fieldIn.c"
 
 #if BANANA == 1
