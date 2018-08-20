@@ -8,7 +8,7 @@
 #define $deflV	 0				//! @param $deflV vertical deflection in rad (left--right) -> TOROIDAL DEFLECTION
 
 #define $default_energy   60				//! @param energy in keV
-#define $default_mass	 7.016004558	//! @param mass in AMU (Li-7)
+#define $default_mass  7.016004558			//! @param atomic mass in amu
 
 #define $default_diameter 25//4/*e-20*/	  //! @param diameter in mm
 

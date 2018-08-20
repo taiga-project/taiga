@@ -1,8 +1,8 @@
 struct beam_prop{
 	char* matter = "Li";
 	double mass = 7.016004558;
-	double energy = (double)$energy ;
-	double diameter = (double)$diameter;
+	double energy = (double)$default_energy ;
+	double diameter = (double)$default_diameter;
 	double toroidal_deflation = (double)$deflH;   
 	double vertical_deflation = (double)$deflV;
 	
