@@ -1,22 +1,18 @@
 // TAIGA default parameters
 
-#define $ELM		 0		//! @param $ELM turn on <<ELM current perturbation>> mode
-
 #define N_BLOCKS	 1		//! @param N_BLOCKS number of blocks (max 1M)
 #define BLOCK_SIZE 	 192 		//! @param BLOCK_SIZE size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
 
 #define $R_defl		2.3			//! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
-
 #define $deflH	 0				//! @param $deflH horizontal deflection in rad (up--down)  
 #define $deflV	 0				//! @param $deflV vertical deflection in rad (left--right) -> TOROIDAL DEFLECTION
 
-#define $energy   60				//! @param energy in keV
-#define $mass	 7.016004558	//! @param mass in AMU (Li-7)
-#define $DETPOS 0.7089 //! detector position
-#define $diameter 25//4/*e-20*/	  //! @param diameter in mm
+#define $default_energy   60				//! @param energy in keV
+#define $default_mass	 7.016004558	//! @param mass in AMU (Li-7)
+
+#define $default_diameter 25//4/*e-20*/	  //! @param diameter in mm
+
 #define dt	   1e-9			//! @param dt timestep in seconds
-#define Nstep	2000//000			//! @param Nstep max step of a loop
-#define Nloop	1//000				//! @param Nloop number of loops
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
 #define PI 3.141592653589792346
@@ -465,7 +461,7 @@ double get_mass(char *s){
 		try{
 			mass = atof(s);
 		}catch (...){
-			mass = (double)$mass;
+			mass = (double)$default_mass;
 		}
 	}
 	
