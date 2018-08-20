@@ -2,37 +2,6 @@
 
 //__constant__ int finCounter = 0 ;
 
-__global__ void banCtrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr,double *bd1, double *bd2){
-
-	// thread index
-	int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-	//		double temp;
-	
-	// grid pointer
-	double *rg, *zg;
-	rg = g_ptr[0];	
-	zg = g_ptr[1];
-	
-	//double valR=0.72, valZ=0.0;
-	double sRZT[3], l_b[3];
-	//double *trp;
-	//int i,j;
-
-	sRZT[0] = x_ptr[0][idx];
-	sRZT[1] = x_ptr[1][idx];
-	sRZT[2] = x_ptr[2][idx];
-
-	
-	banTraj(rg,NR,zg,NZ,sRZT,br_ptr,bz_ptr,bt_ptr,l_b);
-
-	bd1[idx]=l_b[1]/l_b[0];
-	bd2[idx]=l_b[2]/l_b[0];
-
-
-
-}
-
 __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double *det, int N_step){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;

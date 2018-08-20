@@ -1,42 +1,22 @@
 // TAIGA default parameters
 
-#define BANANA		 0		//! @param BANANA ABP: 0, banana orbits: 1
- 
-#define RADIONS		 1		//! @param RADIONS Real ion positions: 1, R=const 0
-
 #define $ELM		 0		//! @param $ELM turn on <<ELM current perturbation>> mode
 
 #define N_BLOCKS	 1		//! @param N_BLOCKS number of blocks (max 1M)
 #define BLOCK_SIZE 	 192 		//! @param BLOCK_SIZE size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
-
-#define R_midions	 0.695		//! @param R_midions mid of ions at BANANA and no-RADIONS
 
 #define $R_defl		2.3			//! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
 
 #define $deflH	 0				//! @param $deflH horizontal deflection in rad (up--down)  
 #define $deflV	 0				//! @param $deflV vertical deflection in rad (left--right) -> TOROIDAL DEFLECTION
 
-
-#if BANANA == 1
-	#define $energy   0.5			// in keV
-	#define $mass	 2.013553212724 // in AMU (D)
-	#define $diameter 50e-20		 // in mm 
-	#define $DETPOS 1 //! detector position
-	#define dt		 1e-12			// timestep in seconds
-	#define Nstep	 100000//00		// max step of a loop
-	#define Nloop	 1000			// number of loops	
-#else
-	#define $energy   60				//! @param energy in keV
-	#define $mass	 7.016004558	//! @param mass in AMU (Li-7)
-	#define $DETPOS 0.7089 //! detector position
-	#define $diameter 25//4/*e-20*/	  //! @param diameter in mm
-	#define dt	   1e-9			//! @param dt timestep in seconds
-	#define Nstep	2000//000			//! @param Nstep max step of a loop
-	#define Nloop	1//000				//! @param Nloop number of loops
-
-#endif
-
-
+#define $energy   60				//! @param energy in keV
+#define $mass	 7.016004558	//! @param mass in AMU (Li-7)
+#define $DETPOS 0.7089 //! detector position
+#define $diameter 25//4/*e-20*/	  //! @param diameter in mm
+#define dt	   1e-9			//! @param dt timestep in seconds
+#define Nstep	2000//000			//! @param Nstep max step of a loop
+#define Nloop	1//000				//! @param Nloop number of loops
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
 #define PI 3.141592653589792346
@@ -58,19 +38,15 @@
 #include "main.cuh"
 #include "dataio/fieldIn.c"
 
-#if BANANA == 1
-	#include "dataio/beamInBan.c"
-#elif RADIONS == 1
-	#if READINPUTPROF == 1
-		#include "dataio/beamInFull.c"
-	#elif RENATE == 110
-		#include "dataio/beamInRenate110.c"
-	#else
-		#include "dataio/beamIn.c"
-	#endif
+
+#if READINPUTPROF == 1
+	#include "dataio/beamInFull.c"
+#elif RENATE == 110
+	#include "dataio/beamInRenate110.c"
 #else
-	#include "dataio/beamInOne.c"
+	#include "dataio/beamIn.c"
 #endif
+
 #include "dataio/beamOut.c"
 
 #include "running/rk4.cu"
@@ -356,22 +332,16 @@ int main(int argc, char *argv[]){
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	saveDataHT(concat("version: r ",SVN_REV),folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
-	if(BANANA){
-		saveDataHT("BANANA ORBITS",folder_out,timestamp);
-	}else{		
-		saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
-		if(RADIONS){
-			saveDataHT("(Real ionization position)",folder_out,timestamp); 
-			if(READINPUTPROF==1){
-				saveDataHT("(3D input)",folder_out,timestamp);			
-			}else if(RENATE==110){
-				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
-			}
-			
-		}else{
-			saveDataHT("(R=const ionization)",folder_out,timestamp);
-		}
+		
+	saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
+
+	saveDataHT("(Real ionization position)",folder_out,timestamp); 
+	if(READINPUTPROF==1){
+		saveDataHT("(3D input)",folder_out,timestamp);			
+	}else if(RENATE==110){
+		saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
 	}
+
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 
 	if(!READINPUTPROF){
@@ -381,9 +351,6 @@ int main(int argc, char *argv[]){
 		saveDataH2("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
 	}
 	
-	if(!RADIONS&&!BANANA){	
-		saveDataH("Ion. position (R)","m",R_midions,folder_out,timestamp);
-	}
 	
 	saveDataH("Number of ions","",NX,folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
