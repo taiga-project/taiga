@@ -360,8 +360,8 @@ int main(int argc, char *argv[]){
 	saveDataH("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
 	saveDataH("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
 	saveDataH("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
-	saveDataH("Detector angle (Z/R)","",atan(DETECTOR[3])/PI*180.0,folder_out,timestamp);
-	saveDataH("Detector angle (T/R)","",atan(DETECTOR[4])/PI*180.0,folder_out,timestamp);
+	saveDataH("Detector angle (Z/R)","°",atan(DETECTOR[3])/PI*180.0,folder_out,timestamp);
+	saveDataH("Detector angle (T/R)","°",atan(DETECTOR[4])/PI*180.0,folder_out,timestamp);
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
@@ -562,8 +562,8 @@ void fill_detector(double *DETECTOR, char* values){
 	char *el; 
 	el = strtok(values,",");	DETECTOR[0] = strtod (el, NULL);
 	el = strtok(NULL,",");	DETECTOR[1] = strtod (el, NULL);
-	el = strtok(NULL,",");	DETECTOR[2] = strtod (el, NULL);
-	el = strtok(NULL,",");	DETECTOR[3] = strtod (el, NULL);
+	el = strtok(NULL,",");	DETECTOR[2] = tan(strtod (el, NULL)) * PI/180.0;
+	el = strtok(NULL,",");	DETECTOR[3] = tan(strtod (el, NULL)) * PI/180.0;
 
 }
 
