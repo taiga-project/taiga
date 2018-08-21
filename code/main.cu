@@ -360,8 +360,8 @@ int main(int argc, char *argv[]){
 	saveDataH("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
 	saveDataH("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
 	saveDataH("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
-	saveDataH("Detector angle (Z/R)","",DETECTOR[3],folder_out,timestamp);
-	saveDataH("Detector angle (T/R)","",DETECTOR[4],folder_out,timestamp);
+	saveDataH("Detector angle (Z/R)","",atan(DETECTOR[3])/PI*180.0,folder_out,timestamp);
+	saveDataH("Detector angle (T/R)","",atan(DETECTOR[4])/PI*180.0,folder_out,timestamp);
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
