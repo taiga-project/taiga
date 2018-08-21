@@ -59,6 +59,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop shot, beam_prop beam){
 	if (argc > 4)	beam.energy = atof(argv[4]);
 	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);
 	if (argc > 6)	beam.diameter = atof(argv[6]);   
+	printf("shotname: %s\n",shot.name);  
 }
 
 int main(int argc, char *argv[]){
