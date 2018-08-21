@@ -52,13 +52,30 @@
 
 
 
-void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
+int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
+	int max_blocks;
+
 	if (argc > 1)	shot->name = argv[1];	
-	/*if (argc > 2)	shot.runnumber = atoi(argv[2]);
-	if (argc > 3)	beam.matter = argv[3];
-	if (argc > 4)	beam.energy = atof(argv[4]);
-	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);
-	if (argc > 6)	beam.diameter = atof(argv[6]);  */ 
+	if (argc > 2)	shot->runnumber = atoi(argv[2]);
+	if (argc > 3)	beam->matter = argv[3];
+	if (argc > 4)	beam->energy = atof(argv[4]);
+	if (argc > 5)	beam->vertical_deflation = atof(argv[5]);
+	if (argc > 6)	beam->diameter = atof(argv[6]);  
+
+	if (argc > 8)	max_blocks = atoi(argv[8])/shot->block_size+1; 
+		else	max_blocks=shot->block_number;
+
+	if (argc > 9) shot->electric_field_module = atof(argv[9]);
+
+	if (argc > 10){ 
+		shot->step_host = atof(argv[10]); 
+		shot->step_device = 1;
+	}
+	if (argc > 11)	shot->step_device = atof(argv[11]); 	
+	if (argc > 12)	shot->debug = atof(argv[12]); 
+
+	beam->mass = get_mass(beam->matter);
+	return max_blocks;   
 }
 
 int main(int argc, char *argv[]){
@@ -66,34 +83,18 @@ int main(int argc, char *argv[]){
 	
 	shot_prop shot;
 	beam_prop beam;
-  
+	int max_blocks = input_init_taiga(argc, argv, &shot, &beam);
+
 	size_t dimD = 5 * sizeof(double);
 	double *DETECTOR, *detector;
 	DETECTOR = (double *)malloc(dimD);	cudaMalloc((void **) &detector,  dimD); 
-	input_init_taiga(argc, argv, &shot, &beam);
+	
 	if (argc > 7)	fill_detector(DETECTOR, argv[7]);
 
-	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
 	printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
-	int NX;
-	int max_blocks;
-	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_size+1; 
-		else	max_blocks=shot.block_number;
-
-	if (argc > 9) shot.electric_field_module = atof(argv[9]);
-
-	if (argc > 10){ 
-		shot.step_host = atof(argv[10]); 
-		shot.step_device = 1;
-	}
-
-	if (argc > 11) shot.step_device = atof(argv[11]); 
-	
-	if (argc > 12) shot.debug = atof(argv[12]); 
-
-	NX = shot.block_size * max_blocks;
+	int NX = shot.block_size * max_blocks;
 
 	if (READINPUTPROF == 1){
 		double *XR;
