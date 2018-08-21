@@ -53,12 +53,12 @@
 
 
 void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
-	if (argc > 1)	&shot.name = argv[1];	
-	if (argc > 2)	&shot.runnumber = atoi(argv[2]);
-	if (argc > 3)	&beam.matter = argv[3];
-	if (argc > 4)	&beam.energy = atof(argv[4]);
-	if (argc > 5)	&beam.vertical_deflation = atof(argv[5]);
-	if (argc > 6)	&beam.diameter = atof(argv[6]);   
+	if (argc > 1)	shot->name = argv[1];	
+	/*if (argc > 2)	shot.runnumber = atoi(argv[2]);
+	if (argc > 3)	beam.matter = argv[3];
+	if (argc > 4)	beam.energy = atof(argv[4]);
+	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);
+	if (argc > 6)	beam.diameter = atof(argv[6]);  */ 
 }
 
 int main(int argc, char *argv[]){
