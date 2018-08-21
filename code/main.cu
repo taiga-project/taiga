@@ -70,7 +70,7 @@ int main(int argc, char *argv[]){
 	size_t dimD = 5 * sizeof(double);
 	double *DETECTOR, *detector;
 	DETECTOR = (double *)malloc(dimD);	cudaMalloc((void **) &detector,  dimD); 
-	input_init_taiga(argc, argv, shot, beam)
+	input_init_taiga(argc, argv, shot, beam);
 	if (argc > 7)	fill_detector(DETECTOR, argv[7]);
 
 	beam.mass = get_mass(beam.matter);
