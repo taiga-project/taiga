@@ -78,7 +78,8 @@ function detPlot(varargin)
 
     det_R = DETECTOR_POS_ANGLE(1); %0.684618;
     det_z = DETECTOR_POS_ANGLE(2);
-    det_tan_Rz = DETECTOR_POS_ANGLE(4);
+    det_angle_Rz = DETECTOR_POS_ANGLE(4);
+    det_tan_Rz = tan(det_angle_Rz/180*pi);
 
     TORLIM = [TMID_DET-0.04 TMID_DET+0.04];
     ZLIM = [ZMID_DET-0.04 ZMID_DET+0.04];
