@@ -212,7 +212,7 @@ function detPlot(varargin)
    % X
     %rectangle('Position',[TORLIM(2) ZLIM(1) TORLIM(2)-TORLIM(1) ZLIM(2)-ZLIM(1)],'FaceColor','k','EdgeColor','none')
     hold on
-    X = [X; TORLIM(2) ZLIM(1); TORLIM(1) ZLIM(2)]
+    X = [X; TORLIM(2) ZLIM(1); TORLIM(1) ZLIM(2)];
            smoothhist2D(X,1,[150, 150],-0.1);
       set(gca,'xdir','reverse','ydir','normal')
         colorbar('YTick', [0, 64 ,128, 192, 256],'YTickLabel',{'0%','25%','50%','75%','100%'})
@@ -306,7 +306,7 @@ function detPlot(varargin)
     title(['$\#',runshot,' $'],'interpreter','latex','fontsize',14)
     xlabel('{$T$ (m)}','interpreter','latex','fontsize',14)
     ylabel('{$Z$ (m)}','interpreter','latex','fontsize',14)
-    xlim0=xlim
+    xlim0=xlim;
     xticks(xlim0(1):0.01:xlim0(2));
     yticks(ylim0(1):0.01:ylim0(2));
     
