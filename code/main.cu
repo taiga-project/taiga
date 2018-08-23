@@ -197,15 +197,18 @@ int main(int argc, char *argv[]){
 	double **br_ptr, **bz_ptr, **bt_ptr;
 	double **er_ptr, **ez_ptr, **et_ptr;
 	
-	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
+	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);	
+	if (shot.electric_field_module)	shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
 	
-	if (shot.electric_field_module){
-		shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
-	}
+	// detector cell id
+	size_t dimRint = NR * sizeof(int);
+	int *DETCELLID, *detcellid;
+	DETCELLID = (int *)malloc(dimRint);	cudaMalloc((void **) &detcellid,  dimRint); 	
 	
 	// temporary test data
-	double *TMP, *tmp;
-	TMP = (double *)malloc(dimR);	cudaMalloc((void **) &tmp,  dimR); 
+	size_t dimService = 10 * sizeof(double);
+	double *SERVICE_VAR, *service_var;
+	SERVICE_VAR = (double *)malloc(dimService);	cudaMalloc((void **) &service_var,  dimService); 
 
 	//! CUDA profiler START
 	cudaProfilerStart();
@@ -261,9 +264,9 @@ int main(int argc, char *argv[]){
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
 			printf("electric_field_module ON\n");
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var);
 		}else{
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var);
 		}
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
@@ -304,8 +307,8 @@ int main(int argc, char *argv[]){
 	printf ("Time for the kernel: %f s\n", runtime/1000.0);
 
 	//! MEMCOPY (device2HOST)
-	cudaMemcpy(TMP, tmp, dimR, cudaMemcpyDeviceToHost);
-	if(TMP[0]!=42.24){
+	cudaMemcpy(SERVICE_VAR, service_var, dimR, cudaMemcpyDeviceToHost);
+	if(SERVICE_VAR[0]!=42.24){
 		printf("\n+---	-------------------+\n | Fatal error in running. | \n | The CUDA did not run well. |\n+-----------------------+\n");
 	}else{
 		printf("\n	Memcopy OK.\n");
@@ -313,7 +316,7 @@ int main(int argc, char *argv[]){
 	
 	/*if (shot.debug == 1){
 		for (int i=0;i<10;i++) {
-			printf("TMP%d\t%lf\n",i,TMP[i]);
+			printf("SERVICE_VAR%d\t%lf\n",i,SERVICE_VAR[i]);
 		}
 	}*/
 	
@@ -388,8 +391,8 @@ int main(int argc, char *argv[]){
 	free(RG);	free(ZG);	
 	free(XR);	free(XZ);	free(XT);
 	
-	//! FREE TMP variables (RAM, cuda)
-	free(TMP);	cudaFree(tmp);
+	//! FREE SERVICE_VAR variables (RAM, cuda)
+	free(SERVICE_VAR);	cudaFree(service_var);
 
 	printf("Ready.\n\n");
 }

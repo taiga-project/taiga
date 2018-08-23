@@ -81,7 +81,7 @@ __device__ double localField(double *lp_b, double dr, double dz){
 }
 
 
-__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double *det, int N_step){
+__device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double *det, int N_step, int local_detcellid){
 
 	// next grid
 	int rzci[2];
@@ -133,7 +133,6 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 		l_br = cyl2tor_rad(l_br, l_bt, l_r, l_t);
 		l_bt = cyl2tor_tor(l_br, l_bt, l_r, l_t);
 	
-
 		// archivate coordinates
 		l_or  = l_r;	l_oz  = l_z;	l_ot  = l_t;
 		l_vor = l_vr;	l_voz = l_vz;	l_vot = l_vt;
@@ -162,7 +161,6 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	
 		// finished? (interpolation)
 		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, det, l_x, l_vr);
-
 	}
 	
 	l_v[0] = l_vr;
@@ -170,14 +168,15 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 	l_v[2] = l_vt;
 
 	if (!finished){
-		l_x[0] = l_r;
+		l_x[0] = l_r; //NAN;
 		l_x[1] = l_z;
 		l_x[2] = l_t;
 	}
 	
+	return local_detcellid;
 }
 
-__device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double *det, int N_step){
+__device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double *det, int N_step, int local_detcellid){
 
 	// next grid
 	int rzci[2];
@@ -202,7 +201,7 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 
 	double X[6];
 	
-	int finished = 0;		
+	int finished = 0;
 
 	l_r  = l_x[0];
 	l_z  = l_x[1];
@@ -262,22 +261,19 @@ __device__ void traj(double *rg, int NR, double *zg, int NZ, double *l_x, double
 		l_vz = X[3];
 		l_vt = X[5];
 	
-	
 		// finished? (interpolation)
 		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, det, l_x, l_vr);
-
 	}
-
 	
 	l_v[0] = l_vr;
 	l_v[1] = l_vz;
 	l_v[2] = l_vt;
 	
-
 	if (!finished){
-		l_x[0] = l_r;
+		l_x[0] = l_r; //NAN;
 		l_x[1] = l_z;
 		l_x[2] = l_t;
 	}
 	
+	return local_detcellid;
 }

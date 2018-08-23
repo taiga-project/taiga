@@ -1,12 +1,11 @@
 // Trajectory simulation
 
 //__constant__ int finCounter = 0 ;
-
-__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double *det, int N_step){
+__global__ void ctrl(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//		double temp;
+	detcellid[idx] = -1;
 	
 	// grid pointer
 	double *rg, *zg;
@@ -26,8 +25,8 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
 	
-	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,det,N_step);
-	//if(idx<20) tmp[idx]=temp;
+	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,det,N_step,detcellid[idx]);
+	//if(idx<20) service_var[idx]=temp;
 
 
 	x_ptr[0][idx]=sRZT[0];
@@ -39,15 +38,15 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	v_ptr[2][idx]=svRZT[2];
 
 	if(idx==0){
-		 tmp[0] = 42.24;
+		 service_var[0] = 42.24;
 	}
 }
 
-__global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *tmp, double eperm, double *det, int N_step){
+__global__ void ctrl(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//		double temp;
+	detcellid[idx] = -1;
 	
 	// grid pointer
 	double *rg, *zg;
@@ -67,8 +66,8 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
 	
-	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,det,N_step);
-	//if(idx<20) tmp[idx]=temp;
+	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,det,N_step,detcellid[idx]);
+	//if(idx<20) service_var[idx]=temp;
 
 
 	x_ptr[0][idx]=sRZT[0];
@@ -80,75 +79,19 @@ __global__ void ctrl(int NR, int NZ, double **br_ptr, double **bz_ptr, double **
 	v_ptr[2][idx]=svRZT[2];
 
 	if(idx==0){
-		 tmp[0] = 42.24;
+		 service_var[0] = 42.24;
 	}
 	
 	if(idx==1){
-		tmp[1]=er_ptr[0][0];  
+		service_var[1]=er_ptr[0][0];  
 	}
 	if(idx==2){
-		tmp[2]=er_ptr[15][0];  
+		service_var[2]=er_ptr[15][0];  
 	}
 	if(idx==3){
-		tmp[3]=br_ptr[0][0];  
+		service_var[3]=br_ptr[0][0];  
 	}
 	if(idx==4){
-		tmp[4]=br_ptr[15][0];  
+		service_var[4]=br_ptr[15][0];  
 	}
 }
-
-/*
-	sRZT[0]=valR;
-	sRZT[1]=valZ;
-	sRZT[2]=0;
-	
-//	double gyok2 = 0.7071;
-	
-	//br2[idx]=br1[idx]*2;
-	//b_ptr[1][idx]=b_ptr[0][idx]/5;
-
-	if(idx==0) tmp[0] = 42.424242;
-	if(idx==1){
-		 tmp[1] = traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm);
-		 tmp[20]=sRZT[0];
- 		 tmp[21]=sRZT[1];
- 		 tmp[22]=sRZT[2];
-	 }
-	//if(idx==2) tmp[2] = 2014.1008;
-	if(idx==2) tmp[2] = g_ptr[0][0];
-	
-	
-	if(idx==3){
-
-		for(i=0;(rg[i]<valR)&&(i<NR-1);i++){;}
-		
-		tmp[3] = rg[i-1];
-		tmp[5] = rg[i];//(double)i;
-		tmp[6] = (double)i;
-		
-	}
-	
-	if(idx==4) tmp[4] = valR;
-	if(idx==7){
-
-		for(j=0;(zg[j]<valZ)&&(j<NZ-1);j++){;}
-		tmp[7] = zg[j-1];
-		tmp[9] = zg[j];//(double)i;
-		tmp[10] = (double)j;
-	}
-	if(idx==8) tmp[8] = valZ;
-	
-	if(idx==11) tmp[11] = svRZT[0];
-	if(idx==12) tmp[12] = svRZT[1];
-	if(idx==13) tmp[13] = svRZT[2];
-	
-	
-	
-	if(idx==14) tmp[14] = (double)(NZ-1);
-
-	if(idx==18) tmp[18] = NR;
-	
-	if(idx==19) tmp[19] = NZ;
-	
-//	if(idx==0) tmp[0] = idx+0.42;*/
-//	return 1;	
