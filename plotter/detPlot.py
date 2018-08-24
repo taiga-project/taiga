@@ -4,7 +4,6 @@ import matplotlib.pyplot as pl
 import scipy.stats as st
 
 max_distance = 1e-4
-results_folder = '../results/'+shotnumber+'_'+time+'/'+runnumber+'/'
 
 try:
 	shotnumber = sys.argv[1];
@@ -58,6 +57,7 @@ except:
 	detector_ZT_angle = 0.0
 
 try:
+	results_folder = '../results/'+shotnumber+'_'+time+'/'+runnumber+'/'
 	R = np.loadtxt(results_folder+'rad.dat') #, delimiter="\t"
 	Z = np.loadtxt(results_folder+'z.dat')
 	T = np.loadtxt(results_folder+'tor.dat')
