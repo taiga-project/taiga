@@ -57,11 +57,15 @@ except:
 	detector_ZT_angle = 0.0
 	
 results_folder = 'results/'+shotnumber+'_'+time+'/'+runnumber+'/'
+
 try:
 	R = np.loadtxt(results_folder+'rad.dat') #, delimiter="\t"
 	Z = np.loadtxt(results_folder+'z.dat')
 	T = np.loadtxt(results_folder+'tor.dat')
-	
+except:
+	print 'Invalid input folder: '+results_folder
+
+try:
 	particle_on_detector = np.abs((Z-Z0) *np.tan((detector_RZ_angle/180.0)*np.pi) + (R-R0)) < max_distance
 	
 	x = T[particle_on_detector]
@@ -90,13 +94,18 @@ try:
 
 	plt.xlabel(r"$T \mathrm{[m]}$")
 	plt.ylabel(r"$Z \mathrm{[m]}$")
+except:
+	print 'Unable to plot: '+results_folder
+
+try:
 	print 'Save plot to '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
 	plt.savefig(results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
 	plt.clf()
 
 except:
-	print 'Invalid input folder: '+results_folder
-	
+	print 'Unable to save to : '+results_folder
+	plt.show()
+
 xmin, xmax = -4e-2, 4e-2
 ymin, ymax = -4e-2, 4e-2
 
