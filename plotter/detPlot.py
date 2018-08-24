@@ -23,7 +23,7 @@ try:
 except:
 	print 'Runnumber is not given as proper input parameter. Default value (402) is used.'
 	runnumber = '402'
-	
+
 try:
 	detector_par = sys.argv[4];
 except:
@@ -90,6 +90,7 @@ try:
 
 	plt.xlabel(r"$T \mathrm{[m]}$")
 	plt.ylabel(r"$Z \mathrm{[m]}$")
+	print 'Save plot to '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
 	plt.savefig(results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
 	plt.clf()
 
