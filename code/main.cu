@@ -1,42 +1,18 @@
 // TAIGA default parameters
 
-#define BANANA		 0		//! @param BANANA ABP: 0, banana orbits: 1
- 
-#define RADIONS		 1		//! @param RADIONS Real ion positions: 1, R=const 0
-
-#define $ELM		 0		//! @param $ELM turn on <<ELM current perturbation>> mode
-
 #define N_BLOCKS	 1		//! @param N_BLOCKS number of blocks (max 1M)
 #define BLOCK_SIZE 	 192 		//! @param BLOCK_SIZE size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
 
-#define R_midions	 0.695		//! @param R_midions mid of ions at BANANA and no-RADIONS
-
-#define $R_defl		2.3			//! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
-
+#define $R_defl	2.3			//! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
 #define $deflH	 0				//! @param $deflH horizontal deflection in rad (up--down)  
 #define $deflV	 0				//! @param $deflV vertical deflection in rad (left--right) -> TOROIDAL DEFLECTION
 
+#define $default_energy   60				//! @param energy in keV
+#define $default_mass  7.016004558			//! @param atomic mass in amu
 
-#if BANANA == 1
-	#define $energy   0.5			// in keV
-	#define $mass	 2.013553212724 // in AMU (D)
-	#define $diameter 50e-20		 // in mm 
-	#define $DETPOS 1 //! detector position
-	#define dt		 1e-12			// timestep in seconds
-	#define Nstep	 100000//00		// max step of a loop
-	#define Nloop	 1000			// number of loops	
-#else
-	#define $energy   60				//! @param energy in keV
-	#define $mass	 7.016004558	//! @param mass in AMU (Li-7)
-	#define $DETPOS 0.7089 //! detector position
-	#define $diameter 25//4/*e-20*/	  //! @param diameter in mm
-	#define dt	   1e-9			//! @param dt timestep in seconds
-	#define Nstep	2000//000			//! @param Nstep max step of a loop
-	#define Nloop	1//000				//! @param Nloop number of loops
+#define $default_diameter 25//4/*e-20*/	  //! @param diameter in mm
 
-#endif
-
-
+#define dt	   1e-9			//! @param dt timestep in seconds
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
 #define PI 3.141592653589792346
@@ -58,19 +34,14 @@
 #include "main.cuh"
 #include "dataio/fieldIn.c"
 
-#if BANANA == 1
-	#include "dataio/beamInBan.c"
-#elif RADIONS == 1
-	#if READINPUTPROF == 1
-		#include "dataio/beamInFull.c"
-	#elif RENATE == 110
-		#include "dataio/beamInRenate110.c"
-	#else
-		#include "dataio/beamIn.c"
-	#endif
+#if READINPUTPROF == 1
+	#include "dataio/beamInFull.c"
+#elif RENATE == 110
+	#include "dataio/beamInRenate110.c"
 #else
-	#include "dataio/beamInOne.c"
+	#include "dataio/beamIn.c"
 #endif
+
 #include "dataio/beamOut.c"
 
 #include "running/rk4.cu"
@@ -79,45 +50,51 @@
 #include "running/traj.cu"
 #include "running/ctrl.cu"
 
+
+
+int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
+	int max_blocks;
+
+	if (argc > 1)	shot->name = argv[1];	
+	if (argc > 2)	shot->runnumber = atoi(argv[2]);
+	if (argc > 3)	beam->matter = argv[3];
+	if (argc > 4)	beam->energy = atof(argv[4]);
+	if (argc > 5)	beam->vertical_deflation = atof(argv[5]);
+	if (argc > 6)	beam->diameter = atof(argv[6]);  
+
+	if (argc > 8)	max_blocks = atoi(argv[8])/shot->block_size+1; 
+		else	max_blocks=shot->block_number;
+
+	if (argc > 9) shot->electric_field_module = atof(argv[9]);
+
+	if (argc > 10){ 
+		shot->step_host = atof(argv[10]); 
+		shot->step_device = 1;
+	}
+	if (argc > 11)	shot->step_device = atof(argv[11]); 	
+	if (argc > 12)	shot->debug = atof(argv[12]); 
+
+	beam->mass = get_mass(beam->matter);
+	return max_blocks;   
+}
+
 int main(int argc, char *argv[]){
 	//! @param shotname name of shot folder input folder (8714,11344,11347)	
 	
 	shot_prop shot;
 	beam_prop beam;
-  
+	int max_blocks = input_init_taiga(argc, argv, &shot, &beam);
+
 	size_t dimD = 5 * sizeof(double);
 	double *DETECTOR, *detector;
 	DETECTOR = (double *)malloc(dimD);	cudaMalloc((void **) &detector,  dimD); 
 	
-	if (argc > 1)	shot.name = argv[1];	
-	if (argc > 2)	shot.runnumber = atoi(argv[2]);
-	if (argc > 3)	beam.matter = argv[3];
-	if (argc > 4)	beam.energy = atof(argv[4]);
-	if (argc > 5)	beam.vertical_deflation = atof(argv[5]);
-	if (argc > 6)	beam.diameter = atof(argv[6]);   
 	if (argc > 7)	fill_detector(DETECTOR, argv[7]);
 
-	beam.mass = get_mass(beam.matter);
 	printf("shotname: %s\n",shot.name);  
 	printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
-	int NX;
-	int max_blocks;
-	if (argc > 8)	max_blocks = atoi(argv[8])/shot.block_size+1; 
-		else	max_blocks=shot.block_number;
-
-	if (argc > 9) shot.electric_field_module = atof(argv[9]);
-
-	if (argc > 10){ 
-		shot.step_host = atof(argv[10]); 
-		shot.step_device = 1;
-	}
-
-	if (argc > 11) shot.step_device = atof(argv[11]); 
-	
-	if (argc > 12) shot.debug = atof(argv[12]); 
-
-	NX = shot.block_size * max_blocks;
+	int NX = shot.block_size * max_blocks;
 
 	if (READINPUTPROF == 1){
 		double *XR;
@@ -220,15 +197,18 @@ int main(int argc, char *argv[]){
 	double **br_ptr, **bz_ptr, **bt_ptr;
 	double **er_ptr, **ez_ptr, **et_ptr;
 	
-	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
+	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);	
+	if (shot.electric_field_module)	shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
 	
-	if (shot.electric_field_module){
-		shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
-	}
+	// detector cell id
+	size_t dimRint = NX * sizeof(int);
+	int *DETCELLID, *detcellid;
+	DETCELLID = (int *)malloc(dimRint);	cudaMalloc((void **) &detcellid,  dimRint); 	
 	
 	// temporary test data
-	double *TMP, *tmp;
-	TMP = (double *)malloc(dimR);	cudaMalloc((void **) &tmp,  dimR); 
+	size_t dimService = 10 * sizeof(double);
+	double *SERVICE_VAR, *service_var;
+	SERVICE_VAR = (double *)malloc(dimService);	cudaMalloc((void **) &service_var,  dimService); 
 
 	//! CUDA profiler START
 	cudaProfilerStart();
@@ -284,9 +264,9 @@ int main(int argc, char *argv[]){
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
 			printf("electric_field_module ON\n");
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var);
 		}else{
-			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,tmp,eperm,detector,shot.step_device);
+			ctrl <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var);
 		}
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);
@@ -295,13 +275,17 @@ int main(int argc, char *argv[]){
 		// ION COORDS (device2HOST)
 		cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
-		cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);		
+		cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
 		//ERRORCHECK();
 		
 		// ION SPEEDS (device2HOST)
 		cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
+		//ERRORCHECK();
+		
+		// DETCELLID (device2HOST)
+		cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
 		//ERRORCHECK();
 		
 		// Save data to files
@@ -327,16 +311,16 @@ int main(int argc, char *argv[]){
 	printf ("Time for the kernel: %f s\n", runtime/1000.0);
 
 	//! MEMCOPY (device2HOST)
-	cudaMemcpy(TMP, tmp, dimR, cudaMemcpyDeviceToHost);
-	if(TMP[0]!=42.24){
-		printf("\n+---	-------------------+\n | Fatal error in running. | \n | The CUDA did not run well. |\n+-----------------------+\n");
+	cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
+	if(SERVICE_VAR[0]!=42.24){
+		printf("\n +--------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n +---------------------------+\n");
 	}else{
 		printf("\n	Memcopy OK.\n");
 	}
 	
 	/*if (shot.debug == 1){
 		for (int i=0;i<10;i++) {
-			printf("TMP%d\t%lf\n",i,TMP[i]);
+			printf("SERVICE_VAR%d\t%lf\n",i,SERVICE_VAR[i]);
 		}
 	}*/
 	
@@ -349,29 +333,24 @@ int main(int argc, char *argv[]){
 	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
 	saveData1(VR,NX,folder_out,timestamp,"vrad.dat");
 	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
-	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");	
+	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");
+	saveData1(DETCELLID,NX,folder_out,timestamp,"detcellid.dat");
 	
 	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
 	saveDataHT(concat("Run ID:  ",timestamp),folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	saveDataHT(concat("version: r ",SVN_REV),folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
-	if(BANANA){
-		saveDataHT("BANANA ORBITS",folder_out,timestamp);
-	}else{		
-		saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
-		if(RADIONS){
-			saveDataHT("(Real ionization position)",folder_out,timestamp); 
-			if(READINPUTPROF==1){
-				saveDataHT("(3D input)",folder_out,timestamp);			
-			}else if(RENATE==110){
-				saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
-			}
-			
-		}else{
-			saveDataHT("(R=const ionization)",folder_out,timestamp);
-		}
+		
+	saveDataHT("ABP ION TRAJECTORIES",folder_out,timestamp);
+
+	saveDataHT("(Real ionization position)",folder_out,timestamp); 
+	if(READINPUTPROF==1){
+		saveDataHT("(3D input)",folder_out,timestamp);			
+	}else if(RENATE==110){
+		saveDataHT("(TS + Renate 1.1.0)",folder_out,timestamp);
 	}
+
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 
 	if(!READINPUTPROF){
@@ -381,9 +360,6 @@ int main(int argc, char *argv[]){
 		saveDataH2("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
 	}
 	
-	if(!RADIONS&&!BANANA){	
-		saveDataH("Ion. position (R)","m",R_midions,folder_out,timestamp);
-	}
 	
 	saveDataH("Number of ions","",NX,folder_out,timestamp);
 	saveDataHT("-----------------------------------",folder_out,timestamp);
@@ -392,8 +368,8 @@ int main(int argc, char *argv[]){
 	saveDataH("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
 	saveDataH("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
 	saveDataH("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
-	saveDataH("Detector angle (Z/R)","",DETECTOR[3],folder_out,timestamp);
-	saveDataH("Detector angle (T/R)","",DETECTOR[4],folder_out,timestamp);
+	saveDataH("Detector angle (Z/R)","°",atan(DETECTOR[3])/PI*180.0,folder_out,timestamp);
+	saveDataH("Detector angle (T/R)","°",atan(DETECTOR[4])/PI*180.0,folder_out,timestamp);
 	
 	saveDataHT("-----------------------------------",folder_out,timestamp);
 	
@@ -420,8 +396,8 @@ int main(int argc, char *argv[]){
 	free(RG);	free(ZG);	
 	free(XR);	free(XZ);	free(XT);
 	
-	//! FREE TMP variables (RAM, cuda)
-	free(TMP);	cudaFree(tmp);
+	//! FREE SERVICE_VAR variables (RAM, cuda)
+	free(SERVICE_VAR);	cudaFree(service_var);
 
 	printf("Ready.\n\n");
 }
@@ -498,7 +474,7 @@ double get_mass(char *s){
 		try{
 			mass = atof(s);
 		}catch (...){
-			mass = (double)$mass;
+			mass = (double)$default_mass;
 		}
 	}
 	
@@ -594,8 +570,8 @@ void fill_detector(double *DETECTOR, char* values){
 	char *el; 
 	el = strtok(values,",");	DETECTOR[0] = strtod (el, NULL);
 	el = strtok(NULL,",");	DETECTOR[1] = strtod (el, NULL);
-	el = strtok(NULL,",");	DETECTOR[2] = strtod (el, NULL);
-	el = strtok(NULL,",");	DETECTOR[3] = strtod (el, NULL);
+	el = strtok(NULL,",");	DETECTOR[2] = tan(strtod (el, NULL) * PI/180.0);
+	el = strtok(NULL,",");	DETECTOR[3] = tan(strtod (el, NULL) * PI/180.0);
 
 }
 
