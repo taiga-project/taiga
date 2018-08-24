@@ -201,7 +201,7 @@ int main(int argc, char *argv[]){
 	if (shot.electric_field_module)	shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
 	
 	// detector cell id
-	size_t dimRint = NR * sizeof(int);
+	size_t dimRint = NX * sizeof(int);
 	int *DETCELLID, *detcellid;
 	DETCELLID = (int *)malloc(dimRint);	cudaMalloc((void **) &detcellid,  dimRint); 	
 	
@@ -313,7 +313,7 @@ int main(int argc, char *argv[]){
 	//! MEMCOPY (device2HOST)
 	cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
 	if(SERVICE_VAR[0]!=42.24){
-		printf("\n+----------------------+\n | Fatal error in running. | \n | The CUDA did not run well. |\n+-----------------------+\n");
+		printf("\n +--------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n +---------------------------+\n");
 	}else{
 		printf("\n	Memcopy OK.\n");
 	}
