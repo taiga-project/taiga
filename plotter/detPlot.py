@@ -92,8 +92,8 @@ try:
 	# Contour plot
 	# Label plot
 
-	pl.xlabel(r"$T \mathrm{~[m]}$")
-	pl.ylabel(r"$Z \mathrm{~[m]}$")
+	pl.xlabel(r"$T \mathrm{ [m]}$")
+	pl.ylabel(r"$Z \mathrm{ [m]}$")
 except:
 	print 'Unable to plot: '+results_folder
 
