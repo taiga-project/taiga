@@ -55,9 +55,9 @@ try:
 	detector_ZT_angle = float(detector_par_list[4]);
 except:
 	detector_ZT_angle = 0.0
-
+	
+results_folder = 'results/'+shotnumber+'_'+time+'/'+runnumber+'/'
 try:
-	results_folder = '../results/'+shotnumber+'_'+time+'/'+runnumber+'/'
 	R = np.loadtxt(results_folder+'rad.dat') #, delimiter="\t"
 	Z = np.loadtxt(results_folder+'z.dat')
 	T = np.loadtxt(results_folder+'tor.dat')
