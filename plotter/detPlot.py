@@ -92,19 +92,19 @@ try:
 	# Contour plot
 	# Label plot
 
-	plt.xlabel(r"$T \mathrm{[m]}$")
-	plt.ylabel(r"$Z \mathrm{[m]}$")
+	pl.xlabel(r"$T \mathrm{[m]}$")
+	pl.ylabel(r"$Z \mathrm{[m]}$")
 except:
 	print 'Unable to plot: '+results_folder
 
 try:
 	print 'Save plot to '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
-	plt.savefig(results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
-	plt.clf()
+	pl.savefig(results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
+	pl.clf()
 
 except:
 	print 'Unable to save to : '+results_folder
-	plt.show()
+	pl.show()
 
 xmin, xmax = -4e-2, 4e-2
 ymin, ymax = -4e-2, 4e-2
