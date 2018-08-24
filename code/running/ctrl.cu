@@ -25,7 +25,7 @@ __global__ void ctrl(int NR, int NZ, double eperm, double **br_ptr, double **bz_
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
 	
-	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,det,N_step,detcellid[idx]);
+	detcellid[idx] = traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,det,N_step,detcellid[idx]);
 	//if(idx<20) service_var[idx]=temp;
 
 
@@ -66,7 +66,7 @@ __global__ void ctrl(int NR, int NZ, double eperm, double **br_ptr, double **bz_
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
 	
-	traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,det,N_step,detcellid[idx]);
+	detcellid[idx] = traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,det,N_step,detcellid[idx]);
 	//if(idx<20) service_var[idx]=temp;
 
 

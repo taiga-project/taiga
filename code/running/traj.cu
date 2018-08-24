@@ -172,7 +172,9 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 		l_x[1] = l_z;
 		l_x[2] = l_t;
 	}
-	
+	if (finished){
+		local_detcellid = 0;
+	}
 	return local_detcellid;
 }
 
@@ -274,6 +276,10 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 		l_x[1] = l_z;
 		l_x[2] = l_t;
 	}
-	
+
+	if (finished){
+		local_detcellid = 0;
+	}
+
 	return local_detcellid;
 }

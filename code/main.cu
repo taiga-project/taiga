@@ -275,13 +275,17 @@ int main(int argc, char *argv[]){
 		// ION COORDS (device2HOST)
 		cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
-		cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);		
+		cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
 		//ERRORCHECK();
 		
 		// ION SPEEDS (device2HOST)
 		cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
 		cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
+		//ERRORCHECK();
+		
+		// DETCELLID (device2HOST)
+		cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
 		//ERRORCHECK();
 		
 		// Save data to files
@@ -329,7 +333,8 @@ int main(int argc, char *argv[]){
 	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
 	saveData1(VR,NX,folder_out,timestamp,"vrad.dat");
 	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
-	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");	
+	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");
+	saveData1(DETCELLID,NX,folder_out,timestamp,"detcellid.dat");
 	
 	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
 	saveDataHT(concat("Run ID:  ",timestamp),folder_out,timestamp);
