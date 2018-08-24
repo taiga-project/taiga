@@ -90,7 +90,7 @@ try:
 
 	plt.xlabel(r"$T \mathrm{[m]}$")
 	plt.ylabel(r"$Z \mathrm{[m]}$")
-	plt.savefig(results_folder+'detpy_'+shotnumber+'_'+time'.pdf')
+	plt.savefig(results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
 	plt.clf()
 
 except:
