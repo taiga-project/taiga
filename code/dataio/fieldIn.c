@@ -9,7 +9,7 @@ Load raw data
 @output double** name
 */
 
-int vectorReader(double **name, char *folder, char *shotname, char *filename0){
+int vectorReader(double **name, char *folder, char *shotname, char *filename0, bool warning_on){
 	int i = 0;
 	int j;
 	double test;
@@ -49,7 +49,7 @@ int vectorReader(double **name, char *folder, char *shotname, char *filename0){
 		fclose(file);
 		
 	}else{
-		printf("The following file does not exists:\n%s\n\n",filename);
+		if warning_on printf("The following file does not exists:\n%s\n\n",filename);
         i = -1;
 	}	
 	
@@ -60,14 +60,19 @@ int vectorReader(double **name, char *folder, char *shotname, char *filename0){
 	
 }
 
-int vectorReader(double **name, char *folder, char *shotname, char *filename0, int *successful){
-    int l = vectorReader(name, folder, shotname, filename0);
-    int *s;
-    if (l < 0){
-        successful[0] = 0;
-    }    
-    return l;
+int vectorReader(double **name, char *folder, char *shotname, char *filename0){
+	return vectorReader(name, folder, shotname, filename0, true);
 }
+
+int vectorReader(double **name, char *folder, char *shotname, char *filename0, int *successful){
+	int l = vectorReader(name, folder, shotname, filename0, true);
+	int *s;
+	if (l < 0){
+		successful[0] = 0;
+	}    
+	return l;
+}
+
 
 
 /*!
