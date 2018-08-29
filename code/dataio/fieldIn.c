@@ -49,9 +49,9 @@ int vectorReader(double **name, char *folder, char *shotname, char *filename0, b
 		fclose(file);
 		
 	}else{
-		if warning_on printf("The following file does not exists:\n%s\n\n",filename);
-        i = -1;
-	}	
+		if (warning_on) printf("The following file does not exists:\n%s\n\n",filename);
+		i = -1;
+	}
 	
 	*name = tname;
 	//printf("read %lf\n",*name[0]);
