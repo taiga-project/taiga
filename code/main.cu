@@ -49,6 +49,7 @@
 #include "running/cyl2tor.cu"
 #include "running/traj.cu"
 #include "running/ctrl.cu"
+#include "detector_postproc.cu"
 
 
 
@@ -573,6 +574,11 @@ void fill_detector(double *DETECTOR, char* values){
 	el = strtok(NULL,",");	DETECTOR[2] = tan(strtod (el, NULL) * PI/180.0);
 	el = strtok(NULL,",");	DETECTOR[3] = tan(strtod (el, NULL) * PI/180.0);
 
+}
+
+
+void process_detector(int *detcellid, double **x_ptr){
+	
 }
 
 int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){	

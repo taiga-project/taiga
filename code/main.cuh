@@ -28,6 +28,7 @@ int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam);
 char* concat(const char *s1, const char *s2);
 double get_mass(char *s);
 void fill_detector(double *DETECTOR, char* values);
+void process_detector(int *detcellid, double **x_ptr);
 
 int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_ptr, int dimRZ);
 
