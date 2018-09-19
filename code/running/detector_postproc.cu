@@ -19,7 +19,8 @@ __global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, do
 
 	detcellid[idx] = 0;
 
-	if ((x >= det_x[0]) && (x <= det_x[N_det_x-1]) && (y >= det_y[0]) && (y <= det_y[N_det_y-1])) {
+	if ((x >= det_x[0]) && (x <= det_x[N_det_x-1]) && (y >= det_y[0]) && (y <= det_y[N_det_y-1])) 
+    {detcellid[idx] = 666; //test
 		for (int i=0; i<N_det_x; i++) {
 			if ((x >= det_x[2*i]) && (x <= det_x[2*i+1]))	x_cellid = i;
 		}
