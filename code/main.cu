@@ -325,7 +325,7 @@ int main(int argc, char *argv[]){
 		}
 	}*/
 
-	detector_module(x_ptr, detector, detcellid, "test"); //detector_name = "test"
+	detector_module(x_ptr, g_ptr, detector, detcellid, "test", max_blocks, shot.block_size); //detector_name = "test"
 
 	//! CUDA profiler STOP
 	cudaProfilerStop();
