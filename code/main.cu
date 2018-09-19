@@ -51,7 +51,7 @@
 #include "running/ctrl.cu"
 
 #include "dataio/detectorIn.c"
-#include "detector_postproc.cu"
+#include "running/detector_postproc.cu"
 
 int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
 	int max_blocks;
