@@ -5,10 +5,6 @@ __global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, do
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	
-	// grid pointer
-	double *tg, *zg;
-	tg = g_ptr[0];	
-	zg = g_ptr[1];
 	
 	double x,y;
 /*

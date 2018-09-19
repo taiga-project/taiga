@@ -4,7 +4,7 @@
 
 
 // set beam inline parameters
-void detector_module(double **x_ptr, double **g_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size){
+void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size){
 	double *detector_geometry_x;
 	double *detector_geometry_y;
 

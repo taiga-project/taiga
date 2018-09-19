@@ -51,7 +51,7 @@
 #include "running/ctrl.cu"
 
 #include "dataio/detectorIn.c"
-#include "running/detector_postproc.cu"
+//#include "running/detector_postproc.cu"
 
 int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
 	int max_blocks;
@@ -325,7 +325,7 @@ int main(int argc, char *argv[]){
 		}
 	}*/
 
-	detector_module(x_ptr, g_ptr, detector, detcellid, "test", max_blocks, shot.block_size); //detector_name = "test"
+	detector_module(x_ptr, detector, detcellid, "test", max_blocks, shot.block_size); //detector_name = "test"
 
 	//! CUDA profiler STOP
 	cudaProfilerStop();
