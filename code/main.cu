@@ -285,8 +285,6 @@ int main(int argc, char *argv[]){
 		cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
 		//ERRORCHECK();
 		
-		// DETCELLID (device2HOST)
-		cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
 		//ERRORCHECK();
 		
 		// Save data to files
@@ -326,6 +324,9 @@ int main(int argc, char *argv[]){
 	}*/
 
 	detector_module(x_ptr, detector, detcellid, "test", max_blocks, shot.block_size); //detector_name = "test"
+
+	// DETCELLID (device2HOST)
+	cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
 
 	//! CUDA profiler STOP
 	cudaProfilerStop();
