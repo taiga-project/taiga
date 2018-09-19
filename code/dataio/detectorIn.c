@@ -10,6 +10,9 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
 
 	int N_detector_geometry_x = vectorReader(&detector_geometry_x, "input/detector", detector_name, "detx", false);
 	int N_detector_geometry_y = vectorReader(&detector_geometry_y, "input/detector", detector_name, "dety", false);
+    
+    for (int i=0;i<N_detector_geometry_x;i++) printf("\t detectorx %d: %lf mm\n",i,detector_geometry_x[i]);
+    for (int j=0;j<N_detector_geometry_y;j++) printf("\t detectory %d: %lf mm\n",j,detector_geometry_y[j]);
 
 	if (( N_detector_geometry_x > 0) && ( N_detector_geometry_y > 0)) {
 		printf("Detector postprocessor module: ON (%d x %d)", N_detector_geometry_x/2, N_detector_geometry_y/2);
