@@ -12,7 +12,7 @@ __global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, do
 		y = (x_ptr[1][idx] - det[1]) / det[3];     y*=1000;    
 		
 		int x_cellid = -1, y_cellid = -1;
-		/*
+		
 		//if ((x >= det_x[0]) && (x <= det_x[N_det_x-1]) && (y >= det_y[0]) && (y <= det_y[N_det_y-1])) {
 			for (int i=0; i<(N_det_x/2); i++) {
 				if ((x >= det_x[2*i]) && (x <= det_x[2*i+1]))	x_cellid = i;
@@ -20,7 +20,7 @@ __global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, do
 			for (int j=0; j<N_det_y/2; j++) {
 				if ((y >= det_y[2*j]) && (y <= det_y[2*j+1]))	y_cellid = j;
 			}
-		//}*/
+		//}
 		
 		if ((x_cellid >= 0) && (y_cellid >= 0)) {
 			detcellid[idx] = x_cellid*1000+y_cellid;//(x_cellid-1)*N_det_y/2 + y_cellid;

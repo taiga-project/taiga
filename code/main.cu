@@ -344,9 +344,8 @@ int main(int argc, char *argv[]){
     cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
     cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
     cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
-	saveData1(XR,NX,folder_out,timestamp,"rad.dat");
-	saveData1(XZ,NX,folder_out,timestamp,"z.dat");
-	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
+	saveData1(XZ,NX,folder_out,timestamp,"x.dat");
+	saveData1(XT,NX,folder_out,timestamp,"y.dat");
     ///%%%test
 	
 	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
