@@ -339,6 +339,15 @@ int main(int argc, char *argv[]){
 	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
 	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");
 	saveData1(DETCELLID,NX,folder_out,timestamp,"detcellid.dat");
+    
+    //test!!!
+    cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
+    cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
+    cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
+	saveData1(XR,NX,folder_out,timestamp,"rad.dat");
+	saveData1(XZ,NX,folder_out,timestamp,"z.dat");
+	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
+    ///%%%test
 	
 	saveDataHT(concat("Shot ID: ",shot.name),folder_out,timestamp);
 	saveDataHT(concat("Run ID:  ",timestamp),folder_out,timestamp);
