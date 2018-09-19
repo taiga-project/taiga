@@ -22,9 +22,9 @@ __global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, do
 			}*/
 		//}
 		
-		if ((x_cellid >= 0) /*&& (y_cellid >= 0)*/) {
+		//if ((x_cellid >= 0) && (y_cellid >= 0)) {
 			detcellid[idx] = x*1000+y*10;//x_cellid*1000+y_cellid;//(x_cellid-1)*N_det_y/2 + y_cellid;
-		}
+		//}
 	}
 	/*if(idx==0){
 		 service_var[0] = 42.24;
