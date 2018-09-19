@@ -12,8 +12,8 @@ __global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, do
 	double det_z = det[1];
 	double det_tan = det[3];*/
 
-	x = x_ptr[2][idx] - det[2] ;
-	y = (x_ptr[1][idx] - det[1]) / det[3];
+	x = x_ptr[2][idx] - det[2];                x*=100;
+	y = (x_ptr[1][idx] - det[1]) / det[3];     y*=100;    
 
 	int x_cellid = -1, y_cellid = -1;
 
