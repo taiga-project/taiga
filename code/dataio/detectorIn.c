@@ -12,7 +12,7 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
 	int N_detector_geometry_y = vectorReader(&detector_geometry_y, "input/detector", detector_name, "dety", false);
 
 	if (( N_detector_geometry_x > 0) && ( N_detector_geometry_y > 0)) {
-		printf("Detector postprocessor module: ON");
+		printf("Detector postprocessor module: ON (%d x %d)", N_detector_geometry_x/2, N_detector_geometry_y/2);
 		detector_postproc <<< max_blocks, shot_block_size  >>> (x_ptr, detector_geometry_x, N_detector_geometry_x, detector_geometry_y, N_detector_geometry_y, detector, detcellid);
 	}else{
 		printf("Detector postprocessor module: OFF");
