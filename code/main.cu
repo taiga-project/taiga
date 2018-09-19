@@ -49,9 +49,9 @@
 #include "running/cyl2tor.cu"
 #include "running/traj.cu"
 #include "running/ctrl.cu"
+
+#include "dataio/detectorIn.c"
 #include "detector_postproc.cu"
-
-
 
 int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
 	int max_blocks;
@@ -305,8 +305,8 @@ int main(int argc, char *argv[]){
 				if (i == NX-1) shot.step_host = step_i;
 			}
 		}*/
-	}	
-	
+	}
+
 	// Get CUDA timer 
 	cudaEventElapsedTime(&runtime, start, stop);
 	printf ("Time for the kernel: %f s\n", runtime/1000.0);
@@ -318,13 +318,15 @@ int main(int argc, char *argv[]){
 	}else{
 		printf("\n	Memcopy OK.\n");
 	}
-	
+
 	/*if (shot.debug == 1){
 		for (int i=0;i<10;i++) {
 			printf("SERVICE_VAR%d\t%lf\n",i,SERVICE_VAR[i]);
 		}
 	}*/
-	
+
+	detector_module(x_ptr, detector, detcellid, "test"); //detector_name = "test"
+
 	//! CUDA profiler STOP
 	cudaProfilerStop();
 
