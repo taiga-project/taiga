@@ -12,7 +12,7 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
 
 	int N_dgx = vectorReader(&DGX, "input/detector", detector_name, "detx", false);
 	int N_dgy = vectorReader(&DGY, "input/detector", detector_name, "dety", false);
-    int N_dg = N_dgx * Ndgy;
+    int N_dg = N_dgx * N_dgy;
 
 	if (( N_dgx > 0) && ( N_dgy > 0)) {
 		printf("Detector postprocessor module: ON (%d x %d)", N_dgx/2, N_dgy/2);        
