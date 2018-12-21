@@ -27,7 +27,7 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
 		detector_postproc <<< max_blocks, shot_block_size  >>> (x_ptr, dgx, N_dgx, dgy, N_dgy, detector, detcellid);
 		detector_sum <<<1,1>>>(dg, detcellid, number_of_particles, N_dg);
 		cudaMemcpy(DG, dg, dimDG, cudaMemcpyDeviceToHost);
-		addData1(DG,N_dg,"results","dettest","det_n.dat");
+		addData1int(DG,N_dg,"results","dettest","det_n.dat");
 	}else{
 		printf("Detector postprocessor module: OFF");
 	}

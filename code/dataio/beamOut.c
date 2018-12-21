@@ -184,6 +184,60 @@ void addData1(double *dat, int Ndat, char *folder, char *runnumber, char *filena
 	
 }
 
+void addData1int(int *dat, int Ndat, char *folder, char *runnumber, char *filename0){
+
+	//! setting output folder
+	char filename[100];
+	strcpy(filename,folder);	
+	strcat(filename,"/");
+
+	//! mkdir Windows compatible version
+	#if defined(_WIN32)
+		_mkdir(filename);
+	#else 
+		mkdir(filename, 0777); // notice that 777 is different than 0777
+	#endif
+//	printf("Formatted date & time : |%s|\n", buffer );
+
+
+	strcat(filename,runnumber);
+	strcat(filename,"/");
+	
+	//strcat(filename,filename0);
+//	printf("fn: %s\n",filename);
+	//mode_t process_mask = umask(0);
+	
+	//! mkdir Windows compatible version
+	#if defined(_WIN32)
+		_mkdir(filename);
+	#else 
+		mkdir(filename, 0777); // notice that 777 is different than 0777
+	#endif
+	
+	//printf(filename);
+
+	strcat(filename,filename0);
+
+	//! make file (open for editing)
+	FILE *f = fopen(filename, "a");
+	if (f == NULL)
+	{
+	    printf("\nError opening file!\t\t%s\n",filename);
+	    exit(1);
+	}
+
+	
+	//! write data
+	for (int i=0;i<Ndat;i++){
+		fprintf(f,"%d\t",dat[i]);
+	}
+	fprintf(f,"\n");
+
+	fclose(f);
+
+	
+}
+
 
 /*!
 Add a single value data entry to header.dat description file
