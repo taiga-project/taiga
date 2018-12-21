@@ -21,7 +21,7 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
 		size_t dimDG = N_dg * sizeof(int);
 		cudaMalloc((void **) &dgx,  dimDGX);
 		cudaMalloc((void **) &dgy,  dimDGY);
-		DETCELLID = (int *)malloc(dimDG); cudaMalloc((void **) &dg,  dimDG);
+		DG = (int *)malloc(dimDG); cudaMalloc((void **) &dg,  dimDG);
 		cudaMemcpy(dgx, DGX, dimDGX, cudaMemcpyHostToDevice);
 		cudaMemcpy(dgy, DGY, dimDGY, cudaMemcpyHostToDevice);        
 		detector_postproc <<< max_blocks, shot_block_size  >>> (x_ptr, dgx, N_dgx, dgy, N_dgy, detector, detcellid);
