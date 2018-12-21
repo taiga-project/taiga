@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../running/detector_postproc.cu"
+#include "../running/detector_sum.cu"
 
 
 // set beam inline parameters
