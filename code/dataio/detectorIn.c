@@ -8,7 +8,7 @@
 void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size, int number_of_particles){
 	double *DGX, *dgx;
 	double *DGY, *dgy;
-	double *DG, *dg;
+	int *DG, *dg;
 
 	int N_dgx = vectorReader(&DGX, "input/detector", detector_name, "detx", false);
 	int N_dgy = vectorReader(&DGY, "input/detector", detector_name, "dety", false);
@@ -18,10 +18,10 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
 		printf("Detector postprocessor module: ON (%d x %d)", N_dgx/2, N_dgy/2);        
 		size_t dimDGX = N_dgx * sizeof(double);     
 		size_t dimDGY = N_dgy * sizeof(double);   
-		size_t dimDG = N_dg * sizeof(double);
+		size_t dimDG = N_dg * sizeof(int);
 		cudaMalloc((void **) &dgx,  dimDGX);
 		cudaMalloc((void **) &dgy,  dimDGY);
-		cudaMalloc((void **) &dg,  dimDG);
+		DETCELLID = (int *)malloc(dimDG); cudaMalloc((void **) &dg,  dimDG);
 		cudaMemcpy(dgx, DGX, dimDGX, cudaMemcpyHostToDevice);
 		cudaMemcpy(dgy, DGY, dimDGY, cudaMemcpyHostToDevice);        
 		detector_postproc <<< max_blocks, shot_block_size  >>> (x_ptr, dgx, N_dgx, dgy, N_dgy, detector, detcellid);

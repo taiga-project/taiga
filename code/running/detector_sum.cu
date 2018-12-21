@@ -1,7 +1,7 @@
 // Trajectory simulation
 
 //__constant__ int finCounter = 0 ;
-__global__ void detector_sum(double *det, int *detcellid, int N, int Ndg){
+__global__ void detector_sum(int *det, int *detcellid, int N, int Ndg){
 	for (int i=0; i<Ndg; i++){
 		det[i] = 0;
 	}
