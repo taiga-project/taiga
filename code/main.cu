@@ -323,7 +323,7 @@ int main(int argc, char *argv[]){
 		}
 	}*/
 
-	detector_module(x_ptr, detector, detcellid, "test", max_blocks, shot.block_size); //detector_name = "test"
+	detector_module(x_ptr, detector, detcellid, "test", max_blocks, shot.block_size, NX); //detector_name = "test"
 
 	// DETCELLID (device2HOST)
 	cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
@@ -585,11 +585,6 @@ void fill_detector(double *DETECTOR, char* values){
 	el = strtok(NULL,",");	DETECTOR[2] = tan(strtod (el, NULL) * PI/180.0);
 	el = strtok(NULL,",");	DETECTOR[3] = tan(strtod (el, NULL) * PI/180.0);
 
-}
-
-
-void process_detector(int *detcellid, double **x_ptr){
-	
 }
 
 int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){	
