@@ -32,7 +32,7 @@
 #include "cuda/nvToolsExt.h"
 
 #include "main.cuh"
-#include "dataio/fieldIn.c"
+#include "dataio/data_import.c"
 
 #if READINPUTPROF == 1
 	#include "dataio/beam_manual_profile.c"
@@ -42,7 +42,7 @@
 	#error A valid beam module is required!
 #endif
 
-#include "dataio/beamOut.c"
+#include "dataio/data_export.c"
 
 #include "running/rk4.cu"
 #include "running/ipol.cu"
