@@ -5,7 +5,7 @@
 
 
 // set beam inline parameters
-void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size, int number_of_particles){
+void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size, int number_of_particles, char *export_folder, char *runnumber){
 	double *DGX, *dgx;
 	double *DGY, *dgy;
 	int *DG, *dg;
@@ -27,7 +27,7 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
 		detector_postproc <<< max_blocks, shot_block_size  >>> (x_ptr, dgx, N_dgx, dgy, N_dgy, detector, detcellid);
 		detector_sum <<<1,1>>>(dg, detcellid, number_of_particles, N_dg);
 		cudaMemcpy(DG, dg, dimDG, cudaMemcpyDeviceToHost);
-		addData1int(DG,N_dg,"results","dettest","det_n.dat");
+		export_data(DG,N_dg,export_folder,runnumber,"detcellcounter.dat");
 	}else{
 		printf("Detector postprocessor module: OFF");
 	}

@@ -27,7 +27,7 @@ int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam);
 
 double get_mass(char *s);
 void fill_detector(double *DETECTOR, char* values);
-void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size, int number_of_particles);
+void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size, int number_of_particles, char *export_folder, char *runnumber);
 
 int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_ptr, int dimRZ);
 
