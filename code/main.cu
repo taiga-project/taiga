@@ -50,7 +50,7 @@
 #include "running/traj.cu"
 #include "running/ctrl.cu"
 
-#include "dataio/detectorIn.c"
+#include "detector_module.c"
 //#include "running/detector_postproc.cu"
 
 int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
