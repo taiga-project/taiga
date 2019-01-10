@@ -354,7 +354,7 @@ int main(int argc, char *argv[]){
 		export_header("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
 	}
 	
-	export_header("Number of ions","",NX,folder_out,timestamp);
+	export_header("Number of ions","",(double)NX,folder_out,timestamp);
 	export_header("-----------------------------------",folder_out,timestamp);
 	export_header("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
 	export_header("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
