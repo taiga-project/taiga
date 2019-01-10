@@ -1,7 +1,7 @@
 // Trajectory simulation
 
 //__constant__ int finCounter = 0 ;
-__global__ void ctrl(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var){
+__global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -42,7 +42,7 @@ __global__ void ctrl(int NR, int NZ, double eperm, double **br_ptr, double **bz_
 	}
 }
 
-__global__ void ctrl(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var){
+__global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
