@@ -120,22 +120,16 @@ void addData1(double *dat, int Ndat, char *folder, char *runnumber, char *filena
 	
 }
 
-void addData1int(int *dat, int Ndat, char *folder, char *runnumber, char *filename0){
-
-	//! setting output folder
-	char filename[100];
-	strcpy(filename,folder);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,runnumber);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,filename0);
+void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename){
+	char path[100];
+	mkdir(folder, 0777);
+	mkdir(concat(folder,"/",runnumber), 0777);
+	strcpy(path,concat(folder,"/",runnumber,"/",filename));
 
 	//! make file (open for editing)
-	FILE *f = fopen(filename, "a");
+	FILE *f = fopen(path, "a");
 	if (f == NULL) {
-	    printf("\nError opening file!\t\t%s\n",filename);
+	    printf("\nError opening file!\t\t%s\n",path);
 	    exit(1);
 	}
 
