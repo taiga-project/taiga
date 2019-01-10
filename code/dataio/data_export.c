@@ -159,7 +159,7 @@ Add a single value data entry to header.dat description file
 
 */
 
-void saveDataH(char *dataname,char *unitname,double dat, char *folder, char *runnumber){
+void export_header(char *dataname,char *unitname,double dat, char *folder, char *runnumber){
 
 	char filename[100];
 	strcpy(filename,folder);
@@ -197,15 +197,12 @@ Add a double value data entry to header.dat description file
 
 */
 
-void saveDataH2(char *dataname,char *unitname,double dat, double dat2, char *folder, char *runnumber){
+void export_header(char *dataname,char *unitname,double dat, double dat2, char *folder, char *runnumber){
 
 	char filename[100];
-	strcpy(filename,folder);
-	strcat(filename,"/");
-	strcat(filename,runnumber);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,"header.dat");
+	mkdir(folder, 0777);
+	mkdir(concat(folder,"/",runnumber), 0777);
+	strcpy(filename,concat(folder,"/",runnumber,"/header.dat"));
 
 	//! make file (open for editing)
 	FILE *f = fopen(filename, "a");
@@ -232,15 +229,12 @@ Add a text entry to header.dat description file
 
 */
 
-void saveDataHT(char *text, char *folder, char *runnumber){
+void export_header(char *text, char *folder, char *runnumber){
 
 	char filename[100];
-	strcpy(filename,folder);
-	strcat(filename,"/");
-	strcat(filename,runnumber);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,"header.dat");
+	mkdir(folder, 0777);
+	mkdir(concat(folder,"/",runnumber), 0777);
+	strcpy(filename,concat(folder,"/",runnumber,"/header.dat"));
 
 	//! make file (open for editing)
 	FILE *f = fopen(filename, "a");
