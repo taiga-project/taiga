@@ -380,17 +380,6 @@ int main(int argc, char *argv[]){
 	export_data(VZ,NX,folder_out,timestamp,"vz.dat");
 	export_data(VT,NX,folder_out,timestamp,"vtor.dat");
 
-    
-    //test!!!
-    cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
-    cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
-    cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
-	export_data(XZ,NX,folder_out,timestamp,"x.dat");
-	export_data(XT,NX,folder_out,timestamp,"y.dat");
-    ///%%%test
-	
-
-
 	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
 
 	//! Free CUDA
