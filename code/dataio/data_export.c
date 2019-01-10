@@ -11,102 +11,16 @@ void mkdir(char *path, mode_t mode){
 }
 #endif
 
-/*!
-Make a data array entry to a file
-
-@param dat array of dataset
-@param Ndat number of balues in array
-@param folder result folder for save
-@param runnumber runnumber for data folder
-@param filename0 filename
-
-*/
-
-void saveData1(double *dat, int Ndat, char *folder, char *runnumber, char *filename0){
-
-	//! setting output folder
-	char filename[100];
-	strcpy(filename,folder);
-	mkdir(filename, 0777);	
-	strcat(filename,"/");
-	strcat(filename,runnumber);
-	strcat(filename,"/");
-	mkdir(filename, 0777); 
-	strcat(filename,filename0);
-
-	//! make file
-	FILE *f = fopen(filename, "w");
-	if (f == NULL)
-	{
-	    printf("\nError opening file!\t\t%s\n",filename);
-	    exit(1);
-	}
-	
-	//! write data
-	for (int i=0;i<Ndat;i++){
-		fprintf(f,"%le\t",dat[i]);
-	}
-
-	fclose(f);
-
-	
-}
-
-void saveData1(int *dat, int Ndat, char *folder, char *runnumber, char *filename0){
-
-	//! setting output folder
-	char filename[100];
-	strcpy(filename,folder);
-	mkdir(filename, 0777);
-	strcat(filename,"/");
-	strcat(filename,runnumber);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,filename0);
-
-	//! make file
-	FILE *f = fopen(filename, "w");
-	if (f == NULL) {
-	    printf("\nError opening file!\t\t%s\n",filename);
-	    exit(1);
-	}
-	//! write data
-	for (int i=0;i<Ndat;i++){
-		fprintf(f,"%d\t",dat[i]);
-	}
-
-	fclose(f);
-
-}
-
-/*!
-Add a data array entry to a file
-
-@param dat array of dataset
-@param Ndat number of balues in array
-@param folder result folder for save
-@param runnumber runnumber for data folder
-@param filename0 filename
-
-*/
-
-
-void addData1(double *dat, int Ndat, char *folder, char *runnumber, char *filename0){
-
-	//! setting output folder
-	char filename[100];
-	strcpy(filename,folder);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,runnumber);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,filename0);
+void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename){
+	char path[100];
+	mkdir(folder, 0777);
+	mkdir(concat(folder,"/",runnumber), 0777);
+	strcpy(path,concat(folder,"/",runnumber,"/",filename));
 
 	//! make file (open for editing)
-	FILE *f = fopen(filename, "a");
+	FILE *f = fopen(path, "a");
 	if (f == NULL) {
-	    printf("\nError opening file!\t\t%s\n",filename);
+	    printf("\nError opening file!\t\t%s\n",path);
 	    exit(1);
 	}
 	//! write data
@@ -114,10 +28,7 @@ void addData1(double *dat, int Ndat, char *folder, char *runnumber, char *filena
 		fprintf(f,"%le\t",dat[i]);
 	}
 	fprintf(f,"\n");
-
 	fclose(f);
-
-	
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename){
@@ -141,18 +52,6 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filena
 	fclose(f);
 }
 
-
-/*!
-Add a single value data entry to header.dat description file
-
-@param dataname description for data
-@param unitname unit (eg. meter) of data
-@param dat data
-@param folder result folder for save
-@param runnumber runnumber for data folder
-
-*/
-
 void export_header(char *dataname,char *unitname,double dat, char *folder, char *runnumber){
 	char path[100];
 	mkdir(folder, 0777);
@@ -172,18 +71,6 @@ void export_header(char *dataname,char *unitname,double dat, char *folder, char 
 	fclose(f);
 }
 
-/*!
-Add a double value data entry to header.dat description file
-
-@param dataname description for data
-@param unitname unit (eg. meter) of data
-@param dat first data
-@param dat2 second data
-@param folder result folder for save
-@param runnumber runnumber for data folder
-
-*/
-
 void export_header(char *dataname, char *unitname, double dat, double dat2, char *folder, char *runnumber){
 	char path[100];
 	mkdir(folder, 0777);
@@ -201,15 +88,6 @@ void export_header(char *dataname, char *unitname, double dat, double dat2, char
 	fprintf(f,"\n");
 	fclose(f);
 }
-
-/*!
-Add a text entry to header.dat description file
-
-@param text entry
-@param folder result folder for save
-@param runnumber runnumber for data folder
-
-*/
 
 void export_header(char *text, char *folder, char *runnumber){
 	char path[100];

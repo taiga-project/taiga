@@ -233,12 +233,12 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
 	
 	// OUTPUT INIT
-	addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
-	addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
-	addData1(XT,NX,folder_out,timestamp,"t_tor.dat");
-	addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
-	addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
-	addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
+	export_data(XR,NX,folder_out,timestamp,"t_rad.dat");
+	export_data(XZ,NX,folder_out,timestamp,"t_z.dat");
+	export_data(XT,NX,folder_out,timestamp,"t_tor.dat");
+	export_data(VR,NX,folder_out,timestamp,"t_vrad.dat");
+	export_data(VZ,NX,folder_out,timestamp,"t_vz.dat");
+	export_data(VT,NX,folder_out,timestamp,"t_vtor.dat");
 
 	//! Set CUDA timer 
 	cudaEvent_t start, stop;
@@ -291,12 +291,12 @@ int main(int argc, char *argv[]){
 		
 		// Save data to files
 		printf("Step\t%d/%d\n",step_i,shot.step_host);
-		addData1(XR,NX,folder_out,timestamp,"t_rad.dat");
-		addData1(XZ,NX,folder_out,timestamp,"t_z.dat");
-		addData1(XT,NX,folder_out,timestamp,"t_tor.dat");
-		addData1(VR,NX,folder_out,timestamp,"t_vrad.dat");
-		addData1(VZ,NX,folder_out,timestamp,"t_vz.dat");
-		addData1(VT,NX,folder_out,timestamp,"t_vtor.dat");
+		export_data(XR,NX,folder_out,timestamp,"t_rad.dat");
+		export_data(XZ,NX,folder_out,timestamp,"t_z.dat");
+		export_data(XT,NX,folder_out,timestamp,"t_tor.dat");
+		export_data(VR,NX,folder_out,timestamp,"t_vrad.dat");
+		export_data(VZ,NX,folder_out,timestamp,"t_vz.dat");
+		export_data(VT,NX,folder_out,timestamp,"t_vtor.dat");
 		
 		if (shot.debug == 1)	debug_message_run(XR, XZ, XT, VR, VZ, VT);
 
@@ -326,9 +326,6 @@ int main(int argc, char *argv[]){
 	}*/
 
 	detector_module(x_ptr, detector, detcellid, detector_name, max_blocks, shot.block_size, NX, folder_out, timestamp);
-
-	// DETCELLID (device2HOST)
-	cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
 
 	//! CUDA profiler STOP
 	cudaProfilerStop();
@@ -374,22 +371,20 @@ int main(int argc, char *argv[]){
 	export_header("Number of loops", "", shot.step_host,folder_out,timestamp);
 
 	//! Save data to files
-	saveData1(XR,NX,folder_out,timestamp,"rad.dat");
-	saveData1(XZ,NX,folder_out,timestamp,"z.dat");
-	saveData1(XT,NX,folder_out,timestamp,"tor.dat");
-	saveData1(VR,NX,folder_out,timestamp,"vrad.dat");
-	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
-	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");
+	export_data(XR,NX,folder_out,timestamp,"rad.dat");
+	export_data(XZ,NX,folder_out,timestamp,"z.dat");
+	export_data(XT,NX,folder_out,timestamp,"tor.dat");
+	export_data(VR,NX,folder_out,timestamp,"vrad.dat");
+	export_data(VZ,NX,folder_out,timestamp,"vz.dat");
+	export_data(VT,NX,folder_out,timestamp,"vtor.dat");
 
-
-	saveData1(DETCELLID,NX,folder_out,timestamp,"detcellid.dat");
     
     //test!!!
     cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
     cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
     cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
-	saveData1(XZ,NX,folder_out,timestamp,"x.dat");
-	saveData1(XT,NX,folder_out,timestamp,"y.dat");
+	export_data(XZ,NX,folder_out,timestamp,"x.dat");
+	export_data(XT,NX,folder_out,timestamp,"y.dat");
     ///%%%test
 	
 
