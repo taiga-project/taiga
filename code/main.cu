@@ -331,6 +331,45 @@ int main(int argc, char *argv[]){
 
 	//! CUDA profiler STOP
 	cudaProfilerStop();
+    
+	export_header(concat("Shot ID: ",shot.name),folder_out,timestamp);
+	export_header(concat("Run ID:  ",timestamp),folder_out,timestamp);
+	export_header("-----------------------------------",folder_out,timestamp);
+	export_header(concat("version: r ",SVN_REV),folder_out,timestamp);
+	export_header("-----------------------------------",folder_out,timestamp);
+	export_header("ABP ION TRAJECTORIES",folder_out,timestamp);
+	export_header("(Real ionization position)",folder_out,timestamp); 
+
+	if(READINPUTPROF==1){
+		export_header("(3D input)",folder_out,timestamp);			
+	}else if(RENATE==110){
+		export_header("(TS + Renate 1.1.0)",folder_out,timestamp);
+	}
+	export_header("-----------------------------------",folder_out,timestamp);
+
+	if(!READINPUTPROF){
+		export_header("Beam energy","keV",beam.energy,folder_out,timestamp);
+		export_header("Atomic mass","AMU",beam.mass,folder_out,timestamp);
+		export_header("Beam diameter","mm",beam.diameter,folder_out,timestamp);
+		export_header("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
+	}
+	
+	export_header("Number of ions","",NX,folder_out,timestamp);
+	export_header("-----------------------------------",folder_out,timestamp);
+	export_header("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
+	export_header("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
+	export_header("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
+	export_header("Detector angle (Z/R)","°",atan(DETECTOR[3])/PI*180.0,folder_out,timestamp);
+	export_header("Detector angle (T/R)","°",atan(DETECTOR[4])/PI*180.0,folder_out,timestamp);
+	export_header("-----------------------------------",folder_out,timestamp);
+	export_header("Timestep","s",dt,folder_out,timestamp);
+	export_header("-----------------------------------",folder_out,timestamp);
+	export_header("Kernel runtime", "s", runtime/1000.0,folder_out,timestamp);
+	export_header("-----------------------------------",folder_out,timestamp);
+	export_header("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
+	export_header("Block size", "", shot.block_size,folder_out,timestamp);
+	export_header("Length of a loop", "", shot.step_device,folder_out,timestamp);
+	export_header("Number of loops", "", shot.step_host,folder_out,timestamp);
 
 	//! Save data to files
 	saveData1(XR,NX,folder_out,timestamp,"rad.dat");
@@ -339,6 +378,8 @@ int main(int argc, char *argv[]){
 	saveData1(VR,NX,folder_out,timestamp,"vrad.dat");
 	saveData1(VZ,NX,folder_out,timestamp,"vz.dat");
 	saveData1(VT,NX,folder_out,timestamp,"vtor.dat");
+
+
 	saveData1(DETCELLID,NX,folder_out,timestamp,"detcellid.dat");
     
     //test!!!
@@ -349,53 +390,7 @@ int main(int argc, char *argv[]){
 	saveData1(XT,NX,folder_out,timestamp,"y.dat");
     ///%%%test
 	
-	export_header(concat("Shot ID: ",shot.name),folder_out,timestamp);
-	export_header(concat("Run ID:  ",timestamp),folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	export_header(concat("version: r ",SVN_REV),folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-		
-	export_header("ABP ION TRAJECTORIES",folder_out,timestamp);
 
-	export_header("(Real ionization position)",folder_out,timestamp); 
-	if(READINPUTPROF==1){
-		export_header("(3D input)",folder_out,timestamp);			
-	}else if(RENATE==110){
-		export_header("(TS + Renate 1.1.0)",folder_out,timestamp);
-	}
-
-	export_header("-----------------------------------",folder_out,timestamp);
-
-	if(!READINPUTPROF){
-		export_header("Beam energy","keV",beam.energy,folder_out,timestamp);
-		export_header("Atomic mass","AMU",beam.mass,folder_out,timestamp);
-		export_header("Beam diameter","mm",beam.diameter,folder_out,timestamp);
-		export_header("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
-	}
-	
-	
-	export_header("Number of ions","",NX,folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	
-	 // DETECTOR
-	export_header("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
-	export_header("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
-	export_header("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
-	export_header("Detector angle (Z/R)","°",atan(DETECTOR[3])/PI*180.0,folder_out,timestamp);
-	export_header("Detector angle (T/R)","°",atan(DETECTOR[4])/PI*180.0,folder_out,timestamp);
-	
-	export_header("-----------------------------------",folder_out,timestamp);
-	
-	export_header("Timestep","s",dt,folder_out,timestamp);	
-	
-	export_header("-----------------------------------",folder_out,timestamp);
-	
-	export_header("Kernel runtime", "s", runtime/1000.0,folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	export_header("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
-	export_header("Block size", "", shot.block_size,folder_out,timestamp);
-	export_header("Length of a loop", "", shot.step_device,folder_out,timestamp);
-	export_header("Number of loops", "", shot.step_host,folder_out,timestamp);		
 
 	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
 
