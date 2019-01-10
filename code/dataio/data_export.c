@@ -160,29 +160,22 @@ Add a single value data entry to header.dat description file
 */
 
 void export_header(char *dataname,char *unitname,double dat, char *folder, char *runnumber){
-
-	char filename[100];
-	strcpy(filename,folder);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,runnumber);
-	strcat(filename,"/");
-	mkdir(filename, 0777);
-	strcat(filename,"header.dat");
+	char path[100];
+	mkdir(folder, 0777);
+	mkdir(concat(folder,"/",runnumber), 0777);
+	strcpy(path,concat(folder,"/",runnumber,"/header.dat"));
 
 	//! make file (open for editing)
-	FILE *f = fopen(filename, "a");
+	FILE *f = fopen(path, "a");
 	if (f == NULL) {
-	    printf("\nError opening file!\t\t%s\n",filename);
+	    printf("\nError opening file!\t\t%s\n",path);
 	    exit(1);
 	}
 
 	//! writing to file
-	fprintf(f,"%s:\t%lg %s",dataname,dat,unitname);	
-	
+	fprintf(f,"%s:\t%lg %s",dataname,dat,unitname);
 	fprintf(f,"\n");
 	fclose(f);
-	
 }
 
 /*!
@@ -197,27 +190,22 @@ Add a double value data entry to header.dat description file
 
 */
 
-void export_header(char *dataname,char *unitname,double dat, double dat2, char *folder, char *runnumber){
-
-	char filename[100];
+void export_header(char *dataname, char *unitname, double dat, double dat2, char *folder, char *runnumber){
+	char path[100];
 	mkdir(folder, 0777);
 	mkdir(concat(folder,"/",runnumber), 0777);
-	strcpy(filename,concat(folder,"/",runnumber,"/header.dat"));
+	strcpy(path,concat(folder,"/",runnumber,"/header.dat"));
 
 	//! make file (open for editing)
-	FILE *f = fopen(filename, "a");
+	FILE *f = fopen(path, "a");
 	if (f == NULL) {
-	    printf("Error opening file!\t\t%s\n",filename);
+	    printf("Error opening file!\t\t%s\n",path);
 	    exit(1);
 	}
 	//! writing to file
 	fprintf(f,"%s:\t%lg %s \t%lg %s",dataname,dat,unitname,dat2,unitname);
-	
 	fprintf(f,"\n");
-
 	fclose(f);
-
-	
 }
 
 /*!
@@ -230,21 +218,20 @@ Add a text entry to header.dat description file
 */
 
 void export_header(char *text, char *folder, char *runnumber){
-
-	char filename[100];
+	char path[100];
 	mkdir(folder, 0777);
 	mkdir(concat(folder,"/",runnumber), 0777);
-	strcpy(filename,concat(folder,"/",runnumber,"/header.dat"));
+	strcpy(path,concat(folder,"/",runnumber,"/header.dat"));
 
 	//! make file (open for editing)
-	FILE *f = fopen(filename, "a");
+	FILE *f = fopen(path, "a");
 	if (f == NULL) {
-	    printf("Error opening file!\t\t%s\n",filename);
+	    printf("Error opening file!\t\t%s\n",path);
 	    exit(1);
 	}
 
 	//! writing to file
-	fprintf(f,"%s",text);	
+	fprintf(f,"%s",text);
 	fprintf(f,"\n");
 	fclose(f);
 }
