@@ -35,11 +35,11 @@
 #include "dataio/fieldIn.c"
 
 #if READINPUTPROF == 1
-	#include "dataio/beamInFull.c"
+	#include "dataio/beam_manual_profile.c"
 #elif RENATE == 110
-	#include "dataio/beamInRenate110.c"
+	#include "dataio/beam_renate110.c"
 #else
-	#include "dataio/beamIn.c"
+	#error A valid beam module is required!
 #endif
 
 #include "dataio/beamOut.c"
