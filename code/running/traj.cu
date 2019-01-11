@@ -103,7 +103,7 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 	// X = [R,vR,z,vZ,T,vT]
 	double X[6];
 	
-	int finished = 0;
+	int finished = local_detcellid + 1;
 	
 	l_r  = l_x[0];
 	l_z  = l_x[1];
@@ -117,7 +117,7 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 	
 	int loopi;
 	for (loopi=0;(loopi<N_step && (!finished));loopi++){
-		// Get local magnetic field	
+		// Get local magnetic field
 
 		l_rT = cyl2tor_coord(l_r, l_t);
 		copyLocal(rg,NR,zg,NZ,l_rT,l_z,rzci,lp_br,lp_bz,lp_bt,br_ptr,bz_ptr,bt_ptr);	
@@ -203,7 +203,7 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 
 	double X[6];
 	
-	int finished = 0;
+	int finished = local_detcellid + 1;
 
 	l_r  = l_x[0];
 	l_z  = l_x[1];
@@ -217,7 +217,7 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 	
 	int loopi;
 	for (loopi=0;(loopi<N_step && (!finished));loopi++){
-		// Get local magnetic field	
+		// Get local magnetic field
 
 		l_rT = cyl2tor_coord(l_r, l_t);
 		copyLocal(rg,NR,zg,NZ,l_rT,l_z,rzci,lp_br,lp_bz,lp_bt,br_ptr,bz_ptr,bt_ptr,lp_er,lp_ez,lp_et,er_ptr,ez_ptr,et_ptr);	
