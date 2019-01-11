@@ -267,9 +267,9 @@ int main(int argc, char *argv[]){
 		cudaEventRecord(start, 0);
 		if (shot.electric_field_module){
 			printf("electric_field_module ON\n");
-			taiga <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var);
+			taiga <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
 		}else{
-			taiga <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var);
+			taiga <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
 		}
 		cudaEventRecord(stop, 0);
 		cudaEventSynchronize(stop);

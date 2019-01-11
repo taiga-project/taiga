@@ -1,11 +1,11 @@
 // Trajectory simulation
 
 //__constant__ int finCounter = 0 ;
-__global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var){
+__global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var, int step_i){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-	detcellid[idx] = -1;
+	if (step_i == 0) detcellid[idx] = -1;
 	
 	// grid pointer
 	double *rg, *zg;
@@ -42,11 +42,11 @@ __global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz
 	}
 }
 
-__global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var){
+__global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double **g_ptr, double **x_ptr, double **v_ptr, double *det, int *detcellid, int N_step, double *service_var, int step_i){
 	// thread index
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-	detcellid[idx] = -1;
+	if (step_i == 0) detcellid[idx] = -1;
 	
 	// grid pointer
 	double *rg, *zg;
