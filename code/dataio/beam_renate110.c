@@ -69,8 +69,8 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 				ionisation_yeald = (double)rand()/RAND_MAX;
 				xsec_ang = (double)rand()/RAND_MAX*2*PI;
 				xsec_rad = linear_interpolate(profx_d, profx_d_length, profx_r, profx_r_length, ionisation_yeald)*(diam/2);
-                XZ[i]= sin(xsec_ang) * xsec_rad;
-                XT[i]= cos(xsec_ang) * xsec_rad;
+				XZ[i]= sin(xsec_ang) * xsec_rad;
+				XT[i]= cos(xsec_ang) * xsec_rad;
 			}
 		}while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(diam/2)*(diam/2));
 		
