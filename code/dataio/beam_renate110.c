@@ -1,14 +1,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-
-
 /*
 diameter:	in mm
 energy:		in keV
 mass:		in AMU
-
 */
+
 int get_array_size(double *array);
 double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value);
 
@@ -40,7 +38,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 
 	double diam = diameter / 1000.0;
 	double deflH = deflH_degree/180*PI;
-	double deflV = deflV_degree/180*PI;	
+	double deflV = deflV_degree/180*PI;
     //printf("Angles:\t%lf;%lf\n",deflH,deflV);
     
 	Vabs = sqrt(2*energy*1000*eperm);
@@ -52,7 +50,6 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 			profx_d[i] /= profx_r[i];
 		}
 	}
-
 	/* initialize random generator */
 	srand ( time(NULL) );
 	for (i=0;i<beam_number;++i){
@@ -75,38 +72,28 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 		}while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(diam/2)*(diam/2));
 		
 		/* toroidal deflection */
-		
 		XT[i] += tan(deflV) * ($R_defl - XR[i]);
 		
 		/* set velocity of particles */
 		VR[i] = -Vabs*cos(deflH)*cos(deflV);
 		VZ[i] =  Vabs*sin(deflH);
-		VT[i] =  Vabs*cos(deflH)*sin(deflV);		
-			
-		
+		VT[i] =  Vabs*cos(deflH)*sin(deflV);
 	}
-
+	
 	return beam_number;
-
 }
 
 
 
 double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){
-
 	int i;
-
-/*	int x_length = get_array_size(x_vector);
-	int y_length = get_array_size(y_vector);*/
-
-	if (x_length != y_length)		printf("ERROR: in interpolation. Two input vectors have different length.");
+	if (x_length != y_length)	printf("ERROR: in interpolation. Two input vectors have different length.");
 	
-	for (i=1; (i<x_length) && (x_vector[i-1]>x_value); i++);//{printf("%lf %lf |",x_vector[i-1],x_value);}
+	for (i=1; (i<x_length) && (x_vector[i-1]>x_value); i++);
 	
 	if(i>1){--i;}else{i=1;}
-//	printf("ii%ld",i);
-	return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 	
+	return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 }
 
 int get_array_size(double *array){
