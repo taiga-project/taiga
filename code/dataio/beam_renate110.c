@@ -16,11 +16,11 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
 
 	double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
 
-	int prof_r_length = vectorReader(&prof_r, "input/ionProf", shotname, "rad.dat");
-	int prof_d_length = vectorReader(&prof_d, "input/ionProf", shotname, "ionyeald.dat");    
+	int prof_r_length = read_vector(&prof_r, "input/ionProf", shotname, "rad.dat");
+	int prof_d_length = read_vector(&prof_d, "input/ionProf", shotname, "ionyeald.dat");    
     
-	int profx_r_length = vectorReader(&profx_r, "input/ionProf", shotname, "xrad.dat", false);
-	int profx_d_length = vectorReader(&profx_d, "input/ionProf", shotname, "xionyeald.dat", false);
+	int profx_r_length = read_vector(&profx_r, "input/ionProf", shotname, "xrad.dat", false);
+	int profx_d_length = read_vector(&profx_d, "input/ionProf", shotname, "xionyeald.dat", false);
 	
 	if (prof_r_length != prof_d_length){
 		printf("ERROR: Length of PROF_R and PROF_D are different!\n");
