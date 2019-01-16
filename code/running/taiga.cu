@@ -9,13 +9,10 @@ __global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz
 	
 	// grid pointer
 	double *rg, *zg;
-	rg = g_ptr[0];	
+	rg = g_ptr[0];
 	zg = g_ptr[1];
-	
-	//double valR=0.72, valZ=0.0;
+
 	double sRZT[3], svRZT[3];
-	//double *trp;
-	//int i,j;
 
 	sRZT[0] = x_ptr[0][idx];
 	sRZT[1] = x_ptr[1][idx];
@@ -26,8 +23,6 @@ __global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz
 	svRZT[2] = v_ptr[2][idx];
 	
 	detcellid[idx] = traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,eperm,det,N_step,detcellid[idx]);
-	//if(idx<20) service_var[idx]=temp;
-
 
 	x_ptr[0][idx]=sRZT[0];
 	x_ptr[1][idx]=sRZT[1];
@@ -50,13 +45,10 @@ __global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz
 	
 	// grid pointer
 	double *rg, *zg;
-	rg = g_ptr[0];	
+	rg = g_ptr[0];
 	zg = g_ptr[1];
 	
-	//double valR=0.72, valZ=0.0;
 	double sRZT[3], svRZT[3];
-	//double *trp;
-	//int i,j;
 
 	sRZT[0] = x_ptr[0][idx];
 	sRZT[1] = x_ptr[1][idx];
@@ -65,10 +57,8 @@ __global__ void taiga(int NR, int NZ, double eperm, double **br_ptr, double **bz
 	svRZT[0] = v_ptr[0][idx];
 	svRZT[1] = v_ptr[1][idx];
 	svRZT[2] = v_ptr[2][idx];
-	
-	detcellid[idx] = traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,det,N_step,detcellid[idx]);
-	//if(idx<20) service_var[idx]=temp;
 
+	detcellid[idx] = traj(rg,NR,zg,NZ,sRZT,svRZT,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,eperm,det,N_step,detcellid[idx]);
 
 	x_ptr[0][idx]=sRZT[0];
 	x_ptr[1][idx]=sRZT[1];
