@@ -92,6 +92,7 @@ int main(int argc, char *argv[]){
 	beam_prop beam;
 	int max_blocks = input_init_taiga(argc, argv, &shot, &beam);
 	parameter_reader("parameters.sh", &shot, &beam);
+	runnumber_reader("runnumber", &shot);
 
 	size_t dimD = 5 * sizeof(double);
 	double *DETECTOR, *detector;

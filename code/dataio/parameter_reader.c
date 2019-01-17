@@ -54,3 +54,16 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
     return 0;
 }
 
+
+int runnumber_reader(char* filename, shot_prop *shot){
+    
+    FILE *fp;
+    char str[MAXCHAR];
+    fp = fopen(filename, "r");
+    if (fp == NULL){
+        printf("Could not open file %s",filename);
+        return 1;
+    }
+    fgets(str, MAXCHAR, fp);
+    strcpy(shot->runname, str);
+}
