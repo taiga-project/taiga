@@ -59,11 +59,14 @@ int runnumber_reader(char* filename, shot_prop *shot){
     
     FILE *fp;
     char str[MAXCHAR];
+    int runnumber;
+    
     fp = fopen(filename, "r");
     if (fp == NULL){
         printf("Could not open file %s",filename);
         return 1;
     }
-    fgets(str, MAXCHAR, fp);
-    strcpy(shot->runnumber, str);
+    fgets(str, MAXCHAR, fp);    
+    sscanf(str, "%lf", &runnumber);
+    shot->runnumber = runnumber;
 }
