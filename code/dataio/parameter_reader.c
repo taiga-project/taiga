@@ -23,6 +23,7 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     else if (!strcmp(par_name, "energy"))               beam->energy = par_value_lf;
     else if (!strcmp(par_name, "vertical_deflation"))   beam->vertical_deflation = par_value_lf;
     else if (!strcmp(par_name, "diameter"))             beam->diameter = par_value_lf;    
+    else if (!strcmp(par_name, "detector"))             strcpy(shot->detector_geometry, clean_string(par_value));
     else if (!strcmp(par_name, "detector_mask"))        strcpy(shot->detector_mask, clean_string(par_value));
 }
 

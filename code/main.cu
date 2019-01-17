@@ -98,7 +98,7 @@ int main(int argc, char *argv[]){
 	double *DETECTOR, *detector;
 	DETECTOR = (double *)malloc(dimD);	cudaMalloc((void **) &detector,  dimD); 
 	
-	if (argc > 7)	fill_detector(DETECTOR, argv[7]);
+	set_detector_geometry(DETECTOR, shot.detector_geometry);
 
 	printf("shotname: %s\n",shot.name);  
 	printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
@@ -567,7 +567,7 @@ int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double
 	return s;
 }
 
-void fill_detector(double *DETECTOR, char* values){
+void set_detector_geometry(double *DETECTOR, char* values){
 
 	char *el; 
 	el = strtok(values,",");	DETECTOR[0] = strtod (el, NULL);

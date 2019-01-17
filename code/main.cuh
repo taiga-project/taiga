@@ -13,6 +13,7 @@ struct shot_prop{
 	char shotnumber[40] = "11774";
 	char time[40] = "1000";
 	char detector_mask[40] = "test";
+	char detector_geometry[100] = "0.685,0.23,0,38,0";
 	int runnumber = 0;  
 	int electric_field_module = 0;
 	int debug = 0;
@@ -29,7 +30,7 @@ int main(int argc, char *argv[]);
 int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam);
 
 double get_mass(char *s);
-void fill_detector(double *DETECTOR, char* values);
+void set_detector_geometry(double *DETECTOR, char* values);
 void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size, int number_of_particles, char *export_folder, char *runnumber);
 
 int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_ptr, int dimRZ);
