@@ -8,14 +8,11 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     
     double par_value_lf;
     sscanf(par_value, "%lf", &par_value_lf);
-    
-    int par_value_d;
-    sscanf(par_value, "%d", &par_value_d);
         
     if (!strcmp(par_name, "shotnumber"))                shot->shotnumber = par_value;
-    else if (!strcmp(par_name, "time"))                 strcpy(shot->time, par_value);
+    else if (!strcmp(par_name, "time"))                 shot->time = par_value;
     else if (!strcmp(par_name, "runnumber"))            shot->runnumber = par_value_lf;
-    else if (!strcmp(par_name, "matter"))               strcpy(beam->matter, par_value);
+    else if (!strcmp(par_name, "matter"))               beam->matter = par_value;
     else if (!strcmp(par_name, "energy"))               beam->energy = par_value_lf;
     else if (!strcmp(par_name, "vertical_deflation"))   beam->vertical_deflation = par_value_lf;
     else if (!strcmp(par_name, "diameter"))             beam->diameter = par_value_lf;    
