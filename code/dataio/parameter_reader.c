@@ -34,11 +34,11 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
         if (str[0] != '#'){        
             par_name = strtok(str, "=");
             par_value = strtok(NULL, "#");
-            printf("%s\t%s\n",par_name,par_value);
             init_taiga_props(par_name, par_value, shot, beam);
         }
     }    
     fclose(fp);
+    printf("DATA:%s\t%s\t%lf\n",shot->shotnumber, shot->time, shot->energy);
     printf("shot->name\t%s\n",concat(shot->shotnumber,"_",shot->time));
     shot->name = concat(shot->shotnumber,"_",shot->time);
     beam->mass = get_mass(beam->matter);
