@@ -7,7 +7,7 @@
 void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_prop *beam){
     
     double par_value_lf;
-    char* par_value_s;
+    char par_value_s[100];
     sscanf(par_value, "%lf", &par_value_lf);
     sscanf(par_value, "%s", &par_value_s);
         
@@ -36,6 +36,7 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
         if (str[0] != '#'){        
             par_name = strtok(str, "=");
             par_value = strtok(NULL, "#");
+            printf("%s\t%s\n",par_name,par_value);
             init_taiga_props(par_name, par_value, shot, beam);
         }
     }    
