@@ -11,4 +11,4 @@ electric_field_module=0
 #electric_field_value='erad=10*exp((-(R-0.56)/0.11)^2/2);ez=0;etor=0'
 #magnetic_field_value='brad=0;bz=0;btor=1'
 matlab='matlab'
-detector='final'
+detector_mask='final'
