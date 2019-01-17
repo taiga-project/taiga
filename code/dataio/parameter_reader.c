@@ -65,5 +65,5 @@ int runnumber_reader(char* filename, shot_prop *shot){
         return 1;
     }
     fgets(str, MAXCHAR, fp);
-    strcpy(shot->runname, str);
+    strcpy(shot->runnumber, str);
 }
