@@ -9,7 +9,9 @@ struct beam_prop{
 };
 
 struct shot_prop{
-	char* name = "11347";
+	char* name = "11774_1000";
+	char* shotnumber = "11774";
+	char* time = "1000";
 	int runnumber = 0;  
 	int electric_field_module = 0;
 	int debug = 0;
