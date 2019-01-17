@@ -4,6 +4,13 @@
 
 #define MAXCHAR 1000
 
+char* remove_first_and_last_chars (char* str_in){
+    char* str_out = str_in;
+    str_out++;    
+    str_out[strlen(str_out)-1] = 0;
+    return str_out;
+}
+
 void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_prop *beam){
     
     double par_value_lf;
@@ -51,9 +58,3 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
     return 0;
 }
 
-char* remove_first_and_last_chars (char* str_in){
-    char* str_out = str_in;
-    str_out++;    
-    str_out[strlen(str_out)-1] = 0;
-    return str_out;
-}
