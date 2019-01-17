@@ -37,10 +37,10 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
             par_name = strtok(str, "=");
             par_value = strtok(NULL, "#");
             printf("%s\t%s\n",par_name,par_value);
-            init_taiga_props(par_name, par_value, &shot, &beam);
+            init_taiga_props(par_name, par_value, shot, beam);
         }
     }
     fclose(fp);
-    printf("beam energy: %lf\n", beam.energy);
+    printf("beam energy: %lf\n", beam->energy);
     return 0;
 }
