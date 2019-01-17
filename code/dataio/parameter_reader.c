@@ -7,12 +7,12 @@
 void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_prop *beam){
     
     double par_value_lf;
-    char par_value_s[100];
+    char par_value_s[100] = remove_first_and_last_chars(par_value);
     sscanf(par_value, "%lf", &par_value_lf);
         
     if (!strcmp(par_name, "shotnumber"))                {
-        strcpy(shot->shotnumber, par_value);
-        printf("-->%s\n",shot->shotnumber);        
+        strcpy(shot->shotnumber, par_value_s);
+        printf("-->%s --> %s\n",par_value_s, shot->shotnumber);        
     }
     else if (!strcmp(par_name, "time"))                 strcpy(shot->time, par_value);
     else if (!strcmp(par_name, "runnumber"))            shot->runnumber = par_value_lf;
@@ -49,4 +49,11 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
     strcpy(shot->name,concat(shot->shotnumber,"_",shot->time));
     beam->mass = get_mass(beam->matter);
     return 0;
+}
+
+char* remove_first_and_last_chars (char* str_in){
+    char* str_out = str_in;
+    str_out++;    
+    str_out[strlen(str_out)-1] = 0;
+    return str_out;
 }
