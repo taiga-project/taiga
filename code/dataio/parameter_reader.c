@@ -12,7 +12,7 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     sscanf(par_value, "%s", par_value_s);
     printf("->  %s %s\n",par_value,par_value_s);
         
-    if (!strcmp(par_name, "shotnumber"))                {shot->shotnumber = par_value_s; printf("-->%s\n",shot->shotnumber);}
+    if (!strcmp(par_name, "shotnumber"))                {strcmp(shot->shotnumber, par_value); printf("-->%s\n",shot->shotnumber);}
     else if (!strcmp(par_name, "time"))                 shot->time = par_value;
     else if (!strcmp(par_name, "runnumber"))            shot->runnumber = par_value_lf;
     else if (!strcmp(par_name, "matter"))               beam->matter = par_value;
