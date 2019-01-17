@@ -1,5 +1,5 @@
 struct beam_prop{
-	char* matter = "Li";
+	char matter[40] = "Li";
 	double mass = 7.016004558;
 	double energy = (double)$default_energy ;
 	double diameter = (double)$default_diameter;
@@ -9,7 +9,7 @@ struct beam_prop{
 };
 
 struct shot_prop{
-	char* name = "11774_1000";
+	char name[100] = "11774_1000";
 	char shotnumber[40] = "11774";
 	char time[40] = "1000";
 	int runnumber = 0;  
