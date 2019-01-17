@@ -46,7 +46,7 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
     fclose(fp);
     printf("DATA:%s\t%s\t%lf\n",shot->shotnumber, shot->time, beam->energy);
     printf("shot->name\t%s\n",concat(shot->shotnumber,"_",shot->time));
-    shot->name = concat(shot->shotnumber,"_",shot->time);
+    strcpy(shot->name,concat(shot->shotnumber,"_",shot->time));
     beam->mass = get_mass(beam->matter);
     return 0;
 }
