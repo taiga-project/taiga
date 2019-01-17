@@ -9,7 +9,7 @@ Load raw data
 @output double** name
 */
 
-int vectorReader(double **name, char *folder, char *shotname, char *filename, bool warning_on){
+int read_vector(double **name, char *folder, char *shotname, char *filename, bool warning_on){
 	int i = 0;
 	int j;
 	double test;
@@ -17,19 +17,14 @@ int vectorReader(double **name, char *folder, char *shotname, char *filename, bo
 	tname = *name;
 	FILE *file;
 	
-	//! create filepath
 	char path[100];
 	strcpy(path,concat(folder,"/",shotname,"/",filename));
 	
 	file = fopen(path,"r");
-/*		printf("Reading:\t%s\n",path);*/
 	if (file != NULL)	{
 		while (fscanf(file,"%lf",&test) !=EOF ) {
-			//printf("%lf\n",test);
-			//printf("%d.: %lf\n\n",i,test);
 			i++;
 		}
-		
 		fclose(file);
 	
 		tname = (double*)malloc(i*sizeof(double));
@@ -38,30 +33,24 @@ int vectorReader(double **name, char *folder, char *shotname, char *filename, bo
 		if (file != NULL)	{
 			for (j=0;  j<i ; j++ ) {
 				fscanf(file,"%lf", &tname[j]);
-				//printf("%d %lf\n",j,tname[j]);
 			}
 		}
-		
 		fclose(file);
-		
 	}else{
 		if (warning_on) printf("The following file does not exists:\n%s\n\n",path);
 		i = -1;
 	}
 	
 	*name = tname;
-	//printf("read %lf\n",*name[0]);
-		
 	return i;
-	
 }
 
-int vectorReader(double **name, char *folder, char *shotname, char *filename){
-	return vectorReader(name, folder, shotname, filename, true);
+int read_vector(double **name, char *folder, char *shotname, char *filename){
+	return read_vector(name, folder, shotname, filename, true);
 }
 
-int vectorReader(double **name, char *folder, char *shotname, char *filename, int *successful){
-	int l = vectorReader(name, folder, shotname, filename, true);
+int read_vector(double **name, char *folder, char *shotname, char *filename, int *successful){
+	int l = read_vector(name, folder, shotname, filename, true);
 	int *s;
 	if (l < 0){
 		successful[0] = 0;
