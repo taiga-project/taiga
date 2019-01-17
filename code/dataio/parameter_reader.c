@@ -4,7 +4,7 @@
 
 #define MAXCHAR 1000
 
-char* remove_first_and_last_chars (char* str_in){
+char* clean_string (char* str_in){
     char* str_out = str_in;
     str_out++;    
     str_out[strlen(str_out)-2] = 0;
@@ -14,12 +14,11 @@ char* remove_first_and_last_chars (char* str_in){
 void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_prop *beam){
     
     double par_value_lf;
-    char* par_value_s = remove_first_and_last_chars(par_value);
     sscanf(par_value, "%lf", &par_value_lf);
         
     if (!strcmp(par_name, "shotnumber"))                {
-        strcpy(shot->shotnumber, par_value_s);
-        printf("-->%s --> %s\n",par_value_s, shot->shotnumber);        
+        strcpy(shot->shotnumber, clean_string(par_value));
+        printf("-->%s \n", shot->shotnumber);        
     }
     else if (!strcmp(par_name, "time"))                 strcpy(shot->time, par_value);
     else if (!strcmp(par_name, "runnumber"))            shot->runnumber = par_value_lf;
