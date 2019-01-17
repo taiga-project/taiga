@@ -29,7 +29,7 @@
 //#include <filesystem>
 
 #include <cuda_profiler_api.h>
-#include "cuda/nvToolsExt.h"
+#include "test/cuda/nvToolsExt.h"
 
 #include "main.cuh"
 #include "basic_functions.c"
