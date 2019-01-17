@@ -12,6 +12,7 @@ struct shot_prop{
 	char name[100] = "11774_1000";
 	char shotnumber[40] = "11774";
 	char time[40] = "1000";
+	char detector_mask[40] = "test";
 	int runnumber = 0;  
 	int electric_field_module = 0;
 	int debug = 0;

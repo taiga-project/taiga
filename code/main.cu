@@ -112,7 +112,6 @@ int main(int argc, char *argv[]){
 	}
 
 	char* folder_out=concat("results/", shot.name);
-	char* detector_name = "test";
 	
 	set_cuda();
 
@@ -332,7 +331,7 @@ int main(int argc, char *argv[]){
 		}
 	}*/
 
-	detector_module(x_ptr, detector, detcellid, detector_name, max_blocks, shot.block_size, NX, folder_out, timestamp);
+	detector_module(x_ptr, detector, detcellid, shot.detector_mask, max_blocks, shot.block_size, NX, folder_out, timestamp);
 	cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
 	export_data(DETCELLID,NX,folder_out,timestamp,"detcellid.dat");
 
@@ -368,7 +367,7 @@ int main(int argc, char *argv[]){
 	export_header("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
 	export_header("Detector angle (Z/R)","°",atan(DETECTOR[3])/PI*180.0,folder_out,timestamp);
 	export_header("Detector angle (T/R)","°",atan(DETECTOR[4])/PI*180.0,folder_out,timestamp);
-	export_header(concat("Detector name: ",detector_name),folder_out,timestamp);
+	export_header(concat("Detector mask: ",shot.detector_mask),folder_out,timestamp);
 	export_header("-----------------------------------",folder_out,timestamp);
 	export_header("Timestep","s",dt,folder_out,timestamp);
 	export_header("-----------------------------------",folder_out,timestamp);

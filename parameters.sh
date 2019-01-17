@@ -9,7 +9,6 @@ particles=100000
 detector='0.685,0.23,0,38,0'
 electric_field_module=0
 #electric_field_value='erad=10*exp((-(R-0.56)/0.11)^2/2);ez=0;etor=0'
-#electric_field_value='erad=10;ez=0;etor=0'
 #magnetic_field_value='brad=0;bz=0;btor=1'
-#matlab='/home/maradi/prog/MATLAB/R2017a/bin/matlab'
 matlab='matlab'
+detector='final'
