@@ -40,7 +40,7 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
     }    
     fclose(fp);
     
-    strcmp(shot->name,concat(shot->shotnumber,"_",shot->time));
+    shot->name = concat(shot->shotnumber,"_",shot->time);
     beam->mass = get_mass(beam->matter);
     return 0;
 }
