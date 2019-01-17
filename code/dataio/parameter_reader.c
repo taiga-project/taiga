@@ -39,6 +39,7 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
             par_value = strtok(NULL, "#");
             printf("%s\t%s\n",par_name,par_value);
             init_taiga_props(par_name, par_value, shot, beam);
+            printf("==>%s\n",shot->shotnumber);
         }
     }    
     fclose(fp);
