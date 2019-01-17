@@ -14,7 +14,7 @@ char* remove_first_and_last_chars (char* str_in){
 void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_prop *beam){
     
     double par_value_lf;
-    char par_value_s[100] = remove_first_and_last_chars(par_value);
+    char* par_value_s = remove_first_and_last_chars(par_value);
     sscanf(par_value, "%lf", &par_value_lf);
         
     if (!strcmp(par_name, "shotnumber"))                {
