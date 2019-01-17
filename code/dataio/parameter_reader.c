@@ -7,7 +7,7 @@
 char* remove_first_and_last_chars (char* str_in){
     char* str_out = str_in;
     str_out++;    
-    str_out[strlen(str_out)-1] = 0;
+    str_out[strlen(str_out)-2] = 0;
     return str_out;
 }
 
