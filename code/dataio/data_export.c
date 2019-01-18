@@ -33,7 +33,7 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *fil
 }
 
 void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename){
-	export_data(dat, Ndat, folder, runnumber, filename, RAND_MAX);
+	export_data(dat, Ndat, folder, runnumber, filename, INFINITY);
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
@@ -59,7 +59,7 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filena
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
-	export_data(dat, Ndat, folder, runnumber, filename, RAND_MAX);
+	export_data(dat, Ndat, folder, runnumber, filename, INFINITY);
 }
 
 void export_header(char *dataname,char *unitname,double dat, char *folder, char *runnumber){
