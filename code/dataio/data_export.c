@@ -58,7 +58,7 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filena
 	fclose(f);
 }
 
-void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
+void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename){
 	export_data(dat, Ndat, folder, runnumber, filename, INFINITY);
 }
 

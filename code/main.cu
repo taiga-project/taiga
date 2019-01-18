@@ -18,7 +18,7 @@
 #define PI 3.141592653589792346
 #define ELEMENTARY_CHARGE 1.60217656535e-19
 #define AMU 1.66053892173e-27
-#define INFINITY 999999
+#define INFINITY RAND_MAX
 
 #include <stdio.h>
 #include <stdlib.h>
