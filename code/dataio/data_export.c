@@ -11,7 +11,7 @@ void mkdir(char *path, mode_t mode){
 }
 #endif
 
-void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename){
+void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
 	char path[100];
 	mkdir(folder, 0777);
 	mkdir(concat(folder,"/",runnumber), 0777);
@@ -26,12 +26,17 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *fil
 	//! write data
 	for (int i=0;i<Ndat;i++){
 		fprintf(f,"%le\t",dat[i]);
+		if ((i+1)%dat_per_line == 0)	fprintf(f,"\n");  
 	}
 	fprintf(f,"\n");
 	fclose(f);
 }
 
-void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename){
+void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename){
+	export_data(dat, Ndat, folder, runnumber, filename, RAND_MAX);
+}
+
+void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
 	char path[100];
 	mkdir(folder, 0777);
 	mkdir(concat(folder,"/",runnumber), 0777);
@@ -47,9 +52,14 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filena
 	//! write data
 	for (int i=0;i<Ndat;i++){
 		fprintf(f,"%d\t",dat[i]);
+		if ((i+1)%dat_per_line == 0)	fprintf(f,"\n");  
 	}
 	fprintf(f,"\n");
 	fclose(f);
+}
+
+void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
+	export_data(dat, Ndat, folder, runnumber, filename, RAND_MAX);
 }
 
 void export_header(char *dataname,char *unitname,double dat, char *folder, char *runnumber){
