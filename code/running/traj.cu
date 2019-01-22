@@ -159,7 +159,7 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 		l_vt = X[5];
 	
 		// finished? (interpolation)
-		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, det, l_x, l_vr);
+		finished = calculate_detection_position(l_r, l_z, l_t, l_or, l_oz, l_ot, det, l_x, l_vr);
 	}
 	
 	l_v[0] = l_vr;
@@ -263,7 +263,7 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 		l_vt = X[5];
 	
 		// finished? (interpolation)
-		finished = ipol(l_r, l_z, l_t, l_or, l_oz, l_ot, det, l_x, l_vr);
+		finished = calculate_detection_position(l_r, l_z, l_t, l_or, l_oz, l_ot, det, l_x, l_vr);
 	}
 	
 	l_v[0] = l_vr;

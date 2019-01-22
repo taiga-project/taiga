@@ -1,4 +1,4 @@
-__device__ int ipol(double l_r, double l_z, double l_t, double l_or, double l_oz, double l_ot, double *det, double *l_x, double l_vr){
+__device__ int calculate_detection_position(double l_r, double l_z, double l_t, double l_or, double l_oz, double l_ot, double *det, double *l_x, double l_vr){
 
 	int finished = 0;
 	
