@@ -59,17 +59,8 @@
 int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
 	int max_blocks;
 
-/*	if (argc > 1)	shot->name = argv[1];
-	if (argc > 2)	shot->runnumber = atoi(argv[2]);
-	if (argc > 3)	beam->matter = argv[3];
-	if (argc > 4)	beam->energy = atof(argv[4]);
-	if (argc > 5)	beam->vertical_deflation = atof(argv[5]);
-	if (argc > 6)	beam->diameter = atof(argv[6]);*/
-
 	if (argc > 8)	max_blocks = atoi(argv[8])/shot->block_size+1; 
 		else	max_blocks=shot->block_number;
-
-	if (argc > 9) shot->electric_field_module = atof(argv[9]);
 
 	if (argc > 10){ 
 		shot->step_host = atof(argv[10]); 
@@ -78,12 +69,7 @@ int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
 	if (argc > 11)	shot->step_device = atof(argv[11]);
 	if (argc > 12)	shot->debug = atof(argv[12]); 
 
-//	beam->mass = get_mass(beam->matter);
 	return max_blocks;   
-}
-
-int parameter_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
-    
 }
 
 int main(int argc, char *argv[]){
