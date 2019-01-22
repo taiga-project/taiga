@@ -1,10 +1,10 @@
-__device__ /*double int*/ void copy_local_field(double *rg, int NR, double *zg, int NZ, double l_r, double l_z, int *rzci, double *lp_br, double *lp_bz, double *lp_bt,  double **br_ptr, double **bz_ptr, double **bt_ptr){
+__device__ /*double int*/ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double l_r, double l_z, int *rzci, double *lp_br, double *lp_bz, double *lp_bt,  double **br_ptr, double **bz_ptr, double **bt_ptr){
 	int rci, zci;
 	int i, i2;
 	
-	for(rci=0;(rg[rci+1]<l_r)&&(rci<NR-1);rci++){;}	
+	for(rci=0;(r_grid[rci+1]<l_r)&&(rci<NR-1);rci++){;}	
 	
-	for(zci=0;(zg[zci+1]<l_z)&&(zci<NR-1);zci++){;}	
+	for(zci=0;(z_grid[zci+1]<l_z)&&(zci<NR-1);zci++){;}	
 	
 	// Particle leave out the cell
 	if ((rzci[0]!=rci)||(rzci[1]!=zci)){
@@ -25,14 +25,14 @@ __device__ /*double int*/ void copy_local_field(double *rg, int NR, double *zg, 
 	//return i2;	
 }
 
-__device__ /*double int*/ void copy_local_field(double *rg, int NR, double *zg, int NZ, double l_r, double l_z, int *rzci, double *lp_br, double *lp_bz, double *lp_bt,  double **br_ptr, double **bz_ptr, double **bt_ptr,
+__device__ /*double int*/ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double l_r, double l_z, int *rzci, double *lp_br, double *lp_bz, double *lp_bt,  double **br_ptr, double **bz_ptr, double **bt_ptr,
 										double *lp_er, double *lp_ez, double *lp_et,  double **er_ptr, double **ez_ptr, double **et_ptr){
 	int rci, zci;
 	int i, i2;
 	
-	for(rci=0;(rg[rci+1]<l_r)&&(rci<NR-1);rci++){;}	
+	for(rci=0;(r_grid[rci+1]<l_r)&&(rci<NR-1);rci++){;}	
 	
-	for(zci=0;(zg[zci+1]<l_z)&&(zci<NR-1);zci++){;}	
+	for(zci=0;(z_grid[zci+1]<l_z)&&(zci<NR-1);zci++){;}	
 	
 	// Particle leave out the cell
 	if ((rzci[0]!=rci)||(rzci[1]!=zci)){
@@ -81,7 +81,7 @@ __device__ double calculate_local_field(double *lp_b, double dr, double dz){
 }
 
 
-__device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double *det, int N_step, int local_detcellid){
+__device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double *det, int N_step, int local_detcellid){
 
 	// next grid
 	int rzci[2];
@@ -99,7 +99,6 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 	double l_vr, l_vz, l_vt, l_vor, l_voz, l_vot;
 	double l_r,  l_z,   l_t, l_or,  l_oz,  l_ot;
 
-	// X = [R,vR,z,vZ,T,vT]
 	double X[6];
 	
 	int finished = local_detcellid + 1;
@@ -119,18 +118,18 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 		// Get local magnetic field
 
 		l_rT = cyl2tor_coord(l_r, l_t);
-		copy_local_field(rg,NR,zg,NZ,l_rT,l_z,rzci,lp_br,lp_bz,lp_bt,br_ptr,bz_ptr,bt_ptr);
+		copy_local_field(r_grid,NR,z_grid,NZ,l_rT,l_z,rzci,lp_br,lp_bz,lp_bt,br_ptr,bz_ptr,bt_ptr);
 		
-		//dr = l_r-rg[rzci[0]];
-		dr = l_rT-rg[rzci[0]];
-		dz = l_z-zg[rzci[1]];
+		//dr = l_r-r_grid[rzci[0]];
+		dr = l_rT-r_grid[rzci[0]];
+		dz = l_z-z_grid[rzci[1]];
 	
 		l_br =  calculate_local_field(lp_br,dr,dz);
 		l_bz =  calculate_local_field(lp_bz,dr,dz);
 		l_bt =  calculate_local_field(lp_bt,dr,dz);
 
 		l_br = cyl2tor_rad(l_br, l_bt, l_r, l_t);
-		l_bt = cyl2tor_tor(l_br, l_bt, l_r, l_t);
+		l_bt = cyl2tor_field(l_br, l_bt, l_r, l_t);
 	
 		// archivate coordinates
 		l_or  = l_r;	l_oz  = l_z;	l_ot  = l_t;
@@ -177,7 +176,7 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 	return local_detcellid;
 }
 
-__device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double *det, int N_step, int local_detcellid){
+__device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *l_x, double *l_v, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double *det, int N_step, int local_detcellid){
 
 	// next grid
 	int rzci[2];
@@ -219,22 +218,22 @@ __device__ int traj(double *rg, int NR, double *zg, int NZ, double *l_x, double 
 		// Get local magnetic field
 
 		l_rT = cyl2tor_coord(l_r, l_t);
-		copy_local_field(rg,NR,zg,NZ,l_rT,l_z,rzci,lp_br,lp_bz,lp_bt,br_ptr,bz_ptr,bt_ptr,lp_er,lp_ez,lp_et,er_ptr,ez_ptr,et_ptr);
+		copy_local_field(r_grid,NR,z_grid,NZ,l_rT,l_z,rzci,lp_br,lp_bz,lp_bt,br_ptr,bz_ptr,bt_ptr,lp_er,lp_ez,lp_et,er_ptr,ez_ptr,et_ptr);
 		
-		dr = l_rT-rg[rzci[0]];
-		dz = l_z-zg[rzci[1]];
+		dr = l_rT-r_grid[rzci[0]];
+		dz = l_z-z_grid[rzci[1]];
 	
 		l_br =  calculate_local_field(lp_br,dr,dz);
 		l_bz =  calculate_local_field(lp_bz,dr,dz);
 		l_bt =  calculate_local_field(lp_bt,dr,dz);
 		l_br = cyl2tor_rad(l_br, l_bt, l_r, l_t);
-		l_bt = cyl2tor_tor(l_br, l_bt, l_r, l_t);
+		l_bt = cyl2tor_field(l_br, l_bt, l_r, l_t);
 		
 		l_er =  calculate_local_field(lp_er,dr,dz);
 		l_ez =  calculate_local_field(lp_ez,dr,dz);
-		l_et =  calculate_local_field(lp_et,dr,dz);		
+		l_et =  calculate_local_field(lp_et,dr,dz);
 		l_er = cyl2tor_rad(l_er, l_et, l_r, l_t);
-		l_et = cyl2tor_tor(l_er, l_et, l_r, l_t);
+		l_et = cyl2tor_field(l_er, l_et, l_r, l_t);
 
 		// archivate coordinates
 		l_or  = l_r;	l_oz  = l_z;	l_ot  = l_t;

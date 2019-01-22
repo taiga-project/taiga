@@ -38,7 +38,7 @@ __device__ double cyl2tor_rad(double l_br, double l_bt, double l_r, double l_t){
 
 
 // field: B_tor{CYL} -> B_tor{TOR}
-__device__ double cyl2tor_tor(double l_br, double l_bt, double l_r, double l_t){
+__device__ double cyl2tor_field(double l_br, double l_bt, double l_r, double l_t){
 
 	double tanxr = l_t/l_r;
 //	double cosxr = (1+tanxr*tanxr);
