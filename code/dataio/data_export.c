@@ -117,3 +117,7 @@ void export_header(char *text, char *folder, char *runnumber){
 	fprintf(f,"\n");
 	fclose(f);
 }
+
+void export_header_addline(char *runnumber, char *filename){    
+	export_header("-----------------------------------", folder, runnumber);
+}

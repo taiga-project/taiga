@@ -335,9 +335,9 @@ int main(int argc, char *argv[]){
     
 	export_header(concat("Shot ID: ",shot.name), folder_out, timestamp);
 	export_header(concat("Run ID:  ",timestamp), folder_out, timestamp);
-	export_header("-----------------------------------", folder_out, timestamp);
+	export_header_addline(folder_out, timestamp);
 	export_header(concat("version: r ",SVN_REV), folder_out, timestamp);
-	export_header("-----------------------------------", folder_out, timestamp);
+	export_header_addline(folder_out, timestamp);
 	export_header("ABP ION TRAJECTORIES", folder_out, timestamp);
 	export_header("(Real ionization position)", folder_out, timestamp); 
 
@@ -346,7 +346,7 @@ int main(int argc, char *argv[]){
 	}else if(RENATE==110){
 		export_header("(TS + Renate 1.1.0)", folder_out, timestamp);
 	}
-	export_header("-----------------------------------", folder_out, timestamp);
+	export_header_addline(folder_out, timestamp);
 
 	if(!READINPUTPROF){
 		export_header("Beam energy", "keV", beam.energy, folder_out, timestamp);
@@ -356,18 +356,18 @@ int main(int argc, char *argv[]){
 	}
 	
 	export_header("Number of ions", "", (double)NX, folder_out, timestamp);
-	export_header("-----------------------------------", folder_out, timestamp);
+	export_header_addline(folder_out, timestamp);
 	export_header("Detector position (R)", "m", DETECTOR[0], folder_out, timestamp);
 	export_header("Detector position (Z)", "m", DETECTOR[1], folder_out, timestamp);
 	export_header("Detector position (T)", "m", DETECTOR[2], folder_out, timestamp);
 	export_header("Detector angle (Z/R)", "°", atan(DETECTOR[3])/PI*180.0, folder_out, timestamp);
 	export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])/PI*180.0, folder_out, timestamp);
 	export_header(concat("Detector mask: ", shot.detector_mask), folder_out, timestamp);
-	export_header("-----------------------------------", folder_out, timestamp);
+	export_header_addline(folder_out, timestamp);
 	export_header("Timestep", "s", dt, folder_out, timestamp);
-	export_header("-----------------------------------", folder_out, timestamp);
+	export_header_addline(folder_out, timestamp);
 	export_header("Kernel runtime", "s", runtime/1000.0, folder_out, timestamp);
-	export_header("-----------------------------------", folder_out, timestamp);
+	export_header_addline(folder_out, timestamp);
 	export_header("Number of blocks (threads)", "", max_blocks, folder_out, timestamp);
 	export_header("Block size", "", shot.block_size, folder_out, timestamp);
 	export_header("Length of a loop", "", shot.step_device, folder_out, timestamp);
