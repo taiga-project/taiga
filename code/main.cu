@@ -108,7 +108,7 @@ int main(int argc, char *argv[]){
 
 	if (READINPUTPROF == 1){
 		double *XR;
-		NX = read_vector(&XR, "input","manual_profile","rad.dat");
+		NX = read_vector(&XR, "input", "manual_profile", "rad.dat");
 		max_blocks = NX / shot.block_size+1;
 	}
 
@@ -207,18 +207,18 @@ int main(int argc, char *argv[]){
 	double **br_ptr, **bz_ptr, **bt_ptr;
 	double **er_ptr, **ez_ptr, **et_ptr;
 	
-	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);	
+	int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
 	if (shot.electric_field_module)	shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
 	
 	// detector cell id
 	size_t dimRint = NX * sizeof(int);
 	int *DETCELLID, *detcellid;
-	DETCELLID = (int *)malloc(dimRint);	cudaMalloc((void **) &detcellid,  dimRint); 	
+	DETCELLID = (int *)malloc(dimRint);	cudaMalloc((void **) &detcellid,  dimRint);
 	
 	// temporary test data
 	size_t dimService = 10 * sizeof(double);
 	double *SERVICE_VAR, *service_var;
-	SERVICE_VAR = (double *)malloc(dimService);	cudaMalloc((void **) &service_var,  dimService); 
+	SERVICE_VAR = (double *)malloc(dimService);	cudaMalloc((void **) &service_var,  dimService);
 
 	//! CUDA profiler START
 	cudaProfilerStart();
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(g_ptr, G_PTR, dimG, cudaMemcpyHostToDevice);
 
 	//! ION COORDS (HOST2device)
-	cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
+	cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);
 
 	//! ION SPEEDS (HOST2device)
 	cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
@@ -240,12 +240,12 @@ int main(int argc, char *argv[]){
 	cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
 	
 	// OUTPUT INIT
-	export_data(XR,NX,folder_out,timestamp,"t_rad.dat");
-	export_data(XZ,NX,folder_out,timestamp,"t_z.dat");
-	export_data(XT,NX,folder_out,timestamp,"t_tor.dat");
-	export_data(VR,NX,folder_out,timestamp,"t_vrad.dat");
-	export_data(VZ,NX,folder_out,timestamp,"t_vz.dat");
-	export_data(VT,NX,folder_out,timestamp,"t_vtor.dat");
+	export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
+	export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
+	export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
+	export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
+	export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
+	export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
 
 	//! Set CUDA timer 
 	cudaEvent_t start, stop;
@@ -261,14 +261,14 @@ int main(int argc, char *argv[]){
 		cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
 		cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
 		cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
-		//cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);	
+		//cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);
 
 		// ION SPEEDS (HOST2device)
 		cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
 		cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
 		cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
 		//cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
-				
+		
 		//ERRORCHECK();
 		
 		cudaEventRecord(start, 0);
@@ -298,12 +298,12 @@ int main(int argc, char *argv[]){
 		
 		// Save data to files
 		printf("Step\t%d/%d\n",step_i,shot.step_host);
-		export_data(XR,NX,folder_out,timestamp,"t_rad.dat");
-		export_data(XZ,NX,folder_out,timestamp,"t_z.dat");
-		export_data(XT,NX,folder_out,timestamp,"t_tor.dat");
-		export_data(VR,NX,folder_out,timestamp,"t_vrad.dat");
-		export_data(VZ,NX,folder_out,timestamp,"t_vz.dat");
-		export_data(VT,NX,folder_out,timestamp,"t_vtor.dat");
+		export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
+		export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
+		export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
+		export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
+		export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
+		export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
 		
 		if (shot.debug == 1)	debug_message_run(XR, XZ, XT, VR, VZ, VT);
 
@@ -326,72 +326,66 @@ int main(int argc, char *argv[]){
 		printf("\n	Memcopy OK.\n");
 	}
 
-	/*if (shot.debug == 1){
-		for (int i=0;i<10;i++) {
-			printf("SERVICE_VAR%d\t%lf\n",i,SERVICE_VAR[i]);
-		}
-	}*/
-
 	detector_module(x_ptr, detector, detcellid, shot.detector_mask, max_blocks, shot.block_size, NX, folder_out, timestamp);
 	cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
-	export_data(DETCELLID,NX,folder_out,timestamp,"detcellid.dat");
+	export_data(DETCELLID, NX, folder_out, timestamp, "detcellid.dat");
 
 	//! CUDA profiler STOP
 	cudaProfilerStop();
     
-	export_header(concat("Shot ID: ",shot.name),folder_out,timestamp);
-	export_header(concat("Run ID:  ",timestamp),folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	export_header(concat("version: r ",SVN_REV),folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	export_header("ABP ION TRAJECTORIES",folder_out,timestamp);
-	export_header("(Real ionization position)",folder_out,timestamp); 
+	export_header(concat("Shot ID: ",shot.name), folder_out, timestamp);
+	export_header(concat("Run ID:  ",timestamp), folder_out, timestamp);
+	export_header("-----------------------------------", folder_out, timestamp);
+	export_header(concat("version: r ",SVN_REV), folder_out, timestamp);
+	export_header("-----------------------------------", folder_out, timestamp);
+	export_header("ABP ION TRAJECTORIES", folder_out, timestamp);
+	export_header("(Real ionization position)", folder_out, timestamp); 
 
 	if(READINPUTPROF==1){
-		export_header("(3D input)",folder_out,timestamp);			
+		export_header("(3D input)", folder_out, timestamp);			
 	}else if(RENATE==110){
-		export_header("(TS + Renate 1.1.0)",folder_out,timestamp);
+		export_header("(TS + Renate 1.1.0)", folder_out, timestamp);
 	}
-	export_header("-----------------------------------",folder_out,timestamp);
+	export_header("-----------------------------------", folder_out, timestamp);
 
 	if(!READINPUTPROF){
-		export_header("Beam energy","keV",beam.energy,folder_out,timestamp);
-		export_header("Atomic mass","AMU",beam.mass,folder_out,timestamp);
-		export_header("Beam diameter","mm",beam.diameter,folder_out,timestamp);
-		export_header("Deflation (toroidal/vertical)","°",beam.toroidal_deflation,beam.vertical_deflation,folder_out,timestamp);
+		export_header("Beam energy", "keV", beam.energy, folder_out, timestamp);
+		export_header("Atomic mass", "AMU", beam.mass, folder_out, timestamp);
+		export_header("Beam diameter", "mm", beam.diameter, folder_out, timestamp);
+		export_header("Deflation (toroidal/vertical)", "°", beam.toroidal_deflation, beam.vertical_deflation, folder_out, timestamp);
 	}
 	
-	export_header("Number of ions","",(double)NX,folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	export_header("Detector position (R)","m",DETECTOR[0],folder_out,timestamp);
-	export_header("Detector position (Z)","m",DETECTOR[1],folder_out,timestamp);
-	export_header("Detector position (T)","m",DETECTOR[2],folder_out,timestamp);
-	export_header("Detector angle (Z/R)","°",atan(DETECTOR[3])/PI*180.0,folder_out,timestamp);
-	export_header("Detector angle (T/R)","°",atan(DETECTOR[4])/PI*180.0,folder_out,timestamp);
-	export_header(concat("Detector mask: ",shot.detector_mask),folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	export_header("Timestep","s",dt,folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	export_header("Kernel runtime", "s", runtime/1000.0,folder_out,timestamp);
-	export_header("-----------------------------------",folder_out,timestamp);
-	export_header("Number of blocks (threads)", "", max_blocks,folder_out,timestamp);
-	export_header("Block size", "", shot.block_size,folder_out,timestamp);
-	export_header("Length of a loop", "", shot.step_device,folder_out,timestamp);
-	export_header("Number of loops", "", shot.step_host,folder_out,timestamp);
+	export_header("Number of ions", "", (double)NX, folder_out, timestamp);
+	export_header("-----------------------------------", folder_out, timestamp);
+	export_header("Detector position (R)", "m", DETECTOR[0], folder_out, timestamp);
+	export_header("Detector position (Z)", "m", DETECTOR[1], folder_out, timestamp);
+	export_header("Detector position (T)", "m", DETECTOR[2], folder_out, timestamp);
+	export_header("Detector angle (Z/R)", "°", atan(DETECTOR[3])/PI*180.0, folder_out, timestamp);
+	export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])/PI*180.0, folder_out, timestamp);
+	export_header(concat("Detector mask: ", shot.detector_mask), folder_out, timestamp);
+	export_header("-----------------------------------", folder_out, timestamp);
+	export_header("Timestep", "s", dt, folder_out, timestamp);
+	export_header("-----------------------------------", folder_out, timestamp);
+	export_header("Kernel runtime", "s", runtime/1000.0, folder_out, timestamp);
+	export_header("-----------------------------------", folder_out, timestamp);
+	export_header("Number of blocks (threads)", "", max_blocks, folder_out, timestamp);
+	export_header("Block size", "", shot.block_size, folder_out, timestamp);
+	export_header("Length of a loop", "", shot.step_device, folder_out, timestamp);
+	export_header("Number of loops", "", shot.step_host, folder_out, timestamp);
 
 	//! Save data to files
-	export_data(XR,NX,folder_out,timestamp,"rad.dat");
-	export_data(XZ,NX,folder_out,timestamp,"z.dat");
-	export_data(XT,NX,folder_out,timestamp,"tor.dat");
-	export_data(VR,NX,folder_out,timestamp,"vrad.dat");
-	export_data(VZ,NX,folder_out,timestamp,"vz.dat");
-	export_data(VT,NX,folder_out,timestamp,"vtor.dat");
+	export_data(XR, NX, folder_out, timestamp, "rad.dat");
+	export_data(XZ, NX, folder_out, timestamp, "z.dat");
+	export_data(XT, NX, folder_out, timestamp, "tor.dat");
+	export_data(VR, NX, folder_out, timestamp, "vrad.dat");
+	export_data(VZ, NX, folder_out, timestamp, "vz.dat");
+	export_data(VT, NX, folder_out, timestamp, "vtor.dat");
 
-	printf("\nData folder: %s/%s\n\n",folder_out,timestamp);
+	printf("\nData folder: %s/%s\n\n", folder_out, timestamp);
 
 	//! Free CUDA
 	cudaFree(x_ptr);	cudaFree(xr);	cudaFree(xz);	cudaFree(xt);
-	cudaFree(g_ptr);	cudaFree(rg);	cudaFree(zg);		
+	cudaFree(g_ptr);	cudaFree(rg);	cudaFree(zg);
 	cudaFree(br_ptr);	cudaFree(bz_ptr);	cudaFree(bt_ptr);
 	cudaFree(er_ptr);	cudaFree(ez_ptr);	cudaFree(et_ptr);
 
@@ -530,7 +524,7 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 		cudaMemcpy(s12, S12, dimRZ, cudaMemcpyHostToDevice);
 		cudaMemcpy(s13, S13, dimRZ, cudaMemcpyHostToDevice);
 		cudaMemcpy(s14, S14, dimRZ, cudaMemcpyHostToDevice);
-		cudaMemcpy(s15, S15, dimRZ, cudaMemcpyHostToDevice);			
+		cudaMemcpy(s15, S15, dimRZ, cudaMemcpyHostToDevice);
 		cudaMemcpy(s_ptr, S_PTR, dimB, cudaMemcpyHostToDevice);   
 		free(S0);	free(S1);	free(S2);	free(S3);
 		free(S4);	free(S5);	free(S6);	free(S7);	
