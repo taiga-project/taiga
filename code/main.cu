@@ -225,7 +225,7 @@ int main(int argc, char *argv[]){
 	
 	//! MEMCOPY (HOST2device)
 
-	//! GRID COORDS	
+	//! GRID COORDS
 	cudaMemcpy(rg, RG, dimR, cudaMemcpyHostToDevice);
 	cudaMemcpy(zg, ZG, dimZ, cudaMemcpyHostToDevice);
 	cudaMemcpy(g_ptr, G_PTR, dimG, cudaMemcpyHostToDevice);
@@ -294,8 +294,6 @@ int main(int argc, char *argv[]){
 		cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
 		//ERRORCHECK();
 		
-		//ERRORCHECK();
-		
 		// Save data to files
 		printf("Step\t%d/%d\n",step_i,shot.step_host);
 		export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
@@ -306,12 +304,6 @@ int main(int argc, char *argv[]){
 		export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
 		
 		if (shot.debug == 1)	debug_message_run(XR, XZ, XT, VR, VZ, VT);
-
-		/*if (shot.step_host > 1){
-			for (int i = 1; (i < NX && XR[i] == detector); i++){;
-				if (i == NX-1) shot.step_host = step_i;
-			}
-		}*/
 	}
 
 	// Get CUDA timer 
@@ -342,7 +334,7 @@ int main(int argc, char *argv[]){
 	export_header("(Real ionization position)", folder_out, timestamp); 
 
 	if(READINPUTPROF==1){
-		export_header("(3D input)", folder_out, timestamp);			
+		export_header("(3D input)", folder_out, timestamp);
 	}else if(RENATE==110){
 		export_header("(TS + Renate 1.1.0)", folder_out, timestamp);
 	}
@@ -440,7 +432,6 @@ int set_cuda(){
 			cudaGetDeviceProperties(&properties, device);
 			printf("\t%d:\t%s\n",device,&properties.name);
 		}
-
 	}
 
 	cudaDeviceProp prop;
@@ -592,9 +583,7 @@ int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double
 	return s;
 }
 
-
 // DEBUG
-
 void debug_message_init(double* XR, double* XZ, double* XT, double* VR, double* VZ, double* VT){
 		printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
 		printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
