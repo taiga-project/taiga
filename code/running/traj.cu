@@ -1,4 +1,6 @@
-__device__ /*double int*/ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double position_rad, double position_z, int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **br_ptr, double **bz_ptr, double **bt_ptr){
+#define SPINE_INDEX_ERROR -1
+
+__device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double position_rad, double position_z, int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **spline_brad, double **spline_bz, double **spline_btor){
 	int rci, zci;
 	int i, i2;
 	
@@ -8,25 +10,25 @@ __device__ /*double int*/ void copy_local_field(double *r_grid, int NR, double *
 	
 	// Particle leave out the cell
 	if ((local_spline_indices[0]!=rci)||(local_spline_indices[1]!=zci)){
-		local_spline_indices[0]=rci;
-		local_spline_indices[1]=zci;
+		local_spline_indices[0] = rci;
+		local_spline_indices[1] = zci;
 	
 		for(i=0;i<16;i++){
 	
 			i2 = (local_spline_indices[0])*(NZ-1)+local_spline_indices[1];
 		
-			local_spline_brad[i]=br_ptr[i][i2];
-			local_spline_bz[i]=bz_ptr[i][i2];
-			local_spline_btor[i]=bt_ptr[i][i2];
+			local_spline_brad[i] = spline_brad[i][i2];
+			local_spline_bz[i]   = spline_bz[i][i2];
+			local_spline_btor[i] = spline_btor[i][i2];
 		
 		}
 	}
 	
-	//return i2;	
+	//return i2;
 }
 
-__device__ /*double int*/ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double position_rad, double position_z, int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **br_ptr, double **bz_ptr, double **bt_ptr,
-										double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,  double **er_ptr, double **ez_ptr, double **et_ptr){
+__device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double position_rad, double position_z, int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **spline_brad, double **spline_bz, double **spline_btor,
+								double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,  double **spline_erad, double **spline_ez, double **spline_etor){
 	int rci, zci;
 	int i, i2;
 	
@@ -35,20 +37,20 @@ __device__ /*double int*/ void copy_local_field(double *r_grid, int NR, double *
 	for(zci=0;(z_grid[zci+1]<position_z)&&(zci<NR-1);zci++){;}
 	
 	// Particle leave out the cell
-	if ((local_spline_indices[0]!=rci)||(local_spline_indices[1]!=zci)){
-		local_spline_indices[0]=rci;
-		local_spline_indices[1]=zci;
+	if ((local_spline_indices[0] != rci) || (local_spline_indices[1] != zci)){
+		local_spline_indices[0] = rci;
+		local_spline_indices[1] = zci;
 	
 		for(i=0;i<16;i++){
 	
 			i2 = (local_spline_indices[0])*(NZ-1)+local_spline_indices[1];
 		
-			local_spline_brad[i]=br_ptr[i][i2];
-			local_spline_bz[i]=bz_ptr[i][i2];
-			local_spline_btor[i]=bt_ptr[i][i2];
-			local_spline_erad[i]=er_ptr[i][i2];
-			local_spline_ez[i]=ez_ptr[i][i2];
-			local_spline_etor[i]=et_ptr[i][i2];
+			local_spline_brad[i] = spline_brad[i][i2];
+			local_spline_bz[i]   = spline_bz[i][i2];
+			local_spline_btor[i] = spline_btor[i][i2];
+			local_spline_erad[i] = spline_erad[i][i2];
+			local_spline_ez[i]   = spline_ez[i][i2];
+			local_spline_etor[i] = spline_etor[i][i2];
 		
 		}
 	}
@@ -64,16 +66,16 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
 				c31(bs1,bs2)*dsx  *dsy^3 + c32(bs1,bs2)*dsx  *dsy^2 + c33(bs1,bs2)*dsx  *dsy + c34(bs1,bs2)*dsx    + ...
 				c41(bs1,bs2)      *dsy^3 + c42(bs1,bs2)      *dsy^2 + c43(bs1,bs2)      *dsy + c44(bs1,bs2);*/
 
-	double local_field = 0.0, tmp[16] ;
+	double local_field = 0.0, local_field_comp[16] ;
 	for(int i=0;i<4;i++){
 		for(int j=0;j<4;j++){
-			tmp[i*4+j] = local_spline[i*4+j]*pow(dr,3-i)*pow(dz,3-j);
+			local_field_comp[i*4+j] = local_spline[i*4+j]*pow(dr,3-i)*pow(dz,3-j);
 		}
 	}   
     
 	for(int i=0;i<4;i++){
     	for(int j=0;j<4;j++){
-			local_field+=tmp[i*4+j];
+			local_field += local_field_comp[i*4+j];
 		}
 	}   
 
@@ -81,12 +83,12 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
 }
 
 
-__device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **br_ptr, double **bz_ptr, double **bt_ptr, double eperm, double *detector_geometry, int N_step, int local_detcellid){
+__device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **spline_brad, double **spline_bz, double **spline_btor, double eperm, double *detector_geometry, int N_step, int local_detcellid){
 
 	// next grid
 	int local_spline_indices[2];
-	local_spline_indices[0]=-1;
-	local_spline_indices[1]=-1;
+	local_spline_indices[0] = SPINE_INDEX_ERROR;
+	local_spline_indices[1] = SPINE_INDEX_ERROR;
 		
 	double local_spline_brad[16];
 	double local_spline_bz[16];
@@ -97,7 +99,7 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
 	double position_rad_torus;
 	
 	double speed_rad, speed_z, speed_tor, speed_rad_prev, speed_z_prev, speed_tor_prev;
-	double position_rad,  position_z,   position_tor, position_rad_prev,  position_z_prev,  position_tor_prev;
+	double position_rad ,position_z, position_tor, position_rad_prev, position_z_prev, position_tor_prev;
 
 	double X[6];
 	
@@ -116,14 +118,14 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
 		// Get local magnetic field
 
 		position_rad_torus = cyl2tor_coord(position_rad, position_tor);
-		copy_local_field(r_grid,NR,z_grid,NZ,position_rad_torus,position_z,local_spline_indices,local_spline_brad,local_spline_bz,local_spline_btor,br_ptr,bz_ptr,bt_ptr);
+		copy_local_field(r_grid, NR, z_grid, NZ, position_rad_torus, position_z, local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, spline_brad, spline_bz, spline_btor);
 		
 		dr = position_rad_torus-r_grid[local_spline_indices[0]];
 		dz = position_z-z_grid[local_spline_indices[1]];
 	
-		local_brad =  calculate_local_field(local_spline_brad,dr,dz);
-		local_bz =  calculate_local_field(local_spline_bz,dr,dz);
-		local_btor =  calculate_local_field(local_spline_btor,dr,dz);
+		local_brad = calculate_local_field(local_spline_brad,dr,dz);
+		local_bz   = calculate_local_field(local_spline_bz,  dr,dz);
+		local_btor = calculate_local_field(local_spline_btor,dr,dz);
 
 		local_brad = cyl2tor_rad(local_brad, local_btor, position_rad, position_tor);
 		local_btor = cyl2tor_field(local_brad, local_btor, position_rad, position_tor);
@@ -173,12 +175,12 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
 	return local_detcellid;
 }
 
-__device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **br_ptr, double **bz_ptr, double **bt_ptr, double **er_ptr, double **ez_ptr, double **et_ptr, double eperm, double *detector_geometry, int N_step, int local_detcellid){
+__device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_erad, double **spline_ez, double **spline_etor, double eperm, double *detector_geometry, int N_step, int local_detcellid){
 
 	// next grid
 	int local_spline_indices[2];
-	local_spline_indices[0]=-1;
-	local_spline_indices[1]=-1;
+	local_spline_indices[0] = SPINE_INDEX_ERROR;
+	local_spline_indices[1] = SPINE_INDEX_ERROR;
     
 	double local_spline_brad[16];
 	double local_spline_bz[16];
@@ -194,7 +196,7 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
 	double position_rad_torus;
 	
 	double speed_rad, speed_z, speed_tor, speed_rad_prev, speed_z_prev, speed_tor_prev;
-	double position_rad,  position_z,   position_tor, position_rad_prev,  position_z_prev,  position_tor_prev;
+	double position_rad, position_z, position_tor, position_rad_prev, position_z_prev, position_tor_prev;
 
 	double X[6];
 	
@@ -213,20 +215,20 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
 		// Get local magnetic field
 
 		position_rad_torus = cyl2tor_coord(position_rad, position_tor);
-		copy_local_field(r_grid,NR,z_grid,NZ,position_rad_torus,position_z,local_spline_indices,local_spline_brad,local_spline_bz,local_spline_btor,br_ptr,bz_ptr,bt_ptr,local_spline_erad,local_spline_ez,local_spline_etor,er_ptr,ez_ptr,et_ptr);
+		copy_local_field(r_grid, NR, z_grid, NZ, position_rad_torus, position_z, local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, spline_brad, spline_bz, spline_btor, local_spline_erad, local_spline_ez, local_spline_etor, spline_erad, spline_ez, spline_etor);
 		
 		dr = position_rad_torus-r_grid[local_spline_indices[0]];
 		dz = position_z-z_grid[local_spline_indices[1]];
 	
-		local_brad =  calculate_local_field(local_spline_brad,dr,dz);
-		local_bz =  calculate_local_field(local_spline_bz,dr,dz);
-		local_btor =  calculate_local_field(local_spline_btor,dr,dz);
+		local_brad = calculate_local_field(local_spline_brad,dr,dz);
+		local_bz   = calculate_local_field(local_spline_bz,  dr,dz);
+		local_btor = calculate_local_field(local_spline_btor,dr,dz);
 		local_brad = cyl2tor_rad(local_brad, local_btor, position_rad, position_tor);
 		local_btor = cyl2tor_field(local_brad, local_btor, position_rad, position_tor);
 		
-		local_erad =  calculate_local_field(local_spline_erad,dr,dz);
-		local_ez =  calculate_local_field(local_spline_ez,dr,dz);
-		local_etor =  calculate_local_field(local_spline_etor,dr,dz);
+		local_erad = calculate_local_field(local_spline_erad,dr,dz);
+		local_ez   = calculate_local_field(local_spline_ez,  dr,dz);
+		local_etor = calculate_local_field(local_spline_etor,dr,dz);
 		local_erad = cyl2tor_rad(local_erad, local_etor, position_rad, position_tor);
 		local_etor = cyl2tor_field(local_erad, local_etor, position_rad, position_tor);
 
