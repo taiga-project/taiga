@@ -110,8 +110,6 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *l_x,
 	l_vr = l_v[0];
 	l_vz = l_v[1];
 	l_vt = l_v[2];
-
-	l_x[0]=0.0;
 	
 	int loopi;
 	for (loopi=0;(loopi<N_step && (!finished));loopi++){
@@ -210,8 +208,6 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *l_x,
 	l_vr = l_v[0];
 	l_vz = l_v[1];
 	l_vt = l_v[2];
-
-	l_x[0]=0.0;
 	
 	int loopi;
 	for (loopi=0;(loopi<N_step && (!finished));loopi++){
