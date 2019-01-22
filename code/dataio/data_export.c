@@ -118,6 +118,6 @@ void export_header(char *text, char *folder, char *runnumber){
 	fclose(f);
 }
 
-void export_header_addline(char *runnumber, char *filename){    
+void export_header_addline(char *folder, char *filename){    
 	export_header("-----------------------------------", folder, runnumber);
 }
