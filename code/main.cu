@@ -73,7 +73,7 @@ int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
 }
 
 int main(int argc, char *argv[]){
-	//! @param shotname name of shot folder input folder (8714,11344,11347)	
+	//! @param shotname name of shot folder input folder (8714,11344,11347)
 	
 	shot_prop shot;
 	beam_prop beam;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]){
 	//! grid pointers
 	double *G_PTR[2];
 	double **g_ptr;
-	size_t dimG = 2*sizeof(double*);	
+	size_t dimG = 2*sizeof(double*);
 	cudaMalloc((void **) &g_ptr,  dimG); 
 	double *RG, *rg;
 	double *ZG, *zg;
@@ -299,9 +299,9 @@ int main(int argc, char *argv[]){
 	//! MEMCOPY (device2HOST)
 	cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
 	if(SERVICE_VAR[0]!=42.24){
-		printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n +----------------------------+\n");
+		printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Error code: %15lf |\n+----------------------------+\n", SERVICE_VAR[0]);
 	}else{
-		printf("\n	Memcopy OK.\n");
+		printf("\n Memcopy OK.\n");
 	}
 
 	detector_module(x_ptr, detector, detcellid, shot.detector_mask, max_blocks, shot.block_size, NX, folder_out, timestamp);
@@ -368,7 +368,7 @@ int main(int argc, char *argv[]){
 	cudaFree(er_ptr);	cudaFree(ez_ptr);	cudaFree(et_ptr);
 
 	//! Free RAM
-	free(RG);	free(ZG);	
+	free(RG);	free(ZG);
 	free(XR);	free(XZ);	free(XT);
 	
 	//! FREE SERVICE_VAR variables (RAM, cuda)
@@ -516,7 +516,7 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 	}
 	
 	*return_s_ptr = s_ptr; 
-	return suc[0];	
+	return suc[0];
 
 }
 
@@ -540,18 +540,16 @@ int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double
 }
 
 void set_detector_geometry(double *DETECTOR, char* values){
-
 	char *el; 
 	el = strtok(values,",");	DETECTOR[0] = strtod (el, NULL);
 	el = strtok(NULL,",");	DETECTOR[1] = strtod (el, NULL);
 	el = strtok(NULL,",");	DETECTOR[2] = tan(strtod (el, NULL) * PI/180.0);
 	el = strtok(NULL,",");	DETECTOR[3] = tan(strtod (el, NULL) * PI/180.0);
-
 }
 
-int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){	
+int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){
 
-	size_t dimB = 16*sizeof(double*);	
+	size_t dimB = 16*sizeof(double*);
 	double *ER_PTR[16];	double **er_ptr;	cudaMalloc((void **) &er_ptr,  dimB);
 	double *ET_PTR[16];	double **et_ptr;	cudaMalloc((void **) &et_ptr,  dimB);
 	double *EZ_PTR[16];	double **ez_ptr;	cudaMalloc((void **) &ez_ptr,  dimB);
@@ -581,8 +579,7 @@ void debug_message_init(double* XR, double* XZ, double* XT, double* VR, double* 
 		for(int i=1; i<20; i++){
 			printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
 		}
-		printf("----------------------------------------------------------\n");
-  
+		printf("----------------------------------------------------------\n");  
 }
 
 void debug_message_run(double* XR, double* XZ, double* XT, double* VR, double* VZ, double* VT){
