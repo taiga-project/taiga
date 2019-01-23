@@ -201,7 +201,7 @@ int main(int argc, char *argv[]){
 	int *DETCELLID, *detcellid;
 	DETCELLID = (int *)malloc(dimRint);	cudaMalloc((void **) &detcellid,  dimRint);
 	
-	// temporary test data
+	// service value
 	size_t dimService = 10 * sizeof(double);
 	double *SERVICE_VAR, *service_var;
 	SERVICE_VAR = (double *)malloc(dimService);	cudaMalloc((void **) &service_var,  dimService);
@@ -299,7 +299,7 @@ int main(int argc, char *argv[]){
 	//! MEMCOPY (device2HOST)
 	cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
 	if(SERVICE_VAR[0]!=42.24){
-		printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Error code: %15lf |\n+----------------------------+\n", SERVICE_VAR[0]);
+		printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf | \n+----------------------------+\n", SERVICE_VAR[0]);
 	}else{
 		printf("\n Memcopy OK.\n");
 	}
