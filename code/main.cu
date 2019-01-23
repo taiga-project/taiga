@@ -299,7 +299,7 @@ int main(int argc, char *argv[]){
 	//! MEMCOPY (device2HOST)
 	cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
 	if(SERVICE_VAR[0]!=42.24){
-		printf("\n +--------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n +---------------------------+\n");
+		printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n +----------------------------+\n");
 	}else{
 		printf("\n	Memcopy OK.\n");
 	}
