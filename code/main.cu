@@ -288,7 +288,6 @@ int main(int argc, char *argv[]){
 		export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
 		export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
 		export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
-		export_table(folder_out, timestamp, "output.dat", NX, XR, "R [m]", XZ, "Z [m]", XT, "T [m]", VR, "v_R [m/s]", VZ, "v_Z [m/s]", VT, "v_T [m/s]");
 		
 		if (shot.debug == 1)	debug_message_run(XR, XZ, XT, VR, VZ, VT);
 	}
@@ -300,7 +299,7 @@ int main(int argc, char *argv[]){
 	//! MEMCOPY (device2HOST)
 	cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
 	if(SERVICE_VAR[0]!=42.24){
-		printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf | \n+----------------------------+\n", SERVICE_VAR[0]);
+		printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n", SERVICE_VAR[0]);
 	}else{
 		printf("\n Memcopy OK.\n");
 	}
@@ -359,6 +358,7 @@ int main(int argc, char *argv[]){
 	export_data(VR, NX, folder_out, timestamp, "vrad.dat");
 	export_data(VZ, NX, folder_out, timestamp, "vz.dat");
 	export_data(VT, NX, folder_out, timestamp, "vtor.dat");
+	export_table(folder_out, timestamp, "output.dat", NX, XR, "R [m]", XZ, "Z [m]", XT, "T [m]", VR, "v_R [m/s]", VZ, "v_Z [m/s]", VT, "v_T [m/s]");
 
 	printf("\nData folder: %s/%s\n\n", folder_out, timestamp);
 
