@@ -358,7 +358,7 @@ int main(int argc, char *argv[]){
 	export_data(VR, NX, folder_out, timestamp, "vrad.dat");
 	export_data(VZ, NX, folder_out, timestamp, "vz.dat");
 	export_data(VT, NX, folder_out, timestamp, "vtor.dat");
-	export_table(folder_out, timestamp, "output.dat", NX, XR, "R [m]", XZ, "Z [m]", XT, "T [m]", VR, "v_R [m/s]", VZ, "v_Z [m/s]", VT, "v_T [m/s]");
+	export_table(folder_out, timestamp, "coords.dat", NX, XR, "R [m]", XZ, "Z [m]", XT, "T [m]", VR, "v_R [m/s]", VZ, "v_Z [m/s]", VT, "v_T [m/s]");
 
 	printf("\nData folder: %s/%s\n\n", folder_out, timestamp);
 
