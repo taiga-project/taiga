@@ -235,7 +235,7 @@ int main(int argc, char *argv[]){
     export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
 
     //! Set CUDA timer 
-    cudaEvent_t cuda_time_core_start, cuda_time_core_end;
+    cudaEvent_t cuda_time_core_start, cuda_time_core_end, cuda_time_copy_start, cuda_time_copy_end;
     float cuda_time_core, cuda_time_copy;
     cudaEventCreate(&cuda_time_core_start);
     cudaEventCreate(&cuda_time_core_end);
