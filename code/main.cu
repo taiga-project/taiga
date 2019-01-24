@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda.h>
-#include <cuda_cuda_time_core.h>
+#include <cuda_runtime.h>
 #include <time.h>
 #include <math.h>
 #include <string.h>
