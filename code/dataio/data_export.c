@@ -12,7 +12,7 @@ void mkdir(char *path, mode_t mode){
 #endif
 
 void export_table(char *folder, char *runnumber, char *filename, int Ndat, 
-                  double *dat1, char *head1, double *dat2, char *head2, double *dat3, char *head3, double *dat4, char *head4, double *dat5, char *head5, double *dat6, char *head6, ){
+                  double *dat1, char *head1, double *dat2, char *head2, double *dat3, char *head3, double *dat4, char *head4, double *dat5, char *head5, double *dat6, char *head6 ){
     
     char path[100];
     mkdir(folder, 0777);
