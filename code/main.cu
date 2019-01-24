@@ -307,7 +307,7 @@ int main(int argc, char *argv[]){
     cpu_time_copy = ((double) (cpu_time_copy_end - cpu_time_copy_start)) / CLOCKS_PER_SEC;
     printf ("CUDA kernel runtime: %f s\n", shot.step_host*cuda_time_core/1000.0);
     printf ("CUDA memcopy time:   %f s\n", 2.0*shot.step_host*cuda_time_copy/1000.0);
-    printf ("CPU->HDD copy time:  %lf s\n", (4.0+shot.step_host)*cpu_time_copy/1000.0);
+    printf ("CPU->HDD copy time:  %lf s\n", (4.0+shot.step_host)*cpu_time_copy);
 
     //! MEMCOPY (device2HOST)
     cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
