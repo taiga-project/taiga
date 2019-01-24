@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda.h>
-#include <cuda_runtime.h>
+#include <cuda_cuda_time_core.h>
 #include <time.h>
 #include <math.h>
 #include <string.h>
@@ -235,15 +235,18 @@ int main(int argc, char *argv[]){
     export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
 
     //! Set CUDA timer 
-    cudaEvent_t start, stop;
-    float runtime;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
+    cudaEvent_t cuda_time_core_start, cuda_time_core_end;
+    float cuda_time_core, cuda_time_copy;
+    cudaEventCreate(&cuda_time_core_start);
+    cudaEventCreate(&cuda_time_core_end);
+    cudaEventCreate(&cuda_time_copy_start);
+    cudaEventCreate(&cuda_time_copy_end);
 
     if (shot.debug == 1)    debug_message_init(XR, XZ, XT, VR, VZ, VT);
     
-    for (int step_i=0;step_i<shot.step_host;step_i++){
+    for (int step_i=0;step_i<shot.step_host;step_i++){        
         
+        if (step_i == 0) cudaEventRecord(cuda_time_copy_start, 0);
         // ION COORDS (HOST2device)
         cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
         cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
@@ -254,19 +257,20 @@ int main(int argc, char *argv[]){
         cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
         cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
         cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
-        //cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
-        
+        //cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);   
         //ERRORCHECK();
         
-        if (step_i == 0) cudaEventRecord(start, 0);
+        if (step_i == 0) cudaEventRecord(cuda_time_copy_end, 0);
+        if (step_i == 0) cudaEventRecord(cuda_time_core_start, 0);
+        
         if (shot.electric_field_module){
             printf("electric_field_module ON\n");
             taiga <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
         }else{
             taiga <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
         }
-        if (step_i == 0) cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
+        if (step_i == 0) cudaEventRecord(cuda_time_core_end, 0);
+        cudaEventSynchronize(cuda_time_core_end);
         ERRORCHECK();
 
         // ION COORDS (device2HOST)
@@ -294,8 +298,10 @@ int main(int argc, char *argv[]){
     }
 
     // Get CUDA timer 
-    cudaEventElapsedTime(&runtime, start, stop);
-    printf ("Time for the kernel: %f s\n", shot.step_host*runtime/1000.0);
+    cudaEventElapsedTime(&cuda_time_core, cuda_time_core_start, cuda_time_core_end);
+    cudaEventElapsedTime(&cuda_time_copy, cuda_time_copy_start, cuda_time_copy_end);
+    printf ("CUDA kernel runtime: %f s\n", shot.step_host*cuda_time_core/1000.0);
+    printf ("CUDA memcopy time:   %f s\n", 2.0*shot.step_host*cuda_time_copy/1000.0);
 
     //! MEMCOPY (device2HOST)
     cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
@@ -345,7 +351,7 @@ int main(int argc, char *argv[]){
     export_header_addline(folder_out, timestamp);
     export_header("Timestep", "s", dt, folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
-    export_header("Kernel runtime", "s", runtime/1000.0, folder_out, timestamp);
+    export_header("Kernel cuda_time_core", "s", cuda_time_core/1000.0, folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
     export_header("Number of blocks (threads)", "", max_blocks, folder_out, timestamp);
     export_header("Block size", "", shot.block_size, folder_out, timestamp);
