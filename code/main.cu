@@ -285,8 +285,7 @@ int main(int argc, char *argv[]){
         cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
         //ERRORCHECK();
         
-        // Save data to files
-        printf("Step\t%d/%d\n",step_i,shot.step_host);
+        // Save data to files        
         export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
         export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
         export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
@@ -294,6 +293,7 @@ int main(int argc, char *argv[]){
         export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
         export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
         
+        if (shot.debug == 1)    printf("Step\t%d/%d\n",step_i,shot.step_host);
         if (shot.debug == 1)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
     }
 
