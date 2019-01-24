@@ -236,6 +236,8 @@ int main(int argc, char *argv[]){
 
     //! Set CUDA timer 
     cudaEvent_t cuda_time_core_start, cuda_time_core_end, cuda_time_copy_start, cuda_time_copy_end;
+    clock_t cpu_time_copy_start,cpu_time_copy_end;
+    double cpu_time_copy;
     float cuda_time_core, cuda_time_copy;
     cudaEventCreate(&cuda_time_core_start);
     cudaEventCreate(&cuda_time_core_end);
@@ -285,13 +287,15 @@ int main(int argc, char *argv[]){
         cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
         //ERRORCHECK();
         
-        // Save data to files        
+        // Save data to files
+        cpu_time_copy_start = clock();  
         export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
         export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
         export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
         export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
         export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
         export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
+        cpu_time_copy_end = clock();
         
         if (shot.debug == 1)    printf("Step\t%d/%d\n",step_i,shot.step_host);
         if (shot.debug == 1)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
@@ -300,8 +304,10 @@ int main(int argc, char *argv[]){
     // Get CUDA timer 
     cudaEventElapsedTime(&cuda_time_core, cuda_time_core_start, cuda_time_core_end);
     cudaEventElapsedTime(&cuda_time_copy, cuda_time_copy_start, cuda_time_copy_end);
+    cpu_time_copy = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf ("CUDA kernel runtime: %f s\n", shot.step_host*cuda_time_core/1000.0);
     printf ("CUDA memcopy time:   %f s\n", 2.0*shot.step_host*cuda_time_copy/1000.0);
+    printf ("CPU->HDD copy time:  %lf s\n", (4.0+shot.step_host)*cpu_time_copy/1000.0);
 
     //! MEMCOPY (device2HOST)
     cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
