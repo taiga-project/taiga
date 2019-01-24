@@ -159,17 +159,17 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
 		// finished? (interpolation)
 		finished = calculate_detection_position(position_rad, position_z, position_tor, position_rad_prev, position_z_prev, position_tor_prev, detector_geometry, position, speed_rad);
 	}
+	
+	speed[0] = speed_rad;
+	speed[1] = speed_z;
+	speed[2] = speed_tor;
 
-	if (!finished){
+	if (finished){
+		local_detcellid = 0;
+	}else{
 		position[0] = position_rad;
 		position[1] = position_z;
 		position[2] = position_tor;
-		speed[0] = speed_rad;
-		speed[1] = speed_z;
-		speed[2] = speed_tor;
-	}
-	if (finished){
-		local_detcellid = 0;
 	}
 	return local_detcellid;
 }
