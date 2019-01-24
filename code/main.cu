@@ -305,16 +305,16 @@ int main(int argc, char *argv[]){
     cudaEventElapsedTime(&cuda_time_core, cuda_time_core_start, cuda_time_core_end);
     cudaEventElapsedTime(&cuda_time_copy, cuda_time_copy_start, cuda_time_copy_end);
     cpu_time_copy = ((double) (cpu_time_copy_end - cpu_time_copy_start)) / CLOCKS_PER_SEC;
-    printf ("CUDA kernel runtime: %f s\n", shot.step_host*cuda_time_core/1000.0);
+    printf ("\nCUDA kernel runtime: %f s\n", shot.step_host*cuda_time_core/1000.0);
     printf ("CUDA memcopy time:   %f s\n", 2.0*shot.step_host*cuda_time_copy/1000.0);
     printf ("CPU->HDD copy time:  %lf s\n", (4.0+shot.step_host)*cpu_time_copy);
 
     //! MEMCOPY (device2HOST)
     cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
     if(SERVICE_VAR[0]!=42.24){
-        printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n", SERVICE_VAR[0]);
+        printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n\n", SERVICE_VAR[0]);
     }else{
-        printf("\n Memcopy OK.\n");
+        printf("\nSuccessful run. \n\n");
     }
 
     detector_module(x_ptr, detector, detcellid, shot.detector_mask, max_blocks, shot.block_size, NX, folder_out, timestamp);
