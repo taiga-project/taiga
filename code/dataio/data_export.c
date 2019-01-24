@@ -26,7 +26,7 @@ void export_table(char *folder, char *runnumber, char *filename, int Ndat,
         exit(1);
     }
     //! write data
-    fprintf(f, "%15s\t%15s\t%15s\t%15s\t%15s\t%15s\n", head1, head2, head3, head4, head5, head6);
+    fprintf(f, "#%14s\t%15s\t%15s\t%15s\t%15s\t%15s\n", head1, head2, head3, head4, head5, head6);
     for (int i=0; i<Ndat; i++){
         fprintf(f, "%15le\t%15le\t%15le\t%15le\t%15le\t%15le\n", dat1[i], dat2[i], dat3[i], dat4[i], dat5[i], dat6[i]);
     }
