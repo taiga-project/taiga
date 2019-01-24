@@ -288,6 +288,7 @@ int main(int argc, char *argv[]){
 		export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
 		export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
 		export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
+		export_table(folder_out, timestamp, "output.dat", NX, XR, "R [m]", XZ, "Z [m]", XT, "T [m]", VR, "v_R [m/s]", VZ, "v_Z [m/s]", VT, "v_T [m/s]");
 		
 		if (shot.debug == 1)	debug_message_run(XR, XZ, XT, VR, VZ, VT);
 	}
