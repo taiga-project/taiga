@@ -49,7 +49,7 @@
 #include "dataio/data_export.c"
 
 #include "running/rk4.cu"
-#include "running/ipol.cu"
+#include "running/detection.cu"
 #include "running/cyl2tor.cu"
 #include "running/traj.cu"
 #include "running/taiga.cu"
