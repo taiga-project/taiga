@@ -17,7 +17,7 @@ __device__ int calculate_detection_position(double *X, double *X, double *detect
     double detector_distance = (X[0]-detector_R) + detector_tan*(X[1]-detector_z);
     double detector_distance_prev = (X_prev[0]-detector_R) + detector_tan*(X_prev[1]-detector_z);
     
-    if((detector_distance*detector_distance_prev<=0) && (speed_rad>0)){
+    if((detector_distance*detector_distance_prev<=0) && (X[3]>0)){
 
         double X_new[3];        
         double detector_distance_change = (detector_distance-detector_distance_prev);
