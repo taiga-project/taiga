@@ -130,10 +130,14 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
     
     position[0] = X[0];
     position[1] = X[1];
-    position[2] = X[2];
+    position[2] = X[2];    
     speed[0] = X[3];
     speed[1] = X[4];
     speed[2] = X[5];
+    
+    if (finished){
+        local_detcellid = 0;
+    }
     
     return local_detcellid;
 }
