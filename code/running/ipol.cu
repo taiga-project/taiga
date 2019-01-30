@@ -1,9 +1,9 @@
-__device__ double interpolate(double x1, double x2, double x, double y1, double y2, double x2_x1){ 
+__device__ double interpolate(double y1, double y2, double x, double x1, double x2, double x2_x1){ 
     return (x2-x)/x2_x1*y1 + (x-x1)/x2_x1*y2;
 }
 
-__device__ double interpolate(double x1, double x2, double x, double y1, double y2){
-    return interpolate(x1, x2, y1, y2, x2-x1);
+__device__ double interpolate(double y1, double y2, double x, double x1, double x2){
+    return interpolate(y1, y2, x, x1, x2, x2-x1);
 }
 
 __device__ int calculate_detection_position(double position_rad, double position_z, double position_tor, double position_rad_prev, double position_z_prev, double position_tor_prev, double *detector_geometry, double *position, double speed_rad){
