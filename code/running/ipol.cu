@@ -6,25 +6,32 @@ __device__ double interpolate(double y1, double y2, double x, double x1, double 
     return interpolate(y1, y2, x, x1, x2, x2-x1);
 }
 
-__device__ int calculate_detection_position(double position_rad, double position_z, double position_tor, double position_rad_prev, double position_z_prev, double position_tor_prev, double *detector_geometry, double *position, double speed_rad){
+__device__ int calculate_detection_position(double *X, double *X, double *detector_geometry){
 
     int finished = 0;
     
-    double detector_R = detector_geometry[0];
-    double detector_z = detector_geometry[1];
+    double detector_R   = detector_geometry[0];
+    double detector_z   = detector_geometry[1];
     double detector_tan = detector_geometry[3];
     
-    double detector_distance, detector_distance_prev;
-    detector_distance = (position_rad-detector_R) + detector_tan*(position_z-detector_z);
-    detector_distance_prev = (position_rad_prev-detector_R) + detector_tan*(position_z_prev-detector_z);
+    double detector_distance = (X[0]-detector_R) + detector_tan*(X[1]-detector_z);
+    double detector_distance_prev = (X_prev[0]-detector_R) + detector_tan*(X_prev[1]-detector_z);
     
     if((detector_distance*detector_distance_prev<=0) && (speed_rad>0)){
 
+        double X_new[3];        
         double detector_distance_change = (detector_distance-detector_distance_prev);
-        position[0] = interpolate(position_rad_prev, position_rad, 0, detector_distance_prev, detector_distance, detector_distance_change);
-        position[1] = interpolate(position_z_prev,   position_z,   0, detector_distance_prev, detector_distance, detector_distance_change);
-        position[2] = interpolate(position_tor_prev, position_tor, 0, detector_distance_prev, detector_distance, detector_distance_change);
+        
+        X_new[0] = interpolate(X_prev[0], X[0], 0, detector_distance_prev, detector_distance, detector_distance_change);
+        X_new[1] = interpolate(X_prev[1], X[1], 0, detector_distance_prev, detector_distance, detector_distance_change);
+        X_new[2] = interpolate(X_prev[2], X[2], 0, detector_distance_prev, detector_distance, detector_distance_change);
+        
+        X[0] = X_new[0];
+        X[1] = X_new[1];
+        X[2] = X_new[2];
+        
         finished = 1;
+        
     }
     
     return finished;
