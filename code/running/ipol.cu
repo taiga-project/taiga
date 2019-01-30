@@ -21,9 +21,9 @@ __device__ int calculate_detection_position(double position_rad, double position
     if((detector_distance*detector_distance_prev<=0) && (speed_rad>0)){
 
         double detector_distance_change = (detector_distance-detector_distance_prev);
-        position[0] = interpolate(position_rad_prev, position_rad, detector_distance_prev, detector_distance, detector_distance_change);
-        position[1] = interpolate(position_z_prev,   position_z,   detector_distance_prev, detector_distance, detector_distance_change);
-        position[2] = interpolate(position_tor_prev, position_tor, detector_distance_prev, detector_distance, detector_distance_change);
+        position[0] = interpolate(position_rad_prev, position_rad, 0, detector_distance_prev, detector_distance, detector_distance_change);
+        position[1] = interpolate(position_z_prev,   position_z,   0, detector_distance_prev, detector_distance, detector_distance_change);
+        position[2] = interpolate(position_tor_prev, position_tor, 0, detector_distance_prev, detector_distance, detector_distance_change);
         finished = 1;
     }
     
