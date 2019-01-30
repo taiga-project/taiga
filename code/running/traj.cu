@@ -1,12 +1,12 @@
 #define SPINE_INDEX_ERROR -1
 
-__device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double X[0], double X[1], int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **spline_brad, double **spline_bz, double **spline_btor){
+__device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double position_rad, double position_z, int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **spline_brad, double **spline_bz, double **spline_btor){
     int rci, zci;
     int i, i2;
     
-    for(rci=0;(r_grid[rci+1]<X[0])&&(rci<NR-1);rci++){;}
+    for(rci=0;(r_grid[rci+1]<position_rad)&&(rci<NR-1);rci++){;}
     
-    for(zci=0;(z_grid[zci+1]<X[1])&&(zci<NR-1);zci++){;}
+    for(zci=0;(z_grid[zci+1]<position_z)&&(zci<NR-1);zci++){;}
     
     // Particle leave out the cell
     if ((local_spline_indices[0]!=rci)||(local_spline_indices[1]!=zci)){
@@ -22,14 +22,14 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
     }
 }
 
-__device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double X[0], double X[1], int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **spline_brad, double **spline_bz, double **spline_btor,
+__device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double position_rad, double position_z, int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **spline_brad, double **spline_bz, double **spline_btor,
                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,  double **spline_erad, double **spline_ez, double **spline_etor){
     int rci, zci;
     int i, i2;
     
-    for(rci=0;(r_grid[rci+1]<X[0])&&(rci<NR-1);rci++){;}
+    for(rci=0;(r_grid[rci+1]<position_rad)&&(rci<NR-1);rci++){;}
     
-    for(zci=0;(z_grid[zci+1]<X[1])&&(zci<NR-1);zci++){;}
+    for(zci=0;(z_grid[zci+1]<position_z)&&(zci<NR-1);zci++){;}
     
     // Particle leave out the cell
     if ((local_spline_indices[0] != rci) || (local_spline_indices[1] != zci)){
