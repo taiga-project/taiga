@@ -19,12 +19,14 @@ __device__ int calculate_detection_position(double *X, double *X_prev, double *d
     
     if((detector_distance*detector_distance_prev<=0) && (X[3]>0)){
 
-        double X_new[3];        
+        double X_new[3];     
         double detector_distance_change = (detector_distance-detector_distance_prev);
+        double v = sqrt(X[3]*X[3] + X[4]*X[4] +  X[5]*X[5]);
+        double v_prev = sqrt(X_prev[3]*X_prev[3] + X_prev[4]*X_prev[4] +  X_prev[5]*X_prev[5]);
         
-        X_new[0] = interpolate(X_prev[0], X[0], X_prev[3], X[3], 0, detector_distance_prev, detector_distance, detector_distance_change);
-        X_new[1] = interpolate(X_prev[1], X[1], X_prev[4], X[4], 0, detector_distance_prev, detector_distance, detector_distance_change);
-        X_new[2] = interpolate(X_prev[2], X[2], X_prev[5], X[5], 0, detector_distance_prev, detector_distance, detector_distance_change);
+        X_new[0] = interpolate(X_prev[0], X[0], X_prev[3]/v_prev, X[3]/v, 0, detector_distance_prev, detector_distance, detector_distance_change);
+        X_new[1] = interpolate(X_prev[1], X[1], X_prev[4]/v_prev, X[4]/v, 0, detector_distance_prev, detector_distance, detector_distance_change);
+        X_new[2] = interpolate(X_prev[2], X[2], X_prev[5]/v_prev, X[5]/v, 0, detector_distance_prev, detector_distance, detector_distance_change);
         
         X[0] = X_new[0];
         X[1] = X_new[1];
