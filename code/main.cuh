@@ -1,26 +1,27 @@
 struct beam_prop{
-	char matter[40] = "Li";
-	double mass = 7.016004558;
-	double energy = (double)$default_energy ;
-	double diameter = (double)$default_diameter;
-	double toroidal_deflation = (double)$deflH;   
-	double vertical_deflation = (double)$deflV;
-	
+    char matter[40] = "Li";
+    double mass = 7.016004558;
+    double energy = (double)$default_energy ;
+    double diameter = (double)$default_diameter;
+    double toroidal_deflation = (double)$deflH;   
+    double vertical_deflation = (double)$deflV;
+    
 };
 
 struct shot_prop{
-	char name[100] = "11774_1000";
-	char shotnumber[40] = "11774";
-	char time[40] = "1000";
-	char detector_mask[40] = "test";
-	char detector_geometry[100] = "0.685,0.23,0,38,0";
-	int runnumber = 0;  
-	int electric_field_module = 0;
-	int debug = 0;
-	int block_size = BLOCK_SIZE;
-	int block_number = N_BLOCKS;
-	int step_host = 1; // on HDD
-	int step_device = 2000; // on GPU
+    char name[100] = "11774_1000";
+    char shotnumber[40] = "11774";
+    char time[40] = "1000";
+    char detector_mask[40] = "test";
+    char detector_geometry[100] = "0.685,0.23,0,38,0";
+    int runnumber = 0;  
+    int electric_field_module = 0;
+    int debug = 0;
+    int particle_number = 1;
+    int block_size = BLOCK_SIZE;
+    int block_number = N_BLOCKS;
+    int step_host = 1; // on HDD
+    int step_device = 2000; // on GPU
 };
 
 int set_cuda();

@@ -26,6 +26,12 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     else if (!strcmp(par_name, "detector"))                 strcpy(shot->detector_geometry, clean_string(par_value));
     else if (!strcmp(par_name, "detector_mask"))            strcpy(shot->detector_mask, clean_string(par_value));
     else if (!strcmp(par_name, "electric_field_module"))    shot->electric_field_module = par_value_d;
+    else if (!strcmp(par_name, "step_device"))              shot->step_device = par_value_d;
+    else if (!strcmp(par_name, "step_host"))                shot->step_host = par_value_d;
+    else if (!strcmp(par_name, "particles")){
+        shot->particle_number = par_value_d;        
+        shot->block_number    = par_value_d/shot->block_size+1;
+    }
 }
 
 int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){

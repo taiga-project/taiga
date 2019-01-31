@@ -57,20 +57,15 @@
 #include "detector_module.c"
 //#include "running/detector_postproc.cu"
 
-int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
-    int max_blocks;
+void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
 
-    if (argc > 8)   max_blocks = atoi(argv[8])/shot->block_size+1; 
-        else    max_blocks=shot->block_number;
-
-    if (argc > 10){ 
-        shot->step_host = atof(argv[10]); 
-        shot->step_device = 1;
+    for (int i=1; i<argc, i++){
+        if !strcmp(argv[i], "--debug"))  shot->debug = 1;
+        else if !strcmp(argv[i], "--fulltrace")){
+            shot->step_host = 2000;
+            shot->step_device = 1;
+        }
     }
-    if (argc > 11)  shot->step_device = atof(argv[11]);
-    if (argc > 12)  shot->debug = atof(argv[12]); 
-
-    return max_blocks;   
 }
 
 int main(int argc, char *argv[]){
@@ -78,7 +73,7 @@ int main(int argc, char *argv[]){
     
     shot_prop shot;
     beam_prop beam;
-    int max_blocks = input_init_taiga(argc, argv, &shot, &beam);
+    input_init_taiga(argc, argv, &shot, &beam);    
     parameter_reader("parameters.sh", &shot, &beam);
     runnumber_reader("runnumber", &shot);
 
@@ -91,12 +86,12 @@ int main(int argc, char *argv[]){
     printf("shotname: %s\n",shot.name);  
     printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
-    int NX = shot.block_size * max_blocks;
+    int NX = shot.block_size * shot->block_number;
 
     if (READINPUTPROF == 1){
         double *XR;
         NX = read_vector(&XR, "input", "manual_profile", "rad.dat");
-        max_blocks = NX / shot.block_size+1;
+        shot->block_number = NX / shot.block_size+1;
     }
 
     char* folder_out=concat("results/", shot.name);
@@ -123,7 +118,7 @@ int main(int argc, char *argv[]){
     double *VT,  *vt;
 
     printf("=============================\n");
-    printf("Number of blocks (threads): %d\n", max_blocks);
+    printf("Number of blocks (threads): %d\n", shot->block_number);
     printf("Block size: %d\n", shot.block_size);
     printf("Number of particles: %d\n", NX);
     printf("Max steps on device (GPU): %d\n", shot.step_device);
@@ -131,7 +126,7 @@ int main(int argc, char *argv[]){
 
 
     //! position and velocity array allocation
-    size_t dimX = shot.block_size * max_blocks * sizeof(double);
+    size_t dimX = shot.block_size * shot->block_number * sizeof(double);
     
     XR = (double*)malloc(dimX);
     XZ = (double*)malloc(dimX);
@@ -267,9 +262,9 @@ int main(int argc, char *argv[]){
         
         if (shot.electric_field_module){
             printf("electric_field_module ON\n");
-            taiga <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
+            taiga <<< shot->block_number, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
         }else{
-            taiga <<< max_blocks, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
+            taiga <<< shot->block_number, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
         }
         if (step_i == 0) cudaEventRecord(cuda_time_core_end, 0);
         cudaEventSynchronize(cuda_time_core_end);
@@ -317,7 +312,7 @@ int main(int argc, char *argv[]){
         printf("\nSuccessful run. \n\n");
     }
 
-    detector_module(x_ptr, detector, detcellid, shot.detector_mask, max_blocks, shot.block_size, NX, folder_out, timestamp);
+    detector_module(x_ptr, detector, detcellid, shot.detector_mask, shot->block_number, shot.block_size, NX, folder_out, timestamp);
     cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
     export_data(DETCELLID, NX, folder_out, timestamp, "detcellid.dat");
 
@@ -359,7 +354,7 @@ int main(int argc, char *argv[]){
     export_header_addline(folder_out, timestamp);
     export_header("Kernel cuda_time_core", "s", cuda_time_core/1000.0, folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
-    export_header("Number of blocks (threads)", "", max_blocks, folder_out, timestamp);
+    export_header("Number of blocks (threads)", "", shot->block_number, folder_out, timestamp);
     export_header("Block size", "", shot.block_size, folder_out, timestamp);
     export_header("Length of a loop", "", shot.step_device, folder_out, timestamp);
     export_header("Number of loops", "", shot.step_host, folder_out, timestamp);
