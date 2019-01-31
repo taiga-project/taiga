@@ -1,5 +1,5 @@
 __device__ double interpolate(double y1, double y2, double vy1, double vy2, double x, double x1, double x2, double x2_x1){ 
-    return (x2-x)/x2_x1 * (y1 + 1/2*(x-x1)*vy1) + (x-x1)/x2_x1 * (y2 + 1/2*(x-x2)*vy2);
+    return (x2-x)/x2_x1 * (y1 + (x-x1)*vy1/2.0) + (x-x1)/x2_x1 * (y2 + (x-x2)*vy2/2.0);
 }
 
 __device__ double interpolate(double y1, double y2, double vy1, double vy2, double x, double x1, double x2){
