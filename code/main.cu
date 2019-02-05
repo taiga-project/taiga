@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
 
     char* folder_out=concat("results/", shot.name);
     
-    set_cuda();
+    set_cuda(shot.debug);
 
     // set timestamp
     time_t rawtime;
@@ -391,10 +391,10 @@ if (err != cudaSuccess) {
 }
 }
 
-int set_cuda(){
+int set_cuda(int debug_flag){
     int num_devices, device, max_device;
     cudaGetDeviceCount(&num_devices);
-    printf("Number of devices: %d\n",num_devices);
+    if (debug_flag) printf("Number of devices: %d\n", num_devices);
     
     if (num_devices > 1) {
         int max_multiprocessors = 0, max_device = 0;
@@ -405,14 +405,15 @@ int set_cuda(){
                 max_multiprocessors = properties.multiProcessorCount;
                 max_device = device;
             }
-        /*  printf("%d:%s\n",device,&properties.name);
-            printf("\tL2Cache:\t%d",    properties.l2CacheSize);
-            printf("\tNumber of cores:\t%d",    properties.warpSize);
-    
-            printf("\tKernels:\t%d",    properties.concurrentKernels);
-            printf("\tThreads:\t%d",    properties.maxThreadsPerMultiProcessor);
-            printf("\tClock:\t%d",  properties.clockRate/1024);
-            printf("\n");*/
+            if (debug_flag){
+                printf("%d:%s\n",device,&properties.name);
+                printf("\tL2Cache:\t%d", properties.l2CacheSize);
+                printf("\tNumber of cores:\t%d", properties.warpSize);        
+                printf("\tKernels:\t%d", properties.concurrentKernels);
+                printf("\tThreads:\t%d", properties.maxThreadsPerMultiProcessor);
+                printf("\tClock:\t%d", properties.clockRate/1024);
+                printf("\n");
+            }
         }
         cudaSetDevice(max_device);
         for (device = 0; device < num_devices; device++) {
