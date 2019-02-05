@@ -3,9 +3,9 @@
 NVCC = nvcc
 CFLAGS = -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -O3
 
-SVNDEV = -D'SVN_REV="$(shell svnversion -n .)"' 
+VERSION = -D'TAIGA_VERSION="1.3.0"' -D'SVN_REV="$(shell svnversion -n .)"' 
 
-INPUT_FLAGS = $(SVNDEV)
+INPUT_FLAGS = $(VERSION)
 DEFAULT_FLAGS = -D'RENATE=0' -D'READINPUTPROF=1'
 RENATE_FLAGS = -D'RENATE=110' -D'READINPUTPROF=0'
 

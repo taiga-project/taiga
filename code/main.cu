@@ -230,20 +230,20 @@ int main(int argc, char *argv[]){
     export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
 
     //! Set CUDA timer 
-    cudaEvent_t cuda_time_core_start, cuda_time_core_end, cuda_time_copy_start, cuda_time_copy_end;
-    clock_t cpu_time_copy_start,cpu_time_copy_end;
-    double cpu_time_copy;
-    float cuda_time_core, cuda_time_copy;
-    cudaEventCreate(&cuda_time_core_start);
-    cudaEventCreate(&cuda_time_core_end);
-    cudaEventCreate(&cuda_time_copy_start);
-    cudaEventCreate(&cuda_time_copy_end);
+    cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
+    clock_t cpu_event_copy_start, cpu_event_copy_end;
+    double cpu_time_copy, cuda_time_core, cuda_time_copy;
+    float cuda_event_core, cuda_event_copy;
+    cudaEventCreate(&cuda_event_core_start);
+    cudaEventCreate(&cuda_event_core_end);
+    cudaEventCreate(&cuda_event_copy_start);
+    cudaEventCreate(&cuda_event_copy_end);
 
     if (shot.debug == 1)    debug_message_init(XR, XZ, XT, VR, VZ, VT);
     
     for (int step_i=0;step_i<shot.step_host;step_i++){        
         
-        if (step_i == 0) cudaEventRecord(cuda_time_copy_start, 0);
+        if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
         // ION COORDS (HOST2device)
         cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
         cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
@@ -257,8 +257,8 @@ int main(int argc, char *argv[]){
         //cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);   
         //ERRORCHECK();
         
-        if (step_i == 0) cudaEventRecord(cuda_time_copy_end, 0);
-        if (step_i == 0) cudaEventRecord(cuda_time_core_start, 0);
+        if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
+        if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
         
         if (shot.electric_field_module){
             printf("electric_field_module ON\n");
@@ -266,8 +266,8 @@ int main(int argc, char *argv[]){
         }else{
             taiga <<< shot.block_number, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
         }
-        if (step_i == 0) cudaEventRecord(cuda_time_core_end, 0);
-        cudaEventSynchronize(cuda_time_core_end);
+        if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
+        cudaEventSynchronize(cuda_event_core_end);
         ERRORCHECK();
 
         // ION COORDS (device2HOST)
@@ -283,26 +283,29 @@ int main(int argc, char *argv[]){
         //ERRORCHECK();
         
         // Save data to files
-        cpu_time_copy_start = clock();  
+        cpu_event_copy_start = clock();  
         export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
         export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
         export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
         export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
         export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
         export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
-        cpu_time_copy_end = clock();
+        cpu_event_copy_end = clock();
         
         if (shot.debug == 1)    printf("Step\t%d/%d\n",step_i,shot.step_host);
         if (shot.debug == 1)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
     }
 
     // Get CUDA timer 
-    cudaEventElapsedTime(&cuda_time_core, cuda_time_core_start, cuda_time_core_end);
-    cudaEventElapsedTime(&cuda_time_copy, cuda_time_copy_start, cuda_time_copy_end);
-    cpu_time_copy = ((double) (cpu_time_copy_end - cpu_time_copy_start)) / CLOCKS_PER_SEC;
-    printf ("\nCUDA kernel runtime: %f s\n", shot.step_host*cuda_time_core/1000.0);
-    printf ("CUDA memcopy time:   %f s\n", 2.0*shot.step_host*cuda_time_copy/1000.0);
-    printf ("CPU->HDD copy time:  %lf s\n", (4.0+shot.step_host)*cpu_time_copy);
+    cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
+    cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
+    cpu_time_copy = ((double) (4.0+shot.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
+    cuda_time_copy = (double) 2.0*shot.step_host*cuda_event_copy/1000.0;
+    cuda_time_core =  shot.step_host*cuda_event_core/1000.0
+    
+    printf ("\nCUDA kernel runtime: %lf s\n", cuda_time_core);
+    printf ("CUDA memcopy time:   %lf s\n", cuda_time_copy);
+    printf ("CPU->HDD copy time:  %lf s\n", cpu_time_copy);
 
     //! MEMCOPY (device2HOST)
     cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
@@ -319,18 +322,18 @@ int main(int argc, char *argv[]){
     //! CUDA profiler STOP
     cudaProfilerStop();
     
+    export_header("TAIGA", folder_out, timestamp);
+    export_header(concat("version: ", TAIGA_VERSION," r ",SVN_REV), folder_out, timestamp);
+    export_header_addline(folder_out, timestamp);
     export_header(concat("Shot ID: ",shot.name), folder_out, timestamp);
     export_header(concat("Run ID:  ",timestamp), folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
-    export_header(concat("version: r ",SVN_REV), folder_out, timestamp);
-    export_header_addline(folder_out, timestamp);
     export_header("ABP ION TRAJECTORIES", folder_out, timestamp);
-    export_header("(Real ionization position)", folder_out, timestamp); 
 
     if(READINPUTPROF==1){
-        export_header("(3D input)", folder_out, timestamp);
+        export_header("Manual (6D) input profile", folder_out, timestamp);
     }else if(RENATE==110){
-        export_header("(TS + Renate 1.1.0)", folder_out, timestamp);
+        export_header("TS + Renate 1.1.0 input profile", folder_out, timestamp);
     }
     export_header_addline(folder_out, timestamp);
 
@@ -338,7 +341,7 @@ int main(int argc, char *argv[]){
         export_header("Beam energy", "keV", beam.energy, folder_out, timestamp);
         export_header("Atomic mass", "AMU", beam.mass, folder_out, timestamp);
         export_header("Beam diameter", "mm", beam.diameter, folder_out, timestamp);
-        export_header("Deflation (toroidal/vertical)", "°", beam.toroidal_deflation, beam.vertical_deflation, folder_out, timestamp);
+        export_header("Beam deflation (toroidal/vertical)", "°", beam.toroidal_deflation, beam.vertical_deflation, folder_out, timestamp);
     }
     
     export_header("Number of ions", "", (double)NX, folder_out, timestamp);
@@ -348,11 +351,13 @@ int main(int argc, char *argv[]){
     export_header("Detector position (T)", "m", DETECTOR[2], folder_out, timestamp);
     export_header("Detector angle (Z/R)", "°", atan(DETECTOR[3])/PI*180.0, folder_out, timestamp);
     export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])/PI*180.0, folder_out, timestamp);
-    export_header(concat("Detector mask: ", shot.detector_mask), folder_out, timestamp);
+    export_header(concat("Detector mask:  \t", shot.detector_mask), folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
     export_header("Timestep", "s", dt, folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
-    export_header("Kernel cuda_time_core", "s", cuda_time_core/1000.0, folder_out, timestamp);
+    export_header("CUDA kernel runtime", "s", cuda_time_core, folder_out, timestamp);
+    export_header("CUDA memcopy time", "s", cuda_time_copy, folder_out, timestamp);
+    export_header("CPU->HDD copy time", "s", cpu_time_copy, folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
     export_header("Number of blocks (threads)", "", shot.block_number, folder_out, timestamp);
     export_header("Block size", "", shot.block_size, folder_out, timestamp);
