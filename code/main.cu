@@ -73,8 +73,13 @@ int main(int argc, char *argv[]){
     set_detector_geometry(DETECTOR, shot.detector_geometry);
     
     printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
-    printf("Shotname: %s\n",shot.name);  
-    printf("Detector: %s [ %lf %lf %lf %lf %lf]\n", shot.detector_mask, DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+    printf("Shotname: %s\n", shot.name); 
+    pritnf("Detector: %s\n", shot.detector_mask);
+    printf("\t R:\t%s\n", DETECTOR[0]);
+    printf("\t Z:\t%s\n", DETECTOR[1]);
+    printf("\t T:\t%s\n", DETECTOR[2]);
+    printf("\t angle (Z/R):\t°\n", atan(DETECTOR[3])/PI*180.0);
+    printf("\t angle (T/R):\t°\n", atan(DETECTOR[4])/PI*180.0);
 
     int NX = shot.block_size * shot.block_number;
 
