@@ -290,7 +290,7 @@ int main(int argc, char *argv[]){
     cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
     cpu_time_copy = ((double) (4.0+shot.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
     cuda_time_copy = (double) 2.0*shot.step_host*cuda_event_copy/1000.0;
-    cuda_time_core =  shot.step_host*cuda_event_core/1000.0
+    cuda_time_core =  shot.step_host*cuda_event_core/1000.0;
     
     printf ("\nCUDA kernel runtime: %lf s\n", cuda_time_core);
     printf ("CUDA memcopy time:   %lf s\n", cuda_time_copy);
@@ -451,7 +451,7 @@ double get_mass(char *s){
         try{
             mass = atof(s);
         }catch (...){
-            mass = (double)$default_mass;
+            mass = 7.016004558;
         }
     }
     

@@ -19,7 +19,10 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     if (!strcmp(par_name, "shotnumber"))                    strcpy(shot->shotnumber, clean_string(par_value));
     else if (!strcmp(par_name, "time"))                     strcpy(shot->time, clean_string(par_value));
     else if (!strcmp(par_name, "runnumber"))                shot->runnumber = par_value_lf;
-    else if (!strcmp(par_name, "matter"))                   strcpy(beam->matter, clean_string(par_value));
+    else if (!strcmp(par_name, "matter")){
+        strcpy(beam->matter, clean_string(par_value));
+        beam->mass = get_mass(beam->matter);
+    }
     else if (!strcmp(par_name, "energy"))                   beam->energy = par_value_lf;
     else if (!strcmp(par_name, "vertical_deflation"))       beam->vertical_deflation = par_value_lf;
     else if (!strcmp(par_name, "diameter"))                 beam->diameter = par_value_lf;
@@ -55,7 +58,6 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
     }    
     fclose(fp);
     strcpy(shot->name,concat(shot->shotnumber,"_",shot->time));
-    beam->mass = get_mass(beam->matter);
     return 0;
 }
 
