@@ -75,11 +75,12 @@ int main(int argc, char *argv[]){
     printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
     printf("Shotname: %s\n", shot.name); 
     printf("Detector: %s\n", shot.detector_mask);
-    printf("\t R:\t%lf\n", DETECTOR[0]);
-    printf("\t Z:\t%lf\n", DETECTOR[1]);
-    printf("\t T:\t%lf\n", DETECTOR[2]);
-    printf("\t angle (Z/R):\t%lf°\n", atan(DETECTOR[3])/PI*180.0);
-    printf("\t angle (T/R):\t%lf°\n", atan(DETECTOR[4])/PI*180.0);
+    printf("  R:\t%lf\n", DETECTOR[0]);
+    printf("  Z:\t%lf\n", DETECTOR[1]);
+    printf("  T:\t%lf\n", DETECTOR[2]);
+    printf("  angle (Z/R):\t%lf°\n", atan(DETECTOR[3])/PI*180.0);
+    printf("  angle (T/R):\t%lf°\n", atan(DETECTOR[4])/PI*180.0);
+    printf("=============================\n");
 
     int NX = shot.block_size * shot.block_number;
 
@@ -112,7 +113,6 @@ int main(int argc, char *argv[]){
     double *VZ,  *vz;
     double *VT,  *vt;
 
-    printf("=============================\n");
     printf("Number of blocks (threads): %d\n", shot.block_number);
     printf("Block size: %d\n", shot.block_size);
     printf("Number of particles: %d\n", NX);
@@ -298,9 +298,11 @@ int main(int argc, char *argv[]){
     cuda_time_copy = (double) 2.0*shot.step_host*cuda_event_copy/1000.0;
     cuda_time_core =  shot.step_host*cuda_event_core/1000.0;
     
-    printf ("\nCUDA kernel runtime: %lf s\n", cuda_time_core);
+    printf("=============================\n");
+    printf ("CUDA kernel runtime: %lf s\n", cuda_time_core);
     printf ("CUDA memcopy time:   %lf s\n", cuda_time_copy);
-    printf ("CPU->HDD copy time:  %lf s\n", cpu_time_copy);
+    printf ("CPU->HDD copy time:  %lf s\n", cpu_time_copy);    
+    printf("=============================\n");
 
     //! MEMCOPY (device2HOST)
     cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
@@ -367,7 +369,7 @@ int main(int argc, char *argv[]){
     export_data(VT, NX, folder_out, timestamp, "vtor.dat");
     export_table(folder_out, timestamp, "coords.dat", NX, XR, "R [m]", XZ, "Z [m]", XT, "T [m]", VR, "v_R [m/s]", VZ, "v_Z [m/s]", VT, "v_T [m/s]");
 
-    printf("\nData folder: %s/%s\n\n", folder_out, timestamp);
+    printf("\n\nData folder: %s/%s\n\n", folder_out, timestamp);
 
     //! Free CUDA
     cudaFree(x_ptr);    cudaFree(xr);   cudaFree(xz);   cudaFree(xt);
