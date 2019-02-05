@@ -74,7 +74,7 @@ int main(int argc, char *argv[]){
     
     printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
     printf("Shotname: %s\n", shot.name); 
-    pritnf("Detector: %s\n", shot.detector_mask);
+    printf("Detector: %s\n", shot.detector_mask);
     printf("\t R:\t%s\n", DETECTOR[0]);
     printf("\t Z:\t%s\n", DETECTOR[1]);
     printf("\t T:\t%s\n", DETECTOR[2]);
