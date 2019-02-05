@@ -1,17 +1,6 @@
 // TAIGA default parameters
 
-#define N_BLOCKS    1               //! @param N_BLOCKS number of blocks (max 1M)
-#define BLOCK_SIZE  192             //! @param BLOCK_SIZE size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
-
 #define $R_defl 2.3                 //! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
-#define $deflH  0                   //! @param $deflH horizontal deflection in rad (up--down)  
-#define $deflV  0                   //! @param $deflV vertical deflection in rad (left--right) -> TOROIDAL DEFLECTION
-
-#define $default_energy   60        //! @param energy in keV
-#define $default_mass  7.016004558  //! @param atomic mass in amu
-
-#define $default_diameter 25        //! @param diameter in mm
-
 #define dt  1e-9                    //! @param dt timestep in seconds
 
 #define PI 3.141592653589792346
