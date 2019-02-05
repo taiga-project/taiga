@@ -59,7 +59,7 @@
 
 void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
 
-    for (int i=1; i<argc, i++){
+    for (int i=1; i<argc; i++){
         if !strcmp(argv[i], "--debug"))  shot->debug = 1;
         else if !strcmp(argv[i], "--fulltrace")){
             shot->step_host = 2000;
