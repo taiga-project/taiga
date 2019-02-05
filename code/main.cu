@@ -391,22 +391,22 @@ if (err != cudaSuccess) {
 }
 }
 
-int set_cuda(int debug_flag){
-    int num_devices, device, max_device;
+void set_cuda(int debug_flag){
+    int num_devices, device_i, active_device=0;
     cudaGetDeviceCount(&num_devices);
     if (debug_flag) printf("Number of devices: %d\n", num_devices);
     
     if (num_devices > 1) {
-        int max_multiprocessors = 0, max_device = 0;
-        for (device = 0; device < num_devices; device++) {
+        int max_multiprocessors = 0, active_device = 0;
+        for (device_i = 0; device_i < num_devices; device_i++) {
             cudaDeviceProp properties;
-            cudaGetDeviceProperties(&properties, device);
+            cudaGetDeviceProperties(&properties, device_i);
             if (max_multiprocessors < properties.multiProcessorCount) {
                 max_multiprocessors = properties.multiProcessorCount;
-                max_device = device;
+                active_device = device_i;
             }
             if (debug_flag){
-                printf("%d:%s\n",device,&properties.name);
+                printf("%d:%s\n",device_i,&properties.name);
                 printf("\tL2Cache:\t%d", properties.l2CacheSize);
                 printf("\tNumber of cores:\t%d", properties.warpSize);        
                 printf("\tKernels:\t%d", properties.concurrentKernels);
@@ -415,18 +415,19 @@ int set_cuda(int debug_flag){
                 printf("\n");
             }
         }
-        cudaSetDevice(max_device);
-        for (device = 0; device < num_devices; device++) {
-            if(device==max_device) printf("-->");
+        cudaSetDevice(active_device);
+        for (device_i = 0; device_i < num_devices; device_i++) {
+            if(device_i==active_device) printf("-->");
             cudaDeviceProp properties;
-            cudaGetDeviceProperties(&properties, device);
-            printf("\t%d:\t%s\n",device,&properties.name);
+            cudaGetDeviceProperties(&properties, device_i);
+            printf("\t%d:\t%s\n",device_i,&properties.name);
         }
     }
 
     cudaDeviceProp prop;
-    cudaGetDevice(&max_device);
-    cudaGetDeviceProperties(&prop, 0) ;  
+    cudaGetDevice(&active_device);
+    cudaGetDeviceProperties(&prop, active_device);    
+    printf("Active card:\t%s\n", &properties.name);
 }
 
 double get_mass(char *s){
