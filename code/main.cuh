@@ -28,7 +28,7 @@ int set_cuda();
 inline void cErrorCheck(const char *file, int line);
 
 int main(int argc, char *argv[]);
-int input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam);
+void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam);
 
 double get_mass(char *s);
 void set_detector_geometry(double *DETECTOR, char* values);
