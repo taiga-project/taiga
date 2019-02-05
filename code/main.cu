@@ -71,9 +71,10 @@ int main(int argc, char *argv[]){
     DETECTOR = (double *)malloc(dimD);  cudaMalloc((void **) &detector,  dimD); 
     
     set_detector_geometry(DETECTOR, shot.detector_geometry);
-
-    printf("shotname: %s\n",shot.name);  
-    printf("detector: [ %lf %lf %lf %lf %lf]\n", DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
+    
+    printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
+    printf("Shotname: %s\n",shot.name);  
+    printf("Detector: %s [ %lf %lf %lf %lf %lf]\n", shot.detector_mask, DETECTOR[0],DETECTOR[1],DETECTOR[2],DETECTOR[3],DETECTOR[4]);
 
     int NX = shot.block_size * shot.block_number;
 
@@ -310,9 +311,8 @@ int main(int argc, char *argv[]){
 
     //! CUDA profiler STOP
     cudaProfilerStop();
-    
-    export_header("TAIGA", folder_out, timestamp);
-    export_header(concat("version: ", TAIGA_VERSION," r ",SVN_REV), folder_out, timestamp);
+
+    export_header(concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"), folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
     export_header(concat("Shot ID: ",shot.name), folder_out, timestamp);
     export_header(concat("Run ID:  ",timestamp), folder_out, timestamp);
