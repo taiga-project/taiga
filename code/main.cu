@@ -416,18 +416,20 @@ void set_cuda(int debug_flag){
             }
         }
         cudaSetDevice(active_device);
-        for (device_i = 0; device_i < num_devices; device_i++) {
-            if(device_i==active_device) printf("-->");
-            cudaDeviceProp properties;
-            cudaGetDeviceProperties(&properties, device_i);
-            printf("\t%d:\t%s\n",device_i,&properties.name);
+        if (debug_flag){
+            for (device_i = 0; device_i < num_devices; device_i++) {
+                if(device_i==active_device) printf("-->");
+                cudaDeviceProp properties;
+                cudaGetDeviceProperties(&properties, device_i);
+                printf("\t%d:\t%s\n",device_i,&properties.name);
+            }
         }
     }
 
     cudaDeviceProp prop;
     cudaGetDevice(&active_device);
     cudaGetDeviceProperties(&prop, active_device);    
-    printf("Active card:\t%s\n", &properties.name);
+    printf("Active card:\t%s\n", &prop.name);
 }
 
 double get_mass(char *s){
