@@ -23,7 +23,7 @@ struct shot_prop{
     int step_device = 2000; // on GPU
 };
 
-void set_cuda();
+void set_cuda(int debug_flag);
 inline void cErrorCheck(const char *file, int line);
 
 int main(int argc, char *argv[]);
