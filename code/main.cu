@@ -57,9 +57,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam){
     }
 }
 
-int main(int argc, char *argv[]){
-    //! @param shotname name of shot folder input folder (8714,11344,11347)
-    
+int main(int argc, char *argv[]){    
     shot_prop shot;
     beam_prop beam;
     input_init_taiga(argc, argv, &shot, &beam);    
@@ -134,7 +132,7 @@ int main(int argc, char *argv[]){
     // phys. constants
     double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
 
-    beamIn(XR, XZ, XT, VR, VZ, VT, beam, shot);
+    load_beam(XR, XZ, XT, VR, VZ, VT, beam, shot);
 
     cudaMalloc((void **) &xr,  dimX); 
     cudaMalloc((void **) &xz,  dimX); 
