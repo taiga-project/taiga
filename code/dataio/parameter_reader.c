@@ -30,7 +30,7 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
         beam->toroidal_deflection = par_value_lf/180.0*PI;
         printf("Warning: Please rename 'angle' variable name to 'toroidal_deflection' in 'parameters.sh'!\n");
     }
-    else if (!strcmp(par_name, "diameter"))                 beam->diameter = par_value_lf;
+    else if (!strcmp(par_name, "diameter"))                 beam->diameter = par_value_lf/1000.0;
     else if (!strcmp(par_name, "detector"))                 strcpy(shot->detector_geometry, clean_string(par_value));
     else if (!strcmp(par_name, "detector_mask"))            strcpy(shot->detector_mask, clean_string(par_value));
     else if (!strcmp(par_name, "electric_field_module"))    shot->electric_field_module = par_value_d;

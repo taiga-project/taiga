@@ -30,19 +30,19 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     }else{
         printf("Cross section beam profile: ON\n");
     }
-
-    double diameter_meter = beam.diameter / 1000.0;
     
     Vabs = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ beam.mass/ AMU);
     
-    /* one-ion beam */
+    /* cross section normalisation */
     if (profx_r_length > 0){
         for (i=0; i<profx_r_length; i++){
             profx_d[i] /= profx_r[i];
         }
     }
+    
     /* initialize random generator */
     srand ( time(NULL) );
+    
     for (i=0; i<shot.particle_number; i++){
         /* set position of particles */
         do{
@@ -51,16 +51,16 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
         }while (isnan(XR[i])||XR[i]<0);
         do{
             if (profx_r_length <= 0){
-                XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diameter_meter;
-                XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diameter_meter;
+                XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*beam.diameter;
+                XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*beam.diameter;
             }else{
                 ionisation_yeald = (double)rand()/RAND_MAX;
                 xsec_ang = (double)rand()/RAND_MAX*2*PI;
-                xsec_rad = linear_interpolate(profx_d, profx_d_length, profx_r, profx_r_length, ionisation_yeald)*(diameter_meter/2);
+                xsec_rad = linear_interpolate(profx_d, profx_d_length, profx_r, profx_r_length, ionisation_yeald)*(beam.diameter/2);
                 XZ[i]= sin(xsec_ang) * xsec_rad;
                 XT[i]= cos(xsec_ang) * xsec_rad;
             }
-        }while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(diameter_meter/2)*(diameter_meter/2));
+        }while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(beam.diameter/2)*(beam.diameter/2));
         
         /* toroidal deflection */
         XT[i] += tan(beam.toroidal_deflection) * ($R_defl - XR[i]);

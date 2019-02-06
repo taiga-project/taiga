@@ -334,7 +334,7 @@ int main(int argc, char *argv[]){
     if(!READINPUTPROF){
         export_header("Beam energy", "keV", beam.energy, folder_out, timestamp);
         export_header("Atomic mass", "AMU", beam.mass, folder_out, timestamp);
-        export_header("Beam diameter", "mm", beam.diameter, folder_out, timestamp);
+        export_header("Beam diameter", "mm", beam.diameter*1000, folder_out, timestamp);
         export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection*180.0/PI, beam.vertical_deflection*180.0/PI, folder_out, timestamp);
     }
     
@@ -343,8 +343,8 @@ int main(int argc, char *argv[]){
     export_header("Detector position (R)", "m", DETECTOR[0], folder_out, timestamp);
     export_header("Detector position (Z)", "m", DETECTOR[1], folder_out, timestamp);
     export_header("Detector position (T)", "m", DETECTOR[2], folder_out, timestamp);
-    export_header("Detector angle (Z/R)", "°", atan(DETECTOR[3])/PI*180.0, folder_out, timestamp);
-    export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])/PI*180.0, folder_out, timestamp);
+    export_header("Detector angle (Z/R)", "°", atan(DETECTOR[3])*180.0/PI, folder_out, timestamp);
+    export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])*180.0/PI, folder_out, timestamp);
     export_header(concat("Detector mask:  \t", shot.detector_mask), folder_out, timestamp);
     export_header_addline(folder_out, timestamp);
     export_header("Timestep", "s", dt, folder_out, timestamp);

@@ -2,7 +2,7 @@ struct beam_prop{
     char matter[40] = "Li";
     double mass = 7.016004558;      // in amu
     double energy = 60;             // in keV
-    double diameter = 25;           // in mm
+    double diameter = 0.025;        // in meter
     double toroidal_deflection = 0; // in radian
     double vertical_deflection = 0; // in radian    
 };
