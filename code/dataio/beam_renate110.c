@@ -1,12 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-/*
-diameter:   in mm
-energy:     in keV
-mass:       in AMU
-*/
-
 int get_array_size(double *array);
 double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value);
 
@@ -42,8 +36,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
     
     Vabs = sqrt(2*energy*1000*eperm);
     
-    /* one-ion beam */ 
-    
+    /* one-ion beam */
     if (profx_r_length > 0){
         for (i=0; i<profx_r_length; i++){
             profx_d[i] /= profx_r[i];
@@ -51,7 +44,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
     }
     /* initialize random generator */
     srand ( time(NULL) );
-    for (i=0;i<beam_number;++i){
+    for (i=0;i<beam_number;i++){
         /* set position of particles */
         do{
             ionisation_yeald = (double)rand()/RAND_MAX;
