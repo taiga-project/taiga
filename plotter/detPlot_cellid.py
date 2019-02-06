@@ -59,10 +59,11 @@ except:
 results_folder = 'results/'+shotnumber+'_'+time+'/'+runnumber+'/'
 
 try:
-	c = float(np.loadtxt(results_folder+'detcellcounter.dat'))
-	C = c/c.max()
+	c = np.loadtxt(results_folder+'detcellcounter.dat')
 except:
 	print 'Invalid input folder: '+results_folder
+
+C = c/c.max()
 
 try:
 	
@@ -78,6 +79,7 @@ try:
 	ax.set_aspect('equal')
 	
 	# Contourf plot
+	
 	print C
 	pl.imshow(C, cmap='afmhot')
 	pl.xlabel(r"$T \mathrm{ [m]}$")
