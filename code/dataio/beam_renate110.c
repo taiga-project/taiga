@@ -32,8 +32,6 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     }
 
     double diameter_meter = beam.diameter / 1000.0;
-    double vertical_deflection_radian = beam.vertical_deflection/180*PI;
-    double toroidal_deflection_radian = beam.toroidal_deflection/180*PI;
     
     Vabs = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ beam.mass/ AMU);
     
@@ -65,12 +63,12 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
         }while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(diameter_meter/2)*(diameter_meter/2));
         
         /* toroidal deflection */
-        XT[i] += tan(toroidal_deflection_radian) * ($R_defl - XR[i]);
+        XT[i] += tan(beam.toroidal_deflection) * ($R_defl - XR[i]);
         
         /* set velocity of particles */
-        VR[i] = -Vabs*cos(vertical_deflection_radian)*cos(toroidal_deflection_radian);
-        VZ[i] =  Vabs*sin(vertical_deflection_radian);
-        VT[i] =  Vabs*cos(vertical_deflection_radian)*sin(toroidal_deflection_radian);
+        VR[i] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
+        VZ[i] =  Vabs*sin(beam.vertical_deflection);
+        VT[i] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
     }
 }
 

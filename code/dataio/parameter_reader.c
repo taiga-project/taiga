@@ -24,10 +24,10 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
         beam->mass = get_mass(beam->matter);
     }
     else if (!strcmp(par_name, "energy"))                   beam->energy = par_value_lf;
-    else if (!strcmp(par_name, "vertical_deflection"))      beam->vertical_deflection = par_value_lf;
-    else if (!strcmp(par_name, "toroidal_deflection"))      beam->toroidal_deflection = par_value_lf;
+    else if (!strcmp(par_name, "vertical_deflection"))      beam->vertical_deflection = par_value_lf/180.0*PI;
+    else if (!strcmp(par_name, "toroidal_deflection"))      beam->toroidal_deflection = par_value_lf/180.0*PI;
     else if (!strcmp(par_name, "angle")){                   // duplication (former name until 1.3.0)
-        beam->toroidal_deflection = par_value_lf;
+        beam->toroidal_deflection = par_value_lf/180.0*PI;
         printf("Warning: Please rename 'angle' variable name to 'toroidal_deflection' in 'parameters.sh'!\n");
     }
     else if (!strcmp(par_name, "diameter"))                 beam->diameter = par_value_lf;

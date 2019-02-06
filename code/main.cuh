@@ -3,8 +3,8 @@ struct beam_prop{
     double mass = 7.016004558;      // in amu
     double energy = 60;             // in keV
     double diameter = 25;           // in mm
-    double toroidal_deflection = 0; // in angle
-    double vertical_deflection = 0; // in angle    
+    double toroidal_deflection = 0; // in radian
+    double vertical_deflection = 0; // in radian    
 };
 
 struct shot_prop{
