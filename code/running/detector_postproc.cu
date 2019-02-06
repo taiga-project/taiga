@@ -20,7 +20,7 @@ __global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, do
         }
         
         if ((x_cellid >= 0) & (y_cellid >= 0)) {
-            detcellid[idx] = y_cellid * N_det_x/2 + x_cellid + 1;
+            detcellid[idx] = x_cellid * N_det_y/2 + y_cellid + 1;
         }
     }
 }
