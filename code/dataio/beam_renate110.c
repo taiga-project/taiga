@@ -31,9 +31,9 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
         printf("Cross section beam profile: ON\n");
     }
 
-    double diam = beam.diameter / 1000.0;
-    double deflH = beam.toroidal_deflection/180*PI;
-    double deflV = beam.vertical_deflection/180*PI;
+    double diameter_meter = beam.diameter / 1000.0;
+    double vertical_deflection_radian = beam.vertical_deflection/180*PI;
+    double toroidal_deflection_radian = beam.toroidal_deflection/180*PI;
     
     Vabs = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ beam.mass/ AMU);
     
@@ -53,24 +53,24 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
         }while (isnan(XR[i])||XR[i]<0);
         do{
             if (profx_r_length <= 0){
-                XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
-                XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diam;
+                XZ[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diameter_meter;
+                XT[i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*diameter_meter;
             }else{
                 ionisation_yeald = (double)rand()/RAND_MAX;
                 xsec_ang = (double)rand()/RAND_MAX*2*PI;
-                xsec_rad = linear_interpolate(profx_d, profx_d_length, profx_r, profx_r_length, ionisation_yeald)*(diam/2);
+                xsec_rad = linear_interpolate(profx_d, profx_d_length, profx_r, profx_r_length, ionisation_yeald)*(diameter_meter/2);
                 XZ[i]= sin(xsec_ang) * xsec_rad;
                 XT[i]= cos(xsec_ang) * xsec_rad;
             }
-        }while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(diam/2)*(diam/2));
+        }while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(diameter_meter/2)*(diameter_meter/2));
         
         /* toroidal deflection */
-        XT[i] += tan(deflV) * ($R_defl - XR[i]);
+        XT[i] += tan(toroidal_deflection_radian) * ($R_defl - XR[i]);
         
         /* set velocity of particles */
-        VR[i] = -Vabs*cos(deflH)*cos(deflV);
-        VZ[i] =  Vabs*sin(deflH);
-        VT[i] =  Vabs*cos(deflH)*sin(deflV);
+        VR[i] = -Vabs*cos(vertical_deflection_radian)*cos(toroidal_deflection_radian);
+        VZ[i] =  Vabs*sin(vertical_deflection_radian);
+        VT[i] =  Vabs*cos(vertical_deflection_radian)*sin(toroidal_deflection_radian);
     }
 }
 
