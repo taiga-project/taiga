@@ -1,10 +1,11 @@
 #!/bin/bash
-maxwidth=20.0
-width=1.0
-gap=0.0
-filename="detx"
+maxwidth=10.5
+width=1.2
+gap=1.0
+filename="final/detx"
 
-points=$(bc <<< "2*$maxwidth/($width+$gap)-1")
+points=$(bc <<< "2*$maxwidth/($width+$gap)")
+echo $points
 rm $filename
 for i in `seq 0 $points`;
 do
