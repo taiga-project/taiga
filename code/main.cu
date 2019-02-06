@@ -134,7 +134,7 @@ int main(int argc, char *argv[]){
     // phys. constants
     double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
 
-    beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflation, beam.vertical_deflation);
+    beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflection, beam.vertical_deflection);
 
     cudaMalloc((void **) &xr,  dimX); 
     cudaMalloc((void **) &xz,  dimX); 
@@ -337,7 +337,7 @@ int main(int argc, char *argv[]){
         export_header("Beam energy", "keV", beam.energy, folder_out, timestamp);
         export_header("Atomic mass", "AMU", beam.mass, folder_out, timestamp);
         export_header("Beam diameter", "mm", beam.diameter, folder_out, timestamp);
-        export_header("Beam deflation (toroidal/vertical)", "°", beam.toroidal_deflation, beam.vertical_deflation, folder_out, timestamp);
+        export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection, beam.vertical_deflection, folder_out, timestamp);
     }
     
     export_header("Number of ions", "", (double)NX, folder_out, timestamp);
