@@ -335,7 +335,7 @@ int main(int argc, char *argv[]){
         export_header("Beam energy", "keV", beam.energy, folder_out, timestamp);
         export_header("Atomic mass", "AMU", beam.mass, folder_out, timestamp);
         export_header("Beam diameter", "mm", beam.diameter, folder_out, timestamp);
-        export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection, beam.vertical_deflection, folder_out, timestamp);
+        export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection*180.0/PI, beam.vertical_deflection*180.0/PI, folder_out, timestamp);
     }
     
     export_header("Number of ions", "", (double)NX, folder_out, timestamp);
