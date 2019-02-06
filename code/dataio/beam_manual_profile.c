@@ -2,6 +2,7 @@
 #include <math.h>
 
 void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, beam_prop beam, shot_prop shot){
+    double *xr,*xz,*xt,*vr,*vz,*vt;
     int profile_length = read_vector(&xr, "input", "manual_profile", "rad.dat");
     read_vector(&xz, "input", "manual_profile", "z.dat");
     read_vector(&xt, "input", "manual_profile", "tor.dat");
@@ -9,7 +10,7 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     read_vector(&vz, "input", "manual_profile", "vz.dat");
     read_vector(&vt, "input", "manual_profile", "vtor.dat");
     
-    for (int i=0; i<shot.particle_number; ++i){
+    for (int i=0; i<shot.particle_number; i++){
         XR[i]=xr[i];
         XZ[i]=xz[i];
         XT[i]=xt[i];
