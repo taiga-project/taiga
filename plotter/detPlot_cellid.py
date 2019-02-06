@@ -64,6 +64,7 @@ except:
 	print 'Invalid input folder: '+results_folder
 
 C = c/c.max()
+print C
 
 try:
 	
@@ -79,8 +80,6 @@ try:
 	ax.set_aspect('equal')
 	
 	# Contourf plot
-	
-	print C
 	pl.imshow(C, cmap='afmhot')
 	pl.xlabel(r"$T \mathrm{ [m]}$")
 	pl.ylabel(r"$Z \mathrm{ [m]}$")
