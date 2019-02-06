@@ -9,7 +9,7 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     int i;
     double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
-    char shotname[] = concat(shot.shotnumber, "_", shot.time);
+    char* shotname = concat(shot.shotnumber, "_", shot.time);
 
     int prof_r_length = read_vector(&prof_r, "input/ionProf", shotname, "rad.dat");
     int prof_d_length = read_vector(&prof_d, "input/ionProf", shotname, "ionyeald.dat");    
