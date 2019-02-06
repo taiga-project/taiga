@@ -35,7 +35,7 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     double deflH = beam.toroidal_deflection/180*PI;
     double deflV = beam.vertical_deflection/180*PI;
     
-    Vabs = sqrt(2*energy*1000*eperm);
+    Vabs = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ beam.mass/ AMU);
     
     /* one-ion beam */
     if (profx_r_length > 0){
