@@ -77,7 +77,7 @@ try:
 	ax.set_aspect('equal')
 	
 	# Contourf plot
-	pl.imshow(C, cmap='afmhot')
+	pl.imshow(C/C.max(), cmap='afmhot')
 	pl.xlabel(r"$T \mathrm{ [m]}$")
 	pl.ylabel(r"$Z \mathrm{ [m]}$")
 except:
