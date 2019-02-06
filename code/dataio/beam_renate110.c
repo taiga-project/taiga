@@ -5,10 +5,11 @@ int get_array_size(double *array);
 double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value);
 
 // set beam inline parameters
-int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, double energy, double eperm, int beam_number, char *shotname, double diameter, double deflH_degree, double deflV_degree){
+void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, beam_prop beam, shot_prop shot){
     int i;
-
     double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
+    
+    char shotname[] = concat(shot.shotnumber, "_", shot.time);
 
     int prof_r_length = read_vector(&prof_r, "input/ionProf", shotname, "rad.dat");
     int prof_d_length = read_vector(&prof_d, "input/ionProf", shotname, "ionyeald.dat");    
@@ -30,9 +31,9 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
         printf("Cross section beam profile: ON\n");
     }
 
-    double diam = diameter / 1000.0;
-    double deflH = deflH_degree/180*PI;
-    double deflV = deflV_degree/180*PI;
+    double diam = beam.diameter / 1000.0;
+    double deflH = beam.toroidal_deflection/180*PI;
+    double deflV = beam.vertical_deflection/180*PI;
     
     Vabs = sqrt(2*energy*1000*eperm);
     
@@ -71,8 +72,6 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
         VZ[i] =  Vabs*sin(deflH);
         VT[i] =  Vabs*cos(deflH)*sin(deflV);
     }
-    
-    return beam_number;
 }
 
 double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){

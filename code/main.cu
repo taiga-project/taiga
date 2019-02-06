@@ -134,7 +134,7 @@ int main(int argc, char *argv[]){
     // phys. constants
     double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
 
-    beamIn(XR, XZ, XT, VR, VZ, VT, beam.energy, eperm, NX, shot.name, beam.diameter, beam.toroidal_deflection, beam.vertical_deflection);
+    beamIn(XR, XZ, XT, VR, VZ, VT, beam, shot);
 
     cudaMalloc((void **) &xr,  dimX); 
     cudaMalloc((void **) &xz,  dimX); 
