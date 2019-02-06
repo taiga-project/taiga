@@ -44,7 +44,7 @@ int beamIn(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *V
     }
     /* initialize random generator */
     srand ( time(NULL) );
-    for (i=0;i<beam_number;i++){
+    for (i=0; i<beam_number; i++){
         /* set position of particles */
         do{
             ionisation_yeald = (double)rand()/RAND_MAX;
