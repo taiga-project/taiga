@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "data_export.h"
 
 #if defined(_WIN32)
 void mkdir(char *path, mode_t mode){

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "data_import.h"
 
 int read_vector(double **name, char *folder, char *shotname, char *filename, bool warning_on){
     int i = 0;

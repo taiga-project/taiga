@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "parameter_editor.h"
 
 #define MAXCHAR 1000
 
