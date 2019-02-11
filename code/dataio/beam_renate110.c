@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-int get_array_size(double *array);
-double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value);
-
 // set beam inline parameters
 void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, beam_prop beam, shot_prop shot){
     int i;
@@ -71,15 +68,3 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
         VT[i] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
     }
 }
-
-double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){
-    int i;
-    if (x_length != y_length)   printf("ERROR: in interpolation. Two input vectors have different length.");    
-    for (i=1; (i<x_length) && (x_vector[i-1]>x_value); i++);    
-    if(i>1){--i;}else{i=1;}    
-    return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
-}
-
-int get_array_size(double *array){
-    return (int)(sizeof(array)/sizeof(array[0]));
-} 
