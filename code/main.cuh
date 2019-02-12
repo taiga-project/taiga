@@ -25,7 +25,7 @@ struct shot_prop{
 
 struct run_prop{
     int help = 0;
-}
+};
 
 void set_cuda(int debug_flag);
 inline void cErrorCheck(const char *file, int line);
