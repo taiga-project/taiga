@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
         printf("  T:\t%lf\n", DETECTOR[2]);
         printf("  angle (Z/R):\t%lf°\n", atan(DETECTOR[3])/PI*180.0);
         printf("  angle (T/R):\t%lf°\n", atan(DETECTOR[4])/PI*180.0);
-        printf("=============================\n");
+        printf("===============================\n");
 
         int NX = shot.block_size * shot.block_number;
 
