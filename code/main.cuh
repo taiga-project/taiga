@@ -23,11 +23,15 @@ struct shot_prop{
     int step_device = 2000; // on GPU
 };
 
+struct run_prop{
+    int help = 0;
+}
+
 void set_cuda(int debug_flag);
 inline void cErrorCheck(const char *file, int line);
 
 int main(int argc, char *argv[]);
-void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam);
+void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, run_prop *run);
 
 double get_mass(char *s);
 void set_detector_geometry(double *DETECTOR, char* values);
@@ -40,3 +44,5 @@ int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double
 
 void debug_message_init(double* XR, double* XZ, double* XT, double* VR, double* VZ, double* VT);
 void debug_message_run(double* XR, double* XZ, double* XT, double* VR, double* VZ, double* VT);
+
+void print_help_message();

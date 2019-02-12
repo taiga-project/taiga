@@ -12,7 +12,7 @@ char* clean_string (char* str_in){
     return str_out;
 }
 
-void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_prop *beam){
+void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_prop *beam, run_prop *run){
     
     double par_value_lf;    sscanf(par_value, "%lf", &par_value_lf);
     int par_value_d;        sscanf(par_value, "%d", &par_value_d);
@@ -43,7 +43,7 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     }
 }
 
-int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
+int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam, run_prop *run){
     
     FILE *fp;
     char str[MAXCHAR];
@@ -59,7 +59,7 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
         if (str[0] != '#'){        
             par_name = strtok(str, "=");
             par_value = strtok(NULL, "#");
-            init_taiga_props(par_name, par_value, shot, beam);
+            init_taiga_props(par_name, par_value, shot, beam, run);
         }
     }    
     fclose(fp);
@@ -68,7 +68,7 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam){
 }
 
 
-int runnumber_reader(char* filename, shot_prop *shot){
+int runnumber_reader(char* filename, shot_prop *shot, run_prop *run){
     
     FILE *fp;
     char str[MAXCHAR];
