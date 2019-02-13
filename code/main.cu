@@ -54,15 +54,21 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
     char *input;
     for (int i=1; i<argc; i++){
         input = strtok(argv[i], "=");
-        if (!strcmp(input, "--debug"))  run->debug = 1;
-        else if (!strcmp(input, "--fulltrace")){
+        if (!strcmp(input, "--debug") || !strcmp(input, "-d")){
+            run->debug = 1;
+        }else if (!strcmp(input, "--fulltrace") || !strcmp(input, "-f")){
             run->step_host = 2000;
             run->step_device = 1;
-        }else if (!strcmp(input, "--help")||!strcmp(input, "-h")) run->help = 1;
-        else if (!strcmp(input, "-p")){
+        }else if (!strcmp(input, "--help") || !strcmp(input, "-h")){
+            run->help = 1;
+        }else if (!strcmp(input, "--parameter_file") || !strcmp(input, "-p")){
             input = strtok(NULL, "=");
             strcpy(run->parameter_file, input);
             printf("Parameter file: %s\n", run->parameter_file);
+        }else if (!strcmp(input, "--runnumber_file")){
+            input = strtok(NULL, "=");
+            strcpy(run->runnumber_file, input);
+            printf("Runnumber file: %s\n", run->runnumber_file);
         }
     }
 }
@@ -70,8 +76,10 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
 void print_help_message(){        
         printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
         printf("Usage: taiga.exe [options]\nOptions:\n");
-        printf("  --debug                     Print additional debug informations\n");
-        printf("  --fulltrace                 Save coordinates at every timestep\n");
+        printf("  -d, --debug                 Print additional debug informations\n");
+        printf("  -f, --fulltrace             Save coordinates at every timestep\n");
+        printf("  -p, --parameter_file=PATH   Parameter file path\n");
+        printf("      --runnumber_file=PATH   Runnumber file pathe\n");
         printf("  -h, --help                  Help message\n");
 }
 
