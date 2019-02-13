@@ -23,6 +23,7 @@
 #include "test/cuda/nvToolsExt.h"
 
 #include "main.cuh"
+#include "debug_functions.c"
 #include "basic_functions.c"
 #include "dataio/data_import.c"
 #include "dataio/parameter_reader.c"
@@ -56,6 +57,14 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
             run->step_device = 1;
         }else if (!strcmp(argv[i], "--help")) run->help = 1;
     }
+}
+
+void print_help_message(){        
+        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
+        printf("Usage: taiga.exe [options]\nOptions:\n");
+        printf("  --debug                     Print additional debug informations\n");
+        printf("  --fulltrace                 Save coordinates at every timestep\n");
+        printf("  -h, --help                  Help message\n");
 }
 
 int main(int argc, char *argv[]){    
@@ -584,33 +593,4 @@ int electric_field_read_and_init(shot_prop shot, run_prop run, double ***return_
     *return_et_ptr = et_ptr;
 
     return s;
-}
-
-// DEBUG
-void debug_message_init(double* XR, double* XZ, double* XT, double* VR, double* VZ, double* VT){
-        printf("ionV:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
-        printf("ionX:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-        printf("ionX:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
-        
-        printf("----------------------------------------------------------\n");
-        printf("ion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-        printf("----------------------------------------------------------\n");
-        for(int i=1; i<20; i++){
-            printf("ion: %2d.\t %le\t %le\t %le\n",i,XR[i],XZ[i],XT[i]);
-        }
-        printf("----------------------------------------------------------\n");  
-}
-
-void debug_message_run(double* XR, double* XZ, double* XT, double* VR, double* VZ, double* VT){
-            printf("Xion:  0.\t %lf\t %lf\t %lf\n",XR[0],XZ[0],XT[0]);
-            printf("Xion:  1.\t %lf\t %lf\t %lf\n",XR[1],XZ[1],XT[1]);
-            printf("Vion:  0.\t %lf\t %lf\t %lf\n",VR[0],VZ[0],VT[0]);
-}
-
-void print_help_message(){        
-        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
-        printf("Usage: taiga.exe [options]\nOptions:\n");
-        printf("  --debug                     Print additional debug informations\n");
-        printf("  --fulltrace                 Save coordinates at every timestep\n");
-        printf("  -h, --help                  Help message\n");
 }
