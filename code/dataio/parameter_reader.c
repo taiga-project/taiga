@@ -70,18 +70,20 @@ int parameter_reader(shot_prop *shot, beam_prop *beam, run_prop *run){
 
 int runnumber_reader(shot_prop *shot, run_prop *run){
     
-    FILE *fp;
-    char str[MAXCHAR];
-    int runnumber;
-    
-    fp = fopen(run->runnumber_file, "r");
-    if (fp == NULL){
-        printf("Could not open file %s",run->runnumber_file);
-        return 1;
+    if (run->runnumber == 0){
+        FILE *fp;
+        char str[MAXCHAR];
+        int runnumber;
+        
+        fp = fopen(run->runnumber_file, "r");
+        if (fp == NULL){
+            printf("Could not open file %s",run->runnumber_file);
+            return 1;
+        }
+        fgets(str, MAXCHAR, fp);    
+        sscanf(str, "%d", &runnumber);
+        run->runnumber = runnumber;
     }
-    fgets(str, MAXCHAR, fp);    
-    sscanf(str, "%d", &runnumber);
-    run->runnumber = runnumber;
 }
 
 double get_mass(char *s){

@@ -61,14 +61,23 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
             run->step_device = 1;
         }else if (!strcmp(input, "--help") || !strcmp(input, "-h")){
             run->help = 1;
+        }else if (!strcmp(input, "--devices") || !strcmp(input, "-l")){   
+            run->help = 2;
         }else if (!strcmp(input, "--parameter_file") || !strcmp(input, "-p")){
             input = strtok(NULL, "=");
             strcpy(run->parameter_file, input);
             printf("Parameter file: %s\n", run->parameter_file);
-        }else if (!strcmp(input, "--runnumber_file")){
+        }else if (!strcmp(input, "--runnumber_file") || !strcmp(input, "--runnumber") || !strcmp(input, "-r")){
             input = strtok(NULL, "=");
-            strcpy(run->runnumber_file, input);
-            printf("Runnumber file: %s\n", run->runnumber_file);
+            int runnumber = atoi(input);
+            if (runnumber == 0 && strcmp(input, "0"){
+                strcpy(run->runnumber_file, input);
+                printf("Runnumber file: %s\n", run->runnumber_file);
+            }else{
+                run->runnumber = runnumber;
+                strcpy(run->runnumber_file, "console init");
+                printf("Runnumber: %s\n", run->runnumber);
+            }
         }
     }
 }
@@ -78,9 +87,11 @@ void print_help_message(){
         printf("Usage: taiga.exe [options]\nOptions:\n");
         printf("  -d, --debug                 Print additional debug informations\n");
         printf("  -f, --fulltrace             Save coordinates at every timestep\n");
-        printf("  -p, --parameter_file=PATH   Parameter file path\n");
-        printf("      --runnumber_file=PATH   Runnumber file pathe\n");
         printf("  -h, --help                  Help message\n");
+        printf("  -l, --devices               List devices\n");
+        printf("  -p, --parameter_file=PATH   Parameter file path\n");
+        printf("  -r  --runnumber_file=PATH   Runnumber file pathe\n");
+        printf("  -r  --runnumber=INTEGER     Runnumber value\n");
 }
 
 int main(int argc, char *argv[]){    
@@ -91,6 +102,8 @@ int main(int argc, char *argv[]){
     
     if (run.help == 1){
         print_help_message();
+    if (run.help == 2){
+        set_cuda(1);
     }else{  
         parameter_reader(&shot, &beam, &run);
         runnumber_reader(&shot, &run); 
