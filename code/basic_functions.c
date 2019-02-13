@@ -13,8 +13,8 @@ void set_cuda(int debug_flag){
     cudaGetDeviceCount(&num_devices);
     if (debug_flag) printf("Number of devices: %d\n", num_devices);
     
-    if (num_devices > 1) {
-        int max_multiprocessors = 0, active_device = 0;
+    if (num_devices > 1 || debug_flag) {
+        int max_multiprocessors = 0;
         for (device_i = 0; device_i < num_devices; device_i++) {
             cudaDeviceProp properties;
             cudaGetDeviceProperties(&properties, device_i);
@@ -23,7 +23,7 @@ void set_cuda(int debug_flag){
                 active_device = device_i;
             }
             if (debug_flag){
-                printf("%d:%s\n",device_i,&properties.name);
+                printf("Card %d:%s\n",device_i,&properties.name);
                 printf("\tL2Cache:\t%d", properties.l2CacheSize);
                 printf("\tNumber of cores:\t%d", properties.warpSize);        
                 printf("\tKernels:\t%d", properties.concurrentKernels);
