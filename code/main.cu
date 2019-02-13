@@ -50,7 +50,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
 
     for (int i=1; i<argc; i++){
         if (!strcmp(argv[i], "-h")) run->help = 1;
-        else if (!strcmp(argv[i], "--debug"))  shot->debug = 1;
+        else if (!strcmp(argv[i], "--debug"))  run->debug = 1;
         else if (!strcmp(argv[i], "--fulltrace")){
             shot->step_host = 2000;
             shot->step_device = 1;
@@ -86,23 +86,23 @@ int main(int argc, char *argv[]){
         printf("  angle (T/R):\t%lf°\n", atan(DETECTOR[4])/PI*180.0);
         printf("===============================\n");
 
-        int NX = shot.block_size * shot.block_number;
+        int NX = run.block_size * run.block_number;
 
         if (READINPUTPROF == 1){
             double *XR;
             NX = read_vector(&XR, "input", "manual_profile", "rad.dat");
-            shot.block_number = NX / shot.block_size+1;
+            run.block_number = NX / run.block_size+1;
         }
 
         char* folder_out=concat("results/", shot.name);
         
-        set_cuda(shot.debug);
+        set_cuda(run.debug);
 
         // set timestamp
         time_t rawtime;
         struct tm *info;
         char timestamp[80];
-        sprintf(timestamp, "%d", shot.runnumber);
+        sprintf(timestamp, "%d", run.runnumber);
 
         // coords
         double *X_PTR[3], **x_ptr;
@@ -117,15 +117,15 @@ int main(int argc, char *argv[]){
         double *VZ,  *vz;
         double *VT,  *vt;
 
-        printf("Number of blocks (threads): %d\n", shot.block_number);
-        printf("Block size: %d\n", shot.block_size);
+        printf("Number of blocks (threads): %d\n", run.block_number);
+        printf("Block size: %d\n", run.block_size);
         printf("Number of particles: %d\n", NX);
-        printf("Max steps on device (GPU): %d\n", shot.step_device);
-        printf("Max steps on host (HDD): %d\n", shot.step_host);
+        printf("Max steps on device (GPU): %d\n", run.step_device);
+        printf("Max steps on host (HDD): %d\n", run.step_host);
 
 
         //! position and velocity array allocation
-        size_t dimX = shot.block_size * shot.block_number * sizeof(double);
+        size_t dimX = run.block_size * run.block_number * sizeof(double);
         
         XR = (double*)malloc(dimX);
         XZ = (double*)malloc(dimX);
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]){
         // phys. constants
         double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
 
-        load_beam(XR, XZ, XT, VR, VZ, VT, beam, shot);
+        load_beam(XR, XZ, XT, VR, VZ, VT, beam, shot, run);
 
         cudaMalloc((void **) &xr,  dimX); 
         cudaMalloc((void **) &xz,  dimX); 
@@ -238,9 +238,9 @@ int main(int argc, char *argv[]){
         cudaEventCreate(&cuda_event_copy_start);
         cudaEventCreate(&cuda_event_copy_end);
 
-        if (shot.debug == 1)    debug_message_init(XR, XZ, XT, VR, VZ, VT);
+        if (run.debug == 1)    debug_message_init(XR, XZ, XT, VR, VZ, VT);
         
-        for (int step_i=0;step_i<shot.step_host;step_i++){        
+        for (int step_i=0;step_i<run.step_host;step_i++){        
             
             if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
             // ION COORDS (HOST2device)
@@ -261,9 +261,9 @@ int main(int argc, char *argv[]){
             
             if (shot.electric_field_module){
                 printf("electric_field_module ON\n");
-                taiga <<< shot.block_number, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
+                taiga <<< run.block_number, run.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
             }else{
-                taiga <<< shot.block_number, shot.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,shot.step_device,service_var,step_i);
+                taiga <<< run.block_number, run.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
             }
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
@@ -291,16 +291,16 @@ int main(int argc, char *argv[]){
             export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
             cpu_event_copy_end = clock();
             
-            if (shot.debug == 1)    printf("Step\t%d/%d\n",step_i,shot.step_host);
-            if (shot.debug == 1)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
+            if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
+            if (run.debug == 1)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
         }
 
         // Get CUDA timer 
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
-        cpu_time_copy = ((double) (4.0+shot.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
-        cuda_time_copy = (double) 2.0*shot.step_host*cuda_event_copy/1000.0;
-        cuda_time_core =  shot.step_host*cuda_event_core/1000.0;
+        cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
+        cuda_time_copy = (double) 2.0*run.step_host*cuda_event_copy/1000.0;
+        cuda_time_core =  run.step_host*cuda_event_core/1000.0;
         
         printf("===============================\n");
         printf ("CUDA kernel runtime: %lf s\n", cuda_time_core);
@@ -316,7 +316,7 @@ int main(int argc, char *argv[]){
             printf("\nSuccessful run. \n\n");
         }
 
-        detector_module(x_ptr, detector, detcellid, shot.detector_mask, shot.block_number, shot.block_size, NX, folder_out, timestamp);
+        detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, NX, folder_out, timestamp);
         cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
         export_data(DETCELLID, NX, folder_out, timestamp, "detcellid.dat");
 
@@ -359,10 +359,10 @@ int main(int argc, char *argv[]){
         export_header("CUDA memcopy time", "s", cuda_time_copy, folder_out, timestamp);
         export_header("CPU->HDD copy time", "s", cpu_time_copy, folder_out, timestamp);
         export_header_addline(folder_out, timestamp);
-        export_header("Number of blocks (threads)", "", shot.block_number, folder_out, timestamp);
-        export_header("Block size", "", shot.block_size, folder_out, timestamp);
-        export_header("Length of a loop", "", shot.step_device, folder_out, timestamp);
-        export_header("Number of loops", "", shot.step_host, folder_out, timestamp);
+        export_header("Number of blocks (threads)", "", run.block_number, folder_out, timestamp);
+        export_header("Block size", "", run.block_size, folder_out, timestamp);
+        export_header("Length of a loop", "", run.step_device, folder_out, timestamp);
+        export_header("Number of loops", "", run.step_host, folder_out, timestamp);
 
         //! Save data to files
         export_data(XR, NX, folder_out, timestamp, "rad.dat");
@@ -528,7 +528,7 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
         free(S12);  free(S13);  free(S14);  free(S15);
     }
     
-    if (shot.debug == 1){
+    if (run.debug == 1){
         for (int i=0;i<10;i++){
             printf("spline s0 %d %lf\n",i,S0[i]);
         }
