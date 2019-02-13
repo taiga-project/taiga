@@ -52,8 +52,8 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
         if (!strcmp(argv[i], "-h")) run->help = 1;
         else if (!strcmp(argv[i], "--debug"))  run->debug = 1;
         else if (!strcmp(argv[i], "--fulltrace")){
-            shot->step_host = 2000;
-            shot->step_device = 1;
+            run->step_host = 2000;
+            run->step_device = 1;
         }else if (!strcmp(argv[i], "--help")) run->help = 1;
     }
 }
@@ -188,8 +188,8 @@ int main(int argc, char *argv[]){
         double **br_ptr, **bz_ptr, **bt_ptr;
         double **er_ptr, **ez_ptr, **et_ptr;
         
-        int magnetic_field_loaded = magnetic_field_read_and_init(shot, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
-        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
+        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, &br_ptr,&bz_ptr,&bt_ptr, dimRZ);
+        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, &er_ptr,&ez_ptr,&et_ptr, dimRZ);
         
         // detector cell id
         size_t dimRint = NX * sizeof(int);
@@ -474,7 +474,7 @@ double get_mass(char *s){
     return mass;
 }
 
-int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_ptr, int dimRZ){
+int spline_read_and_init(shot_prop shot, run_prop run, char* field_name, double ***return_s_ptr, int dimRZ){
 
     char* spline_folder = "input/fieldSpl";
     int suc[1] = {1};
@@ -539,7 +539,7 @@ int spline_read_and_init(shot_prop shot, char* field_name, double ***return_s_pt
 
 }
 
-int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){
+int magnetic_field_read_and_init(shot_prop shot, run_prop run, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){
 
     size_t dimB = 16*sizeof(double*);
     double *BR_PTR[16];     double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB); 
@@ -547,9 +547,9 @@ int magnetic_field_read_and_init(shot_prop shot, double ***return_br_ptr, double
     double *BZ_PTR[16];     double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
 
     int s;
-    s = spline_read_and_init(shot, "brad", &br_ptr, dimRZ);
-    s = spline_read_and_init(shot, "bz",   &bz_ptr, dimRZ);
-    s = spline_read_and_init(shot, "btor", &bt_ptr, dimRZ);
+    s = spline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
+    s = spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
+    s = spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
 
     *return_br_ptr = br_ptr;
     *return_bz_ptr = bz_ptr;
@@ -566,7 +566,7 @@ void set_detector_geometry(double *DETECTOR, char* values){
     el = strtok(NULL,",");      DETECTOR[3] = tan(strtod (el, NULL) * PI/180.0);
 }
 
-int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){
+int electric_field_read_and_init(shot_prop shot, run_prop run,  ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){
 
     size_t dimB = 16*sizeof(double*);
     double *ER_PTR[16]; double **er_ptr;    cudaMalloc((void **) &er_ptr,  dimB);
@@ -575,9 +575,9 @@ int electric_field_read_and_init(shot_prop shot, double ***return_er_ptr, double
 
     int s;   
 
-    s = spline_read_and_init(shot, "erad", &er_ptr, dimRZ);
-    s = spline_read_and_init(shot, "ez",   &ez_ptr, dimRZ);
-    s = spline_read_and_init(shot, "etor", &et_ptr, dimRZ);
+    s = spline_read_and_init(shot, run, "erad", &er_ptr, dimRZ);
+    s = spline_read_and_init(shot, run, "ez",   &ez_ptr, dimRZ);
+    s = spline_read_and_init(shot, run, "etor", &et_ptr, dimRZ);
 
     *return_er_ptr = er_ptr;
     *return_ez_ptr = ez_ptr;

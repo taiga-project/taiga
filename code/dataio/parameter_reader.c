@@ -81,5 +81,5 @@ int runnumber_reader(char* filename, shot_prop *shot, run_prop *run){
     }
     fgets(str, MAXCHAR, fp);    
     sscanf(str, "%d", &runnumber);
-    shot->runnumber = runnumber;
+    run->runnumber = runnumber;
 }
