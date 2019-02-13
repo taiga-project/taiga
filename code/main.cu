@@ -70,7 +70,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
         }else if (!strcmp(input, "--runnumber_file") || !strcmp(input, "--runnumber") || !strcmp(input, "-r")){
             input = strtok(NULL, "=");
             int runnumber = atoi(input);
-            if (runnumber == 0 && strcmp(input, "0"){
+            if (runnumber == 0 && strcmp(input, "0")){
                 strcpy(run->runnumber_file, input);
                 printf("Runnumber file: %s\n", run->runnumber_file);
             }else{
