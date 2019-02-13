@@ -62,7 +62,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
         else if (!strcmp(input, "-p")){
             input = strtok(NULL, "=");
             strcpy(run->parameter_file, input);
-            printf("Parameter file: %s", input);
+            printf("Parameter file: %s\n", run->parameter_file);
         }
     }
 }
