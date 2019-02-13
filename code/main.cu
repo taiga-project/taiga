@@ -61,7 +61,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
         }else if (!strcmp(input, "--help")||!strcmp(input, "-h")) run->help = 1;
         else if (!strcmp(input, "-p")){
             input = strtok(NULL, "=");
-            strcpy(run->parameter_file, input);
+            strcpy(run.parameter_file, input);
         }
     }
 }
