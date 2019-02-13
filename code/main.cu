@@ -72,7 +72,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
             int runnumber = atoi(input);
             if (runnumber || !strcmp(input, "0")){
                 run->runnumber = runnumber;
-                strcpy(run->runnumber_file, "console init");
+                //strcpy(run->runnumber_file, "console init");
                 printf("Runnumber: %s\n", run->runnumber);            
             }else{
                 strcpy(run->runnumber_file, input);
