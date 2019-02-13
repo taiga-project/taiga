@@ -102,7 +102,7 @@ int main(int argc, char *argv[]){
     
     if (run.help == 1){
         print_help_message();
-    if (run.help == 2){
+    }else if (run.help == 2){
         set_cuda(1);
     }else{  
         parameter_reader(&shot, &beam, &run);
