@@ -1,22 +1,22 @@
 inline void cErrorCheck(const char *file, int line){
-cudaThreadSynchronize();
-cudaError_t err = cudaGetLastError();
-if (err != cudaSuccess){
-    printf("Error: %s\n", cudaGetErrorString(err));
-    printf(" @ %s: %d\n", file, line);
-    exit(-1);
-}
+    cudaThreadSynchronize();
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess){
+        printf("Error: %s\n", cudaGetErrorString(err));
+        printf(" @ %s: %d\n", file, line);
+        exit(-1);
+    }
 }
 
 void set_cuda(int debug_flag){
     int num_devices, device_i, active_device=0;
+    cudaDeviceProp properties;
     cudaGetDeviceCount(&num_devices);
     if (debug_flag) printf("Number of devices: %d\n", num_devices);
     
     if (num_devices > 1 || debug_flag) {
         int max_multiprocessors = 0;
         for (device_i = 0; device_i < num_devices; device_i++){
-            cudaDeviceProp properties;
             cudaGetDeviceProperties(&properties, device_i);
             if (max_multiprocessors < properties.multiProcessorCount){
                 max_multiprocessors = properties.multiProcessorCount;
@@ -26,6 +26,7 @@ void set_cuda(int debug_flag){
         cudaSetDevice(active_device);
         if (debug_flag){
             for (device_i = 0; device_i < num_devices; device_i++){
+                cudaGetDeviceProperties(&properties, device_i);                
                 if(device_i==active_device) printf("[*] "); else    printf("[ ] ");
                 printf("Card %d: \t%s\n",device_i,&properties.name);
                 printf("\tL2Cache:\t%d\n", properties.l2CacheSize);
@@ -38,10 +39,9 @@ void set_cuda(int debug_flag){
         }
     }
 
-    cudaDeviceProp prop;
     cudaGetDevice(&active_device);
-    cudaGetDeviceProperties(&prop, active_device);    
-    printf("Active card:\t%s\n", &prop.name);
+    cudaGetDeviceProperties(&properties, active_device);    
+    printf("Active card:\t%s\n", &properties.name);
 }
 
 double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){
