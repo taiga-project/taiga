@@ -46,15 +46,15 @@
 #include "detector_module.c"
 //#include "running/detector_postproc.cu"
 
-void input_init_taiga(int argc, char *argv[], shot_prop shot, beam_prop beam, run_prop run){
+void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, run_prop *run){
 
     for (int i=1; i<argc; i++){
-        if (!strcmp(argv[i], "-h")) run.help = 1;
-        else if (!strcmp(argv[i], "--debug"))  shot.debug = 1;
+        if (!strcmp(argv[i], "-h")) run->help = 1;
+        else if (!strcmp(argv[i], "--debug"))  shot->debug = 1;
         else if (!strcmp(argv[i], "--fulltrace")){
-            shot.step_host = 2000;
-            shot.step_device = 1;
-        }else if (!strcmp(argv[i], "--help")) run.help = 1;
+            shot->step_host = 2000;
+            shot->step_device = 1;
+        }else if (!strcmp(argv[i], "--help")) run->help = 1;
     }
 }
 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]){
     shot_prop shot;
     beam_prop beam;
     run_prop run;
-    input_init_taiga(argc, argv, shot, beam, run);
+    input_init_taiga(argc, argv, &shot, &beam, &run);
     
     if (run.help == 1){
         print_help_message();
