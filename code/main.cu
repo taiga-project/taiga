@@ -67,8 +67,8 @@ int main(int argc, char *argv[]){
     if (run.help == 1){
         print_help_message();
     }else{  
-        parameter_reader("parameters.sh", &shot, &beam, &run);
-        runnumber_reader("runnumber", &shot, &run); 
+        parameter_reader(&shot, &beam, &run);
+        runnumber_reader(&shot, &run); 
 
         size_t dimD = 5 * sizeof(double);
         double *DETECTOR, *detector;

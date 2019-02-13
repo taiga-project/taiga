@@ -25,6 +25,8 @@ struct run_prop{
     int block_size = 192;   //size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
     int step_host = 1;      // on HDD
     int step_device = 2000; // on GPU
+    char parameter_file[200] = "parameters.sh";
+    char runnumber_file[200] = "runnumber";
 };
 
 void set_cuda(int debug_flag);

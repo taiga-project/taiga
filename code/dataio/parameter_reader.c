@@ -43,16 +43,16 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     }
 }
 
-int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam, run_prop *run){
+int parameter_reader(shot_prop *shot, beam_prop *beam, run_prop *run){
     
     FILE *fp;
     char str[MAXCHAR];
     char* par_name;
     char* par_value;
  
-    fp = fopen(filename, "r");
+    fp = fopen(run->parameter_file, "r");
     if (fp == NULL){
-        printf("Could not open file %s",filename);
+        printf("Could not open file %s",run->parameter_file);
         return 1;
     }
     while (fgets(str, MAXCHAR, fp) != NULL){
@@ -68,15 +68,15 @@ int parameter_reader(char* filename, shot_prop *shot, beam_prop *beam, run_prop 
 }
 
 
-int runnumber_reader(char* filename, shot_prop *shot, run_prop *run){
+int runnumber_reader(shot_prop *shot, run_prop *run){
     
     FILE *fp;
     char str[MAXCHAR];
     int runnumber;
     
-    fp = fopen(filename, "r");
+    fp = fopen(run->runnumber_file, "r");
     if (fp == NULL){
-        printf("Could not open file %s",filename);
+        printf("Could not open file %s",run->runnumber_file);
         return 1;
     }
     fgets(str, MAXCHAR, fp);    
