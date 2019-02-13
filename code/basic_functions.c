@@ -28,7 +28,7 @@ void set_cuda(int debug_flag){
             for (device_i = 0; device_i < num_devices; device_i++){
                 cudaGetDeviceProperties(&properties, device_i);                
                 if(device_i==active_device) printf("[*] "); else    printf("[ ] ");
-                printf("Card %d: \t%s\n",device_i,&properties.name);
+                printf("Card %d:    %s\n",device_i,&properties.name);
                 printf("      L2Cache:         %d\n", properties.l2CacheSize);
                 printf("      Number of cores: %d\n", properties.warpSize);        
                 printf("      Kernels:         %d\n", properties.concurrentKernels);
