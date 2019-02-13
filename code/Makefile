@@ -14,8 +14,7 @@ all: taiga.exe taiga_renate.exe
 taiga.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o taiga.exe  main.cu
 	
-	
-taiga_renate.exe: main.cu	
+taiga_renate.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FLAGS) -o taiga_renate.exe  main.cu
 	
 clean: 
