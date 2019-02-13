@@ -1,7 +1,7 @@
-inline void cErrorCheck(const char *file, int line) {
+inline void cErrorCheck(const char *file, int line){
 cudaThreadSynchronize();
 cudaError_t err = cudaGetLastError();
-if (err != cudaSuccess) {
+if (err != cudaSuccess){
     printf("Error: %s\n", cudaGetErrorString(err));
     printf(" @ %s: %d\n", file, line);
     exit(-1);
@@ -15,30 +15,25 @@ void set_cuda(int debug_flag){
     
     if (num_devices > 1 || debug_flag) {
         int max_multiprocessors = 0;
-        for (device_i = 0; device_i < num_devices; device_i++) {
+        for (device_i = 0; device_i < num_devices; device_i++){
             cudaDeviceProp properties;
             cudaGetDeviceProperties(&properties, device_i);
-            if (max_multiprocessors < properties.multiProcessorCount) {
+            if (max_multiprocessors < properties.multiProcessorCount){
                 max_multiprocessors = properties.multiProcessorCount;
                 active_device = device_i;
-            }
-            if (debug_flag){
-                printf("Card %d:%s\n",device_i,&properties.name);
-                printf("\tL2Cache:\t%d", properties.l2CacheSize);
-                printf("\tNumber of cores:\t%d", properties.warpSize);        
-                printf("\tKernels:\t%d", properties.concurrentKernels);
-                printf("\tThreads:\t%d", properties.maxThreadsPerMultiProcessor);
-                printf("\tClock:\t%d", properties.clockRate/1024);
-                printf("\n");
             }
         }
         cudaSetDevice(active_device);
         if (debug_flag){
-            for (device_i = 0; device_i < num_devices; device_i++) {
-                if(device_i==active_device) printf("-->");
-                cudaDeviceProp properties;
-                cudaGetDeviceProperties(&properties, device_i);
-                printf("\t%d:\t%s\n",device_i,&properties.name);
+            for (device_i = 0; device_i < num_devices; device_i++){
+                if(device_i==active_device) printf("[*] "); else    printf("[ ] ");
+                printf("Card %d: \t%s\n",device_i,&properties.name);
+                printf("\tL2Cache:\t%d\n", properties.l2CacheSize);
+                printf("\tNumber of cores:\t%d\n", properties.warpSize);        
+                printf("\tKernels:\t%d\n", properties.concurrentKernels);
+                printf("\tThreads:\t%d\n", properties.maxThreadsPerMultiProcessor);
+                printf("\tClock:\t%d\n", properties.clockRate/1024);
+                printf("\n");
             }
         }
     }
