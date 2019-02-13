@@ -19,7 +19,7 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
         
     if (!strcmp(par_name, "shotnumber"))                    strcpy(shot->shotnumber, clean_string(par_value));
     else if (!strcmp(par_name, "time"))                     strcpy(shot->time, clean_string(par_value));
-    else if (!strcmp(par_name, "runnumber"))                shot->runnumber = par_value_lf;
+    else if (!strcmp(par_name, "runnumber"))                run->runnumber = par_value_lf;
     else if (!strcmp(par_name, "matter")){
         strcpy(beam->matter, clean_string(par_value));
         beam->mass = get_mass(beam->matter);
@@ -35,11 +35,11 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     else if (!strcmp(par_name, "detector"))                 strcpy(shot->detector_geometry, clean_string(par_value));
     else if (!strcmp(par_name, "detector_mask"))            strcpy(shot->detector_mask, clean_string(par_value));
     else if (!strcmp(par_name, "electric_field_module"))    shot->electric_field_module = par_value_d;
-    else if (!strcmp(par_name, "step_device"))              shot->step_device = par_value_d;
-    else if (!strcmp(par_name, "step_host"))                shot->step_host = par_value_d;
+    else if (!strcmp(par_name, "step_device"))              run->step_device = par_value_d;
+    else if (!strcmp(par_name, "step_host"))                run->step_host = par_value_d;
     else if (!strcmp(par_name, "particles")){
-        shot->particle_number = par_value_d;        
-        shot->block_number    = par_value_d/shot->block_size+1;
+        run->particle_number = par_value_d;        
+        run->block_number    = par_value_d/run->block_size+1;
     }
 }
 
