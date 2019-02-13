@@ -566,7 +566,7 @@ void set_detector_geometry(double *DETECTOR, char* values){
     el = strtok(NULL,",");      DETECTOR[3] = tan(strtod (el, NULL) * PI/180.0);
 }
 
-int electric_field_read_and_init(shot_prop shot, run_prop run, ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){
+int electric_field_read_and_init(shot_prop shot, run_prop run, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){
 
     size_t dimB = 16*sizeof(double*);
     double *ER_PTR[16]; double **er_ptr;    cudaMalloc((void **) &er_ptr,  dimB);
