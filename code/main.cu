@@ -54,7 +54,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
     char *input;
     for (int i=1; i<argc; i++){
         input = strtok(argv[i], "=");
-        else if (!strcmp(input, "--debug"))  run->debug = 1;
+        if (!strcmp(input, "--debug"))  run->debug = 1;
         else if (!strcmp(input, "--fulltrace")){
             run->step_host = 2000;
             run->step_device = 1;
