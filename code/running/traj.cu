@@ -117,13 +117,7 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
         local_brad = cyl2tor_rad(local_brad, local_btor, X[0], X[2]);
         local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);
 
-        // archive coordinates
-        X_prev[0] = X[0];
-        X_prev[1] = X[1];
-        X_prev[2] = X[2];
-        X_prev[3] = X[3];
-        X_prev[4] = X[4];
-        X_prev[5] = X[5];
+        for(int i=0; i<6; i++)  X_prev[i] = X[i];
     
         solve_diffeq(X, local_brad, local_bz, local_btor, eperm, timestep);     
 
@@ -132,6 +126,7 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
         if (finished && timestep==dt){
             timestep = dt/100;
             finished = 0;
+            for(int i=0; i<6; i++)  X[i] = X_prev[i];
         }
     }
     
@@ -206,12 +201,7 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
         local_etor = cyl2tor_field(local_erad, local_etor, X[0], X[2]);
 
         // archive coordinates
-        X_prev[0] = X[0];
-        X_prev[1] = X[1];
-        X_prev[2] = X[2];
-        X_prev[3] = X[3];
-        X_prev[4] = X[4];
-        X_prev[5] = X[5];
+        for(int i=0; i<6; i++)  X_prev[i] = X[i];
     
         solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, eperm, timestep);      
 
@@ -220,6 +210,7 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
         if (finished && timestep==dt){
             timestep = dt/100;
             finished = 0;
+            for(int i=0; i<6; i++)  X[i] = X_prev[i];
         }
     }
     
