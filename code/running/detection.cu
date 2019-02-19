@@ -29,9 +29,12 @@ __device__ int calculate_detection_position(double *X, double *X_prev, double *d
         double X_new[6];     
         double detector_distance_rate = -detector_distance_prev/(detector_distance-detector_distance_prev);
         
-        X_new[0] = hermite_spline(X_prev[0], X[0], X_prev[3], X[3], detector_distance_rate);
-        X_new[1] = hermite_spline(X_prev[1], X[1], X_prev[4], X[4], detector_distance_rate);
-        X_new[2] = hermite_spline(X_prev[2], X[2], X_prev[5], X[5], detector_distance_rate);
+        double v = sqrt(X[3]*X[3] + X[4]*X[4] +  X[5]*X[5]);
+        double v_prev = sqrt(X_prev[3]*X_prev[3] + X_prev[4]*X_prev[4] +  X_prev[5]*X_prev[5]);        
+        
+        X_new[0] = hermite_spline(X_prev[0], X[0], X_prev[3]/v_prev, X[3]/v, detector_distance_rate);
+        X_new[1] = hermite_spline(X_prev[1], X[1], X_prev[4]/v_prev, X[4]/v, detector_distance_rate);
+        X_new[2] = hermite_spline(X_prev[2], X[2], X_prev[5]/v_prev, X[5]/v, detector_distance_rate);
         X_new[3] = interpolate(X_prev[3], X[3], 0, detector_distance_prev, detector_distance);
         X_new[4] = interpolate(X_prev[4], X[4], 0, detector_distance_prev, detector_distance);
         X_new[5] = interpolate(X_prev[5], X[5], 0, detector_distance_prev, detector_distance);
