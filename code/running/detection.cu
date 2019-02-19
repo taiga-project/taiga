@@ -1,4 +1,4 @@
-__device__ double hermite_spline(double y1, double y2, double vy1, double vy2, double t){ 
+__device__ double hermite_spline(double x1, double x2, double v1, double v2, double t){ 
     return (2*t*t*t-3*t*t+1)*x1 + (t*t*t-2*t*t+t)*v1 +(-2*t*t*t+3*t*t)*x2 + (t*t*t-t*t)*v2; 
 }
 
