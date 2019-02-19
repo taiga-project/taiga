@@ -1,7 +1,3 @@
-__device__ double hermite_spline(double x1, double x2, double v1, double v2, double t){ 
-    return (2*t*t*t-3*t*t+1)*x1 + (t*t*t-2*t*t+t)*v1 +(-2*t*t*t+3*t*t)*x2 + (t*t*t-t*t)*v2; 
-}
-
 __device__ double interpolate(double y1, double y2, double x, double x1, double x2, double x2_x1){ 
     return (x2-x)/x2_x1*y1 + (x-x1)/x2_x1*y2;
 }
@@ -32,17 +28,10 @@ __device__ int calculate_detection_position(double *X, double *X_prev, double *d
         double v = sqrt(X[3]*X[3] + X[4]*X[4] +  X[5]*X[5]);
         double v_prev = sqrt(X_prev[3]*X_prev[3] + X_prev[4]*X_prev[4] +  X_prev[5]*X_prev[5]);        
         
-        for (int i=0; i<6; i++) X_new[i] = interpolate(X_prev[i], X[i], 0, detector_distance_prev, detector_distance);
-        
-        X[0] = X_new[0];
-        X[1] = X_new[1];
-        X[2] = X_new[2];
-        X[3] = X_new[3];
-        X[4] = X_new[4];
-        X[5] = X_new[5];
+        for (int i=0; i<6; i++) X_new[i] = interpolate(X_prev[i], X[i], 0, detector_distance_prev, detector_distance);        
+        for (int i=0; i<6; i++) X[i] = X_new[i];
         
         finished = 1;
-        
     }
     
     return finished;
