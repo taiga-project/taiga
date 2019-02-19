@@ -1,7 +1,6 @@
 // TAIGA default parameters
 
 #define $R_defl 2.3                 //! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
-#define dt  1e-9                    //! @param dt timestep in seconds
 
 #define PI 3.141592653589792346
 #define ELEMENTARY_CHARGE 1.60217656535e-19
@@ -299,9 +298,9 @@ int main(int argc, char *argv[]){
             
             if (shot.electric_field_module){
                 printf("electric_field_module ON\n");
-                taiga <<< run.block_number, run.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
+                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
             }else{
-                taiga <<< run.block_number, run.block_size >>> (NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
+                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
             }
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
@@ -391,7 +390,7 @@ int main(int argc, char *argv[]){
         export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])*180.0/PI, folder_out, timestamp);
         export_header(concat("Detector mask:  \t", shot.detector_mask), folder_out, timestamp);
         export_header_addline(folder_out, timestamp);
-        export_header("Timestep", "s", dt, folder_out, timestamp);
+        export_header("Timestep", "s", run.timestep, folder_out, timestamp);
         export_header_addline(folder_out, timestamp);
         export_header("CUDA kernel runtime", "s", cuda_time_core, folder_out, timestamp);
         export_header("CUDA memcopy time", "s", cuda_time_copy, folder_out, timestamp);

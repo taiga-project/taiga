@@ -72,7 +72,7 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
 }
 
 
-__device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **spline_brad, double **spline_bz, double **spline_btor, double eperm, double *detector_geometry, int N_step, int local_detcellid){
+__device__ int traj(double timestep, double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **spline_brad, double **spline_bz, double **spline_btor, double eperm, double *detector_geometry, int N_step, int local_detcellid){
 
     // next grid
     int local_spline_indices[2];
@@ -86,8 +86,6 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
     double local_brad=0,local_bz,local_btor;
     double dr,dz;
     double R;
-    
-    double timestep = dt;
     
     double X[6], X_prev[6];
     
@@ -122,12 +120,6 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
         solve_diffeq(X, local_brad, local_bz, local_btor, eperm, timestep);     
 
         finished = calculate_detection_position(X, X_prev, detector_geometry);
-        
-        if (finished && timestep==dt){
-            timestep = dt/100;
-            finished = 0;
-            for(int i=0; i<6; i++)  X[i] = X_prev[i];
-        }
     }
     
     position[0] = X[0];
@@ -144,7 +136,7 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
     return local_detcellid;
 }
 
-__device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_erad, double **spline_ez, double **spline_etor, double eperm, double *detector_geometry, int N_step, int local_detcellid){
+__device__ int traj(double timestep, double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_erad, double **spline_ez, double **spline_etor, double eperm, double *detector_geometry, int N_step, int local_detcellid){
 
     // next grid
     int local_spline_indices[2];
@@ -163,8 +155,6 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
     double local_erad=0,local_ez=0,local_etor=0;
     double dr, dz;
     double R;
-    
-    double timestep = dt;
 
     double X[6], X_prev[6];
     
@@ -206,12 +196,6 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
         solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, eperm, timestep);      
 
         finished = calculate_detection_position(X, X_prev, detector_geometry);
-        
-        if (finished && timestep==dt){
-            timestep = dt/100;
-            finished = 0;
-            for(int i=0; i<6; i++)  X[i] = X_prev[i];
-        }
     }
     
     position[0] = X[0];
