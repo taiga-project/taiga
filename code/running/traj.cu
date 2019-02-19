@@ -87,6 +87,8 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
     double dr,dz;
     double R;
     
+    double timestep = dt;
+    
     double X[6], X_prev[6];
     
     int finished = local_detcellid + 1;
@@ -123,9 +125,14 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
         X_prev[4] = X[4];
         X_prev[5] = X[5];
     
-        solve_diffeq(X, local_brad, local_bz, local_btor, eperm);     
+        solve_diffeq(X, local_brad, local_bz, local_btor, eperm, timestep);     
 
         finished = calculate_detection_position(X, X_prev, detector_geometry);
+        
+        if (finished && timestep==dt){
+            timestep = dt/100;
+            finished = 0;
+        }
     }
     
     position[0] = X[0];
@@ -160,7 +167,9 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
     double local_brad=0,local_bz=0,local_btor=0;
     double local_erad=0,local_ez=0,local_etor=0;
     double dr, dz;
-    double R;    
+    double R;
+    
+    double timestep = dt;
 
     double X[6], X_prev[6];
     
@@ -204,9 +213,14 @@ __device__ int traj(double *r_grid, int NR, double *z_grid, int NZ, double *posi
         X_prev[4] = X[4];
         X_prev[5] = X[5];
     
-        solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, eperm);      
+        solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, eperm, timestep);      
 
         finished = calculate_detection_position(X, X_prev, detector_geometry);
+        
+        if (finished && timestep==dt){
+            timestep = dt/100;
+            finished = 0;
+        }
     }
     
     position[0] = X[0];
