@@ -3,7 +3,7 @@
 #else
     #include <unistd.h>
     void CopyFile(char* source, char* target, int sw){
-        execl("/bin/cp", "-i", "-p", source, target, (char *)0);
+        execl("/bin/cp", "cp", "-i", "-p", source, target, 0);
     }
 #endif
 
