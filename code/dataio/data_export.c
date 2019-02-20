@@ -6,12 +6,6 @@
 #include <sys/types.h>
 #include "data_export.h"
 
-#if defined(_WIN32)
-void mkdir(char *path, mode_t mode){
-    _mkdir(path);
-}
-#endif
-
 void export_table(char *folder, char *runnumber, char *filename, int Ndat, 
                   double *dat1, char *head1, double *dat2, char *head2, double *dat3, char *head3, double *dat4, char *head4, double *dat5, char *head5, double *dat6, char *head6 ){
     
@@ -36,9 +30,7 @@ void export_table(char *folder, char *runnumber, char *filename, int Ndat,
 
 void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
     char path[100];
-    mkdir(folder, 0777);
-    mkdir(concat(folder,"/",runnumber), 0777);
-    mkdir(concat(folder,"/",runnumber,"/",subdir), 0777);
+    init_dir(folder, runnumber, subdir);
     strcpy(path,concat(folder,"/",runnumber,"/",subdir,"/",filename));
 
     //! make file (open for editing)
@@ -70,9 +62,7 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *sub
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
     char path[100];
-    mkdir(folder, 0777);
-    mkdir(concat(folder,"/",runnumber), 0777);
-    mkdir(concat(folder,"/",runnumber,"/",subdir), 0777);
+    init_dir(folder, runnumber, subdir);
     strcpy(path,concat(folder,"/",runnumber,"/",subdir,"/",filename));
 
     //! make file (open for editing)
@@ -105,8 +95,7 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir
 
 void export_header(char *dataname,char *unitname,double dat, char *folder, char *runnumber){
     char path[100];
-    mkdir(folder, 0777);
-    mkdir(concat(folder,"/",runnumber), 0777);
+    init_dir(folder, runnumber, "");
     strcpy(path,concat(folder,"/",runnumber,"/header.dat"));
 
     //! make file (open for editing)

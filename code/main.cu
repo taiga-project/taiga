@@ -105,7 +105,10 @@ int main(int argc, char *argv[]){
         set_cuda(1);
     }else{  
         parameter_reader(&shot, &beam, &run);
-        runnumber_reader(&shot, &run); 
+        runnumber_reader(&shot, &run);
+        
+        init_dir(export_folder, runnumber);
+        CopyFile(run.parameter_file, concat(export_folder,"/",runnumber,"/parameters.sh"));
 
         size_t dimD = 5 * sizeof(double);
         double *DETECTOR, *detector;

@@ -2,12 +2,15 @@
 
 #if defined(_WIN32)
     #include <windows.h>
+    void mkdir(char *path, mode_t mode)     _mkdir(path);
 #else
     #include <unistd.h>
     void CopyFile(char* source, char* target, int sw){
-        system(concat("cp ", source, " ", target));
+        if(sw)  system(concat("cp -n", source, " ", target));
+        else    system(concat("cp ", source, " ", target));
     }
 #endif
+void CopyFile(char* source, char* target)   CopyFile(source, target, 0);
 
 inline void cErrorCheck(const char *file, int line){
     cudaThreadSynchronize();
@@ -65,6 +68,15 @@ double linear_interpolate(double *x_vector, int x_length, double *y_vector, int 
 
 int get_array_size(double *array){
     return (int)(sizeof(array)/sizeof(array[0]));
+}
+
+void init_dir(char *folder, char *runnumber){ 
+    init_dir(folder, runnumber, "");
+}
+void init_dir(char *folder, char *runnumber, char *subdir){    
+    mkdir(folder, 0777);
+    mkdir(concat(folder,"/",runnumber), 0777);
+    mkdir(concat(folder,"/",runnumber,"/",subdir), 0777);
 }
 
 char* concat(const char *s1, const char *s2){
