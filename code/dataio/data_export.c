@@ -34,7 +34,7 @@ void export_table(char *folder, char *runnumber, char *filename, int Ndat,
     fclose(f);    
 }
 
-void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
+void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename, char *subdir, int dat_per_line){
     char path[100];
     mkdir(folder, 0777);
     mkdir(concat(folder,"/",runnumber), 0777);
@@ -56,13 +56,18 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *fil
 }
 
 void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename){
-    export_data(dat, Ndat, folder, runnumber, filename, INFINITY);
+    export_data(dat, Ndat, folder, runnumber, filename, '', INFINITY);
 }
 
-void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
+void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
+    export_data(dat, Ndat, folder, runnumber, filename, '', dat_per_line);
+}
+
+void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, char *subdir, int dat_per_line){
     char path[100];
     mkdir(folder, 0777);
     mkdir(concat(folder,"/",runnumber), 0777);
+    mkdir(concat(folder,"/",runnumber,"/",subdir), 0777);
     strcpy(path,concat(folder,"/",runnumber,"/",filename));
 
     //! make file (open for editing)
@@ -82,7 +87,11 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filena
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename){
-    export_data(dat, Ndat, folder, runnumber, filename, INFINITY);
+    export_data(dat, Ndat, folder, runnumber, filename, '', INFINITY);
+}
+
+void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
+    export_data(dat, Ndat, folder, runnumber, filename, '', dat_per_line);
 }
 
 void export_header(char *dataname,char *unitname,double dat, char *folder, char *runnumber){

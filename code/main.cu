@@ -355,7 +355,7 @@ int main(int argc, char *argv[]){
 
         detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, NX, folder_out, timestamp);
         cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
-        export_data(DETCELLID, NX, folder_out, timestamp, "detcellid.dat");
+        export_data(DETCELLID, NX, folder_out, timestamp, "detector", "cellid.dat");
 
         //! CUDA profiler STOP
         cudaProfilerStop();
