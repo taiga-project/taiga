@@ -10,6 +10,7 @@
         else    system(concat("cp ", source, " ", target));
     }
 #endif
+
 void CopyFile(char* source, char* target)   CopyFile(source, target, 0);
 
 inline void cErrorCheck(const char *file, int line){
