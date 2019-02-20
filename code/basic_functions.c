@@ -2,7 +2,9 @@
 
 #if defined(_WIN32)
     #include <windows.h>
-    void mkdir(char *path, mode_t mode)     _mkdir(path);
+    void mkdir(char *path, mode_t mode){
+        _mkdir(path);
+    }
 #else
     #include <unistd.h>
     void CopyFile(char* source, char* target, int sw){
@@ -11,7 +13,9 @@
     }
 #endif
 
-void CopyFile(char* source, char* target)   CopyFile(source, target, 0);
+void CopyFile(char* source, char* target){
+    CopyFile(source, target, 0);
+}
 
 inline void cErrorCheck(const char *file, int line){
     cudaThreadSynchronize();
