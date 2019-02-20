@@ -7,6 +7,8 @@
     }
 #else
     #include <unistd.h>
+    #include <sys/stat.h>
+    #include <sys/types.h>
     void CopyFile(char* source, char* target, int sw){
         if(sw)  system(concat("cp -n", source, " ", target));
         else    system(concat("cp ", source, " ", target));

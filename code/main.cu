@@ -108,8 +108,8 @@ int main(int argc, char *argv[]){
         runnumber_reader(&shot, &run);
         
         char* folder_out=concat("results/", shot.name);
-        init_dir(folder_out, runnumber);
-        CopyFile(run.parameter_file, concat(folder_out,"/",runnumber,"/parameters.sh"));
+        init_dir(folder_out, run.runnumber);
+        CopyFile(run.parameter_file, concat(folder_out,"/",run.runnumber,"/parameters.sh"));
 
         size_t dimD = 5 * sizeof(double);
         double *DETECTOR, *detector;

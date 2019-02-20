@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include "data_export.h"
 
 void export_table(char *folder, char *runnumber, char *filename, int Ndat, 
