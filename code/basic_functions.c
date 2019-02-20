@@ -1,3 +1,11 @@
+#if defined(_WIN32)
+    #include <windows.h>
+#else
+    void CopyFile(char* source, char* target, int sw){
+        execl("/bin/cp", "-i", "-p", source, target, (char *)0);
+    }
+#endif
+
 inline void cErrorCheck(const char *file, int line){
     cudaThreadSynchronize();
     cudaError_t err = cudaGetLastError();

@@ -59,9 +59,9 @@ except:
 results_folder = 'results/'+shotnumber+'_'+time+'/'+runnumber+'/'
 
 try:
-	C = np.loadtxt(results_folder+'detcellcounter.dat')
-	X = np.loadtxt(results_folder+'detx')
-	Y = np.loadtxt(results_folder+'dety')
+	C = np.loadtxt(results_folder+'detector/cellcounter.dat')
+	X = np.loadtxt(results_folder+'detector/detx')
+	Y = np.loadtxt(results_folder+'detector/dety')
 except:
 	print 'Invalid input folder: '+results_folder
 
