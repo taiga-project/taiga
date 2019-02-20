@@ -5,5 +5,5 @@ __global__ void undetected(int *detcellid, int N, double *service_var){
             undetected_counter++;
         }
     }
-    service_var[1] = undetected_counter/N;
+    service_var[1] = (double)undetected_counter/N;
 }
