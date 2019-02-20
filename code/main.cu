@@ -107,9 +107,12 @@ int main(int argc, char *argv[]){
         parameter_reader(&shot, &beam, &run);
         runnumber_reader(&shot, &run);
         
-        char* folder_out=concat("results/", shot.name);
-        init_dir(folder_out, run.runnumber);
-        CopyFile(run.parameter_file, concat(folder_out,"/",run.runnumber,"/parameters.sh"));
+        char* folder_out=concat("results/", shot.name);        
+        char timestamp[80];
+        sprintf(timestamp, "%d", run.runnumber);
+        
+        init_dir(folder_out, timestamp);
+        CopyFile(run.parameter_file, concat(folder_out,"/",timestamp,"/parameters.sh"));
 
         size_t dimD = 5 * sizeof(double);
         double *DETECTOR, *detector;
@@ -140,8 +143,6 @@ int main(int argc, char *argv[]){
         // set timestamp
         time_t rawtime;
         struct tm *info;
-        char timestamp[80];
-        sprintf(timestamp, "%d", run.runnumber);
 
         // coords
         double *X_PTR[3], **x_ptr;
