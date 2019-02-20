@@ -1,6 +1,7 @@
 #if defined(_WIN32)
     #include <windows.h>
 #else
+    #include <unistd.h>
     void CopyFile(char* source, char* target, int sw){
         execl("/bin/cp", "-i", "-p", source, target, (char *)0);
     }
