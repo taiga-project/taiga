@@ -26,7 +26,8 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
         detector_sum <<<1,1>>>(dg, detcellid, number_of_particles, N_dg);
         cudaMemcpy(DG, dg, dimDG, cudaMemcpyDeviceToHost);
         export_data(DG,N_dg,export_folder,runnumber,"detector","cellcounter.dat",N_dgy/2);
-        CopyFile(concat("input/detector/", detector_name, "/det*"), concat(export_folder,"/",runnumber,"/detector"), 0);
+        CopyFile(concat("input/detector/", detector_name, "/detx"), concat(export_folder,"/",runnumber,"/detector/detx"), 0);
+        CopyFile(concat("input/detector/", detector_name, "/dety"), concat(export_folder,"/",runnumber,"/detector/dety"), 0);
     }else{
         printf("Detector postprocessor module: OFF");
     }
