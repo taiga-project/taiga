@@ -2,7 +2,6 @@
 #include <math.h>
 #include "running/detector_postproc.cu"
 #include "running/detector_sum.cu"
-#include "basic_functions.c"
 
 void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size, int number_of_particles, char *export_folder, char *runnumber){
     double *DGX, *dgx;
@@ -29,6 +28,7 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
         export_data(DG,N_dg,export_folder,runnumber,"detector","cellcounter.dat",N_dgy/2);
         CopyFile(concat("input/detector/", detector_name, "/detx"), concat(export_folder,"/",runnumber,"/detector/detx"), 0);
         CopyFile(concat("input/detector/", detector_name, "/dety"), concat(export_folder,"/",runnumber,"/detector/dety"), 0);
+        printf("COPY: %s to %s",concat("input/detector/", detector_name, "/dety"), concat(export_folder,"/",runnumber,"/detector/dety");
     }else{
         printf("Detector postprocessor module: OFF");
     }
