@@ -359,7 +359,7 @@ int main(int argc, char *argv[]){
             printf("\nSuccessful run. \n\n");
         }
 
-        printf("\n Undetected rate \t %.4lf % \n", SERVICE_VAR[1]*100);
+        printf("Lost particle rate: \t %.4lf % \n", SERVICE_VAR[1]*100);
         
         detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, NX, folder_out, timestamp);
         cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
