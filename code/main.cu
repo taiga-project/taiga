@@ -41,6 +41,7 @@
 
 #include "running/rk4.cu"
 #include "running/detection.cu"
+#include "running/undetected.cu"
 #include "running/cyl2tor.cu"
 #include "running/traj.cu"
 #include "running/taiga.cu"
@@ -347,6 +348,8 @@ int main(int argc, char *argv[]){
         printf ("CUDA memcopy time:   %lf s\n", cuda_time_copy);
         printf ("CPU->HDD copy time:  %lf s\n", cpu_time_copy);    
         printf("===============================\n");
+        
+        undetected <<<1,1>>>(detcellid, NX, service_var);
 
         //! MEMCOPY (device2HOST)
         cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
@@ -356,6 +359,8 @@ int main(int argc, char *argv[]){
             printf("\nSuccessful run. \n\n");
         }
 
+        printf("\n Undetected rate \t %.4lf % \n", SERVICE_VAR[1]*100);
+        
         detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, NX, folder_out, timestamp);
         cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
         export_data(DETCELLID, NX, folder_out, timestamp, "detector", "cellid.dat");
