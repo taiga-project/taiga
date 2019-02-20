@@ -33,9 +33,9 @@ __global__ void taiga(double timestep, int NR, int NZ, double eperm, double **sp
         speed_all[2][idx] = speed[2];
     }
 
-    if(idx==0){
+    //if(idx==0){
         service_var[0] = 42.24;
-    }
+    //}
 }
 
 __global__ void taiga(double timestep, int NR, int NZ, double eperm, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_erad, double **spline_ez, double **spline_etor, double **spline_grid, double **position_all, double **speed_all, double *detector_geometry, int *detcellid, int N_step, double *service_var, int step_i){
@@ -70,7 +70,7 @@ __global__ void taiga(double timestep, int NR, int NZ, double eperm, double **sp
         speed_all[2][idx] = speed[2];
     }
 
-    if(idx==0){
+    //if(idx==0){
         service_var[0] = 42.24;
-    }
+    //}
 }
