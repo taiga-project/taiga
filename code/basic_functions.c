@@ -3,7 +3,7 @@
 #else
     #include <unistd.h>
     void CopyFile(char* source, char* target, int sw){
-        execl("/bin/cp", source, target);
+        system(concat("cp ", source, " ", target));
     }
 #endif
 
