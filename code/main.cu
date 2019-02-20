@@ -107,8 +107,9 @@ int main(int argc, char *argv[]){
         parameter_reader(&shot, &beam, &run);
         runnumber_reader(&shot, &run);
         
-        init_dir(export_folder, runnumber);
-        CopyFile(run.parameter_file, concat(export_folder,"/",runnumber,"/parameters.sh"));
+        char* folder_out=concat("results/", shot.name);
+        init_dir(folder_out, runnumber);
+        CopyFile(run.parameter_file, concat(folder_out,"/",runnumber,"/parameters.sh"));
 
         size_t dimD = 5 * sizeof(double);
         double *DETECTOR, *detector;
@@ -133,8 +134,6 @@ int main(int argc, char *argv[]){
             NX = read_vector(&XR, "input", "manual_profile", "rad.dat");
             run.block_number = NX / run.block_size+1;
         }
-
-        char* folder_out=concat("results/", shot.name);
         
         set_cuda(run.debug);
 
