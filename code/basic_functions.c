@@ -98,3 +98,26 @@ char* concat(const char *s1, const char *s2, const char *s3, const char *s4, con
     strcat(result, s5);
     return result;
 }
+
+char* concat(const char *s1, const char *s2, const char *s3, const char *s4, const char *s5, const char *s6){
+    char *result = (char*)malloc(strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+strlen(s5)+strlen(s6)+1);
+    strcpy(result, s1);
+    strcat(result, s2);
+    strcat(result, s3);
+    strcat(result, s4);
+    strcat(result, s5);
+    strcat(result, s6);
+    return result;
+}
+
+char* concat(const char *s1, const char *s2, const char *s3, const char *s4, const char *s5, const char *s6, const char *s7){
+    char *result = (char*)malloc(strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+strlen(s5)+strlen(s6)+strlen(s7)+1);
+    strcpy(result, s1);
+    strcat(result, s2);
+    strcat(result, s3);
+    strcat(result, s4);
+    strcat(result, s5);
+    strcat(result, s6);
+    strcat(result, s7);
+    return result;
+}

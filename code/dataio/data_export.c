@@ -38,7 +38,8 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *fil
     char path[100];
     mkdir(folder, 0777);
     mkdir(concat(folder,"/",runnumber), 0777);
-    strcpy(path,concat(folder,"/",runnumber,"/",filename));
+    mkdir(concat(folder,"/",runnumber,"/",subdir), 0777);
+    strcpy(path,concat(folder,"/",runnumber,"/",subdir,"/",filename));
 
     //! make file (open for editing)
     FILE *f = fopen(path, "a");
@@ -72,7 +73,7 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filena
     mkdir(folder, 0777);
     mkdir(concat(folder,"/",runnumber), 0777);
     mkdir(concat(folder,"/",runnumber,"/",subdir), 0777);
-    strcpy(path,concat(folder,"/",runnumber,"/",filename));
+    strcpy(path,concat(folder,"/",runnumber,"/",subdir,"/",filename));
 
     //! make file (open for editing)
     FILE *f = fopen(path, "a");
