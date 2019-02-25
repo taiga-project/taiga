@@ -78,7 +78,9 @@ int matrixColoumnReader(double **name, char *path, int coloumn_id, int total_col
         if (file != NULL) {
             for (j=0; j<i; j++){
                 if (j%total_coloumn == coloumn_id){
-                    fscanf(file,"%lf", &tname[j/total_coloumn]);
+//                    fscanf(file,"%lf", &tname[j/total_coloumn]);
+                    fscanf(file,"%lf", test);
+                    printf("%lf\n",test);
                 }
             }
         }        
@@ -87,6 +89,6 @@ int matrixColoumnReader(double **name, char *path, int coloumn_id, int total_col
         printf("The following file does not exists:\n%s\n\n",path);
         i = -1;
     }
-    *name = tname;
+    //*name = tname;
     return i;
 }
