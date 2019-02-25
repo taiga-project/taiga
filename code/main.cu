@@ -78,6 +78,9 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
                 strcpy(run->runnumber_file, input);
                 printf("Runnumber file: %s\n", run->runnumber_file);
             }
+        }else if (!strcmp(input, "--ion-source") || !strcmp(input, "-s")){
+            strcpy(run->ion_source_file, input);
+            printf("Ion sourcefile: %s\n", run->ion_source_file);
         }
     }
 }
@@ -90,6 +93,7 @@ void print_help_message(){
         printf("  -h, --help                  Help message\n");
         printf("  -l, --devices               List devices\n");
         printf("  -p, --parameter_file=PATH   Parameter file path\n");
+        //printf("  -s, --ion-source            Ion source path\n");
         printf("  -r  --runnumber_file=PATH   Runnumber file pathe\n");
         printf("  -r  --runnumber=INTEGER     Runnumber value\n");
 }
