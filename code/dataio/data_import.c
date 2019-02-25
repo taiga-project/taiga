@@ -51,20 +51,18 @@ int read_vector(double **name, char *folder, char *shotname, char *filename, int
 }
 
 int matrixColoumnReader(double **name, char *folder, char *shotname, char *filename, int coloumn_id, int total_coloumn){
+    char path[100];
+    strcpy(path,concat(folder,"/",shotname,"/",filename));
+    return matrixColoumnReader(path, coloumn_id, total_coloumn);
+}
+
+int matrixColoumnReader(char *path, int coloumn_id, int total_coloumn){
     int i = 0, i2;
     int j;
     double test;
     double *tname;
     tname = *name;
     FILE *file;
-    
-    char path[100];
-    strcpy(path,concat(folder,"/",shotname,"/",filename));
-    
-    return matrixColoumnReader(path, coloumn_id, total_coloumn);
-}
-
-int matrixColoumnReader(char *path, int coloumn_id, int total_coloumn){
     file = fopen(path,"r");
     if (file != NULL) {
         while (fscanf(file,"%lf",&test) !=EOF ) {
