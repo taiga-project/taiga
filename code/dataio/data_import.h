@@ -2,3 +2,4 @@ int read_vector(double **name, char *folder, char *shotname, char *filename, boo
 int read_vector(double **name, char *folder, char *shotname, char *filename);
 int read_vector(double **name, char *folder, char *shotname, char *filename, int *successful);
 int matrixColoumnReader(double **name, char *folder, char *shotname, char *filename, int coloumn_id, int total_coloumn);
+int matrixColoumnReader(char *path, int coloumn_id, int total_coloumn);
