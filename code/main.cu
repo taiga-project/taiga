@@ -79,6 +79,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
                 printf("Runnumber file: %s\n", run->runnumber_file);
             }
         }else if (!strcmp(input, "--ion-source") || !strcmp(input, "-s")){
+            input = strtok(NULL, "=");
             strcpy(run->ion_source_file, input);
             printf("Ion sourcefile: %s\n", run->ion_source_file);
         }
