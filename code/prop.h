@@ -28,5 +28,6 @@ struct run_prop{
     double timestep = 1e-9;
     char parameter_file[200] = "parameters.sh";
     char runnumber_file[200] = "runnumber";
-    char ion_source_file[200] = "../../Modeling/taiga113/input/manual_profile/ion_source.dat";
+    char ion_source_file[200] = "";
+    char io_coordinate_order = "rzt";
 };

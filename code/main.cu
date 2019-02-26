@@ -81,7 +81,11 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
         }else if (!strcmp(input, "--ion-source") || !strcmp(input, "-s")){
             input = strtok(NULL, "=");
             strcpy(run->ion_source_file, input);
-            printf("Ion sourcefile: %s\n", run->ion_source_file);
+            printf("Ion source file: %s\n", run->ion_source_file);
+        }else if (!strcmp(input, "--ion-source-coords")){
+            input = strtok(NULL, "=");
+            strcpy(run->io_coordinate_order, input);
+            printf("Order of coordinates in input fil: %s\n", run->io_coordinate_order);
         }
     }
 }
@@ -92,11 +96,13 @@ void print_help_message(){
         printf("  -d, --debug                 Print additional debug informations\n");
         printf("  -f, --fulltrace             Save coordinates at every timestep\n");
         printf("  -h, --help                  Help message\n");
-        printf("  -l, --devices               List devices\n");
+        printf("  -l, --devices               List GPU devices\n");
         printf("  -p, --parameter_file=PATH   Parameter file path\n");
-        //printf("  -s, --ion-source            Ion source path\n");
-        printf("  -r  --runnumber_file=PATH   Runnumber file pathe\n");
+        printf("  -r  --runnumber_file=PATH   Runnumber file path\n");
         printf("  -r  --runnumber=INTEGER     Runnumber value\n");
+        printf("  -s, --ion-source=PATH       Ion source path\n");
+        printf("  -s, --ion-source=PATH       Ion source path\n");
+        printf("      --ion-source-coords     Order of coordinates (RZT or RTZ) in input file\n");
 }
 
 int main(int argc, char *argv[]){    
