@@ -14,7 +14,7 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
             read_matrix_column(&vz, run.ion_source_file, 6);
             read_matrix_column(&vt, run.ion_source_file, 5);
 
-        }else if (!strcmp(run.io_coordinate_order, "rtz") || !strcmp(run.io_coordinate_order, "RTZ")){
+        }else if (!strcmp(run.io_coordinate_order, "rzt") || !strcmp(run.io_coordinate_order, "RZT")){
             profile_length = read_matrix_column(&xr, run.ion_source_file, 1);
             read_matrix_column(&xz, run.ion_source_file, 2);
             read_matrix_column(&xt, run.ion_source_file, 3);
