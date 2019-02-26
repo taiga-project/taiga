@@ -78,8 +78,7 @@ int matrixColoumnReader(double **name, char *path, int coloumn_id, int total_col
         if (file != NULL) {
             for (j=0; j<i; j++){
                 if (j%total_coloumn == coloumn_id){
-//                    fscanf(file,"%lf", &tname[j/total_coloumn]);
-                    fscanf(file,"%lf", test);
+                    if (!fscanf(file,"%lf", &tname[j/total_coloumn]))   break;
                     printf("%lf\n",test);
                 }
             }
