@@ -29,5 +29,5 @@ struct run_prop{
     char parameter_file[200] = "parameters.sh";
     char runnumber_file[200] = "runnumber";
     char ion_source_file[200] = "";
-    char io_coordinate_order = "rzt";
+    char io_coordinate_order[200] = "rzt";
 };
