@@ -82,8 +82,6 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
             input = strtok(NULL, "=");
             strcpy(run->ion_source_file, input);
             printf("Ion sourcefile: %s\n", run->ion_source_file);
-            double *ion_source;
-            matrixColoumnReader(&ion_source, run->ion_source_file, 6, 2);
         }
     }
 }
