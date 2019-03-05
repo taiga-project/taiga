@@ -85,7 +85,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
         }else if (!strcmp(input, "--ion-source-coords")){
             input = strtok(NULL, "=");
             strcpy(run->io_coordinate_order, input);
-            printf("Order of coordinates in input fil: %s\n", run->io_coordinate_order);
+            printf("Order of coordinates in input file: %s\n", run->io_coordinate_order);
         }
     }
 }
