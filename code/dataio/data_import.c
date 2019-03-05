@@ -73,12 +73,59 @@ int read_matrix_column(double **name, char *path, int coloumn_id){
             for(j = 0; j<coloumn_id && token != NULL; j++){
                 if (j == coloumn_id-1){                
                     value = atof(token);
+                    if (value!=0 || token[0]=='0' || strncmp(token,"-0",3)){
+                        tname[i] = value;
+                        i++;
+                    }
+                }
+                token = strtok( NULL, " " );
+            }
+            if (isnan(value)){
+                printf("NAN DATA:n %s\n", tmp);
+            }
+        }
+
+        fclose(file);
+    }else{
+        printf("The following file does not exists:\n%s\n\n",path);
+        i = -1;
+    }
+    *name = tname;
+    return i;
+}
+
+int read_matrix_column(double **name, char *path, int coloumn_id, int debug){
+    int i, j;
+
+    char tmp[1000];
+    char *token;	
+
+    double value;
+    double *tname;
+    tname = *name;
+    FILE *file;
+
+    file = fopen(path,"r");
+    if (file != NULL) {
+        for (i=0; fgets(tmp, sizeof tmp, file) != NULL; i++)   ;        
+        fclose(file);        
+        tname = (double*)malloc(i*sizeof(double));
+
+        file = fopen(path,"r");
+        for (i=0; (fgets(tmp, sizeof tmp, file) != NULL); NULL){
+            token = strtok( tmp, " " );
+            for(j = 0; j<coloumn_id && token != NULL; j++){
+                if (j == coloumn_id-1){                
+                    value = atof(token);
                     if (value!=0 || token[0]=='0'){
                         tname[i] = value;
                         i++;
                     }
                 }
                 token = strtok( NULL, " " );
+            }
+            if (isnan(value)){
+                printf("NAN DATA:n %s\n", tmp);
             }
         }
 
