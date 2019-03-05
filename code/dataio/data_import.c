@@ -73,7 +73,7 @@ int read_matrix_column(double **name, char *path, int coloumn_id){
             for(j = 0; j<coloumn_id && token != NULL; j++){
                 if (j == coloumn_id-1){
                     value = atof(token);
-                    if (value!=0 || token[0]=='0' || ~strncmp(token,"-0",2)){
+                    if (value || (token[0]=='0') || (strncmp(token,"-0",2) == 0) ){
                         tname[i] = value;
                         i++;
                     }
