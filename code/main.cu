@@ -101,7 +101,6 @@ void print_help_message(){
         printf("  -r  --runnumber_file=PATH   Runnumber file path\n");
         printf("  -r  --runnumber=INTEGER     Runnumber value\n");
         printf("  -s, --ion-source=PATH       Ion source path\n");
-        printf("  -s, --ion-source=PATH       Ion source path\n");
         printf("      --ion-source-coords=XXX Order of coordinates (RZT or RTZ) in input file\n");
 }
 
