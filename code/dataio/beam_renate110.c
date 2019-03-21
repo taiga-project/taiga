@@ -4,8 +4,8 @@
 
 // set beam inline parameters
 void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, beam_prop beam, shot_prop shot, run_prop run){
-    int i;
-    double prof_size[2], *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
+    int i, prof_size[2];
+    double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
     char* shotname = concat(shot.shotnumber, "_", shot.time);
 
@@ -52,7 +52,7 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     }
 }
 
-void load_ion_profile(char* shotname, double *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
+void load_ion_profile(char* shotname, int *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
     int prof_r_length = read_vector(&prof_r, "input/ionProf", shotname, "rad.dat");
     int prof_d_length = read_vector(&prof_d, "input/ionProf", shotname, "ionyeald.dat");    
     
