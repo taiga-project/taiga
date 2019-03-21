@@ -5,7 +5,7 @@
 // set beam inline parameters
 void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, beam_prop beam, shot_prop shot, run_prop run){
     int i;
-    double *prof_size, *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
+    double prof_size[2], *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
     char* shotname = concat(shot.shotnumber, "_", shot.time);
 
