@@ -12,6 +12,8 @@ RENATE_FAST_FLAGS = -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=1'
 
 all: taiga.exe taiga_renate.exe
 
+dev: taiga_renate_fast.exe
+
 taiga.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o taiga.exe  main.cu
 	
@@ -19,7 +21,7 @@ taiga_renate.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FLAGS) -o taiga_renate.exe  main.cu
 	
 taiga_renate_fast.exe: main.cu
-	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o taiga_renate.exe  main.cu
+	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o taiga_renate_fast.exe  main.cu
 	
 clean: 
-	rm taiga.exe taiga_renate.exe
+	rm *.exe
