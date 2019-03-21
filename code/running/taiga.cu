@@ -1,11 +1,14 @@
-// Trajectory simulation
-
-//__constant__ int finCounter = 0 ;
-__global__ void taiga(double timestep, int NR, int NZ, double eperm, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_grid, double **position_all, double **speed_all, double *detector_geometry, int *detcellid, int N_step, double *service_var, int step_i){
+__global__ void taiga(double timestep, int NR, int NZ, double eperm, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_grid, double **position_all, double **speed_all, double *detector_geometry, int *detcellid, int N_step, double *service_var, int step_i,
+                      int *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (step_i == 0) detcellid[idx] = -1;
+    if (step_i == 0){
+        detcellid[idx] = -1;
+        if (prof_size[0] > 0){
+            // GENERATE PROFILE
+        }
+    }
     
     if (detcellid[idx] == -1){
         double *spline_grid_rad, *spline_grid_z;
@@ -33,16 +36,21 @@ __global__ void taiga(double timestep, int NR, int NZ, double eperm, double **sp
         speed_all[2][idx] = speed[2];
     }
 
-    //if(idx==0){
-        service_var[0] = 42.24;
-    //}
+    service_var[0] = 42.24;
 }
 
-__global__ void taiga(double timestep, int NR, int NZ, double eperm, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_erad, double **spline_ez, double **spline_etor, double **spline_grid, double **position_all, double **speed_all, double *detector_geometry, int *detcellid, int N_step, double *service_var, int step_i){
+__global__ void taiga(double timestep, int NR, int NZ, double eperm, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_erad, double **spline_ez, double **spline_etor, 
+                      double **spline_grid, double **position_all, double **speed_all, double *detector_geometry, int *detcellid, int N_step, double *service_var, int step_i,
+                      int *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (step_i == 0) detcellid[idx] = -1;
+    if (step_i == 0){
+        detcellid[idx] = -1;
+        if (prof_size[0] > 0){
+            // GENERATE PROFILE
+        }
+    }
     
     if (detcellid[idx] == -1){
         double *spline_grid_rad, *spline_grid_z;
@@ -70,7 +78,5 @@ __global__ void taiga(double timestep, int NR, int NZ, double eperm, double **sp
         speed_all[2][idx] = speed[2];
     }
 
-    //if(idx==0){
-        service_var[0] = 42.24;
-    //}
+    service_var[0] = 42.24;
 }

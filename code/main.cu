@@ -144,9 +144,10 @@ int main(int argc, char *argv[]){
         int NX = run.block_size * run.block_number;
 
         if (READINPUTPROF == 1){
-            double *XR;
-            NX = read_vector(&XR, "input", "manual_profile", "rad.dat");
+            double *X_temp;
+            NX = read_vector(&X_temp, "input", "manual_profile", "rad.dat");
             run.block_number = NX / run.block_size+1;
+            free(X_temp);
         }
         
         set_cuda(run.debug);
@@ -174,22 +175,28 @@ int main(int argc, char *argv[]){
         printf("Max steps on device (GPU): %d\n", run.step_device);
         printf("Max steps on host (HDD): %d\n", run.step_host);
 
+        // phys. constants
+        double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
 
         //! position and velocity array allocation
         size_t dimX = run.block_size * run.block_number * sizeof(double);
         
-        XR = (double*)malloc(dimX);
-        XZ = (double*)malloc(dimX);
-        XT = (double*)malloc(dimX);
+        int prof_size[] = {0,0};
+        double *prof_r=NULL, *prof_d=NULL, *profx_r=NULL, *profx_d=NULL;
+        
+        if (FASTMODE){
+            load_ion_profile(shotname, prof_size, prof_r, prof_d, profx_r, profx_d);
+        }else{
+            XR = (double*)malloc(dimX);
+            XZ = (double*)malloc(dimX);
+            XT = (double*)malloc(dimX);
 
-        VR = (double*)malloc(dimX);
-        VZ = (double*)malloc(dimX);
-        VT = (double*)malloc(dimX);
+            VR = (double*)malloc(dimX);
+            VZ = (double*)malloc(dimX);
+            VT = (double*)malloc(dimX);
 
-        // phys. constants
-        double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
-
-        load_beam(XR, XZ, XT, VR, VZ, VT, beam, shot, run);
+            load_beam(XR, XZ, XT, VR, VZ, VT, beam, shot, run);
+        }
 
         cudaMalloc((void **) &xr,  dimX); 
         cudaMalloc((void **) &xz,  dimX); 
@@ -262,22 +269,24 @@ int main(int argc, char *argv[]){
         cudaMemcpy(zg, ZG, dimZ, cudaMemcpyHostToDevice);
         cudaMemcpy(g_ptr, G_PTR, dimG, cudaMemcpyHostToDevice);
 
-        //! ION COORDS (HOST2device)
-        cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);
-
-        //! ION SPEEDS (HOST2device)
-        cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
+        if (!FASTMODE){
+            //! COORDS (HOST2device)
+            cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);
+            cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
+        }
 
         //! DETECTOR COORDS (HOST2device)
         cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
         
-        // OUTPUT INIT
-        export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
-        export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
-        export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
-        export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
-        export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
-        export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
+        if (!FASTMODE){
+            // OUTPUT INIT
+            export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
+            export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
+            export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
+            export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
+            export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
+            export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
+        }
 
         //! Set CUDA timer 
         cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
@@ -289,61 +298,60 @@ int main(int argc, char *argv[]){
         cudaEventCreate(&cuda_event_copy_start);
         cudaEventCreate(&cuda_event_copy_end);
 
-        if (run.debug == 1)    debug_message_init(XR, XZ, XT, VR, VZ, VT);
+        if (run.debug == 1 && !FASTMODE)    debug_message_init(XR, XZ, XT, VR, VZ, VT);
         
         for (int step_i=0;step_i<run.step_host;step_i++){        
             
             if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
-            // ION COORDS (HOST2device)
-            cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
-            //cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);
-
-            // ION SPEEDS (HOST2device)
-            cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
-            //cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);   
-            //ERRORCHECK();
+            
+            if (!FASTMODE){
+                // COORDS (HOST2device)
+                cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
+                cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
+                cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
+                cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
+                cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
+                cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
+                //ERRORCHECK();
+            }
             
             if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
             
             if (shot.electric_field_module){
-                printf("electric_field_module ON\n");
-                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
+                printf("electric_field_module ON\n");      
+                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i, prof_size, prof_r, prof_d, profx_r, profx_d);                
             }else{
-                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
+                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i, prof_size, prof_r, prof_d, profx_r, profx_d);
             }
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
             ERRORCHECK();
 
-            // ION COORDS (device2HOST)
-            cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
-            cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
-            cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
-            //ERRORCHECK();
+            if (!FASTMODE){
+                // ION COORDS (device2HOST)
+                cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
+                cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
+                cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
+                cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
+                cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
+                cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
+                //ERRORCHECK();
             
-            // ION SPEEDS (device2HOST)
-            cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
-            cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
-            cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
-            //ERRORCHECK();
+                // Save data to files
+                cpu_event_copy_start = clock();  
+                export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
+                export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
+                export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
+                export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
+                export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
+                export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
+            }
             
-            // Save data to files
-            cpu_event_copy_start = clock();  
-            export_data(XR, NX, folder_out, timestamp, "t_rad.dat");
-            export_data(XZ, NX, folder_out, timestamp, "t_z.dat");
-            export_data(XT, NX, folder_out, timestamp, "t_tor.dat");
-            export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
-            export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
-            export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
             cpu_event_copy_end = clock();
             
             if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
-            if (run.debug == 1)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
+            if (run.debug == 1 && !FASTMODE)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
         }
 
         // Get CUDA timer 
@@ -419,14 +427,17 @@ int main(int argc, char *argv[]){
         export_header("Length of a loop", "", run.step_device, folder_out, timestamp);
         export_header("Number of loops", "", run.step_host, folder_out, timestamp);
 
-        //! Save data to files
-        export_data(XR, NX, folder_out, timestamp, "rad.dat");
-        export_data(XZ, NX, folder_out, timestamp, "z.dat");
-        export_data(XT, NX, folder_out, timestamp, "tor.dat");
-        export_data(VR, NX, folder_out, timestamp, "vrad.dat");
-        export_data(VZ, NX, folder_out, timestamp, "vz.dat");
-        export_data(VT, NX, folder_out, timestamp, "vtor.dat");
-        export_table(folder_out, timestamp, "coords.dat", NX, XR, "R [m]", XZ, "Z [m]", XT, "T [m]", VR, "v_R [m/s]", VZ, "v_Z [m/s]", VT, "v_T [m/s]");
+        
+        if (!FASTMODE){
+            //! Save data to files
+            export_data(XR, NX, folder_out, timestamp, "rad.dat");
+            export_data(XZ, NX, folder_out, timestamp, "z.dat");
+            export_data(XT, NX, folder_out, timestamp, "tor.dat");
+            export_data(VR, NX, folder_out, timestamp, "vrad.dat");
+            export_data(VZ, NX, folder_out, timestamp, "vz.dat");
+            export_data(VT, NX, folder_out, timestamp, "vtor.dat");
+            export_table(folder_out, timestamp, "coords.dat", NX, XR, "R [m]", XZ, "Z [m]", XT, "T [m]", VR, "v_R [m/s]", VZ, "v_Z [m/s]", VT, "v_T [m/s]");
+        }
 
         printf("\n\nData folder: %s/%s\n\n", folder_out, timestamp);
 
@@ -438,7 +449,9 @@ int main(int argc, char *argv[]){
 
         //! Free RAM
         free(RG);   free(ZG);
-        free(XR);   free(XZ);   free(XT);
+        if (!FASTMODE){
+            free(XR);   free(XZ);   free(XT);
+        }
         
         //! FREE SERVICE_VAR variables (RAM, cuda)
         free(SERVICE_VAR);  cudaFree(service_var);
