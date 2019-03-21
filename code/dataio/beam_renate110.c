@@ -63,14 +63,14 @@ void load_ion_profile(char* shotname, int *prof_size, double *prof_r, double *pr
         prof_size[0] = prof_r_length;
     }else{
         printf("ERROR: Length of PROF_R and PROF_D are different!\n");
-        prof_size[0] = -1;
+        prof_size[0] = 0;
     }
 
     if (profx_r_length == profx_d_length){
         prof_size[1] = profx_r_length;
     }else{
         printf("ERROR: Length of PROFX_R and PROFX_D are different!\n");
-        prof_size[1] = -1;
+        prof_size[1] = 0;
     }
 
     if (prof_size[1] <= 0){
