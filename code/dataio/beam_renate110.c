@@ -59,24 +59,28 @@ void load_ion_profile(char* shotname, int *prof_size, double *prof_r, double *pr
     int profx_r_length = read_vector(&profx_r, "input/ionProf", shotname, "xrad.dat", false);
     int profx_d_length = read_vector(&profx_d, "input/ionProf", shotname, "xionyeald.dat", false);
     
+    if (prof_r_length <= 1){
+        printf("ERROR: Invalid length of PROF_R!\n");
+        exit(0);
+    }
+    
     if (prof_r_length == prof_d_length){
         prof_size[0] = prof_r_length;
     }else{
         printf("ERROR: Length of PROF_R and PROF_D are different!\n");
-        prof_size[0] = 0;
+        exit(0);
     }
 
     if (profx_r_length == profx_d_length){
-        prof_size[1] = profx_r_length;
+        if (profx_r_length <= 1){
+            printf("Cross section beam profile: OFF\n");            
+            prof_size[1] = 0;
+        }else{
+            printf("Cross section beam profile: ON\n");
+            prof_size[1] = profx_r_length;
+        }
     }else{
-        printf("ERROR: Length of PROFX_R and PROFX_D are different!\n");
+        printf("WARNING: Length of PROFX_R and PROFX_D are different!\nCross section beam profile: OFF\n");
         prof_size[1] = 0;
-    }
-
-    if (prof_size[1] <= 0){
-        printf("Cross section beam profile: OFF\n");
-    }else{
-        printf("Cross section beam profile: ON\n");
-    }
-    
+    }    
 }
