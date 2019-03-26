@@ -7,7 +7,7 @@ __global__ void taiga(double timestep, int NR, int NZ, double eperm, double **sp
         detcellid[idx] = -1;
         if (prof_size[0] > 0){
             // GENERATE PROFILE
-            generate_coords(idx, position_all, speed_all, eperm, prof_size, prof_r, prof_d, profx_r, profx_d);
+            //generate_coords(idx, position_all, speed_all, eperm, prof_size, prof_r, prof_d, profx_r, profx_d);
         }
     }
     
