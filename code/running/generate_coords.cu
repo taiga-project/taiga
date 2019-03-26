@@ -23,7 +23,7 @@ __global__ void generate_coords(double beam_diameter, double **position_all, dou
     }
     
     /* initialize random generator */
-    curandState state;
+    curandState_t *state;
     curand_init(1234, idx, 0, state);
     
     /* set position of particles */
