@@ -29,6 +29,7 @@
 #include "dataio/field_import.c"
 #include "dataio/parameter_reader.c"
 
+#include "dataio/beam.h"
 #if READINPUTPROF == 1
     #include "dataio/beam_manual_profile.c"
 #elif RENATE == 110
@@ -44,6 +45,7 @@
 #include "running/undetected.cu"
 #include "running/cyl2tor.cu"
 #include "running/traj.cu"
+#include "running/generate_coords.cu"
 #include "running/taiga.cu"
 
 #include "detector_module.c"
@@ -185,7 +187,7 @@ int main(int argc, char *argv[]){
         double *prof_r=NULL, *prof_d=NULL, *profx_r=NULL, *profx_d=NULL;
         
         if (FASTMODE){
-            load_ion_profile(shotname, prof_size, prof_r, prof_d, profx_r, profx_d);
+            load_ion_profile(shot.name, prof_size, prof_r, prof_d, profx_r, profx_d);
         }else{
             XR = (double*)malloc(dimX);
             XZ = (double*)malloc(dimX);
