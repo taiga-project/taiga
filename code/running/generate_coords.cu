@@ -1,5 +1,5 @@
 __global__ generate_coords(int idx, double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_x, double *prof_d, double *profx_r, double *profx_d){
-    int i, prof_size[2];
+    int i;
     double Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
     Vabs = sqrt(2 * eperm);
