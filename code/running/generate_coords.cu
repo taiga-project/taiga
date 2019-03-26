@@ -1,4 +1,4 @@
-__global__ generate_coords(int idx, double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_x, double *prof_d, double *profx_r, double *profx_d){
+__device__ generate_coords(int idx, double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_x, double *prof_d, double *profx_r, double *profx_d){
     int i;
     double Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
