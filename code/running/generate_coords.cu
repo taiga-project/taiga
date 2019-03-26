@@ -1,11 +1,14 @@
-__device__ double linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){
+__device__ double device_linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){
     int i;       
     for (i=1; (i<x_length) && (x_vector[i-1]>x_value); i++);    
     if(i>1){--i;}else{i=1;}    
     return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 }
 
-__device__ void generate_coords(int idx, double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_x, double *prof_d, double *profx_r, double *profx_d){
+__device__ void generate_coords(double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_x, double *prof_d, double *profx_r, double *profx_d){
+    // thread index
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
     int i;
     double Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
@@ -25,7 +28,7 @@ __device__ void generate_coords(int idx, double **position_all, double ***speed_
     /* set position of particles */
     do{
         ionisation_yeald = curand_uniform_double(state);
-        position_all[0][idx] = linear_interpolate(prof_d, prof_size[0], prof_r, prof_size[0], ionisation_yeald);
+        position_all[0][idx] = device_linear_interpolate(prof_d, prof_size[0], prof_r, prof_size[0], ionisation_yeald);
     }while (isnan(XR[i])||XR[i]<0);
     do{
         //if (prof_size[1] <= 0){

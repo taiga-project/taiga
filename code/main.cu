@@ -183,12 +183,7 @@ int main(int argc, char *argv[]){
         //! position and velocity array allocation
         size_t dimX = run.block_size * run.block_number * sizeof(double);
         
-        int prof_size[] = {0,0};
-        double *prof_r=NULL, *prof_d=NULL, *profx_r=NULL, *profx_d=NULL;
-        
-        if (FASTMODE){
-            load_ion_profile(shot.name, prof_size, prof_r, prof_d, profx_r, profx_d);
-        }else{
+        if (!FASTMODE){
             XR = (double*)malloc(dimX);
             XZ = (double*)malloc(dimX);
             XT = (double*)malloc(dimX);
@@ -293,7 +288,7 @@ int main(int argc, char *argv[]){
         //! Set CUDA timer 
         cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
         clock_t cpu_event_copy_start, cpu_event_copy_end;
-        double cpu_time_copy, cuda_time_core, cuda_time_copy;
+        double cpu_time_copy=0, cuda_time_core, cuda_time_copy;
         float cuda_event_core, cuda_event_copy;
         cudaEventCreate(&cuda_event_core_start);
         cudaEventCreate(&cuda_event_core_end);
@@ -301,30 +296,35 @@ int main(int argc, char *argv[]){
         cudaEventCreate(&cuda_event_copy_end);
 
         if (run.debug == 1 && !FASTMODE)    debug_message_init(XR, XZ, XT, VR, VZ, VT);
+
+        if (FASTMODE){
+            int PROF_SIZE[] = {0,0};
+            double *PROF_R, *PROF_D, *PROFX_R, *PROFX_D;
+            load_ion_profile(shot.name, PROF_SIZE, PROF_R, PROF_D, PROFX_R, PROFX_D);
+            cudaMalloc((void **) &prof_size,  2*sizeof(int)); 
+            cudaMalloc((void **) &prof_r,  PROF_SIZE[0]*sizeof(double));    cudaMalloc((void **) &prof_d,  PROF_SIZE[0]*sizeof(double)); 
+            cudaMalloc((void **) &profx_r, PROF_SIZE[1]*sizeof(double));    cudaMalloc((void **) &profx_d, PROF_SIZE[1]*sizeof(double));            
+            generate_coords <<< run.block_number, run.block_size >>> (x_ptr, v_ptr, eperm, prof_size, prof_x, prof_d, profx_r, profx_d);
+        }else{
+            // COORDS (HOST2device)
+            cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
+            cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
+            cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
+            cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
+            cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
+            cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
+            //ERRORCHECK();
+        }        
         
         for (int step_i=0;step_i<run.step_host;step_i++){        
             
-            if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
-            
-            if (!FASTMODE){
-                // COORDS (HOST2device)
-                cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
-                cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
-                cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
-                cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
-                cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
-                cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);
-                //ERRORCHECK();
-            }
-            
-            if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
             
             if (shot.electric_field_module){
                 printf("electric_field_module ON\n");      
-                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i, prof_size, prof_r, prof_d, profx_r, profx_d);                
+                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,er_ptr,ez_ptr,et_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);                
             }else{
-                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i, prof_size, prof_r, prof_d, profx_r, profx_d);
+                taiga <<< run.block_number, run.block_size >>> (run.timestep,NR,NZ,eperm,br_ptr,bz_ptr,bt_ptr,g_ptr,x_ptr,v_ptr,detector,detcellid,run.step_device,service_var,step_i);
             }
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
@@ -332,13 +332,15 @@ int main(int argc, char *argv[]){
 
             if (!FASTMODE){
                 // ION COORDS (device2HOST)
+                if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
                 cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
                 cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
                 cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
                 cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
                 cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
                 cudaMemcpy(VT, vt, dimX, cudaMemcpyDeviceToHost);
-                //ERRORCHECK();
+                //ERRORCHECK();                
+                if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
             
                 // Save data to files
                 cpu_event_copy_start = clock();  
@@ -348,9 +350,8 @@ int main(int argc, char *argv[]){
                 export_data(VR, NX, folder_out, timestamp, "t_vrad.dat");
                 export_data(VZ, NX, folder_out, timestamp, "t_vz.dat");
                 export_data(VT, NX, folder_out, timestamp, "t_vtor.dat");
+                cpu_event_copy_end = clock();
             }
-            
-            cpu_event_copy_end = clock();
             
             if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
             if (run.debug == 1 && !FASTMODE)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
@@ -359,8 +360,8 @@ int main(int argc, char *argv[]){
         // Get CUDA timer 
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
-        cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
-        cuda_time_copy = (double) 2.0*run.step_host*cuda_event_copy/1000.0;
+        if (!FASTMODE) cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
+        cuda_time_copy = (double) (1.0+run.step_host)*cuda_event_copy/1000.0;
         cuda_time_core =  run.step_host*cuda_event_core/1000.0;
         
         printf("===============================\n");
