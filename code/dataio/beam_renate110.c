@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <math.h>
-#include beam.h
 
 // set beam inline parameters
 void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, beam_prop beam, shot_prop shot, run_prop run){
