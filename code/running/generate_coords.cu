@@ -5,7 +5,7 @@ __device__ double device_linear_interpolate(double *x_vector, int x_length, doub
     return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 }
 
-__device__ void generate_coords(double beam_diameter, double **position_all, double **speed_all, double eperm, int *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
+__global__ void generate_coords(double beam_diameter, double **position_all, double **speed_all, double eperm, int *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     
