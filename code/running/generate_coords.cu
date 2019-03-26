@@ -1,4 +1,4 @@
-__device__ generate_coords(int idx, double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_x, double *prof_d, double *profx_r, double *profx_d){
+__device__ void generate_coords(int idx, double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_x, double *prof_d, double *profx_r, double *profx_d){
     int i;
     double Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
@@ -31,13 +31,13 @@ __device__ generate_coords(int idx, double **position_all, double ***speed_all, 
             XT[i]= cos(xsec_ang) * xsec_rad;
         }
     }while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(beam.diameter/2)*(beam.diameter/2));
-    */
-    /* toroidal deflection */
+    
+    // toroidal deflection 
     position_all[2][idx] += tan(beam.toroidal_deflection) * ($R_defl - XR[i]);
     
-    /* set velocity of particles */
+    // set velocity of particles
     speed_all[0][idx] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
     speed_all[1][idx] =  Vabs*sin(beam.vertical_deflection);
     speed_all[2][idx] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
-    
+    */
 }
