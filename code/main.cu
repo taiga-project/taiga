@@ -108,9 +108,9 @@ void print_help_message(){
 }
 
 int main(int argc, char *argv[]){    
-    shot_prop shot; init_shot_prop(shot);
-    beam_prop beam; init_beam_prop(beam);
-    run_prop run;   init_run_prop(run);
+    shot_prop shot; init_shot_prop(&shot);
+    beam_prop beam; init_beam_prop(&beam);
+    run_prop run;   init_run_prop(&run);
     input_init_taiga(argc, argv, &shot, &beam, &run);
     
     if (run.help == 1){
