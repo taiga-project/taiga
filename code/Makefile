@@ -1,7 +1,7 @@
 #nvcc -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32  main.cu -O3 -o taiga.exe
 
 NVCC = nvcc
-CFLAGS = -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -O3  -lcurand  -lculibos 
+CFLAGS = -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -O3  -lcurand
 
 VERSION = -D'TAIGA_VERSION="1.3.0"' -D'SVN_REV="$(shell svnversion -n .)"' 
 
