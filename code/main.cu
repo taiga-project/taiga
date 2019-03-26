@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <curand.h>
 #include <time.h>
 #include <math.h>
 #include <string.h>
@@ -298,13 +299,14 @@ int main(int argc, char *argv[]){
         if (run.debug == 1 && !FASTMODE)    debug_message_init(XR, XZ, XT, VR, VZ, VT);
 
         if (FASTMODE){
-            int PROF_SIZE[] = {0,0};
+            int PROF_SIZE[] = {0,0}; int* prof_size;            
             double *PROF_R, *PROF_D, *PROFX_R, *PROFX_D;
+            double *prof_r, *prof_d, *profx_r, *profx_d;
             load_ion_profile(shot.name, PROF_SIZE, PROF_R, PROF_D, PROFX_R, PROFX_D);
             cudaMalloc((void **) &prof_size,  2*sizeof(int)); 
             cudaMalloc((void **) &prof_r,  PROF_SIZE[0]*sizeof(double));    cudaMalloc((void **) &prof_d,  PROF_SIZE[0]*sizeof(double)); 
             cudaMalloc((void **) &profx_r, PROF_SIZE[1]*sizeof(double));    cudaMalloc((void **) &profx_d, PROF_SIZE[1]*sizeof(double));            
-            generate_coords <<< run.block_number, run.block_size >>> (x_ptr, v_ptr, eperm, prof_size, prof_x, prof_d, profx_r, profx_d);
+            generate_coords <<< run.block_number, run.block_size >>> (beam.diameter, x_ptr, v_ptr, eperm, prof_size, prof_r, prof_d, profx_r, profx_d);
         }else{
             // COORDS (HOST2device)
             cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);

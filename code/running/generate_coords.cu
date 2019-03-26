@@ -5,12 +5,13 @@ __device__ double device_linear_interpolate(double *x_vector, int x_length, doub
     return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 }
 
-__device__ void generate_coords(double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_x, double *prof_d, double *profx_r, double *profx_d){
+__device__ void generate_coords(double beam_diameter, double **position_all, double ***speed_all, double eperm, int *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     
     int i;
     double Vabs, ionisation_yeald, xsec_rad, xsec_ang;
+    double XR, XZ, XT;
     
     Vabs = sqrt(2 * eperm);
     
@@ -28,20 +29,23 @@ __device__ void generate_coords(double **position_all, double ***speed_all, doub
     /* set position of particles */
     do{
         ionisation_yeald = curand_uniform_double(state);
-        position_all[0][idx] = device_linear_interpolate(prof_d, prof_size[0], prof_r, prof_size[0], ionisation_yeald);
-    }while (isnan(XR[i])||XR[i]<0);
+        XR =  device_linear_interpolate(prof_d, prof_size[0], prof_r, prof_size[0], ionisation_yeald);
+        position_all[0][idx] = XR;
+    }while (isnan(XR)||XR<0);
     do{
         //if (prof_size[1] <= 0){
-            position_all[1][idx] = curand_uniform_double(state)*beam.diameter;
-            position_all[2][idx] = curand_uniform_double(state)*beam.diameter;
+            XZ = curand_uniform_double(state)*beam_diameter;
+            XT = curand_uniform_double(state)*beam_diameter;
+            position_all[1][idx] = XZ;
+            position_all[2][idx] = XT;
         /*}else{
             ionisation_yeald = curand_uniform_double(state);
             xsec_ang = curand_uniform_double(state)*2*PI;
-            xsec_rad = linear_interpolate(profx_d, prof_size[1], profx_r, prof_size[1], ionisation_yeald)*(beam.diameter/2);
+            xsec_rad = linear_interpolate(profx_d, prof_size[1], profx_r, prof_size[1], ionisation_yeald)*(beam_diameter/2);
             XZ[i]= sin(xsec_ang) * xsec_rad;
             XT[i]= cos(xsec_ang) * xsec_rad;
         }*/
-    }while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(beam.diameter/2)*(beam.diameter/2));
+    }while ((XZ*XZ+XT*XT)>=(beam_diameter/2)*(beam_diameter/2));
     
     // toroidal deflection 
     //position_all[2][idx] += tan(beam.toroidal_deflection) * ($R_defl - XR[i]);
