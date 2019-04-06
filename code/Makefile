@@ -10,9 +10,7 @@ DEFAULT_FLAGS = -D'RENATE=0' -D'READINPUTPROF=1' -D'FASTMODE=0'
 RENATE_FLAGS = -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=0'
 RENATE_FAST_FLAGS = -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=1'
 
-all: taiga.exe taiga_renate.exe
-
-dev: taiga_renate_fast.exe
+all: taiga.exe taiga_renate.exe taiga_renate_fast.exe
 
 taiga.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o taiga.exe  main.cu

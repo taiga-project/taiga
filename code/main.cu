@@ -267,11 +267,9 @@ int main(int argc, char *argv[]){
         cudaMemcpy(zg, ZG, dimZ, cudaMemcpyHostToDevice);
         cudaMemcpy(g_ptr, G_PTR, dimG, cudaMemcpyHostToDevice);
 
-        if (!FASTMODE){
-            //! COORDS (HOST2device)
-            cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);
-            cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
-        }
+        //! COORDS (HOST2device)
+        cudaMemcpy(x_ptr, X_PTR, dimXP, cudaMemcpyHostToDevice);
+        cudaMemcpy(v_ptr, V_PTR, dimXP, cudaMemcpyHostToDevice);
 
         //! DETECTOR COORDS (HOST2device)
         cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
@@ -302,11 +300,25 @@ int main(int argc, char *argv[]){
             int PROF_SIZE[] = {0,0}; int* prof_size;            
             double *PROF_R, *PROF_D, *PROFX_R, *PROFX_D;
             double *prof_r, *prof_d, *profx_r, *profx_d;
+            
+            init_ion_profile(shot.name, PROF_SIZE);
+            size_t dimPs = 2*sizeof(int);
+            size_t dimP0 = PROF_SIZE[0] * sizeof(double);
+            size_t dimP1 = PROF_SIZE[1] * sizeof(double);
+            PROF_R  = (double*)malloc(dimP0);    PROF_D  = (double*)malloc(dimP0);
+            PROFX_R = (double*)malloc(dimP1);	 PROFX_D = (double*)malloc(dimP1);
+            
             load_ion_profile(shot.name, PROF_SIZE, PROF_R, PROF_D, PROFX_R, PROFX_D);
-            cudaMalloc((void **) &prof_size,  2*sizeof(int)); 
-            cudaMalloc((void **) &prof_r,  PROF_SIZE[0]*sizeof(double));    cudaMalloc((void **) &prof_d,  PROF_SIZE[0]*sizeof(double)); 
-            cudaMalloc((void **) &profx_r, PROF_SIZE[1]*sizeof(double));    cudaMalloc((void **) &profx_d, PROF_SIZE[1]*sizeof(double));            
-            generate_coords <<< run.block_number, run.block_size >>> (beam.diameter, x_ptr, v_ptr, eperm, prof_size, prof_r, prof_d, profx_r, profx_d);
+            
+            cudaMalloc((void **) &prof_size, dimPs);    cudaMemcpy(prof_size, PROF_SIZE, dimPs, cudaMemcpyHostToDevice);
+            cudaMalloc((void **) &prof_r,    dimP0);    cudaMemcpy(prof_r,    PROF_R,    dimP0, cudaMemcpyHostToDevice);
+            cudaMalloc((void **) &prof_d,    dimP0);    cudaMemcpy(prof_d,    PROF_D,    dimP0, cudaMemcpyHostToDevice);
+            cudaMalloc((void **) &profx_r,   dimP1);    cudaMemcpy(profx_r,   PROFX_R,   dimP1, cudaMemcpyHostToDevice);
+            cudaMalloc((void **) &profx_d,   dimP1);    cudaMemcpy(profx_d,   PROFX_D,   dimP1, cudaMemcpyHostToDevice);
+            
+            generate_coords <<< run.block_number, run.block_size >>> (beam.diameter, beam.energy, beam.vertical_deflection, beam.toroidal_deflection, x_ptr, v_ptr, eperm, prof_size, prof_r, prof_d, profx_r, profx_d);
+            //ERRORCHECK();
+        
         }else{
             // COORDS (HOST2device)
             cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
@@ -330,7 +342,7 @@ int main(int argc, char *argv[]){
             }
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
-            ERRORCHECK();
+            //ERRORCHECK();
 
             if (!FASTMODE){
                 // ION COORDS (device2HOST)
