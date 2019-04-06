@@ -7,7 +7,12 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
     char* shotname = concat(shot.shotnumber, "_", shot.time);
-
+    
+    init_ion_profile(shotname, prof_size);
+    prof_r = (double*)malloc(prof_size[0] * sizeof(double));
+    prof_d = (double*)malloc(prof_size[0] * sizeof(double));
+    profx_r = (double*)malloc(prof_size[1] * sizeof(double));
+    profx_d = (double*)malloc(prof_size[1] * sizeof(double));
     load_ion_profile(shotname, prof_size, prof_r, prof_d, profx_r, profx_d);
     
     Vabs = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ beam.mass/ AMU);
@@ -41,7 +46,8 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
             }
         }while ((XZ[i]*XZ[i]+XT[i]*XT[i])>=(beam.diameter/2)*(beam.diameter/2));
         
-        /* toroidal deflection */
+        /* deflection */
+        XZ[i] += tan(beam.vertical_deflection) * ($R_defl - XR[i]);
         XT[i] += tan(beam.toroidal_deflection) * ($R_defl - XR[i]);
         
         /* set velocity of particles */
@@ -51,7 +57,8 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     }
 }
 
-void load_ion_profile(char* shotname, int *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
+void init_ion_profile(char* shotname, int *prof_size){
+    double *prof_r, *prof_d, *profx_r, *profx_d;
     int prof_r_length = read_vector(&prof_r, "input/ionProf", shotname, "rad.dat");
     int prof_d_length = read_vector(&prof_d, "input/ionProf", shotname, "ionyeald.dat");    
     
@@ -82,4 +89,26 @@ void load_ion_profile(char* shotname, int *prof_size, double *prof_r, double *pr
         printf("WARNING: Length of PROFX_R and PROFX_D are different!\nCross section beam profile: OFF\n");
         prof_size[1] = 0;
     }    
+}
+
+void load_ion_profile(char* shotname, int *prof_size, double *prof_r, double *prof_d, double *profx_r, double *profx_d){
+
+    double *local_prof_r, *local_prof_d, *local_profx_r, *local_profx_d;
+    int i;
+    read_vector(&local_prof_r, "input/ionProf", shotname, "rad.dat");
+    read_vector(&local_prof_d, "input/ionProf", shotname, "ionyeald.dat");
+    for (i=0; i<prof_size[0]; i++){
+        prof_r[i] = local_prof_r[i];
+        prof_d[i] = local_prof_d[i];
+    }
+    
+    if (prof_size[1] > 1){
+        read_vector(&local_profx_r, "input/ionProf", shotname, "xrad.dat", false);
+        read_vector(&local_profx_d, "input/ionProf", shotname, "xionyeald.dat", false);
+        
+        for (i=0; i<prof_size[1]; i++){
+            profx_r[i] = local_profx_r[i];
+            profx_d[i] = local_profx_d[i];
+        }
+    }
 }
