@@ -1,7 +1,7 @@
 #nvcc -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32  main.cu -O3 -o taiga.exe
 
 NVCC = nvcc
-CFLAGS = -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -O3  -lcurand
+CFLAGS = --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -O3  -lcurand
 
 VERSION = -D'TAIGA_VERSION="1.3.1"' -D'SVN_REV="$(shell svnversion -n .)"' 
 
@@ -14,12 +14,12 @@ all: taiga.exe taiga_renate.exe taiga_renate_fast.exe
 
 taiga.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o taiga.exe  main.cu
-	
+
 taiga_renate.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FLAGS) -o taiga_renate.exe  main.cu
-	
+
 taiga_renate_fast.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o taiga_renate_fast.exe  main.cu
-	
-clean: 
+
+clean:
 	rm *.exe
