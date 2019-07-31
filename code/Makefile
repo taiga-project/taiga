@@ -3,7 +3,7 @@
 NVCC = nvcc
 CFLAGS = --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -O3  -lcurand
 
-VERSION = -D'TAIGA_VERSION="1.3.1"' -D'SVN_REV="$(shell svnversion -n .)"' 
+VERSION = -D'TAIGA_VERSION="$(shell git branch | grep \* | cut -d ' ' -f2)"' -D'GIT_REV="$(shell git show -s --pretty=format:%h)"' 
 
 INPUT_FLAGS = $(VERSION)
 DEFAULT_FLAGS = -D'RENATE=0' -D'READINPUTPROF=1' -D'FASTMODE=0'

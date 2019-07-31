@@ -94,7 +94,7 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
 }
 
 void print_help_message(){        
-        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
+        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
         printf("Usage: taiga.exe [options]\nOptions:\n");
         printf("  -d, --debug                 Print additional debug informations\n");
         printf("  -f, --fulltrace             Save coordinates at every timestep\n");
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]){
         
         set_detector_geometry(DETECTOR, shot.detector_geometry);
         
-        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"));
+        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
         printf("Shotname: %s\n", shot.name); 
         printf("Detector: %s\n", shot.detector_mask);
         printf("  R:\t%lf\n", DETECTOR[0]);
@@ -403,7 +403,7 @@ int main(int argc, char *argv[]){
         //! CUDA profiler STOP
         cudaProfilerStop();
 
-        export_header(concat("TAIGA ", TAIGA_VERSION," (r", SVN_REV, ")"), folder_out, timestamp);
+        export_header(concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"), folder_out, timestamp);
         export_header_addline(folder_out, timestamp);
         export_header(concat("Shot ID: ",shot.name), folder_out, timestamp);
         export_header(concat("Run ID:  ",timestamp), folder_out, timestamp);
