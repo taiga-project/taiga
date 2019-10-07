@@ -1,3 +1,31 @@
+#ifndef PROP_H
+#define PROP_H
+
+struct device_global{
+    double **coords;
+    int *detcellid;
+    int particle_number;
+};
+
+struct device_local{
+    double coords[6];
+//    int step_counter;
+    int detcellid;
+};
+
+struct device_shared{
+    int max_step_number;        // N_step
+    int step_counter;
+    double eperm;
+    double timestep;
+    int *grid_size;
+    double **spline_grid;
+    double ***bspline;
+    bool espline_on;
+    double ***espline;
+    double *detector_geometry;
+};
+
 struct beam_prop{
     char matter[40];
     double mass;                // in amu
@@ -66,4 +94,29 @@ void init_run_prop(run_prop *run){
     strcpy(run->io_coordinate_order, "rzt");
 };
 
+struct detector_prop{
+    int N_xgrid;
+    double* xgrid;
+    int N_ygrid;
+    double* ygrid;
+    double* position;
+    double* angles;
+};
 
+void init_detector_prop(detector_prop *det){
+    det->N_xgrid = 0;
+    det->N_ygrid = 0;
+}
+
+#endif
+
+struct distribution{
+    int N;
+    double *grid;
+    double *profile;
+};  
+
+struct beam_profile{
+    distribution radial;
+    distribution cross_section;
+};

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, double *VT, beam_prop beam, shot_prop shot, run_prop run){
+void load_beam(double **X, beam_prop beam, shot_prop shot, run_prop run){
     double *xr,*xz,*xt,*vr,*vz,*vt;
     int profile_length = -1;
 
@@ -40,11 +40,11 @@ void load_beam(double *XR, double *XZ, double *XT, double *VR, double *VZ, doubl
     if (run.debug==1)  printf("Number of particles are modified to %d.\n", run.particle_number);
     
     for (int i=0; i<run.particle_number; i++){
-        XR[i]=xr[i];
-        XZ[i]=xz[i];
-        XT[i]=xt[i];
-        VR[i]=vr[i];
-        VZ[i]=vz[i];
-        VT[i]=vt[i];
+        X[0][i]=xr[i];
+        X[1][i]=xz[i];
+        X[2][i]=xt[i];
+        X[3][i]=vr[i];
+        X[4][i]=vz[i];
+        X[5][i]=vt[i];
     }
 }

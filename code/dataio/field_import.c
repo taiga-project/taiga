@@ -63,9 +63,10 @@ int spline_read_and_init(shot_prop shot, run_prop run, char* field_name, double 
 
 }
 
-int magnetic_field_read_and_init(shot_prop shot, run_prop run, double ***return_br_ptr, double ***return_bz_ptr, double ***return_bt_ptr, int dimRZ){
+int magnetic_field_read_and_init(shot_prop shot, run_prop run, device_shared *dev_shared){
 
     size_t dimB = 16*sizeof(double*);
+    size_t dimRZ = dev_shared->grid_size[0]*dev_shared->grid_size[1]*sizeof(double);
     double *BR_PTR[16];     double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB); 
     double *BT_PTR[16];     double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB); 
     double *BZ_PTR[16];     double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
@@ -75,16 +76,17 @@ int magnetic_field_read_and_init(shot_prop shot, run_prop run, double ***return_
     s = spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
     s = spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
 
-    *return_br_ptr = br_ptr;
-    *return_bz_ptr = bz_ptr;
-    *return_bt_ptr = bt_ptr;
+    dev_shared->bspline[0] = br_ptr;
+    dev_shared->bspline[1] = bz_ptr;
+    dev_shared->bspline[2] = bt_ptr;
 
     return s;
 }
 
-int electric_field_read_and_init(shot_prop shot, run_prop run, double ***return_er_ptr, double ***return_ez_ptr, double ***return_et_ptr, int dimRZ){
+int electric_field_read_and_init(shot_prop shot, run_prop run, device_shared *dev_shared){
 
     size_t dimB = 16*sizeof(double*);
+    size_t dimRZ = dev_shared->grid_size[0]*dev_shared->grid_size[1]*sizeof(double);
     double *ER_PTR[16]; double **er_ptr;    cudaMalloc((void **) &er_ptr,  dimB);
     double *ET_PTR[16]; double **et_ptr;    cudaMalloc((void **) &et_ptr,  dimB);
     double *EZ_PTR[16]; double **ez_ptr;    cudaMalloc((void **) &ez_ptr,  dimB);
@@ -95,9 +97,9 @@ int electric_field_read_and_init(shot_prop shot, run_prop run, double ***return_
     s = spline_read_and_init(shot, run, "ez",   &ez_ptr, dimRZ);
     s = spline_read_and_init(shot, run, "etor", &et_ptr, dimRZ);
 
-    *return_er_ptr = er_ptr;
-    *return_ez_ptr = ez_ptr;
-    *return_et_ptr = et_ptr;
+    dev_shared->espline[0] = er_ptr;
+    dev_shared->espline[1] = ez_ptr;
+    dev_shared->espline[2] = et_ptr;
 
     return s;
 }
