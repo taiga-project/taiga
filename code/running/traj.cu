@@ -1,4 +1,4 @@
-#define SPINE_INDEX_ERROR -1
+#define SPLINE_INDEX_ERROR -1
 
 __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ, double position_rad, double position_z, int *local_spline_indices, double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,  double **spline_brad, double **spline_bz, double **spline_btor){
     int rci, zci;
@@ -71,82 +71,17 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
-
-__device__ int traj(double timestep, double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **spline_brad, double **spline_bz, double **spline_btor, double eperm, double *detector_geometry, int N_step, int local_detcellid){
-
+__device__ int traj(device_local l, device_shared s){
+    
     // next grid
     int local_spline_indices[2];
-    local_spline_indices[0] = SPINE_INDEX_ERROR;
-    local_spline_indices[1] = SPINE_INDEX_ERROR;
-        
+    local_spline_indices[0] = SPLINE_INDEX_ERROR;
+    local_spline_indices[1] = SPLINE_INDEX_ERROR;
+    
     double local_spline_brad[16];
     double local_spline_bz[16];
     double local_spline_btor[16];
     
-    double local_brad=0,local_bz,local_btor;
-    double dr,dz;
-    double R;
-    
-    double X[6], X_prev[6];
-    
-    int finished = local_detcellid + 1;
-
-    X[0] = position[0];
-    X[1] = position[1];
-    X[2] = position[2];
-    
-    X[3] = speed[0];
-    X[4] = speed[1];
-    X[5] = speed[2];
-    
-    int loopi;
-    for (loopi=0; (loopi<N_step && (!finished)); loopi++){
-        // Get local magnetic field
-
-        R = cyl2tor_coord(X[0], X[2]);
-        copy_local_field(r_grid, NR, z_grid, NZ, R, X[1], local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, spline_brad, spline_bz, spline_btor);
-        
-        dr = R-r_grid[local_spline_indices[0]];
-        dz = X[1]-z_grid[local_spline_indices[1]];
-    
-        local_brad = calculate_local_field(local_spline_brad,dr,dz);
-        local_bz   = calculate_local_field(local_spline_bz,  dr,dz);
-        local_btor = calculate_local_field(local_spline_btor,dr,dz);
-        local_brad = cyl2tor_rad(local_brad, local_btor, X[0], X[2]);
-        local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);
-
-        for(int i=0; i<6; i++)  X_prev[i] = X[i];
-    
-        solve_diffeq(X, local_brad, local_bz, local_btor, eperm, timestep);     
-
-        finished = calculate_detection_position(X, X_prev, detector_geometry);
-    }
-    
-    position[0] = X[0];
-    position[1] = X[1];
-    position[2] = X[2];    
-    speed[0] = X[3];
-    speed[1] = X[4];
-    speed[2] = X[5];
-    
-    if (finished){
-        local_detcellid = 0;
-    }
-    
-    return local_detcellid;
-}
-
-__device__ int traj(double timestep, double *r_grid, int NR, double *z_grid, int NZ, double *position, double *speed, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_erad, double **spline_ez, double **spline_etor, double eperm, double *detector_geometry, int N_step, int local_detcellid){
-
-    // next grid
-    int local_spline_indices[2];
-    local_spline_indices[0] = SPINE_INDEX_ERROR;
-    local_spline_indices[1] = SPINE_INDEX_ERROR;
-    
-    double local_spline_brad[16];
-    double local_spline_bz[16];
-    double local_spline_btor[16];
-
     double local_spline_erad[16];
     double local_spline_ez[16];
     double local_spline_etor[16];
@@ -155,59 +90,69 @@ __device__ int traj(double timestep, double *r_grid, int NR, double *z_grid, int
     double local_erad=0,local_ez=0,local_etor=0;
     double dr, dz;
     double R;
-
-    double X[6], X_prev[6];
     
-    int finished = local_detcellid + 1;
-
-    X[0] = position[0];
-    X[1] = position[1];
-    X[2] = position[2];
+    double X[6], X_prev[6];//r
+    //double prev_coords[6];
     
-    X[3] = speed[0];
-    X[4] = speed[1];
-    X[5] = speed[2];
+    int finished = l.detcellid + 1;
     
-    int loopi;
-    for (loopi=0; (loopi<N_step && (!finished)); loopi++){
+    X[0] = l.coords[0];//d
+    X[1] = l.coords[1];//d
+    X[2] = l.coords[2];//d
+    X[3] = l.coords[3];//d
+    X[4] = l.coords[4];//d
+    X[5] = l.coords[5];//d
+    
+    for (int loopi=0; (loopi<s.max_step_number && (!finished)); ++loopi){
         // Get local magnetic field
-
-        R = cyl2tor_coord(X[0], X[2]);
-        copy_local_field(r_grid, NR, z_grid, NZ, R, X[1], local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, spline_brad, spline_bz, spline_btor, local_spline_erad, local_spline_ez, local_spline_etor, spline_erad, spline_ez, spline_etor);
         
-        dr = R-r_grid[local_spline_indices[0]];
-        dz = X[1]-z_grid[local_spline_indices[1]];
-    
-        local_brad = calculate_local_field(local_spline_brad,dr,dz);
-        local_bz   = calculate_local_field(local_spline_bz,  dr,dz);
-        local_btor = calculate_local_field(local_spline_btor,dr,dz);
-        local_brad = cyl2tor_rad(local_brad, local_btor, X[0], X[2]);
-        local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);
+        R = cyl2tor_coord(X[0], X[2]);//r
+        //R = cyl2tor_coord(l.coords[0], l.coords[2]);
+        copy_local_field(s.spline_grid[0], s.grid_size[0], s.spline_grid[1], s.grid_size[1], R, X[1], local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, s.bspline[0], s.bspline[1], s.bspline[2], local_spline_erad, local_spline_ez, local_spline_etor, s.espline[0], s.espline[1], s.espline[2]);
         
-        local_erad = calculate_local_field(local_spline_erad,dr,dz);
-        local_ez   = calculate_local_field(local_spline_ez,  dr,dz);
-        local_etor = calculate_local_field(local_spline_etor,dr,dz);
-        local_erad = cyl2tor_rad(local_erad, local_etor, X[0], X[2]);
-        local_etor = cyl2tor_field(local_erad, local_etor, X[0], X[2]);
-
+        dr = R-s.spline_grid[0][local_spline_indices[0]];
+        dz = X[1]-s.spline_grid[1][local_spline_indices[1]];//r
+        //dz = l.coords[1]-grid[1][local_spline_indices[1]];
+        
+        local_brad = calculate_local_field(local_spline_brad, dr, dz);
+        local_bz   = calculate_local_field(local_spline_bz,   dr, dz);
+        local_btor = calculate_local_field(local_spline_btor, dr, dz);
+        local_brad = cyl2tor_rad  (local_brad, local_btor, X[0], X[2]);//r
+        local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);//r
+        //local_brad = cyl2tor_rad  (local_brad, local_btor, l.coords[0], l.coords[2]);
+        //local_btor = cyl2tor_field(local_brad, local_btor, l.coords[0], l.coords[2]);
+        
+        if (s.espline_on){
+            local_erad = calculate_local_field(local_spline_erad, dr, dz);
+            local_ez   = calculate_local_field(local_spline_ez,   dr, dz);
+            local_etor = calculate_local_field(local_spline_etor, dr, dz);
+            local_erad = cyl2tor_rad  (local_erad, local_etor, X[0], X[2]);//r
+            local_etor = cyl2tor_field(local_erad, local_etor, X[0], X[2]);//r
+            //local_erad = cyl2tor_rad  (local_erad, local_etor, l.coords[0], l.coords[2]);
+            //local_etor = cyl2tor_field(local_erad, local_etor, l.coords[0], l.coords[2]);
+        }
+        
         // archive coordinates
-        for(int i=0; i<6; i++)  X_prev[i] = X[i];
-    
-        solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, eperm, timestep);      
-
-        finished = calculate_detection_position(X, X_prev, detector_geometry);
+        for(int i=0; i<6; i++)  X_prev[i] = X[i];//r
+        //for(int i=0; i<6; i++)  prev_coords[i] = l.coords[i];
+        
+        solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, s.eperm, s.timestep);//r
+        //solve_diffeq(l.coords, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, s.eperm, s.timestep);
+        
+        finished = calculate_detection_position(X, X_prev, s.detector_geometry);//r
+        //finished = calculate_detection_position(l.coords, prev_coords, s.detector_geometry);
     }
     
-    position[0] = X[0];
-    position[1] = X[1];
-    position[2] = X[2];
-    speed[0] = X[3];
-    speed[1] = X[4];
-    speed[2] = X[5];    
-
+    l.coords[0] = X[0];//d
+    l.coords[1] = X[1];//d
+    l.coords[2] = X[2];//d
+    l.coords[3] = X[3];//d
+    l.coords[4] = X[4];//d
+    l.coords[5] = X[5];//d
+    
     if (finished){
-        local_detcellid = 0;
+        l.detcellid = 0;
     }
-
-    return local_detcellid;
+    
+    return l.detcellid;
 }
