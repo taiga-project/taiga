@@ -239,7 +239,7 @@ int main(int argc, char *argv[]){
         if (FASTMODE){
             beam_profile dev_beam_prof;
             init_beam_profile(&dev_beam_prof, shot);
-            generate_coords <<< run.block_number, run.block_size >>> (dev_global, beam, dev_beam_prof);
+            generate_coords <<< run.block_number, run.block_size >>> (dev_global, dev_shared, beam, dev_beam_prof);
             //ERRORCHECK();
         
         }else{
