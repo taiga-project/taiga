@@ -305,7 +305,7 @@ printf("288 ");
             printf("\nSuccessful run. \n\n");
         }
         
-        printf("Lost particle ratio: \t %.4lf % \n", SERVICE_VAR[1]*100);
+        printf("Lost particle ratio: \t %.4lf % \n\n", SERVICE_VAR[1]*100);
         
         detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, host_global.particle_number, folder_out, timestamp);
         cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
@@ -370,7 +370,7 @@ printf("288 ");
                 host_global.vrad, "v_R [m/s]", host_global.vz, "v_Z [m/s]", host_global.vtor, "v_T [m/s]");
         }
         
-        printf("\n\nData folder: %s/%s\n\n", folder_out, timestamp);
+        printf("\nData folder: %s/%s\n\n", folder_out, timestamp);
         
         //! Free CUDA
         /*#for (int i=0; i<6; ++i){

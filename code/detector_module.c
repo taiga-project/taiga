@@ -13,7 +13,7 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
     int N_dg = N_dgx * N_dgy /4;
 
     if (( N_dgx > 0) && ( N_dgy > 0)) {
-        printf("Detector postprocessor module: ON (%d x %d)", N_dgx/2, N_dgy/2);        
+        printf("Detector postprocessor module: ON (%d x %d)\n", N_dgx/2, N_dgy/2);        
         size_t dimDGX = N_dgx * sizeof(double);     
         size_t dimDGY = N_dgy * sizeof(double);   
         size_t dimDG = N_dg * sizeof(int);
@@ -29,6 +29,6 @@ void detector_module(double **x_ptr, double *detector, int *detcellid, char *det
         CopyFile(concat("input/detector/", detector_name, "/detx"), concat(export_folder,"/",runnumber,"/detector/detx"));
         CopyFile(concat("input/detector/", detector_name, "/dety"), concat(export_folder,"/",runnumber,"/detector/dety"));
     }else{
-        printf("Detector postprocessor module: OFF");
+        printf("Detector postprocessor module: OFF\n");
     }
 }
