@@ -150,9 +150,9 @@ int main(int argc, char *argv[]){
         printf("  angle (Z/R):\t%lf°\n", atan(DETECTOR[3])/PI*180.0);
         printf("  angle (T/R):\t%lf°\n", atan(DETECTOR[4])/PI*180.0);
         printf("===============================\n");
-
+        
         host_global.particle_number = run.block_size * run.block_number;
-
+        
         if (READINPUTPROF == 1){
             double *X_temp;
             host_global.particle_number = read_vector(&X_temp, "input", "manual_profile", "rad.dat");
@@ -164,70 +164,69 @@ int main(int argc, char *argv[]){
         cudaProfilerStart();
         
         set_cuda(run.debug);
-
+        
         // set timestamp
         time_t rawtime;
         struct tm *info;
-
+        
         // coords
         double *X_PTR[3], **x_ptr;
         double *V_PTR[3], **v_ptr;
         size_t dimXP = 3*sizeof(double*);
-
+        
         double *XR,  *xr; 
         double *XZ,  *xz;
         double *XT,  *xt;
-
+        
         double *VR,  *vr; 
         double *VZ,  *vz;
         double *VT,  *vt;
-
+        
         printf("Number of blocks (threads): %d\n", run.block_number);
         printf("Block size: %d\n", run.block_size);
         printf("Number of particles: %d\n", host_global.particle_number);
         printf("Max steps on device (GPU): %d\n", run.step_device);
         printf("Max steps on host (HDD): %d\n", run.step_host);
         
-printf("187 \n");        // phys. constants
+        // phys. constants
         double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
         
        //! coordinates
         init_coords(&host_global, &dev_global, &dev_shared, beam, shot, run);
-printf("192 \n");        
+        
         //! grid
         init_grid(shot, run, &host_shared, &dev_shared);
-printf("195 \n");        
-        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, &host_shared, &dev_shared);
-printf("197 \n");        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, &host_shared, &dev_shared);
         
-printf("199 \n");        // detector cell id
+        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, &host_shared, &dev_shared);
+        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, &host_shared, &dev_shared);
+        
+        // detector cell id
         size_t dimRint = host_global.particle_number * sizeof(int);
-printf("201 \n");        int *DETCELLID, *detcellid;
+        int *DETCELLID, *detcellid;
         DETCELLID = (int *)malloc(dimRint); cudaMalloc((void **) &detcellid,  dimRint);
         
         // service value
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
         double *SERVICE_VAR, *service_var;
-printf("207 \n");        SERVICE_VAR = (double *)malloc(dimService); 
-printf("208 \n");        
+        SERVICE_VAR = (double *)malloc(dimService); 
+        
         for(int i=0 ; i<SERVICE_VAR_LENGTH ; ++i){
             SERVICE_VAR[i] = 0;
         }
-printf("209 \n");        
-        cudaMalloc((void **) &service_var,  dimService);
-printf("210 \n");        cudaMemcpy(service_var, SERVICE_VAR, dimService, cudaMemcpyHostToDevice);
         
+        cudaMalloc((void **) &service_var,  dimService);
+        cudaMemcpy(service_var, SERVICE_VAR, dimService, cudaMemcpyHostToDevice);
         
 printf("212 \n");        //! MEMCOPY (HOST2device)
         
         //! DETECTOR COORDS (HOST2device)
-//        cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
+        cudaMemcpy(&(dev_shared.detector_geometry), DETECTOR, dimD, cudaMemcpyHostToDevice);
         
         if (!FASTMODE){
             // OUTPUT INIT
-            export_data(host_global.rad, host_global.particle_number, folder_out, timestamp, "t_rad.dat");
-            export_data(host_global.z,   host_global.particle_number, folder_out, timestamp, "t_z.dat");
-            export_data(host_global.tor, host_global.particle_number, folder_out, timestamp, "t_tor.dat");
+            export_data(host_global.rad,  host_global.particle_number, folder_out, timestamp, "t_rad.dat");
+            export_data(host_global.z,    host_global.particle_number, folder_out, timestamp, "t_z.dat");
+            export_data(host_global.tor,  host_global.particle_number, folder_out, timestamp, "t_tor.dat");
             export_data(host_global.vrad, host_global.particle_number, folder_out, timestamp, "t_vrad.dat");
             export_data(host_global.vz,   host_global.particle_number, folder_out, timestamp, "t_vz.dat");
             export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
@@ -311,6 +310,8 @@ printf("288 ");
         detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, host_global.particle_number, folder_out, timestamp);
         cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
         export_data(DETCELLID, host_global.particle_number, folder_out, timestamp, "detector", "cellid.dat");
+        
+        if (run.debug == 1)    debug_service_vars(SERVICE_VAR);
         
         //! CUDA profiler STOP
         cudaProfilerStop();
