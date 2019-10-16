@@ -20,6 +20,6 @@ void debug_message_run(double* XR, double* XZ, double* XT, double* VR, double* V
 
 void debug_service_vars(double *SERVICE_VAR){
     for(int i=0; i<10; i++){
-        printf("SERVICE VAR %d\lf", i, SERVICE_VAR[i]);
+        printf("SERVICE VAR %d\t%lf\n", i, SERVICE_VAR[i]);
     }
 }
