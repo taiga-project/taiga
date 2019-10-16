@@ -1,11 +1,9 @@
 #include <cuda.h>
 #include "taiga_init.h"
+#include "running/generate_coords.cuh"
+#include "dataio/beam.h"
 
 void init_taiga(device_global *g, device_shared *s){
-    size_t dimP = sizeof(double*);
-    cudaMalloc((void **) &(s->spline_grid), 2*dimP);
-    cudaMalloc((void **) &(s->bspline), 3*dimP);
-    cudaMalloc((void **) &(s->espline), 3*dimP);
 }
 
 void init_device(device_global *g, device_shared *s){
@@ -17,51 +15,57 @@ void init_device(device_global *g, device_shared *s){
     g->particle_number = 0;
 }
 
-void init_grid(device_shared *s_host, device_shared *s, shot_prop shot){
-    
+void init_grid(shot_prop shot, run_prop run, device_shared *s_host, device_shared *s){
+printf("i21 \n");    
     size_t dimGP = 2*sizeof(int*);
-    cudaMalloc((void **) &s->grid_size, dimGP); //  cudaMalloc((void**) &, dim);  
+    cudaMalloc((void **) &s->grid_size, dimGP); //  cudaMalloc((void**) &, dim);
     s_host->grid_size = (int*)malloc(dimGP);
-
-    size_t dimG = 2*sizeof(double*);
-    cudaMalloc((void **) &s->spline_grid, dimG);
-    s_host->spline_grid = (double**)malloc(dimG);
-
-    s_host->grid_size[0] = read_vector(&(s_host->spline_grid[0]), "input/fieldSpl", shot.name, "r.spline");
+printf("i25 \n");
+printf("i29 \n");
+    s_host->grid_size[0] = read_vector(&(s_host->spline_rgrid), "input/fieldSpl", shot.name, "r.spline");
     size_t dimR = s_host->grid_size[0] * sizeof(double);
-    cudaMalloc((void **) &(s->spline_grid[0]), dimR);
-    
-    s_host->grid_size[1] = read_vector(&(s_host->spline_grid[1]), "input/fieldSpl", shot.name, "z.spline");
+    cudaMalloc((void **) &(s->spline_rgrid), dimR);
+printf("i33 \n");    
+    s_host->grid_size[1] = read_vector(&(s_host->spline_zgrid), "input/fieldSpl", shot.name, "z.spline");
     size_t dimZ = s_host->grid_size[1] * sizeof(double);
-    cudaMalloc((void **) &(s->spline_grid[1]), dimZ);
-    
+    cudaMalloc((void **) &(s->spline_zgrid), dimZ);
+printf("i37 \n");    
 //    size_t dimRZ = (dev_shared->grid_size[0]-1) * (dev_shared->grid_size[1]-1) * sizeof(double); // EZ grid
 
-    cudaMemcpy(&(s->spline_grid[0]), &(s_host->spline_grid[0]), dimR, cudaMemcpyHostToDevice);
-    cudaMemcpy(&(s->spline_grid[1]), &(s_host->spline_grid[1]), dimZ, cudaMemcpyHostToDevice);
-    cudaMemcpy(&(s->spline_grid),    &(s_host->spline_grid),    dimG, cudaMemcpyHostToDevice);
+    cudaMemcpy(&(s->spline_rgrid), &(s_host->spline_rgrid), dimR, cudaMemcpyHostToDevice);
+    cudaMemcpy(&(s->spline_zgrid), &(s_host->spline_zgrid), dimZ, cudaMemcpyHostToDevice);
 }
 
-void init_coords(device_global *g_host, device_global *g, beam_prop beam, shot_prop shot, run_prop run){
-
-    size_t dimXP = 6*sizeof(double*);
-    cudaMalloc((void**) &g_host->coords, dimXP);
-    g_host->coords = (double**)malloc(dimXP);
-    cudaMemcpy(&(g->coords), &(g_host->coords), dimXP, cudaMemcpyHostToDevice);
-
+void init_coords(device_global *g_host, device_global *g, device_shared *s, beam_prop beam, shot_prop shot, run_prop run){
+printf("i46 \n");
     size_t dimX = run.block_size * run.block_number * sizeof(double);
-
-    for (int i=0; i<6; i++){
-        cudaMalloc((void **) &g->coords[i], dimX);
-    }
-
+printf("i53 \n");
+cudaMalloc((void **) &(g->rad), dimX);
+cudaMalloc((void **) &(g->z),   dimX);
+cudaMalloc((void **) &(g->tor), dimX);
+cudaMalloc((void **) &(g->vrad), dimX);
+cudaMalloc((void **) &(g->vz),   dimX);
+cudaMalloc((void **) &(g->vtor), dimX);
+printf("i60 \n");
     if (!FASTMODE){
-        //#load_beam(g_host.coords, beam, shot, run);
-
-        for (int i=0; i<6; i++){
-//            g_host->coords[i] = malloc(dimX);
-            cudaMemcpy(&(g->coords[i]), &(g_host->coords[i]), dimX, cudaMemcpyHostToDevice);
-        }
+        g_host->rad = (double*)malloc(dimX);
+        g_host->z   = (double*)malloc(dimX);
+        g_host->tor = (double*)malloc(dimX);
+        g_host->vrad = (double*)malloc(dimX);
+        g_host->vz   = (double*)malloc(dimX);
+        g_host->vtor = (double*)malloc(dimX);
+        load_beam(g_host, beam, shot, run);
+printf("i63/%d \n",0);  
+        cudaMemcpy(&(g->rad), &(g_host->vrad), dimX, cudaMemcpyHostToDevice);
+        cudaMemcpy(&(g->z)  , &(g_host->z)  , dimX, cudaMemcpyHostToDevice);
+        cudaMemcpy(&(g->tor), &(g_host->tor), dimX, cudaMemcpyHostToDevice);
+        cudaMemcpy(&(g->vrad), &(g_host->vrad), dimX, cudaMemcpyHostToDevice);
+        cudaMemcpy(&(g->vz)  , &(g_host->vz) ,  dimX, cudaMemcpyHostToDevice);
+        cudaMemcpy(&(g->vtor), &(g_host->vtor), dimX, cudaMemcpyHostToDevice);
+    }else{
+        beam_profile dev_beam_prof;
+        init_beam_profile(&dev_beam_prof, shot);
+        generate_coords <<< run.block_number, run.block_size >>> (*g, *s, beam, dev_beam_prof);
     }
 }
 
@@ -75,16 +79,26 @@ void init_beam_profile(beam_profile *dev_prof, shot_prop shot){
     size_t dimBX = sizeof(double)*host_prof.cross_section.N;
 
 //#    load_ion_profile(shot.name, host_prof);
-
+printf("i78 \n");
     cudaMalloc((void **) &(dev_prof->radial), dimBF);
     cudaMalloc((void **) &(dev_prof->radial.grid),    dimBR);
     cudaMalloc((void **) &(dev_prof->radial.profile), dimBR);
     cudaMemcpy(&(dev_prof->radial.grid),    &(host_prof.radial.grid),    dimBR, cudaMemcpyHostToDevice);
     cudaMemcpy(&(dev_prof->radial.profile), &(host_prof.radial.profile), dimBR, cudaMemcpyHostToDevice);
-
+printf("i84 \n");
     cudaMalloc((void **) &(dev_prof->cross_section), dimBF);
     cudaMalloc((void **) &(dev_prof->cross_section.grid),    dimBX);
     cudaMalloc((void **) &(dev_prof->cross_section.profile), dimBX);
     cudaMemcpy(&(dev_prof->cross_section.grid),    &(host_prof.cross_section.grid),    dimBX, cudaMemcpyHostToDevice);
     cudaMemcpy(&(dev_prof->cross_section.profile), &(host_prof.cross_section.profile), dimBX, cudaMemcpyHostToDevice);    
+}
+
+void coord_memcopy(device_global *g_host, device_global *g, device_shared *s, beam_prop beam, shot_prop shot, run_prop run){
+    size_t dimX = run.block_size * run.block_number * sizeof(double);
+    cudaMemcpy(&(g_host->rad),  &(g->rad),  dimX, cudaMemcpyHostToDevice);
+    cudaMemcpy(&(g_host->z),    &(g->z),    dimX, cudaMemcpyHostToDevice);
+    cudaMemcpy(&(g_host->tor),  &(g->tor),  dimX, cudaMemcpyHostToDevice);
+    cudaMemcpy(&(g_host->vrad), &(g->vrad), dimX, cudaMemcpyHostToDevice);
+    cudaMemcpy(&(g_host->vz),   &(g->vz),   dimX, cudaMemcpyHostToDevice);
+    cudaMemcpy(&(g_host->vtor), &(g->vtor), dimX, cudaMemcpyHostToDevice);
 }

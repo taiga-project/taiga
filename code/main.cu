@@ -6,6 +6,7 @@
 #define ELEMENTARY_CHARGE 1.60217656535e-19
 #define AMU 1.66053892173e-27
 #define INFINITY RAND_MAX
+#define SERVICE_VAR_LENGTH 10
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
 
@@ -159,6 +160,9 @@ int main(int argc, char *argv[]){
             free(X_temp);
         }
         
+        //! CUDA profiler START
+        cudaProfilerStart();
+        
         set_cuda(run.debug);
 
         // set timestamp
@@ -184,46 +188,51 @@ int main(int argc, char *argv[]){
         printf("Max steps on device (GPU): %d\n", run.step_device);
         printf("Max steps on host (HDD): %d\n", run.step_host);
         
-        // phys. constants
+printf("187 \n");        // phys. constants
         double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
         
        //! coordinates
-        init_coords(&host_global, &dev_global, beam, shot, run);
-        
+        init_coords(&host_global, &dev_global, &dev_shared, beam, shot, run);
+printf("192 \n");        
         //! grid
-        init_grid(&host_shared, &dev_shared, shot);
+        init_grid(shot, run, &host_shared, &dev_shared);
+printf("195 \n");        
+        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, &host_shared, &dev_shared);
+printf("197 \n");        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, &host_shared, &dev_shared);
         
-        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, &dev_shared);
-        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, &dev_shared);
-        
-        // detector cell id
+printf("199 \n");        // detector cell id
         size_t dimRint = host_global.particle_number * sizeof(int);
-        int *DETCELLID, *detcellid;
+printf("201 \n");        int *DETCELLID, *detcellid;
         DETCELLID = (int *)malloc(dimRint); cudaMalloc((void **) &detcellid,  dimRint);
         
         // service value
-        size_t dimService = 10 * sizeof(double);
+        size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
         double *SERVICE_VAR, *service_var;
-        SERVICE_VAR = (double *)malloc(dimService); cudaMalloc((void **) &service_var,  dimService);
+printf("207 \n");        SERVICE_VAR = (double *)malloc(dimService); 
+printf("208 \n");        
+        for(int i=0 ; i<SERVICE_VAR_LENGTH ; ++i){
+            SERVICE_VAR[i] = 0;
+        }
+printf("209 \n");        
+        cudaMalloc((void **) &service_var,  dimService);
+printf("210 \n");        cudaMemcpy(service_var, SERVICE_VAR, dimService, cudaMemcpyHostToDevice);
         
-        //! CUDA profiler START
-        cudaProfilerStart();
         
-        //! MEMCOPY (HOST2device)
+printf("212 \n");        //! MEMCOPY (HOST2device)
         
         //! DETECTOR COORDS (HOST2device)
-        cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
+//        cudaMemcpy(detector, DETECTOR, dimD, cudaMemcpyHostToDevice);
         
         if (!FASTMODE){
             // OUTPUT INIT
-            export_data(host_global.coords[0], host_global.particle_number, folder_out, timestamp, "t_rad.dat");
-            export_data(host_global.coords[1], host_global.particle_number, folder_out, timestamp, "t_z.dat");
-            export_data(host_global.coords[2], host_global.particle_number, folder_out, timestamp, "t_tor.dat");
-            export_data(host_global.coords[3], host_global.particle_number, folder_out, timestamp, "t_vrad.dat");
-            export_data(host_global.coords[4], host_global.particle_number, folder_out, timestamp, "t_vz.dat");
-            export_data(host_global.coords[5], host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
+            export_data(host_global.rad, host_global.particle_number, folder_out, timestamp, "t_rad.dat");
+            export_data(host_global.z,   host_global.particle_number, folder_out, timestamp, "t_z.dat");
+            export_data(host_global.tor, host_global.particle_number, folder_out, timestamp, "t_tor.dat");
+            export_data(host_global.vrad, host_global.particle_number, folder_out, timestamp, "t_vrad.dat");
+            export_data(host_global.vz,   host_global.particle_number, folder_out, timestamp, "t_vz.dat");
+            export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
         }
-        
+printf("226 ");        
         //! Set CUDA timer 
         cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
         clock_t cpu_event_copy_start, cpu_event_copy_end;
@@ -233,28 +242,11 @@ int main(int argc, char *argv[]){
         cudaEventCreate(&cuda_event_core_end);
         cudaEventCreate(&cuda_event_copy_start);
         cudaEventCreate(&cuda_event_copy_end);
-
-        if (run.debug == 1 && !FASTMODE)    //#debug_message_init(XR, XZ, XT, VR, VZ, VT);
-
-        if (FASTMODE){
-            beam_profile dev_beam_prof;
-            init_beam_profile(&dev_beam_prof, shot);
-            generate_coords <<< run.block_number, run.block_size >>> (dev_global, dev_shared, beam, dev_beam_prof);
-            //ERRORCHECK();
         
-        }else{
-            // COORDS (HOST2device)
-            /*#cudaMemcpy(xr, XR, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(xz, XZ, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(xt, XT, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(vr, VR, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(vz, VZ, dimX, cudaMemcpyHostToDevice);
-            cudaMemcpy(vt, VT, dimX, cudaMemcpyHostToDevice);*/
-            //ERRORCHECK();
-        }        
-        
+        if (run.debug == 1 && !FASTMODE)   debug_message_init(host_global.rad, host_global.z, host_global.tor, host_global.vrad, host_global.vz, host_global.vtor);
+        size_t dimX = host_global.particle_number*sizeof(double);
         for (int step_i=0;step_i<run.step_host;step_i++){
-            
+printf("257 ");            
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
            
             taiga <<< run.block_number, run.block_size >>> (dev_global, dev_shared, service_var);
@@ -266,8 +258,9 @@ int main(int argc, char *argv[]){
             if (!FASTMODE){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
-               /*# cudaMemcpy(XR, xr, dimX, cudaMemcpyDeviceToHost);
-                cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
+                coord_memcopy(&host_global, &dev_global, &dev_shared, beam, shot, run);
+                //cudaMemcpy(host_global.rad, device_global.rad, dimX, cudaMemcpyDeviceToHost);
+               /* cudaMemcpy(XZ, xz, dimX, cudaMemcpyDeviceToHost);
                 cudaMemcpy(XT, xt, dimX, cudaMemcpyDeviceToHost);
                 cudaMemcpy(VR, vr, dimX, cudaMemcpyDeviceToHost);
                 cudaMemcpy(VZ, vz, dimX, cudaMemcpyDeviceToHost);
@@ -275,19 +268,19 @@ int main(int argc, char *argv[]){
                 //ERRORCHECK();                
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
                 
-                // Save data to files
+printf("278 ");                // Save data to files
                 cpu_event_copy_start = clock();
-                export_data(host_global.coords[0], host_global.particle_number, folder_out, timestamp, "t_rad.dat");
-                export_data(host_global.coords[1], host_global.particle_number, folder_out, timestamp, "t_z.dat");
-                export_data(host_global.coords[2], host_global.particle_number, folder_out, timestamp, "t_tor.dat");
-                export_data(host_global.coords[3], host_global.particle_number, folder_out, timestamp, "t_vrad.dat");
-                export_data(host_global.coords[4], host_global.particle_number, folder_out, timestamp, "t_vz.dat");
-                export_data(host_global.coords[5], host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
+                export_data(host_global.rad,  host_global.particle_number, folder_out, timestamp, "t_rad.dat");
+                export_data(host_global.z,    host_global.particle_number, folder_out, timestamp, "t_z.dat");
+                export_data(host_global.tor,  host_global.particle_number, folder_out, timestamp, "t_tor.dat");
+                export_data(host_global.vrad, host_global.particle_number, folder_out, timestamp, "t_vrad.dat");
+                export_data(host_global.vz,   host_global.particle_number, folder_out, timestamp, "t_vz.dat");
+                export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
                 cpu_event_copy_end = clock();
             }
-            
+printf("288 ");            
             if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
-            if (run.debug == 1 && !FASTMODE)    debug_message_run(XR, XZ, XT, VR, VZ, VT);
+            if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global.rad, host_global.z, host_global.tor, host_global.vrad, host_global.vz, host_global.vtor);
         }
         
         // Get CUDA timer 
@@ -365,21 +358,21 @@ int main(int argc, char *argv[]){
         
         if (!FASTMODE){
             //! Save data to files
-            export_data(host_global.coords[0], host_global.particle_number, folder_out, timestamp, "rad.dat");
-            export_data(host_global.coords[1], host_global.particle_number, folder_out, timestamp, "z.dat");
-            export_data(host_global.coords[2], host_global.particle_number, folder_out, timestamp, "tor.dat");
-            export_data(host_global.coords[3], host_global.particle_number, folder_out, timestamp, "vrad.dat");
-            export_data(host_global.coords[4], host_global.particle_number, folder_out, timestamp, "vz.dat");
-            export_data(host_global.coords[5], host_global.particle_number, folder_out, timestamp, "vtor.dat");
+            export_data(host_global.rad, host_global.particle_number, folder_out, timestamp, "rad.dat");
+            export_data(host_global.z,   host_global.particle_number, folder_out, timestamp, "z.dat");
+            export_data(host_global.tor, host_global.particle_number, folder_out, timestamp, "tor.dat");
+            export_data(host_global.vrad, host_global.particle_number, folder_out, timestamp, "vrad.dat");
+            export_data(host_global.vz,   host_global.particle_number, folder_out, timestamp, "vz.dat");
+            export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "vtor.dat");
             export_table(folder_out, timestamp, "coords.dat", host_global.particle_number,
-                host_global.coords[0], "R [m]",     host_global.coords[1], "Z [m]",     host_global.coords[2], "T [m]", 
-                host_global.coords[3], "v_R [m/s]", host_global.coords[4], "v_Z [m/s]", host_global.coords[5], "v_T [m/s]");
+                host_global.rad, "R [m]",      host_global.z, "Z [m]",      host_global.tor, "T [m]", 
+                host_global.vrad, "v_R [m/s]", host_global.vz, "v_Z [m/s]", host_global.vtor, "v_T [m/s]");
         }
         
         printf("\n\nData folder: %s/%s\n\n", folder_out, timestamp);
         
         //! Free CUDA
-        for (int i=0; i<6; ++i){
+        /*#for (int i=0; i<6; ++i){
             cudaFree(host_global.coords[i]);
         }
         cudaFree(host_global.coords);
@@ -393,6 +386,7 @@ int main(int argc, char *argv[]){
         }
         cudaFree(host_shared.espline);
         cudaFree(host_shared.bspline);
+        
 
         //! Free RAM    
         free(dev_shared.spline_grid[0]);
@@ -410,7 +404,7 @@ int main(int argc, char *argv[]){
                 free(host_global.coords[i]);
             }
             free(host_global.coords);
-        }
+        }*/
         
         
         //! FREE SERVICE_VAR variables (RAM, cuda)

@@ -35,7 +35,7 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
     if ((local_spline_indices[0] != rci) || (local_spline_indices[1] != zci)){
         local_spline_indices[0] = rci;
         local_spline_indices[1] = zci;
-    
+        
         for(i=0;i<16;i++){
             i2 = (local_spline_indices[0])*(NZ-1)+local_spline_indices[1];
             local_spline_brad[i] = spline_brad[i][i2];
@@ -49,19 +49,19 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
 }
 
 __device__ double calculate_local_field(double *local_spline, double dr, double dz){
-
+    
     /* MATLAB CODE:
     sample2(3) =c11(bs1,bs2)*dsx^3*dsy^3 + c12(bs1,bs2)*dsx^3*dsy^2 + c13(bs1,bs2)*dsx^3*dsy + c14(bs1,bs2)*dsx^3 + ...
                 c21(bs1,bs2)*dsx^2*dsy^3 + c22(bs1,bs2)*dsx^3*dsy^2 + c23(bs1,bs2)*dsx^2*dsy + c24(bs1,bs2)*dsx^2 + ...
                 c31(bs1,bs2)*dsx  *dsy^3 + c32(bs1,bs2)*dsx  *dsy^2 + c33(bs1,bs2)*dsx  *dsy + c34(bs1,bs2)*dsx    + ...
                 c41(bs1,bs2)      *dsy^3 + c42(bs1,bs2)      *dsy^2 + c43(bs1,bs2)      *dsy + c44(bs1,bs2);*/
-
+    
     double local_field = 0.0, local_field_comp[16] ;
     for(int i=0;i<4;i++){
         for(int j=0;j<4;j++){
             local_field_comp[i*4+j] = local_spline[i*4+j]*pow(dr,3-i)*pow(dz,3-j);
         }
-    }   
+    }
     
     for(int i=0;i<4;i++){
         for(int j=0;j<4;j++){
@@ -108,10 +108,10 @@ __device__ int traj(device_local l, device_shared s){
         
         R = cyl2tor_coord(X[0], X[2]);//r
         //R = cyl2tor_coord(l.coords[0], l.coords[2]);
-        copy_local_field(s.spline_grid[0], s.grid_size[0], s.spline_grid[1], s.grid_size[1], R, X[1], local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, s.bspline[0], s.bspline[1], s.bspline[2], local_spline_erad, local_spline_ez, local_spline_etor, s.espline[0], s.espline[1], s.espline[2]);
+        copy_local_field(s.spline_rgrid, s.grid_size[0], s.spline_zgrid, s.grid_size[1], R, X[1], local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, s.brad, s.bz, s.btor, local_spline_erad, local_spline_ez, local_spline_etor, s.erad, s.ez, s.etor);
         
-        dr = R-s.spline_grid[0][local_spline_indices[0]];
-        dz = X[1]-s.spline_grid[1][local_spline_indices[1]];//r
+        dr = R-s.spline_rgrid[local_spline_indices[0]];
+        dz = X[1]-s.spline_zgrid[local_spline_indices[1]];//r
         //dz = l.coords[1]-grid[1][local_spline_indices[1]];
         
         local_brad = calculate_local_field(local_spline_brad, dr, dz);

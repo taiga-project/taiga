@@ -2,7 +2,7 @@
 #include <math.h>
 
 // set beam inline parameters
-void load_beam(double **X, beam_prop beam, shot_prop shot, run_prop run){
+void load_beam(device_global *g, beam_prop beam, shot_prop shot, run_prop run){
     int i, prof_size[2];
     double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
@@ -28,29 +28,29 @@ void load_beam(double **X, beam_prop beam, shot_prop shot, run_prop run){
         /* set position of particles */
         do{
             ionisation_yeald = (double)rand()/RAND_MAX;
-            X[0][i] = linear_interpolate(prof.radial.profile, prof.radial.N, prof.radial.grid, prof.radial.N, ionisation_yeald);
-        }while (isnan(X[0][i])||X[0][i]<0);
+            g->rad[i] = linear_interpolate(prof.radial.profile, prof.radial.N, prof.radial.grid, prof.radial.N, ionisation_yeald);
+        }while (isnan(g->rad[i])||g->rad[i]<0);
         do{
             if (prof_size[1] <= 0){
-                X[1][i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*beam.diameter;
-                X[2][i]=(double)(rand()-RAND_MAX/2)/RAND_MAX*beam.diameter;
+                g->z[i]   = (double)(rand()-RAND_MAX/2)/RAND_MAX*beam.diameter;
+                g->tor[i] = (double)(rand()-RAND_MAX/2)/RAND_MAX*beam.diameter;
             }else{
                 ionisation_yeald = (double)rand()/RAND_MAX;
                 xsec_ang = (double)rand()/RAND_MAX*2*PI;
                 xsec_rad = linear_interpolate(prof.cross_section.profile, prof.cross_section.N, prof.cross_section.grid, prof.cross_section.N, ionisation_yeald)*(beam.diameter/2);
-                X[1][i]= sin(xsec_ang) * xsec_rad;
-                X[2][i]= cos(xsec_ang) * xsec_rad;
+                g->z[i]   = sin(xsec_ang) * xsec_rad;
+                g->tor[i] = cos(xsec_ang) * xsec_rad;
             }
-        }while ((X[1][i]*X[1][i]+X[2][i]*X[2][i])>=(beam.diameter/2)*(beam.diameter/2));
+        }while ((g->z[i]*g->z[i]+g->tor[i]*g->tor[i])>=(beam.diameter/2)*(beam.diameter/2));
         
         /* deflection */
-        X[1][i] += tan(beam.vertical_deflection) * ($R_defl - X[0][i]);
-        X[2][i] += tan(beam.toroidal_deflection) * ($R_defl - X[0][i]);
+        g->z[i]   += tan(beam.vertical_deflection) * ($R_defl - g->rad[i]);
+        g->tor[i] += tan(beam.toroidal_deflection) * ($R_defl - g->rad[i]);
         
         /* set velocity of particles */
-        X[3][i] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
-        X[4][i] =  Vabs*sin(beam.vertical_deflection);
-        X[5][i] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
+        g->vrad[i] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
+        g->vz[i]   =  Vabs*sin(beam.vertical_deflection);
+        g->vtor[i] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
     }
 }
 

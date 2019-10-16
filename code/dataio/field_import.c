@@ -63,27 +63,28 @@ int spline_read_and_init(shot_prop shot, run_prop run, char* field_name, double 
 
 }
 
-int magnetic_field_read_and_init(shot_prop shot, run_prop run, device_shared *dev_shared){
+int magnetic_field_read_and_init(shot_prop shot, run_prop run, device_shared *host_shared, device_shared *dev_shared){
 
     size_t dimB = 16*sizeof(double*);
-    size_t dimRZ = dev_shared->grid_size[0]*dev_shared->grid_size[1]*sizeof(double);
-    double *BR_PTR[16];     double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB); 
-    double *BT_PTR[16];     double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB); 
-    double *BZ_PTR[16];     double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
-
+printf("f69\n");
+    size_t dimRZ = host_shared->grid_size[0]*host_shared->grid_size[1]*sizeof(double);
+printf("f70\n");    double *BR_PTR[16];     double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB); 
+printf("f71\n");    double *BT_PTR[16];     double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB); 
+printf("f72\n");    double *BZ_PTR[16];     double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
+printf("f73\n");
     int s;
     s = spline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
     s = spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
     s = spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
 
-    dev_shared->bspline[0] = br_ptr;
-    dev_shared->bspline[1] = bz_ptr;
-    dev_shared->bspline[2] = bt_ptr;
+    dev_shared->brad = br_ptr;
+    dev_shared->bz   = bz_ptr;
+    dev_shared->btor = bt_ptr;
 
     return s;
 }
 
-int electric_field_read_and_init(shot_prop shot, run_prop run, device_shared *dev_shared){
+int electric_field_read_and_init(shot_prop shot, run_prop run, device_shared *host_shared, device_shared *dev_shared){
 
     size_t dimB = 16*sizeof(double*);
     size_t dimRZ = dev_shared->grid_size[0]*dev_shared->grid_size[1]*sizeof(double);
@@ -97,9 +98,9 @@ int electric_field_read_and_init(shot_prop shot, run_prop run, device_shared *de
     s = spline_read_and_init(shot, run, "ez",   &ez_ptr, dimRZ);
     s = spline_read_and_init(shot, run, "etor", &et_ptr, dimRZ);
 
-    dev_shared->espline[0] = er_ptr;
-    dev_shared->espline[1] = ez_ptr;
-    dev_shared->espline[2] = et_ptr;
+    dev_shared->erad = er_ptr;
+    dev_shared->ez   = ez_ptr;
+    dev_shared->etor = et_ptr;
 
     return s;
 }

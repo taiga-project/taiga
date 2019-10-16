@@ -3,6 +3,7 @@
 
 struct device_global{
     double **coords;
+    double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
     int particle_number;
 };
@@ -19,10 +20,14 @@ struct device_shared{
     double eperm;
     double timestep;
     int *grid_size;
-    double **spline_grid;
-    double ***bspline;
+//    double **spline_grid;
+    double *spline_rgrid;
+    double *spline_zgrid;
+//    double ***bspline;
+    double **brad, **bz, **btor;
     bool espline_on;
-    double ***espline;
+//    double ***espline;
+    double **erad, **ez, **etor;
     double *detector_geometry;
 };
 
