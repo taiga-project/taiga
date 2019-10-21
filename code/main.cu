@@ -97,17 +97,17 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
 }
 
 void print_help_message(){        
-        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
-        printf("Usage: taiga.exe [options]\nOptions:\n");
-        printf("  -d, --debug                 Print additional debug informations\n");
-        printf("  -f, --fulltrace             Save coordinates at every timestep\n");
-        printf("  -h, --help                  Help message\n");
-        printf("  -l, --devices               List GPU devices\n");
-        printf("  -p, --parameter_file=PATH   Parameter file path\n");
-        printf("  -r  --runnumber_file=PATH   Runnumber file path\n");
-        printf("  -r  --runnumber=INTEGER     Runnumber value\n");
-        printf("  -s, --ion-source=PATH       Ion source path\n");
-        printf("      --ion-source-coords=XXX Order of coordinates (RZT or RTZ) in input file\n");
+    printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
+    printf("Usage: taiga.exe [options]\nOptions:\n");
+    printf("  -d, --debug                 Print additional debug informations\n");
+    printf("  -f, --fulltrace             Save coordinates at every timestep\n");
+    printf("  -h, --help                  Help message\n");
+    printf("  -l, --devices               List GPU devices\n");
+    printf("  -p, --parameter_file=PATH   Parameter file path\n");
+    printf("  -r  --runnumber_file=PATH   Runnumber file path\n");
+    printf("  -r  --runnumber=INTEGER     Runnumber value\n");
+    printf("  -s, --ion-source=PATH       Ion source path\n");
+    printf("      --ion-source-coords=XXX Order of coordinates (RZT or RTZ) in input file\n");
 }
 
 int main(int argc, char *argv[]){    
@@ -137,7 +137,7 @@ int main(int argc, char *argv[]){
 
         size_t dimD = 5 * sizeof(double);
         double *DETECTOR, *detector;
-        DETECTOR = (double *)malloc(dimD);  /*#cudaMalloc((void **) &detector,  dimD);*/
+        DETECTOR = (double *)malloc(dimD);  cudaMalloc((void **) &detector,  dimD);
         
         set_detector_geometry(DETECTOR, shot.detector_geometry);
         
@@ -188,22 +188,19 @@ int main(int argc, char *argv[]){
         printf("Max steps on device (GPU): %d\n", run.step_device);
         printf("Max steps on host (HDD): %d\n", run.step_host);
         
-        // phys. constants
-        double eperm = ELEMENTARY_CHARGE/ AMU/ beam.mass;
         
-       //! coordinates
+        //! coordinates
         init_coords(&host_global, &dev_global, &dev_shared, beam, shot, run);
         
         //! grid
         init_grid(shot, run, &host_shared, &dev_shared);
-        
-        /*#int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, &host_shared, &dev_shared);
+        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, &host_shared, &dev_shared);
         if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, &host_shared, &dev_shared);
         
         // detector cell id
         size_t dimRint = host_global.particle_number * sizeof(int);
         int *DETCELLID, *detcellid;
-        DETCELLID = (int *)malloc(dimRint); cudaMalloc((void **) &detcellid,  dimRint);*/
+        DETCELLID = (int *)malloc(dimRint); cudaMalloc((void **) &detcellid,  dimRint);
         
         // service value
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
@@ -218,10 +215,10 @@ int main(int argc, char *argv[]){
         cudaMalloc((void **) &service_var,  dimService);
         cudaMemcpy(service_var, SERVICE_VAR, dimService, cudaMemcpyHostToDevice);
         
-printf("212 \n");        //! MEMCOPY (HOST2device)
+        //! MEMCOPY (HOST2device)
         
         //! DETECTOR COORDS (HOST2device)
-        /*#cudaMemcpy(&(dev_shared.detector_geometry), DETECTOR, dimD, cudaMemcpyHostToDevice);
+        cudaMemcpy(&(dev_shared.detector_geometry), DETECTOR, dimD, cudaMemcpyHostToDevice);
         
         if (!FASTMODE){
             // OUTPUT INIT
@@ -232,7 +229,7 @@ printf("212 \n");        //! MEMCOPY (HOST2device)
             export_data(host_global.vz,   host_global.particle_number, folder_out, timestamp, "t_vz.dat");
             export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
         }
-printf("226 ");        
+        
         //! Set CUDA timer 
         cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
         clock_t cpu_event_copy_start, cpu_event_copy_end;
@@ -244,13 +241,19 @@ printf("226 ");
         cudaEventCreate(&cuda_event_copy_end);
         
         if (run.debug == 1 && !FASTMODE)   debug_message_init(host_global.rad, host_global.z, host_global.tor, host_global.vrad, host_global.vz, host_global.vtor);
+        
         size_t dimX = host_global.particle_number*sizeof(double);
+        
+        //dev_shared.step_counter = 0;
+        
+        init_device_structs(&host_global, &dev_global, &host_shared, &dev_shared, beam, shot, run);
+        
         for (int step_i=0;step_i<run.step_host;step_i++){
-printf("257 ");            
+            
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
-           */
-            taiga <<< run.block_number, run.block_size >>> (/*dev_global, dev_shared,*/ service_var);
-            /*#
+           
+            taiga <<< run.block_number, run.block_size >>> (dev_global, dev_shared, service_var);
+            
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
             //ERRORCHECK();
@@ -262,7 +265,7 @@ printf("257 ");
                 //ERRORCHECK();                
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
                 
-printf("278 ");                // Save data to files
+                // Save data to files
                 cpu_event_copy_start = clock();
                 export_data(host_global.rad,  host_global.particle_number, folder_out, timestamp, "t_rad.dat");
                 export_data(host_global.z,    host_global.particle_number, folder_out, timestamp, "t_z.dat");
@@ -272,7 +275,7 @@ printf("278 ");                // Save data to files
                 export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
                 cpu_event_copy_end = clock();
             }
-printf("288 ");            
+            
             if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
             if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global.rad, host_global.z, host_global.tor, host_global.vrad, host_global.vz, host_global.vtor);
         }
@@ -289,26 +292,25 @@ printf("288 ");
         printf ("CPU->HDD copy time:  %lf s\n", cpu_time_copy);    
         printf("===============================\n");
         
-        undetected <<<1,1>>>(detcellid, host_global.particle_number, service_var);*/
+        undetected <<<1,1>>>(detcellid, host_global.particle_number, service_var);
         
         //! MEMCOPY (device2HOST)
         
-        cuda_service_test <<< 1, 1 >>> (service_var);
         cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
         if(SERVICE_VAR[0]!=42.24){
             printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n\n", SERVICE_VAR[0]);
         }else{
             printf("\nSuccessful run. \n\n");
         }
-        /*#
+        
         printf("Lost particle ratio: \t %.4lf % \n\n", SERVICE_VAR[1]*100);
         
         detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, host_global.particle_number, folder_out, timestamp);
         cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
-        export_data(DETCELLID, host_global.particle_number, folder_out, timestamp, "detector", "cellid.dat");*/
+        export_data(DETCELLID, host_global.particle_number, folder_out, timestamp, "detector", "cellid.dat");
         
         if (run.debug == 1)    debug_service_vars(SERVICE_VAR);
-        /*#
+        
         //! CUDA profiler STOP
         cudaProfilerStop();
         
@@ -369,7 +371,7 @@ printf("288 ");
         printf("\nData folder: %s/%s\n\n", folder_out, timestamp);
         
         //! Free CUDA
-        /*#for (int i=0; i<6; ++i){
+        /*for (int i=0; i<6; ++i){
             cudaFree(host_global.coords[i]);
         }
         cudaFree(host_global.coords);
