@@ -81,11 +81,11 @@ void init_coords(device_global *g_host, device_global *g, device_shared *s, beam
 }
 
 void init_beam_profile(beam_profile *dev_prof, shot_prop shot){
-    beam_profile host_prof;
+    /*#beam_profile host_prof;
     
 //#    init_ion_profile(shot.name, host_prof);
 
-    size_t dimBF = sizeof(beam_profile);
+    size_t dimBF = sizeof(beam_distribution);
     size_t dimBR = sizeof(double)*host_prof.radial.N;
     size_t dimBX = sizeof(double)*host_prof.cross_section.N;
 
@@ -101,7 +101,7 @@ printf("i93 \n");
     cudaMalloc((void **) &(dev_prof->cross_section.grid),    dimBX);
     cudaMalloc((void **) &(dev_prof->cross_section.profile), dimBX);
     cudaMemcpy(&(dev_prof->cross_section.grid),    &(host_prof.cross_section.grid),    dimBX, cudaMemcpyHostToDevice);
-    cudaMemcpy(&(dev_prof->cross_section.profile), &(host_prof.cross_section.profile), dimBX, cudaMemcpyHostToDevice);    
+    cudaMemcpy(&(dev_prof->cross_section.profile), &(host_prof.cross_section.profile), dimBX, cudaMemcpyHostToDevice);*/ 
 }
 
 void coord_memcopy(device_global *g_host, device_global *g, device_shared *s, beam_prop beam, shot_prop shot, run_prop run){

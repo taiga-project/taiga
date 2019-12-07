@@ -111,17 +111,17 @@ struct detector_prop{
 void init_detector_prop(detector_prop *det){
     det->N_xgrid = 0;
     det->N_ygrid = 0;
-}
+};
 
-#endif
-
-struct distribution{
+struct beam_distribution{
     int N;
     double *grid;
     double *profile;
-};  
+};
 
 struct beam_profile{
-    distribution radial;
-    distribution cross_section;
+    struct beam_distribution radial;
+    struct beam_distribution cross_section;
 };
+
+#endif
