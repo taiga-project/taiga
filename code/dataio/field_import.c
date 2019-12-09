@@ -50,6 +50,9 @@ int spline_read_and_init(shot_prop shot, run_prop run, char* field_name, double 
         free(S4);   free(S5);   free(S6);   free(S7);
         free(S8);   free(S9);   free(S10);  free(S11);
         free(S12);  free(S13);  free(S14);  free(S15);
+    }else{
+        printf("Fatal memory allocation error at %s",field_name);
+        exit(0);
     }
     
     if (run.debug == 1){
