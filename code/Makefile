@@ -1,5 +1,3 @@
-#nvcc -arch sm_21 --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32  main.cu -O3 -o taiga.exe
-
 NVCC = nvcc
 CFLAGS = --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -O3  -lcurand -arch=compute_30
 
@@ -20,6 +18,9 @@ taiga_renate.exe: main.cu
 
 taiga_renate_fast.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o taiga_renate_fast.exe  main.cu
+
+t: test/struct.cu
+	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o test.exe  test/struct.cu
 
 clean:
 	rm *.exe
