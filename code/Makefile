@@ -1,5 +1,6 @@
 NVCC = nvcc
 CFLAGS = --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -O3  -lcurand -arch=compute_30
+TESTFLAGS = --ptxas-options=-v  -w  -Xptxas -dlcm=cg -maxrregcount=32 -g -G  -lcurand -arch=compute_30
 
 VERSION = -D'TAIGA_VERSION="$(shell git branch | grep \* | cut -d ' ' -f2)"' -D'GIT_REV="$(shell git show -s --pretty=format:%h)"' 
 
@@ -19,8 +20,10 @@ taiga_renate.exe: main.cu
 taiga_renate_fast.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o taiga_renate_fast.exe  main.cu
 
-t: test/struct.cu
-	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o test.exe  test/struct.cu
+t: test
+
+test: tests/struct.cu
+	$(NVCC) $(TESTFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o test.exe  tests/struct.cu
 
 clean:
 	rm *.exe
