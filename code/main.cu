@@ -21,7 +21,7 @@
 //#include <filesystem>
 
 #include <cuda_profiler_api.h>
-#include "test/cuda/nvToolsExt.h"
+//#include "test/cuda/nvToolsExt.h"
 
 #include "prop.h"
 #include "main.cuh"
