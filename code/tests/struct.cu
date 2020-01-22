@@ -13,7 +13,7 @@
 __global__ void test_struct_copy(device_global* g, double *tmp){
     tmp[0] = 3.14159265358979324;
     tmp[1] = g->detcellid[DETCELLID_INDEX];
-    g->particle_number = 20;    
+    g->particle_number = 20;
     g->detcellid[DETCELLID_INDEX] = 24;
     tmp[2] = g->detcellid[DETCELLID_INDEX];
 }
@@ -29,8 +29,8 @@ int main(){
     size_t dim_global = sizeof(device_global);
     size_t dim_detcellid = sizeof(int)*LENGTH_DETCELLID;
     
-    h_global = (device_global*)malloc(dim_global);   
-    s_global = (device_global*)malloc(dim_global);    
+    h_global = (device_global*)malloc(dim_global);
+    s_global = (device_global*)malloc(dim_global);
     cudaMalloc((void **) &d_global, dim_global);
     
     h_global->detcellid = (int*)malloc(dim_detcellid);
@@ -56,7 +56,7 @@ int main(){
     
     device_global *h2_global, *s2_global;
     int *s2_global__detcellid;
-    s2_global__detcellid = (int*)malloc(dim_detcellid);    
+    s2_global__detcellid = (int*)malloc(dim_detcellid);
      
     h2_global = (device_global*)malloc(dim_global);
     s2_global = (device_global*)malloc(dim_global);
