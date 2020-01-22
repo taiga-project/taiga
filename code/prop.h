@@ -1,20 +1,20 @@
 #ifndef PROP_H
 #define PROP_H
 
-struct device_global{
+struct taiga_globals{
     double **coords;
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
     int particle_number;
 };
 
-struct device_local{
+struct taiga_locals{
     double coords[6];
 //    int step_counter;
     int detcellid;
 };
 
-struct device_shared{
+struct taiga_commons{
     int max_step_number;        // N_step
     int step_counter;
     double eperm;

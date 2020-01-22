@@ -8,7 +8,7 @@ __device__ double device_linear_interpolate(double *x_vector, int x_length, doub
 
 /*(double beam.diameter, double beam.energy, double beam.vertical_deflection, double beam.toroidal_deflection,
                                 double **position_all, double **speed_all, double eperm, int *prof_size, double *prof.radial.grid, double *prof.radial.profile, double *prof.cross_section.grid, double *prof.cross_section.profile)*/
-__global__ void generate_coords(device_global g, device_shared s, beam_prop beam, beam_profile prof){
+__global__ void generate_coords(taiga_globals g, taiga_commons s, beam_prop beam, beam_profile prof){
 
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;

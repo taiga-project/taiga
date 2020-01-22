@@ -1,4 +1,4 @@
-__global__ void taiga(device_global g, device_shared s, double *service_var){
+__global__ void taiga(taiga_globals g, taiga_commons s, double *service_var){
 //(double timestep, int NR, int NZ, double eperm, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_grid, double **position_all, double **speed_all, double *detector_geometry, int *detcellid, int N_step, double *service_var, int step_i){
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -8,7 +8,7 @@ __global__ void taiga(device_global g, device_shared s, double *service_var){
     //if (s->step_counter == 0)    g->detcellid[idx] = -1;
     
     if (g.detcellid[idx] == -1){
-        device_local l;
+        taiga_locals l;
         //cudaMalloc((void **) &(l.coords),  6*sizeof(double));
         l.coords[0] = g.rad[idx];
         l.coords[1] = g.z[idx];
@@ -36,6 +36,6 @@ __global__ void taiga(device_global g, device_shared s, double *service_var){
     service_var[0] = 42.24;
 }
 
-__global__ void cuda_service_test(/*device_global g, device_shared s,*/ double *service_var){
+__global__ void cuda_service_test(/*taiga_globals g, taiga_commons s,*/ double *service_var){
     service_var[9] = 3.1415926535897932456;
 }

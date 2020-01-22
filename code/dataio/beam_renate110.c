@@ -2,7 +2,7 @@
 #include <math.h>
 
 // set beam inline parameters
-void load_beam(device_global *g, beam_prop beam, shot_prop shot, run_prop run){
+void load_beam(taiga_globals *g, beam_prop beam, shot_prop shot, run_prop run){
     int i, prof_size[2];
     double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     

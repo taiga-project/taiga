@@ -3,10 +3,10 @@
 #include "running/generate_coords.cuh"
 #include "dataio/beam.h"
 
-void init_taiga(device_global *g, device_shared *s){
+void init_taiga(taiga_globals *g, taiga_commons *s){
 }
 
-void init_device(device_global *g, device_shared *s){
+void init_device(taiga_globals *g, taiga_commons *s){
     s->step_counter = 0;
     s->max_step_number = 0;
     s->eperm = 0;
@@ -15,7 +15,7 @@ void init_device(device_global *g, device_shared *s){
     g->particle_number = 0;
 }
 
-void init_grid(shot_prop shot, run_prop run, device_shared *s_host, device_shared *s){
+void init_grid(shot_prop shot, run_prop run, taiga_commons *s_host, taiga_commons *s){
     
     double *host_rgrid, *dev_rgrid, *host_zgrid, *dev_zgrid;
     size_t dimGP = 2*sizeof(int);
@@ -39,7 +39,7 @@ void init_grid(shot_prop shot, run_prop run, device_shared *s_host, device_share
     printf(" GRID SIZE: %d %d \n", s_host->grid_size[0], s_host->grid_size[1]);
 }
 
-void init_coords(device_global *g_host, device_global *g, device_shared *s, beam_prop beam, shot_prop shot, run_prop run){
+void init_coords(taiga_globals *g_host, taiga_globals *g, taiga_commons *s, beam_prop beam, shot_prop shot, run_prop run){
     
     size_t dimX = run.block_size * run.block_number * sizeof(double);
     size_t dimXI = run.block_size * run.block_number * sizeof(int);
@@ -104,7 +104,7 @@ printf("i93 \n");
     cudaMemcpy(&(dev_prof->cross_section.profile), &(host_prof.cross_section.profile), dimBX, cudaMemcpyHostToDevice);*/ 
 }
 
-void coord_memcopy(device_global *g_host, device_global *g, device_shared *s, beam_prop beam, shot_prop shot, run_prop run){
+void coord_memcopy(taiga_globals *g_host, taiga_globals *g, taiga_commons *s, beam_prop beam, shot_prop shot, run_prop run){
     size_t dimX = run.block_size * run.block_number * sizeof(double);
     size_t dimXI = run.block_size * run.block_number * sizeof(int);
     cudaMemcpy(&(g_host->rad),       &(g->rad),       dimX,  cudaMemcpyHostToDevice);
@@ -116,13 +116,13 @@ void coord_memcopy(device_global *g_host, device_global *g, device_shared *s, be
     cudaMemcpy(&(g_host->detcellid), &(g->detcellid), dimXI, cudaMemcpyHostToDevice);
 }
 
-void init_device_structs(device_global *g_host, device_global *g, device_shared *s_host, device_shared *s, beam_prop beam, shot_prop shot, run_prop run){
+void init_device_structs(taiga_globals *g_host, taiga_globals *g, taiga_commons *s_host, taiga_commons *s, beam_prop beam, shot_prop shot, run_prop run){
     g_host->particle_number = run.particle_number;
     s_host->max_step_number = run.step_device;        // N_step
     s_host->step_counter    = 0;
     s_host->eperm           = ELEMENTARY_CHARGE/ AMU/ beam.mass;
     s_host->timestep        = run.timestep;
-    cudaMemcpy(&g, &g_host, sizeof(device_global), cudaMemcpyHostToDevice);
-    cudaMemcpy(&s, &s_host, sizeof(device_shared), cudaMemcpyHostToDevice);
+    cudaMemcpy(&g, &g_host, sizeof(taiga_globals), cudaMemcpyHostToDevice);
+    cudaMemcpy(&s, &s_host, sizeof(taiga_commons), cudaMemcpyHostToDevice);
 }
 

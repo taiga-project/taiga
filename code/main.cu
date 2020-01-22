@@ -121,8 +121,8 @@ int main(int argc, char *argv[]){
     }else if (run.help == 2){
         set_cuda(1);
     }else{
-        device_global dev_global, host_global;
-        device_shared dev_shared, host_shared;
+        taiga_globals dev_global, host_global;
+        taiga_commons dev_shared, host_shared;
         init_device(&dev_global, &dev_shared);
         
         parameter_reader(&shot, &beam, &run);

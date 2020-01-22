@@ -71,7 +71,7 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
-__device__ int traj(device_local l, device_shared s){
+__device__ int traj(taiga_locals l, taiga_commons s){
     
     // next grid
     int local_spline_indices[2];
