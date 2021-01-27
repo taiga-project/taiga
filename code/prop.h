@@ -1,6 +1,8 @@
 #ifndef PROP_H
 #define PROP_H
 
+#define UNDEFINED_FLOAT -1e99
+
 struct taiga_globals{
     double **coords;
     double *rad, *z, *tor, *vrad, *vz, *vtor;
@@ -68,7 +70,6 @@ void init_shot_prop(shot_prop *shot){
 };
 
 struct run_prop{
-    int runnumber;
     int debug;
     int help;
     int particle_number;
@@ -77,14 +78,16 @@ struct run_prop{
     int step_host;          // on HDD
     int step_device;        // on GPU
     double timestep;
+    double cpu_time_copy, cuda_time_copy, cuda_time_core;
+    char runnumber[10];
     char parameter_file[200];
     char runnumber_file[200];
     char ion_source_file[200];
     char io_coordinate_order[200];
+    char folder_out[200];
 };
 
 void init_run_prop(run_prop *run){
-    run->runnumber = 0;
     run->debug = 0;
     run->help = 0;
     run->particle_number = 1;
@@ -93,10 +96,15 @@ void init_run_prop(run_prop *run){
     run->step_host = 1;      // on HDD
     run->step_device = 2000; // on GPU
     run->timestep = 1e-9;
+    run->cpu_time_copy = UNDEFINED_FLOAT;
+    run->cuda_time_copy = UNDEFINED_FLOAT;
+    run->cuda_time_core = UNDEFINED_FLOAT;
+    strcpy(run->runnumber, "0");
     strcpy(run->parameter_file, "parameters.sh");
     strcpy(run->runnumber_file, "runnumber");
     strcpy(run->ion_source_file, "");
     strcpy(run->io_coordinate_order, "rzt");
+    strcpy(run->folder_out, "results/00000/");
 };
 
 struct detector_prop{

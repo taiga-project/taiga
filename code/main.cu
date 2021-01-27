@@ -73,17 +73,14 @@ void input_init_taiga(int argc, char *argv[], shot_prop *shot, beam_prop *beam, 
             input = strtok(NULL, "=");
             strcpy(run->parameter_file, input);
             printf("Parameter file: %s\n", run->parameter_file);
-        }else if (!strcmp(input, "--runnumber_file") || !strcmp(input, "--runnumber") || !strcmp(input, "-r")){
+        }else if (!strcmp(input, "--runnumber_file")){
+            strcpy(run->runnumber_file, input);
+            printf("Runnumber file: %s\n", run->runnumber_file);
+        }else if (!strcmp(input, "--runnumber") || !strcmp(input, "-r")){
             input = strtok(NULL, "=");
-            int runnumber = atoi(input);
-            if (runnumber || !strcmp(input, "0")){
-                run->runnumber = runnumber;
-                strcpy(run->runnumber_file, "console init");
-                printf("Runnumber: %d\n", run->runnumber);            
-            }else{
-                strcpy(run->runnumber_file, input);
-                printf("Runnumber file: %s\n", run->runnumber_file);
-            }
+            strcpy(run->runnumber, input);
+            strcpy(run->runnumber_file, "console init");
+            printf("Runnumber: %s\n", run->runnumber);
         }else if (!strcmp(input, "--ion-source") || !strcmp(input, "-s")){
             input = strtok(NULL, "=");
             strcpy(run->ion_source_file, input);
@@ -104,7 +101,7 @@ void print_help_message(){
     printf("  -h, --help                  Help message\n");
     printf("  -l, --devices               List GPU devices\n");
     printf("  -p, --parameter_file=PATH   Parameter file path\n");
-    printf("  -r  --runnumber_file=PATH   Runnumber file path\n");
+    printf("      --runnumber_file=PATH   Runnumber file path\n");
     printf("  -r  --runnumber=INTEGER     Runnumber value\n");
     printf("  -s, --ion-source=PATH       Ion source path\n");
     printf("      --ion-source-coords=XXX Order of coordinates (RZT or RTZ) in input file\n");
@@ -128,12 +125,8 @@ int main(int argc, char *argv[]){
         parameter_reader(&shot, &beam, &run);
         runnumber_reader(&shot, &run);
         
-        char* folder_out=concat("results/", shot.name);
-        char timestamp[80];
-        sprintf(timestamp, "%d", run.runnumber);
-        
-        init_dir(folder_out, timestamp);
-        CopyFile(run.parameter_file, concat(folder_out,"/",timestamp,"/parameters.sh"));
+        init_dir(run.folder_out, run.runnumber);
+        CopyFile(run.parameter_file, concat(run.folder_out,"/",run.runnumber,"/parameters.sh"));
 
         size_t dimD = 5 * sizeof(double);
         double *DETECTOR, *detector;
@@ -222,18 +215,17 @@ int main(int argc, char *argv[]){
         
         if (!FASTMODE){
             // OUTPUT INIT
-            export_data(host_global.rad,  host_global.particle_number, folder_out, timestamp, "t_rad.dat");
-            export_data(host_global.z,    host_global.particle_number, folder_out, timestamp, "t_z.dat");
-            export_data(host_global.tor,  host_global.particle_number, folder_out, timestamp, "t_tor.dat");
-            export_data(host_global.vrad, host_global.particle_number, folder_out, timestamp, "t_vrad.dat");
-            export_data(host_global.vz,   host_global.particle_number, folder_out, timestamp, "t_vz.dat");
-            export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
+            export_data(host_global.rad,  host_global.particle_number, run.folder_out, run.runnumber, "t_rad.dat");
+            export_data(host_global.z,    host_global.particle_number, run.folder_out, run.runnumber, "t_z.dat");
+            export_data(host_global.tor,  host_global.particle_number, run.folder_out, run.runnumber, "t_tor.dat");
+            export_data(host_global.vrad, host_global.particle_number, run.folder_out, run.runnumber, "t_vrad.dat");
+            export_data(host_global.vz,   host_global.particle_number, run.folder_out, run.runnumber, "t_vz.dat");
+            export_data(host_global.vtor, host_global.particle_number, run.folder_out, run.runnumber, "t_vtor.dat");
         }
         
         //! Set CUDA timer 
         cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
         clock_t cpu_event_copy_start, cpu_event_copy_end;
-        double cpu_time_copy=0, cuda_time_core, cuda_time_copy;
         float cuda_event_core, cuda_event_copy;
         cudaEventCreate(&cuda_event_core_start);
         cudaEventCreate(&cuda_event_core_end);
@@ -261,18 +253,18 @@ int main(int argc, char *argv[]){
             if (!FASTMODE){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
-                coord_memcopy(&host_global, &dev_global, &dev_shared, beam, shot, run);
+                //coord_memcopy(&host_global, &dev_global, &dev_shared, beam, shot, run);
                 //ERRORCHECK();                
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
                 
                 // Save data to files
                 cpu_event_copy_start = clock();
-                export_data(host_global.rad,  host_global.particle_number, folder_out, timestamp, "t_rad.dat");
-                export_data(host_global.z,    host_global.particle_number, folder_out, timestamp, "t_z.dat");
-                export_data(host_global.tor,  host_global.particle_number, folder_out, timestamp, "t_tor.dat");
-                export_data(host_global.vrad, host_global.particle_number, folder_out, timestamp, "t_vrad.dat");
-                export_data(host_global.vz,   host_global.particle_number, folder_out, timestamp, "t_vz.dat");
-                export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "t_vtor.dat");
+                /*export_data(host_global.rad,  host_global.particle_number, run.folder_out, run.runnumber, "t_rad.dat");
+                export_data(host_global.z,    host_global.particle_number, run.folder_out, run.runnumber, "t_z.dat");
+                export_data(host_global.tor,  host_global.particle_number, run.folder_out, run.runnumber, "t_tor.dat");
+                export_data(host_global.vrad, host_global.particle_number, run.folder_out, run.runnumber, "t_vrad.dat");
+                export_data(host_global.vz,   host_global.particle_number, run.folder_out, run.runnumber, "t_vz.dat");
+                export_data(host_global.vtor, host_global.particle_number, run.folder_out, run.runnumber, "t_vtor.dat");*/
                 cpu_event_copy_end = clock();
             }
             
@@ -282,14 +274,14 @@ int main(int argc, char *argv[]){
         // Get CUDA timer 
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
-        if (!FASTMODE) cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
-        cuda_time_copy = (double) (1.0+run.step_host)*cuda_event_copy/1000.0;
-        cuda_time_core =  run.step_host*cuda_event_core/1000.0;
+        if (!FASTMODE) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
+        run.cuda_time_copy = (double) (1.0+run.step_host)*cuda_event_copy/1000.0;
+        run.cuda_time_core =  run.step_host*cuda_event_core/1000.0;
         
         printf("===============================\n");
-        printf ("CUDA kernel runtime: %lf s\n", cuda_time_core);
-        printf ("CUDA memcopy time:   %lf s\n", cuda_time_copy);
-        printf ("CPU->HDD copy time:  %lf s\n", cpu_time_copy);    
+        printf ("CUDA kernel runtime: %lf s\n", run.cuda_time_core);
+        printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
+        printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);    
         printf("===============================\n");
         
         undetected <<<1,1>>>(detcellid, host_global.particle_number, service_var);
@@ -305,70 +297,31 @@ int main(int argc, char *argv[]){
         
         printf("Lost particle ratio: \t %.4lf % \n\n", SERVICE_VAR[1]*100);
         
-        detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, host_global.particle_number, folder_out, timestamp);
+        detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, host_global.particle_number, run.folder_out, run.runnumber);
         cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
-        export_data(DETCELLID, host_global.particle_number, folder_out, timestamp, "detector", "cellid.dat");
+        export_data(DETCELLID, host_global.particle_number, run.folder_out, run.runnumber, "detector", "cellid.dat");
         
         if (run.debug == 1)    debug_service_vars(SERVICE_VAR);
         
         //! CUDA profiler STOP
         cudaProfilerStop();
         
-        export_header(concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"), folder_out, timestamp);
-        export_header_addline(folder_out, timestamp);
-        export_header(concat("Shot ID: ",shot.name), folder_out, timestamp);
-        export_header(concat("Run ID:  ",timestamp), folder_out, timestamp);
-        export_header_addline(folder_out, timestamp);
-        export_header("ABP ION TRAJECTORIES", folder_out, timestamp);
+        fill_header_file(shot, beam, run, DETECTOR);
         
-        if(READINPUTPROF==1){
-            export_header("Manual (6D) input profile", folder_out, timestamp);
-        }else if(RENATE==110){
-            export_header("TS + Renate 1.1.0 input profile", folder_out, timestamp);
-        }
-        export_header_addline(folder_out, timestamp);
-        
-        if(!READINPUTPROF){
-            export_header("Beam energy", "keV", beam.energy, folder_out, timestamp);
-            export_header("Atomic mass", "AMU", beam.mass, folder_out, timestamp);
-            export_header("Beam diameter", "mm", beam.diameter*1000, folder_out, timestamp);
-            export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection*180.0/PI, beam.vertical_deflection*180.0/PI, folder_out, timestamp);
-        }
-        
-        export_header("Number of ions", "", (double)host_global.particle_number, folder_out, timestamp);
-        export_header_addline(folder_out, timestamp);
-        export_header("Detector position (R)", "m", DETECTOR[0], folder_out, timestamp);
-        export_header("Detector position (Z)", "m", DETECTOR[1], folder_out, timestamp);
-        export_header("Detector position (T)", "m", DETECTOR[2], folder_out, timestamp);
-        export_header("Detector angle (Z/R)", "°", atan(DETECTOR[3])*180.0/PI, folder_out, timestamp);
-        export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])*180.0/PI, folder_out, timestamp);
-        export_header(concat("Detector mask:  \t", shot.detector_mask), folder_out, timestamp);
-        export_header_addline(folder_out, timestamp);
-        export_header("Timestep", "s", run.timestep, folder_out, timestamp);
-        export_header_addline(folder_out, timestamp);
-        export_header("CUDA kernel runtime", "s", cuda_time_core, folder_out, timestamp);
-        export_header("CUDA memcopy time", "s", cuda_time_copy, folder_out, timestamp);
-        export_header("CPU->HDD copy time", "s", cpu_time_copy, folder_out, timestamp);
-        export_header_addline(folder_out, timestamp);
-        export_header("Number of blocks (threads)", "", run.block_number, folder_out, timestamp);
-        export_header("Block size", "", run.block_size, folder_out, timestamp);
-        export_header("Length of a loop", "", run.step_device, folder_out, timestamp);
-        export_header("Number of loops", "", run.step_host, folder_out, timestamp);
-        
-        if (!FASTMODE){
+        /*if (!FASTMODE){
             //! Save data to files
-            export_data(host_global.rad, host_global.particle_number, folder_out, timestamp, "rad.dat");
-            export_data(host_global.z,   host_global.particle_number, folder_out, timestamp, "z.dat");
-            export_data(host_global.tor, host_global.particle_number, folder_out, timestamp, "tor.dat");
-            export_data(host_global.vrad, host_global.particle_number, folder_out, timestamp, "vrad.dat");
-            export_data(host_global.vz,   host_global.particle_number, folder_out, timestamp, "vz.dat");
-            export_data(host_global.vtor, host_global.particle_number, folder_out, timestamp, "vtor.dat");
-            export_table(folder_out, timestamp, "coords.dat", host_global.particle_number,
+            export_data(host_global.rad, host_global.particle_number, run.folder_out, run.runnumber, "rad.dat");
+            export_data(host_global.z,   host_global.particle_number, run.folder_out, run.runnumber, "z.dat");
+            export_data(host_global.tor, host_global.particle_number, run.folder_out, run.runnumber, "tor.dat");
+            export_data(host_global.vrad, host_global.particle_number, run.folder_out, run.runnumber, "vrad.dat");
+            export_data(host_global.vz,   host_global.particle_number, run.folder_out, run.runnumber, "vz.dat");
+            export_data(host_global.vtor, host_global.particle_number, run.folder_out, run.runnumber, "vtor.dat");
+            export_table(run.folder_out, run.runnumber, "coords.dat", host_global.particle_number,
                 host_global.rad, "R [m]",      host_global.z, "Z [m]",      host_global.tor, "T [m]", 
                 host_global.vrad, "v_R [m/s]", host_global.vz, "v_Z [m/s]", host_global.vtor, "v_T [m/s]");
-        }
+        }*/
         
-        printf("\nData folder: %s/%s\n\n", folder_out, timestamp);
+        printf("\nData folder: %s/%s\n\n", run.folder_out, run.runnumber);
         
         //! Free CUDA
         /*for (int i=0; i<6; ++i){
@@ -411,4 +364,47 @@ int main(int argc, char *argv[]){
         
         printf("Ready.\n\n");
     }
+}
+
+void fill_header_file(shot_prop shot, beam_prop beam, run_prop run, double DETECTOR[5]){
+    export_header(concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"), run.folder_out, run.runnumber);
+    export_header_addline(run.folder_out, run.runnumber);
+    export_header(concat("Shot ID: ",shot.name), run.folder_out, run.runnumber);
+    export_header(concat("Run ID:  ",run.runnumber), run.folder_out, run.runnumber);
+    export_header_addline(run.folder_out, run.runnumber);
+    export_header("ABP ION TRAJECTORIES", run.folder_out, run.runnumber);
+    
+    if(READINPUTPROF==1){
+        export_header("Manual (6D) input profile", run.folder_out, run.runnumber);
+    }else if(RENATE==110){
+        export_header("TS + Renate 1.1.0 input profile", run.folder_out, run.runnumber);
+    }
+    export_header_addline(run.folder_out, run.runnumber);
+    
+    if(!READINPUTPROF){
+        export_header("Beam energy", "keV", beam.energy, run.folder_out, run.runnumber);
+        export_header("Atomic mass", "AMU", beam.mass, run.folder_out, run.runnumber);
+        export_header("Beam diameter", "mm", beam.diameter*1000, run.folder_out, run.runnumber);
+        export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection*180.0/PI, beam.vertical_deflection*180.0/PI, run.folder_out, run.runnumber);
+    }
+    
+    export_header("Number of ions", "", (double)run.particle_number, run.folder_out, run.runnumber);
+    export_header_addline(run.folder_out, run.runnumber);
+    export_header("Detector position (R)", "m", DETECTOR[0], run.folder_out, run.runnumber);
+    export_header("Detector position (Z)", "m", DETECTOR[1], run.folder_out, run.runnumber);
+    export_header("Detector position (T)", "m", DETECTOR[2], run.folder_out, run.runnumber);
+    export_header("Detector angle (Z/R)", "°", atan(DETECTOR[3])*180.0/PI, run.folder_out, run.runnumber);
+    export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])*180.0/PI, run.folder_out, run.runnumber);
+    export_header(concat("Detector mask:  \t", shot.detector_mask), run.folder_out, run.runnumber);
+    export_header_addline(run.folder_out, run.runnumber);
+    export_header("Timestep", "s", run.timestep, run.folder_out, run.runnumber);
+    export_header_addline(run.folder_out, run.runnumber);
+    export_header("CUDA kernel runtime", "s", run.cuda_time_core, run.folder_out, run.runnumber);
+    export_header("CUDA memcopy time", "s", run.cuda_time_copy, run.folder_out, run.runnumber);
+    export_header("CPU->HDD copy time", "s", run.cpu_time_copy, run.folder_out, run.runnumber);
+    export_header_addline(run.folder_out, run.runnumber);
+    export_header("Number of blocks (threads)", "", run.block_number, run.folder_out, run.runnumber);
+    export_header("Block size", "", run.block_size, run.folder_out, run.runnumber);
+    export_header("Length of a loop", "", run.step_device, run.folder_out, run.runnumber);
+    export_header("Number of loops", "", run.step_host, run.folder_out, run.runnumber);
 }

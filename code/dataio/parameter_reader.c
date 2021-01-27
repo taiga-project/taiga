@@ -19,7 +19,7 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
         
     if (!strcmp(par_name, "shotnumber"))                    strcpy(shot->shotnumber, clean_string(par_value));
     else if (!strcmp(par_name, "time"))                     strcpy(shot->time, clean_string(par_value));
-    else if (!strcmp(par_name, "runnumber"))                run->runnumber = par_value_lf;
+    else if (!strcmp(par_name, "runnumber"))                strcpy(run->runnumber, clean_string(par_value));
     else if (!strcmp(par_name, "matter")){
         strcpy(beam->matter, clean_string(par_value));
         beam->mass = get_mass(beam->matter);
@@ -65,25 +65,24 @@ int parameter_reader(shot_prop *shot, beam_prop *beam, run_prop *run){
     }    
     fclose(fp);
     strcpy(shot->name,concat(shot->shotnumber,"_",shot->time));
+    strcpy(run->folder_out,concat("results/",shot->shotnumber,"_",shot->time));
     return 0;
 }
 
 
 int runnumber_reader(shot_prop *shot, run_prop *run){
-    
-    if (run->runnumber == 0){
+    if (strcmp(run->runnumber,"0") == 0){
         FILE *fp;
-        char str[MAXCHAR];
-        int runnumber;
+        char txt[10], *runnumber;
         
         fp = fopen(run->runnumber_file, "r");
         if (fp == NULL){
             printf("Could not open file %s",run->runnumber_file);
             return 1;
         }
-        fgets(str, MAXCHAR, fp);    
-        sscanf(str, "%d", &runnumber);
-        run->runnumber = runnumber;
+        fgets(txt, 10, fp);
+        runnumber = strtok(txt, "\n");
+        strcpy(run->runnumber, runnumber);
     }
 }
 
