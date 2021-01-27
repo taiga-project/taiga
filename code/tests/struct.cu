@@ -10,7 +10,7 @@
 #define LENGTH_TMP 10
 #define DETCELLID_INDEX 0
 
-__global__ void test_struct_copy(taiga_globals* g, double *tmp){
+__global__ void test_struct_copy(TaigaGlobals* g, double *tmp){
     tmp[0] = 3.14159265358979324;
     tmp[1] = g->detcellid[DETCELLID_INDEX];
     g->particle_number = 20;
@@ -25,12 +25,12 @@ void print_tmp(double *h_tmp){
 }
 
 int main(){
-    taiga_globals *d_global, *h_global, *s_global;
-    size_t dim_global = sizeof(taiga_globals);
+    TaigaGlobals *d_global, *h_global, *s_global;
+    size_t dim_global = sizeof(TaigaGlobals);
     size_t dim_detcellid = sizeof(int)*LENGTH_DETCELLID;
     
-    h_global = (taiga_globals*)malloc(dim_global);
-    s_global = (taiga_globals*)malloc(dim_global);
+    h_global = (TaigaGlobals*)malloc(dim_global);
+    s_global = (TaigaGlobals*)malloc(dim_global);
     cudaMalloc((void **) &d_global, dim_global);
     
     h_global->detcellid = (int*)malloc(dim_detcellid);
@@ -54,12 +54,12 @@ int main(){
     
     test_struct_copy <<< 1, 1 >>> (d_global, d_tmp);
     
-    taiga_globals *h2_global, *s2_global;
+    TaigaGlobals *h2_global, *s2_global;
     int *s2_global__detcellid;
     s2_global__detcellid = (int*)malloc(dim_detcellid);
      
-    h2_global = (taiga_globals*)malloc(dim_global);
-    s2_global = (taiga_globals*)malloc(dim_global);
+    h2_global = (TaigaGlobals*)malloc(dim_global);
+    s2_global = (TaigaGlobals*)malloc(dim_global);
     h2_global->detcellid = (int*)malloc(dim_detcellid);
     
     cudaMemcpy(s2_global, d_global, dim_global, cudaMemcpyDeviceToHost);

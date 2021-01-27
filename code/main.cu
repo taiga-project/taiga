@@ -2,10 +2,7 @@
 
 #define $R_defl 2.3                 //! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
 
-#define PI 3.141592653589792346
-#define ELEMENTARY_CHARGE 1.60217656535e-19
-#define AMU 1.66053892173e-27
-#define INFINITY RAND_MAX
+
 #define SERVICE_VAR_LENGTH 10
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
@@ -23,6 +20,7 @@
 #include <cuda_profiler_api.h>
 //#include "test/cuda/nvToolsExt.h"
 
+#include "taiga_constants.h"
 #include "prop.h"
 #include "main.cuh"
 #include "debug_functions.c"

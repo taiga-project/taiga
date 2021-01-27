@@ -1,5 +1,7 @@
 #include <cuda.h>
 #include "taiga_init.h"
+#include "taiga_constants.h"
+#include "basic_functions.c"
 #include "running/generate_coords.cuh"
 #include "dataio/beam.h"
 
@@ -17,29 +19,53 @@ void init_host(TaigaGlobals *g, TaigaCommons *s){
 
 void init_grid(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared, TaigaCommons *s_device){
     
-    int* s_device_grid_size;
-    double *host_rgrid, *dev_rgrid, *host_zgrid, *dev_zgrid;
+    int* shared_grid_size;
+    double *shared_rgrid, *shared_zgrid;
+    size_t dimCommons = sizeof(TaigaCommons);
     size_t dimGP = 2*sizeof(int);
     
+    
+    printf("Reading init0\n");
     s_host->grid_size = (int*)malloc(dimGP);
-    s_host->grid_size[0] = read_vector(&host_rgrid, "input/fieldSpl", shot.name, "r.spline");
+    s_host->grid_size[0] = read_vector(&s_host->spline_rgrid, "input/fieldSpl", shot.name, "r.spline");
     size_t dimR = s_host->grid_size[0] * sizeof(double);
-    s_host->grid_size[1] = read_vector(&host_zgrid, "input/fieldSpl", shot.name, "z.spline");
+    s_host->grid_size[1] = read_vector(&s_host->spline_zgrid, "input/fieldSpl", shot.name, "z.spline");
     size_t dimZ = s_host->grid_size[1] * sizeof(double);
     
+    printf("Reading init1\n");
     
     
-    cudaMalloc((void **) &s_device_grid_size, dimGP); //  cudaMalloc((void**) &, dim);
+    /*
+    int *s_global__detcellid;
+    cudaMalloc((void **) &(s_global__detcellid), dim_detcellid);
     
-    cudaMalloc((void **) &dev_rgrid, dimR);
-    cudaMemcpy(dev_rgrid, host_rgrid, dimR, cudaMemcpyHostToDevice);
-    s_device->spline_rgrid = dev_rgrid;
+    h_global->particle_number = 10;
+    h_global->detcellid[DETCELLID_INDEX] = 42;
+    
+    memcpy(s_global, h_global, dim_global);
+    cudaMemcpy(s_global__detcellid, h_global->detcellid, dim_detcellid, cudaMemcpyHostToDevice);
+    s_global->detcellid = s_global__detcellid;
+    cudaMemcpy(d_global, s_global, dim_global, cudaMemcpyHostToDevice);
+    */
+    
+    memcpy(s_shared, s_host, dimCommons);
+    
+    cudaMalloc((void **) &shared_grid_size, dimGP);
+    cudaMemcpy(shared_grid_size, s_host->grid_size, dimGP, cudaMemcpyHostToDevice);
+    s_shared->grid_size = shared_grid_size;
+    
+    cudaMalloc((void **) &shared_rgrid, dimR);
+    cudaMemcpy(shared_rgrid, s_host->spline_rgrid, dimR, cudaMemcpyHostToDevice);
+    s_shared->spline_rgrid = shared_rgrid;
 
-    cudaMalloc((void **) &dev_zgrid, dimZ);
-    cudaMemcpy(dev_zgrid, host_zgrid, dimZ, cudaMemcpyHostToDevice);
-    s_device->spline_zgrid = dev_zgrid;
+    cudaMalloc((void **) &shared_zgrid, dimZ);
+    cudaMemcpy(shared_zgrid, s_host->spline_zgrid, dimZ, cudaMemcpyHostToDevice);
+    s_shared->spline_zgrid = shared_zgrid;
     
-    cudaMemcpy(&(s_device_grid_size),    &(s_host->grid_size),    dimGP, cudaMemcpyHostToDevice);
+    //cudaMemcpy(&(s_device_grid_size),    &(s_host->grid_size),    dimGP, cudaMemcpyHostToDevice);
+    //s_shared->
+
+    cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
     
     printf(" GRID SIZE: %d %d \n", s_host->grid_size[0], s_host->grid_size[1]);
 }

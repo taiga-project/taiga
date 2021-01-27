@@ -22,6 +22,7 @@ struct TaigaCommons{
     double eperm;
     double timestep;
     int *grid_size;
+//    int grid_size[2];
 //    double **spline_grid;
     double *spline_rgrid;
     double *spline_zgrid;
