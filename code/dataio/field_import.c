@@ -66,7 +66,7 @@ int spline_read_and_init(ShotProp shot, RunProp run, char* field_name, double **
     
 }
 
-int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared, TaigaCommons *s_device){
+int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared){
     
     size_t dimB = 16*sizeof(double*);
     size_t dimCommons = sizeof(TaigaCommons);
@@ -85,12 +85,12 @@ int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     s_shared->bz   = bz_ptr;
     s_shared->btor = bt_ptr;
     
-    cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
+    //cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
     
     return s;
 }
 
-int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared, TaigaCommons *s_device){
+int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared){
     
     size_t dimB = 16*sizeof(double*);
     size_t dimCommons = sizeof(TaigaCommons);
@@ -109,7 +109,7 @@ int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     s_shared->ez   = ez_ptr;
     s_shared->etor = et_ptr;
     
-    cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
+    //cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
     
     return s;
 }

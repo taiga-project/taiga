@@ -71,7 +71,7 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
-__device__ int traj(TaigaLocals *l, TaigaCommons *s){
+__device__ int traj(TaigaCommons *s, double *X, int detcellid){
     
     // next grid
     int local_spline_indices[2];
@@ -91,17 +91,17 @@ __device__ int traj(TaigaLocals *l, TaigaCommons *s){
     double dr, dz;
     double R;
     
-    double X[6], X_prev[6];//r
+    double /*X[6],*/ X_prev[6];//r
     //double prev_coords[6];
     
-    int finished = l->detcellid + 1;
+    int finished = detcellid + 1;
     
-    X[0] = l->coords[0];//d
+    /*X[0] = l->coords[0];//d
     X[1] = l->coords[1];//d
     X[2] = l->coords[2];//d
     X[3] = l->coords[3];//d
     X[4] = l->coords[4];//d
-    X[5] = l->coords[5];//d
+    X[5] = l->coords[5];//d*/
     
     for (int loopi=0; (loopi<s->max_step_number && (!finished)); ++loopi){
         // Get local magnetic field
@@ -143,16 +143,16 @@ __device__ int traj(TaigaLocals *l, TaigaCommons *s){
         //finished = calculate_detection_position(l->coords, prev_coords, s->detector_geometry);
     }
     
-    l->coords[0] = X[0];//d
+    /*l->coords[0] = X[0];//d
     l->coords[1] = X[1];//d
     l->coords[2] = X[2];//d
     l->coords[3] = X[3];//d
     l->coords[4] = X[4];//d
-    l->coords[5] = X[5];//d
+    l->coords[5] = X[5];//d*/
     
     if (finished){
-        l->detcellid = 0;
+        detcellid = 0;
     }
     
-    return l->detcellid;
+    return detcellid;
 }

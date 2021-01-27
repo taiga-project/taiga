@@ -50,7 +50,8 @@ void test_init_grid(){
     
     strcpy(shot.name, "17178_1097");
     printf("Init grid\n");
-    init_grid(shot, run, host_common, shared_common, dev_common);
+    init_grid(shot, run, host_common, shared_common);
+    cudaMemcpy(host_common, shared_common, dimCommons, cudaMemcpyHostToDevice);
         
     double *h_tmp, *d_tmp;
     size_t dim_tmp = sizeof(double)*LENGTH_TMP;
@@ -62,7 +63,6 @@ void test_init_grid(){
     test_init_grid_cuda <<< 1, 1 >>> (dev_common, d_tmp);
     
     cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    cudaDeviceSynchronize();
     
     print_tmp(h_tmp);
     

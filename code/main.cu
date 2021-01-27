@@ -179,15 +179,12 @@ int main(int argc, char *argv[]){
         printf("Max steps on host (HDD): %d\n", run.step_host);
         
         //! coordinates
-        init_coords(host_global, shared_global, dev_global, beam, shot, run);
+        init_coords(beam, shot, run, host_global, shared_global);
         
         //! grid
-        init_grid(shot, run, host_common, shared_common, dev_common);
-        printf("Grid initialised.\n");
-        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, host_common, shared_common, dev_common);
-        printf("Magnetic field ready.\n");
-        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, host_common, shared_common, dev_common);
-        printf("Electric field ready.\n");
+        init_grid(shot, run, host_common, shared_common);
+        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, host_common, shared_common);
+        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, host_common, shared_common);
         
         // detector cell id
         size_t size_detcellid = host_global->particle_number * sizeof(int);
@@ -206,13 +203,20 @@ int main(int argc, char *argv[]){
         SERVICE_VAR[4] = 55555.55555;
         cudaMalloc((void **) &service_var,  dimService);
         cudaMemcpy(service_var, SERVICE_VAR, dimService, cudaMemcpyHostToDevice);
+        printf("temp.\n");
         
         //! MEMCOPY (HOST2device)
-        
+        printf("L209\n");
         //! DETECTOR COORDS (HOST2device)
-        cudaMemcpy(dev_common->detector_geometry, DETECTOR, dimD, cudaMemcpyHostToDevice);
+        shared_common->detector_geometry = DETECTOR;
+        printf("L212\n");
+        size_t size_commons = sizeof(TaigaCommons);
         
+        //cudaMemcpy(dev_common, shared_common, size_commons, cudaMemcpyHostToDevice);
+        
+        printf("L217\n");
         if (!FASTMODE){
+        printf("L219\n");
             // OUTPUT INIT
             export_data(host_global->rad,  host_global->particle_number, run.folder_out, run.runnumber, "t_rad.dat");
             export_data(host_global->z,    host_global->particle_number, run.folder_out, run.runnumber, "t_z.dat");
@@ -222,6 +226,7 @@ int main(int argc, char *argv[]){
             export_data(host_global->vtor, host_global->particle_number, run.folder_out, run.runnumber, "t_vtor.dat");
         }
         
+        printf("L229\n");
         //! Set CUDA timer 
         cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
         clock_t cpu_event_copy_start, cpu_event_copy_end;
@@ -236,15 +241,16 @@ int main(int argc, char *argv[]){
         size_t dimX = host_global->particle_number*sizeof(double);
         
         //dev_common.step_counter = 0;
-        
-        init_device_structs(host_global, dev_global, host_common, dev_common, beam, shot, run);
+        printf("L244\n");
+        init_device_structs(beam, shot, run, dev_global, shared_global, dev_common, shared_common);
+        printf("L247\n");
         
         for (int step_i=0;step_i<run.step_host;step_i++){
             
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
-           
+           printf("L250\n");
             taiga <<< run.block_number, run.block_size >>> (dev_global, dev_common, service_var);
-            
+            printf("L252\n");
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
             //ERRORCHECK();
@@ -252,18 +258,18 @@ int main(int argc, char *argv[]){
             if (!FASTMODE){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
-                //coord_memcopy(host_global, dev_global, dev_common, beam, shot, run);
+                //coord_memcopy_back(host_global, shared_global, dev_common, beam, shot, run);
                 //ERRORCHECK();                
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
                 
                 // Save data to files
-                cpu_event_copy_start = clock();
-                /*export_data(host_global.rad,  host_global.particle_number, run.folder_out, run.runnumber, "t_rad.dat");
-                export_data(host_global.z,    host_global.particle_number, run.folder_out, run.runnumber, "t_z.dat");
-                export_data(host_global.tor,  host_global.particle_number, run.folder_out, run.runnumber, "t_tor.dat");
-                export_data(host_global.vrad, host_global.particle_number, run.folder_out, run.runnumber, "t_vrad.dat");
-                export_data(host_global.vz,   host_global.particle_number, run.folder_out, run.runnumber, "t_vz.dat");
-                export_data(host_global.vtor, host_global.particle_number, run.folder_out, run.runnumber, "t_vtor.dat");*/
+                cpu_event_copy_start = clock();/*
+                export_data(host_global->rad,  host_global->particle_number, run.folder_out, run.runnumber, "t_rad.dat");
+                export_data(host_global->z,    host_global->particle_number, run.folder_out, run.runnumber, "t_z.dat");
+                export_data(host_global->tor,  host_global->particle_number, run.folder_out, run.runnumber, "t_tor.dat");
+                export_data(host_global->vrad, host_global->particle_number, run.folder_out, run.runnumber, "t_vrad.dat");
+                export_data(host_global->vz,   host_global->particle_number, run.folder_out, run.runnumber, "t_vz.dat");
+                export_data(host_global->vtor, host_global->particle_number, run.folder_out, run.runnumber, "t_vtor.dat");*/
                 cpu_event_copy_end = clock();
             }
             
