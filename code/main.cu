@@ -24,7 +24,7 @@
 #include "prop.h"
 #include "main.cuh"
 #include "debug_functions.c"
-#include "basic_functions.c"
+#include "basic_functions.h"
 
 #include "dataio/data_import.c"
 #include "dataio/field_import.c"
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]){
     }else{
         TaigaGlobals *dev_global, *host_global, *shared_global;
         TaigaCommons *dev_common, *host_common, *shared_common;
-        printf("Here\n");
+        
         size_t dim_global = sizeof(TaigaGlobals);
         size_t dim_commons = sizeof(TaigaCommons);
         

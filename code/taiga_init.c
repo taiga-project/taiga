@@ -24,29 +24,11 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s
     size_t dimCommons = sizeof(TaigaCommons);
     size_t dimGP = 2*sizeof(int);
     
-    
-    printf("Reading init0\n");
     s_host->grid_size = (int*)malloc(dimGP);
     s_host->grid_size[0] = read_vector(&s_host->spline_rgrid, "input/fieldSpl", shot.name, "r.spline");
     size_t dimR = s_host->grid_size[0] * sizeof(double);
     s_host->grid_size[1] = read_vector(&s_host->spline_zgrid, "input/fieldSpl", shot.name, "z.spline");
     size_t dimZ = s_host->grid_size[1] * sizeof(double);
-    
-    printf("Reading init1\n");
-    
-    
-    /*
-    int *s_global__detcellid;
-    cudaMalloc((void **) &(s_global__detcellid), dim_detcellid);
-    
-    h_global->particle_number = 10;
-    h_global->detcellid[DETCELLID_INDEX] = 42;
-    
-    memcpy(s_global, h_global, dim_global);
-    cudaMemcpy(s_global__detcellid, h_global->detcellid, dim_detcellid, cudaMemcpyHostToDevice);
-    s_global->detcellid = s_global__detcellid;
-    cudaMemcpy(d_global, s_global, dim_global, cudaMemcpyHostToDevice);
-    */
     
     memcpy(s_shared, s_host, dimCommons);
     
