@@ -39,14 +39,11 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s
     cudaMalloc((void **) &shared_rgrid, dimR);
     cudaMemcpy(shared_rgrid, s_host->spline_rgrid, dimR, cudaMemcpyHostToDevice);
     s_shared->spline_rgrid = shared_rgrid;
-
+    
     cudaMalloc((void **) &shared_zgrid, dimZ);
     cudaMemcpy(shared_zgrid, s_host->spline_zgrid, dimZ, cudaMemcpyHostToDevice);
     s_shared->spline_zgrid = shared_zgrid;
     
-    //cudaMemcpy(&(s_device_grid_size),    &(s_host->grid_size),    dimGP, cudaMemcpyHostToDevice);
-    //s_shared->
-
     cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
     
     printf(" GRID SIZE: %d %d \n", s_host->grid_size[0], s_host->grid_size[1]);
