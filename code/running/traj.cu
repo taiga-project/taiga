@@ -71,7 +71,7 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
-__device__ int traj(taiga_locals l, taiga_commons s){
+__device__ int traj(TaigaLocals *l, TaigaCommons *s){
     
     // next grid
     int local_spline_indices[2];
@@ -94,65 +94,65 @@ __device__ int traj(taiga_locals l, taiga_commons s){
     double X[6], X_prev[6];//r
     //double prev_coords[6];
     
-    int finished = l.detcellid + 1;
+    int finished = l->detcellid + 1;
     
-    X[0] = l.coords[0];//d
-    X[1] = l.coords[1];//d
-    X[2] = l.coords[2];//d
-    X[3] = l.coords[3];//d
-    X[4] = l.coords[4];//d
-    X[5] = l.coords[5];//d
+    X[0] = l->coords[0];//d
+    X[1] = l->coords[1];//d
+    X[2] = l->coords[2];//d
+    X[3] = l->coords[3];//d
+    X[4] = l->coords[4];//d
+    X[5] = l->coords[5];//d
     
-    for (int loopi=0; (loopi<s.max_step_number && (!finished)); ++loopi){
+    for (int loopi=0; (loopi<s->max_step_number && (!finished)); ++loopi){
         // Get local magnetic field
         
         R = cyl2tor_coord(X[0], X[2]);//r
-        //R = cyl2tor_coord(l.coords[0], l.coords[2]);
-        copy_local_field(s.spline_rgrid, s.grid_size[0], s.spline_zgrid, s.grid_size[1], R, X[1], local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, s.brad, s.bz, s.btor, local_spline_erad, local_spline_ez, local_spline_etor, s.erad, s.ez, s.etor);
+        //R = cyl2tor_coord(l->coords[0], l->coords[2]);
+        copy_local_field(s->spline_rgrid, s->grid_size[0], s->spline_zgrid, s->grid_size[1], R, X[1], local_spline_indices, local_spline_brad, local_spline_bz, local_spline_btor, s->brad, s->bz, s->btor, local_spline_erad, local_spline_ez, local_spline_etor, s->erad, s->ez, s->etor);
         
-        dr = R-s.spline_rgrid[local_spline_indices[0]];
-        dz = X[1]-s.spline_zgrid[local_spline_indices[1]];//r
-        //dz = l.coords[1]-grid[1][local_spline_indices[1]];
+        dr = R-s->spline_rgrid[local_spline_indices[0]];
+        dz = X[1]-s->spline_zgrid[local_spline_indices[1]];//r
+        //dz = l->coords[1]-grid[1][local_spline_indices[1]];
         
         local_brad = calculate_local_field(local_spline_brad, dr, dz);
         local_bz   = calculate_local_field(local_spline_bz,   dr, dz);
         local_btor = calculate_local_field(local_spline_btor, dr, dz);
         local_brad = cyl2tor_rad  (local_brad, local_btor, X[0], X[2]);//r
         local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);//r
-        //local_brad = cyl2tor_rad  (local_brad, local_btor, l.coords[0], l.coords[2]);
-        //local_btor = cyl2tor_field(local_brad, local_btor, l.coords[0], l.coords[2]);
+        //local_brad = cyl2tor_rad  (local_brad, local_btor, l->coords[0], l->coords[2]);
+        //local_btor = cyl2tor_field(local_brad, local_btor, l->coords[0], l->coords[2]);
         
-        if (s.espline_on){
+        if (s->espline_on){
             local_erad = calculate_local_field(local_spline_erad, dr, dz);
             local_ez   = calculate_local_field(local_spline_ez,   dr, dz);
             local_etor = calculate_local_field(local_spline_etor, dr, dz);
             local_erad = cyl2tor_rad  (local_erad, local_etor, X[0], X[2]);//r
             local_etor = cyl2tor_field(local_erad, local_etor, X[0], X[2]);//r
-            //local_erad = cyl2tor_rad  (local_erad, local_etor, l.coords[0], l.coords[2]);
-            //local_etor = cyl2tor_field(local_erad, local_etor, l.coords[0], l.coords[2]);
+            //local_erad = cyl2tor_rad  (local_erad, local_etor, l->coords[0], l->coords[2]);
+            //local_etor = cyl2tor_field(local_erad, local_etor, l->coords[0], l->coords[2]);
         }
         
         // archive coordinates
         for(int i=0; i<6; i++)  X_prev[i] = X[i];//r
-        //for(int i=0; i<6; i++)  prev_coords[i] = l.coords[i];
+        //for(int i=0; i<6; i++)  prev_coords[i] = l->coords[i];
         
-        solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, s.eperm, s.timestep);//r
-        //solve_diffeq(l.coords, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, s.eperm, s.timestep);
+        solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, s->eperm, s->timestep);//r
+        //solve_diffeq(l->coords, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, s->eperm, s->timestep);
         
-        finished = calculate_detection_position(X, X_prev, s.detector_geometry);//r
-        //finished = calculate_detection_position(l.coords, prev_coords, s.detector_geometry);
+        finished = calculate_detection_position(X, X_prev, s->detector_geometry);//r
+        //finished = calculate_detection_position(l->coords, prev_coords, s->detector_geometry);
     }
     
-    l.coords[0] = X[0];//d
-    l.coords[1] = X[1];//d
-    l.coords[2] = X[2];//d
-    l.coords[3] = X[3];//d
-    l.coords[4] = X[4];//d
-    l.coords[5] = X[5];//d
+    l->coords[0] = X[0];//d
+    l->coords[1] = X[1];//d
+    l->coords[2] = X[2];//d
+    l->coords[3] = X[3];//d
+    l->coords[4] = X[4];//d
+    l->coords[5] = X[5];//d
     
     if (finished){
-        l.detcellid = 0;
+        l->detcellid = 0;
     }
     
-    return l.detcellid;
+    return l->detcellid;
 }

@@ -8,7 +8,7 @@ __device__ double device_linear_interpolate(double *x_vector, int x_length, doub
 
 /*(double beam.diameter, double beam.energy, double beam.vertical_deflection, double beam.toroidal_deflection,
                                 double **position_all, double **speed_all, double eperm, int *prof_size, double *prof.radial.grid, double *prof.radial.profile, double *prof.cross_section.grid, double *prof.cross_section.profile)*/
-__global__ void generate_coords(taiga_globals g, taiga_commons s, beam_prop beam, beam_profile prof){
+__global__ void generate_coords(TaigaGlobals g, TaigaCommons s, BeamProp beam, BeamProfile prof){
 
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -28,8 +28,8 @@ __global__ void generate_coords(taiga_globals g, taiga_commons s, beam_prop beam
     
     // initialize random generator 
     curandState state;
-	curand_init((unsigned long long)clock() + idx, 0, 0, &state);	
-	    
+    curand_init((unsigned long long)clock() + idx, 0, 0, &state);
+    
     // set position of particles 
     do{
         ionisation_yeald = curand_uniform_double(&state);

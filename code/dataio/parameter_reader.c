@@ -12,7 +12,7 @@ char* clean_string (char* str_in){
     return str_out;
 }
 
-void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_prop *beam, run_prop *run){
+void init_taiga_props(char* par_name, char* par_value, ShotProp *shot, BeamProp *beam, RunProp *run){
     
     double par_value_lf;    sscanf(par_value, "%lf", &par_value_lf);
     int par_value_d;        sscanf(par_value, "%d", &par_value_d);
@@ -44,7 +44,7 @@ void init_taiga_props(char* par_name, char* par_value, shot_prop *shot, beam_pro
     }
 }
 
-int parameter_reader(shot_prop *shot, beam_prop *beam, run_prop *run){
+int parameter_reader(ShotProp *shot, BeamProp *beam, RunProp *run){
     
     FILE *fp;
     char str[MAXCHAR];
@@ -70,7 +70,7 @@ int parameter_reader(shot_prop *shot, beam_prop *beam, run_prop *run){
 }
 
 
-int runnumber_reader(shot_prop *shot, run_prop *run){
+int runnumber_reader(ShotProp *shot, RunProp *run){
     if (strcmp(run->runnumber,"0") == 0){
         FILE *fp;
         char txt[10], *runnumber;

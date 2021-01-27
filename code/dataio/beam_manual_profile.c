@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-void load_beam(taiga_globals *g, beam_prop beam, shot_prop shot, run_prop run){
+void load_beam(TaigaGlobals *g, BeamProp beam, ShotProp shot, RunProp run){
     double *xr,*xz,*xt,*vr,*vz,*vt;
     int profile_length = -1;
 

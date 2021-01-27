@@ -1,4 +1,4 @@
-int spline_read_and_init(shot_prop shot, run_prop run, char* field_name, double ***return_s_ptr, int dimRZ){
+int spline_read_and_init(ShotProp shot, RunProp run, char* field_name, double ***return_s_ptr, int dimRZ){
     
     char* spline_folder = "input/fieldSpl";
     int suc[1] = {1};
@@ -66,7 +66,7 @@ int spline_read_and_init(shot_prop shot, run_prop run, char* field_name, double 
     
 }
 
-int magnetic_field_read_and_init(shot_prop shot, run_prop run, taiga_commons *host_shared, taiga_commons *dev_shared){
+int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *host_shared, TaigaCommons *dev_shared){
     
     size_t dimB = 16*sizeof(double*);
     
@@ -87,7 +87,7 @@ int magnetic_field_read_and_init(shot_prop shot, run_prop run, taiga_commons *ho
     return s;
 }
 
-int electric_field_read_and_init(shot_prop shot, run_prop run, taiga_commons *host_shared, taiga_commons *dev_shared){
+int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *host_shared, TaigaCommons *dev_shared){
     
     size_t dimB = 16*sizeof(double*);
     size_t dimRZ = dev_shared->grid_size[0]*dev_shared->grid_size[1]*sizeof(double);

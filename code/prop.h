@@ -3,20 +3,20 @@
 
 #define UNDEFINED_FLOAT -1e99
 
-struct taiga_globals{
+struct TaigaGlobals{
     double **coords;
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
     int particle_number;
 };
 
-struct taiga_locals{
+struct TaigaLocals{
     double coords[6];
 //    int step_counter;
     int detcellid;
 };
 
-struct taiga_commons{
+struct TaigaCommons{
     int max_step_number;        // N_step
     int step_counter;
     double eperm;
@@ -33,7 +33,7 @@ struct taiga_commons{
     double *detector_geometry;
 };
 
-struct beam_prop{
+struct BeamProp{
     char matter[40];
     double mass;                // in amu
     double energy;              // in keV
@@ -42,7 +42,7 @@ struct beam_prop{
     double vertical_deflection; // in radian    
 };
 
-void init_beam_prop(beam_prop *beam){
+void init_beam_prop(BeamProp *beam){
     strcpy(beam->matter, "Li");
     beam->mass =  7.016004558;
     beam->energy = 60;
@@ -51,7 +51,7 @@ void init_beam_prop(beam_prop *beam){
     beam->vertical_deflection = 0;
 }
 
-struct shot_prop{
+struct ShotProp{
     char name[100];
     char shotnumber[40];
     char time[40];
@@ -60,7 +60,7 @@ struct shot_prop{
     int electric_field_module;
 };
 
-void init_shot_prop(shot_prop *shot){
+void init_shot_prop(ShotProp *shot){
     strcpy(shot->name, "11774_1000");
     strcpy(shot->shotnumber, "11774");
     strcpy(shot->time, "1000");
@@ -69,7 +69,7 @@ void init_shot_prop(shot_prop *shot){
     shot->electric_field_module = 0;
 };
 
-struct run_prop{
+struct RunProp{
     int debug;
     int help;
     int particle_number;
@@ -87,7 +87,7 @@ struct run_prop{
     char folder_out[200];
 };
 
-void init_run_prop(run_prop *run){
+void init_run_prop(RunProp *run){
     run->debug = 0;
     run->help = 0;
     run->particle_number = 1;
@@ -107,7 +107,7 @@ void init_run_prop(run_prop *run){
     strcpy(run->folder_out, "results/00000/");
 };
 
-struct detector_prop{
+struct DetectorProp{
     int N_xgrid;
     double* xgrid;
     int N_ygrid;
@@ -116,20 +116,20 @@ struct detector_prop{
     double* angles;
 };
 
-void init_detector_prop(detector_prop *det){
+void init_detector_prop(DetectorProp *det){
     det->N_xgrid = 0;
     det->N_ygrid = 0;
 };
 
-struct beam_distribution{
+struct BeamDistribution{
     int N;
     double *grid;
     double *profile;
 };
 
-struct beam_profile{
-    struct beam_distribution radial;
-    struct beam_distribution cross_section;
+struct BeamProfile{
+    struct BeamDistribution radial;
+    struct BeamDistribution cross_section;
 };
 
 #endif

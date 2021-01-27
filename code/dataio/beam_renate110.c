@@ -2,13 +2,13 @@
 #include <math.h>
 
 // set beam inline parameters
-void load_beam(taiga_globals *g, beam_prop beam, shot_prop shot, run_prop run){
+void load_beam(TaigaGlobals *g, BeamProp beam, ShotProp shot, RunProp run){
     int i, prof_size[2];
     double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     
     char* shotname = concat(shot.shotnumber, "_", shot.time);
     
-    beam_profile prof;
+    BeamProfile prof;
     init_ion_profile(shotname, &prof);
     load_ion_profile(shotname, &prof);
     
@@ -54,7 +54,7 @@ void load_beam(taiga_globals *g, beam_prop beam, shot_prop shot, run_prop run){
     }
 }
 
-void init_ion_profile(char* shotname, beam_profile* prof){
+void init_ion_profile(char* shotname, BeamProfile* prof){
     int prof_r_length = read_vector(&(prof->radial.grid),    "input/ionProf", shotname, "rad.dat");
     int prof_d_length = read_vector(&(prof->radial.profile), "input/ionProf", shotname, "ionyeald.dat");    
     
@@ -87,7 +87,7 @@ void init_ion_profile(char* shotname, beam_profile* prof){
     }    
 }
 
-void load_ion_profile(char* shotname, beam_profile* prof){
+void load_ion_profile(char* shotname, BeamProfile* prof){
 
     double *local_prof_r, *local_prof_d, *local_profx_r, *local_profx_d;
     int i;
