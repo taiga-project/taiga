@@ -172,43 +172,32 @@ int main(int argc, char *argv[]){
         time_t rawtime;
         struct tm *info;
         
-        // coords
-        double *X_PTR[3], **x_ptr;
-        double *V_PTR[3], **v_ptr;
-        size_t dimXP = 3*sizeof(double*);
-        
-        double *XR,  *xr; 
-        double *XZ,  *xz;
-        double *XT,  *xt;
-        
-        double *VR,  *vr; 
-        double *VZ,  *vz;
-        double *VT,  *vt;
-        
         printf("Number of blocks (threads): %d\n", run.block_number);
         printf("Block size: %d\n", run.block_size);
         printf("Number of particles: %d\n", host_global->particle_number);
         printf("Max steps on device (GPU): %d\n", run.step_device);
         printf("Max steps on host (HDD): %d\n", run.step_host);
         
-        
         //! coordinates
         init_coords(host_global, shared_global, dev_global, beam, shot, run);
         
         //! grid
         init_grid(shot, run, host_common, shared_common, dev_common);
-        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, host_common, dev_common);
-        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, host_common, dev_common);
+        printf("Grid initialised.\n");
+        int magnetic_field_loaded = magnetic_field_read_and_init(shot, run, host_common, shared_common, dev_common);
+        printf("Magnetic field ready.\n");
+        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, host_common, shared_common, dev_common);
+        printf("Electric field ready.\n");
         
         // detector cell id
-        size_t dimRint = host_global->particle_number * sizeof(int);
+        size_t size_detcellid = host_global->particle_number * sizeof(int);
         int *DETCELLID, *detcellid;
-        DETCELLID = (int *)malloc(dimRint); cudaMalloc((void **) &detcellid,  dimRint);
+        DETCELLID = (int *)malloc(size_detcellid); cudaMalloc((void **) &detcellid, size_detcellid);
         
         // service value
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
         double *SERVICE_VAR, *service_var;
-        SERVICE_VAR = (double *)malloc(dimService); 
+        SERVICE_VAR = (double *)malloc(dimService);
         
         for(int i=0 ; i<SERVICE_VAR_LENGTH ; ++i){
             SERVICE_VAR[i] = 0;
@@ -307,9 +296,9 @@ int main(int argc, char *argv[]){
         
         printf("Lost particle ratio: \t %.4lf % \n\n", SERVICE_VAR[1]*100);
         
-        detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, host_global->particle_number, run.folder_out, run.runnumber);
-        cudaMemcpy(DETCELLID, detcellid, dimRint, cudaMemcpyDeviceToHost);
-        export_data(DETCELLID, host_global->particle_number, run.folder_out, run.runnumber, "detector", "cellid.dat");
+        /* --> detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, host_global->particle_number, run.folder_out, run.runnumber);
+        cudaMemcpy(DETCELLID, detcellid, size_detcellid, cudaMemcpyDeviceToHost);
+        export_data(DETCELLID, host_global->particle_number, run.folder_out, run.runnumber, "detector", "cellid.dat"); <--*/
         
         if (run.debug == 1)    debug_service_vars(SERVICE_VAR);
         

@@ -66,11 +66,12 @@ int spline_read_and_init(ShotProp shot, RunProp run, char* field_name, double **
     
 }
 
-int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *host_shared, TaigaCommons *dev_shared){
+int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared, TaigaCommons *s_device){
     
     size_t dimB = 16*sizeof(double*);
+    size_t dimCommons = sizeof(TaigaCommons);
     
-    size_t dimRZ = host_shared->grid_size[0]*host_shared->grid_size[1]*sizeof(double);
+    size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
     double *BR_PTR[16];     double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB);
     double *BT_PTR[16];     double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB);
     double *BZ_PTR[16];     double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
@@ -80,30 +81,35 @@ int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *host_
     s = spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
     s = spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
     
-    dev_shared->brad = br_ptr;
-    dev_shared->bz   = bz_ptr;
-    dev_shared->btor = bt_ptr;
+    s_shared->brad = br_ptr;
+    s_shared->bz   = bz_ptr;
+    s_shared->btor = bt_ptr;
+    
+    cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
     
     return s;
 }
 
-int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *host_shared, TaigaCommons *dev_shared){
+int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared, TaigaCommons *s_device){
     
     size_t dimB = 16*sizeof(double*);
-    size_t dimRZ = dev_shared->grid_size[0]*dev_shared->grid_size[1]*sizeof(double);
+    size_t dimCommons = sizeof(TaigaCommons);
+    
+    size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
     double *ER_PTR[16]; double **er_ptr;    cudaMalloc((void **) &er_ptr,  dimB);
     double *ET_PTR[16]; double **et_ptr;    cudaMalloc((void **) &et_ptr,  dimB);
     double *EZ_PTR[16]; double **ez_ptr;    cudaMalloc((void **) &ez_ptr,  dimB);
     
     int s;
-    
     s = spline_read_and_init(shot, run, "erad", &er_ptr, dimRZ);
     s = spline_read_and_init(shot, run, "ez",   &ez_ptr, dimRZ);
     s = spline_read_and_init(shot, run, "etor", &et_ptr, dimRZ);
     
-    dev_shared->erad = er_ptr;
-    dev_shared->ez   = ez_ptr;
-    dev_shared->etor = et_ptr;
+    s_shared->erad = er_ptr;
+    s_shared->ez   = ez_ptr;
+    s_shared->etor = et_ptr;
+    
+    cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
     
     return s;
 }
