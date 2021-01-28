@@ -54,15 +54,15 @@ void init_coords(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_host
     size_t size_detcellid = run.block_size * run.block_number * sizeof(int);
     size_t size_globals = sizeof(TaigaGlobals);
     
-    double* shared_rad;
-    double* shared_z;
-    double* shared_tor;
-    double* shared_vrad;
-    double* shared_vz;
-    double* shared_vtor;
-    int* shared_detcellid;
-    
     if (!FASTMODE){
+        double* shared_rad;
+        double* shared_z;
+        double* shared_tor;
+        double* shared_vrad;
+        double* shared_vz;
+        double* shared_vtor;
+        int* shared_detcellid;
+        
         g_host->rad = (double*)malloc(size_coord);
         g_host->z   = (double*)malloc(size_coord);
         g_host->tor = (double*)malloc(size_coord);
@@ -86,17 +86,26 @@ void init_coords(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_host
         cudaMalloc((void **) &shared_vtor, size_coord);
         cudaMalloc((void **) &shared_detcellid, size_detcellid);
         
-        cudaMemcpy(shared_rad,       g_host->vrad,      size_coord,  cudaMemcpyHostToDevice);
+        cudaMemcpy(shared_rad,       g_host->rad,       size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_z,         g_host->z,         size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_tor,       g_host->tor,       size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_vrad,      g_host->vrad,      size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_vz,        g_host->vz,        size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_vtor,      g_host->vtor,      size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_detcellid, g_host->detcellid, size_detcellid, cudaMemcpyHostToDevice);
+        
+        g_shared->rad  = shared_rad;
+        g_shared->z    = shared_z;
+        g_shared->tor  = shared_tor;
+        g_shared->vrad = shared_vrad;
+        g_shared->vz   = shared_vz;
+        g_shared->vtor = shared_vtor;
+        g_shared->detcellid = shared_detcellid;
     }else{
         BeamProfile dev_beam_prof;
         init_beam_profile(&dev_beam_prof, shot);
-        printf("i84 \n");//# generate_coords <<< run.block_number, run.block_size >>> (*g, *s, beam, dev_beam_prof);
+        printf("i84 \n");//# 
+        //generate_coords <<< run.block_number, run.block_size >>> (*g, *s, beam, dev_beam_prof);
     }
 }
 
@@ -156,3 +165,13 @@ printf("i143");
 printf("i155");
 }
 
+void set_particle_number(TaigaGlobals *host_global, RunProp *run){
+    if (READINPUTPROF == 1){
+        double *X_temp;
+        host_global->particle_number = read_vector(&X_temp, "input", "manual_profile", "rad.dat");
+        run->block_number = host_global->particle_number / run->block_size+1;
+        free(X_temp);
+    }else{
+        host_global->particle_number = run->block_size * run->block_number;
+    }
+}

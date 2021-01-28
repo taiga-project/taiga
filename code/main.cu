@@ -132,7 +132,7 @@ int main(int argc, char *argv[]){
         
         init_host(host_global, host_common);
         
-        parameter_reader(&shot, &beam, &run);
+        parameter_reader(&beam, &shot, &run);
         runnumber_reader(&shot, &run);
         
         init_dir(run.folder_out, run.runnumber);
@@ -154,14 +154,7 @@ int main(int argc, char *argv[]){
         printf("  angle (T/R):\t%lf°\n", atan(DETECTOR[4])/PI*180.0);
         printf("===============================\n");
         
-        host_global->particle_number = run.block_size * run.block_number;
-        
-        if (READINPUTPROF == 1){
-            double *X_temp;
-            host_global->particle_number = read_vector(&X_temp, "input", "manual_profile", "rad.dat");
-            run.block_number = host_global->particle_number / run.block_size+1;
-            free(X_temp);
-        }
+        set_particle_number(host_global, &run);
         
         //! CUDA profiler START
         cudaProfilerStart();
