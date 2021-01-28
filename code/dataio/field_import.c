@@ -56,7 +56,7 @@ int spline_read_and_init(ShotProp shot, RunProp run, char* field_name, double **
     }
     
     if (run.debug == 1){
-        for (int i=0;i<10;i++){
+        for (int i=0; i<10; ++i){
             printf("%s spline spl11 %d %lf\n", field_name, i, S0[i]);
         }
     }
@@ -76,16 +76,13 @@ int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     double *BT_PTR[16];     double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB);
     double *BZ_PTR[16];     double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
     
-    int s;
-    s = spline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
-    s = spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
-    s = spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
+    int s = spline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
+    spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
+    spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
     
     s_shared->brad = br_ptr;
     s_shared->bz   = bz_ptr;
     s_shared->btor = bt_ptr;
-    
-    //cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
     
     return s;
 }
@@ -100,16 +97,13 @@ int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     double *ET_PTR[16]; double **et_ptr;    cudaMalloc((void **) &et_ptr,  dimB);
     double *EZ_PTR[16]; double **ez_ptr;    cudaMalloc((void **) &ez_ptr,  dimB);
     
-    int s;
-    s = spline_read_and_init(shot, run, "erad", &er_ptr, dimRZ);
-    s = spline_read_and_init(shot, run, "ez",   &ez_ptr, dimRZ);
-    s = spline_read_and_init(shot, run, "etor", &et_ptr, dimRZ);
+    int s = spline_read_and_init(shot, run, "erad", &er_ptr, dimRZ);
+    spline_read_and_init(shot, run, "ez",   &ez_ptr, dimRZ);
+    spline_read_and_init(shot, run, "etor", &et_ptr, dimRZ);
     
     s_shared->erad = er_ptr;
     s_shared->ez   = ez_ptr;
     s_shared->etor = et_ptr;
-    
-    //cudaMemcpy(s_device, s_shared, dimCommons, cudaMemcpyHostToDevice);
     
     return s;
 }

@@ -7,7 +7,7 @@
 
 char* clean_string (char* str_in){
     char* str_out = str_in;
-    str_out++;    
+    ++str_out;    
     str_out[strlen(str_out)-2] = 0;
     return str_out;
 }

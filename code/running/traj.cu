@@ -4,16 +4,16 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
     int rci, zci;
     int i, i2;
     
-    for(rci=0;(r_grid[rci+1]<position_rad)&&(rci<NR-1);rci++){;}
+    for(rci=0; (r_grid[rci+1]<position_rad)&&(rci<NR-1); ++rci){;}
     
-    for(zci=0;(z_grid[zci+1]<position_z)&&(zci<NR-1);zci++){;}
+    for(zci=0; (z_grid[zci+1]<position_z)&&(zci<NR-1); ++zci){;}
     
     // Particle leave out the cell
     if ((local_spline_indices[0]!=rci)||(local_spline_indices[1]!=zci)){
         local_spline_indices[0] = rci;
         local_spline_indices[1] = zci;
     
-        for(i=0;i<16;i++){
+        for(i=0; i<16; ++i){
             i2 = (local_spline_indices[0])*(NZ-1)+local_spline_indices[1];
             local_spline_brad[i] = spline_brad[i][i2];
             local_spline_bz[i]   = spline_bz[i][i2];
@@ -27,16 +27,16 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
     int rci, zci;
     int i, i2;
     
-    for(rci=0;(r_grid[rci+1]<position_rad)&&(rci<NR-1);rci++){;}
+    for(rci=0; (r_grid[rci+1]<position_rad)&&(rci<NR-1); ++rci){;}
     
-    for(zci=0;(z_grid[zci+1]<position_z)&&(zci<NR-1);zci++){;}
+    for(zci=0; (z_grid[zci+1]<position_z)&&(zci<NR-1); ++zci){;}
     
     // Particle leave out the cell
     if ((local_spline_indices[0] != rci) || (local_spline_indices[1] != zci)){
         local_spline_indices[0] = rci;
         local_spline_indices[1] = zci;
         
-        for(i=0;i<16;i++){
+        for(i=0; i<16; ++i){
             i2 = (local_spline_indices[0])*(NZ-1)+local_spline_indices[1];
             local_spline_brad[i] = spline_brad[i][i2];
             local_spline_bz[i]   = spline_bz[i][i2];
@@ -58,13 +58,13 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     
     double local_field = 0.0, local_field_comp[16] ;
     for(int i=0;i<4;i++){
-        for(int j=0;j<4;j++){
+        for(int j=0; j<4; ++j){
             local_field_comp[i*4+j] = local_spline[i*4+j]*pow(dr,3-i)*pow(dz,3-j);
         }
     }
     
-    for(int i=0;i<4;i++){
-        for(int j=0;j<4;j++){
+    for(int i=0; i<4; ++i){
+        for(int j=0; j<4; ++j){
             local_field += local_field_comp[i*4+j];
         }
     }
@@ -133,8 +133,8 @@ __device__ int traj(TaigaCommons *s, double *X, int detcellid){
         }
         
         // archive coordinates
-        for(int i=0; i<6; i++)  X_prev[i] = X[i];//r
-        //for(int i=0; i<6; i++)  prev_coords[i] = l->coords[i];
+        for(int i=0; i<6; ++i)  X_prev[i] = X[i];//r
+        //for(int i=0; i<6; ++i)  prev_coords[i] = l->coords[i];
         
         solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, s->eperm, s->timestep);//r
         //solve_diffeq(l->coords, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, s->eperm, s->timestep);

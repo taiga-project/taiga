@@ -56,7 +56,7 @@
 void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, RunProp *run){
     
     char *input;
-    for (int i=1; i<argc; i++){
+    for (int i=1; i<argc; ++i){
         input = strtok(argv[i], "=");
         if (!strcmp(input, "--debug") || !strcmp(input, "-d")){
             run->debug = 1;
@@ -186,7 +186,7 @@ int main(int argc, char *argv[]){
         double *SERVICE_VAR, *service_var;
         SERVICE_VAR = (double *)malloc(dimService);
         
-        for(int i=0 ; i<SERVICE_VAR_LENGTH ; ++i){
+        for(int i=0; i<SERVICE_VAR_LENGTH; ++i){
             SERVICE_VAR[i] = 0;
         }
         
@@ -197,8 +197,6 @@ int main(int argc, char *argv[]){
         //! DETECTOR COORDS (HOST2device)
         shared_common->detector_geometry = DETECTOR;
         size_t size_commons = sizeof(TaigaCommons);
-        
-        //cudaMemcpy(dev_common, shared_common, size_commons, cudaMemcpyHostToDevice);
         
         if (!FASTMODE){
             save_trajectories(host_global, run);
@@ -220,11 +218,11 @@ int main(int argc, char *argv[]){
         init_device_structs(beam, shot, run, shared_global, shared_common);
         sync_device_structs(dev_global, shared_global, dev_common, shared_common);
         
-        for (int step_i=0;step_i<run.step_host;step_i++){
+        for (int step_i=0; step_i<run.step_host; ++step_i){
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
-           printf("L250\n");
+            
             taiga <<< run.block_number, run.block_size >>> (dev_global, dev_common, service_var);
-            printf("L252\n");
+            
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
             //ERRORCHECK();
@@ -255,13 +253,12 @@ int main(int argc, char *argv[]){
         printf("===============================\n");
         printf ("CUDA kernel runtime: %lf s\n", run.cuda_time_core);
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
-        printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);    
+        printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
         printf("===============================\n");
         
         undetected <<<1,1>>>(detcellid, host_global->particle_number, service_var);
         
         //! MEMCOPY (device2HOST)
-        
         cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
         if(SERVICE_VAR[0]!=42.24){
             printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n\n", SERVICE_VAR[0]);
@@ -280,20 +277,11 @@ int main(int argc, char *argv[]){
         //! CUDA profiler STOP
         cudaProfilerStop();
         
-        fill_header_file(shot, beam, run, DETECTOR);
+        fill_header_file(shot, beam, run, shared_common);
         
-        /*if (!FASTMODE){
-            //! Save data to files
-            export_data(host_global.rad, host_global.particle_number, run.folder_out, run.runnumber, "rad.dat");
-            export_data(host_global.z,   host_global.particle_number, run.folder_out, run.runnumber, "z.dat");
-            export_data(host_global.tor, host_global.particle_number, run.folder_out, run.runnumber, "tor.dat");
-            export_data(host_global.vrad, host_global.particle_number, run.folder_out, run.runnumber, "vrad.dat");
-            export_data(host_global.vz,   host_global.particle_number, run.folder_out, run.runnumber, "vz.dat");
-            export_data(host_global.vtor, host_global.particle_number, run.folder_out, run.runnumber, "vtor.dat");
-            export_table(run.folder_out, run.runnumber, "coords.dat", host_global.particle_number,
-                host_global.rad, "R [m]",      host_global.z, "Z [m]",      host_global.tor, "T [m]", 
-                host_global.vrad, "v_R [m/s]", host_global.vz, "v_Z [m/s]", host_global.vtor, "v_T [m/s]");
-        }*/
+        if (!FASTMODE){
+            save_endpoints(host_global, run);
+        }
         
         printf("\nData folder: %s/%s\n\n", run.folder_out, run.runnumber);
         
@@ -340,7 +328,7 @@ int main(int argc, char *argv[]){
     }
 }
 
-void fill_header_file(ShotProp shot, BeamProp beam, RunProp run, double DETECTOR[5]){
+void fill_header_file(ShotProp shot, BeamProp beam, RunProp run, TaigaCommons *common){
     export_header(concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"), run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
     export_header(concat("Shot ID: ",shot.name), run.folder_out, run.runnumber);
@@ -364,11 +352,11 @@ void fill_header_file(ShotProp shot, BeamProp beam, RunProp run, double DETECTOR
     
     export_header("Number of ions", "", (double)run.particle_number, run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
-    export_header("Detector position (R)", "m", DETECTOR[0], run.folder_out, run.runnumber);
-    export_header("Detector position (Z)", "m", DETECTOR[1], run.folder_out, run.runnumber);
-    export_header("Detector position (T)", "m", DETECTOR[2], run.folder_out, run.runnumber);
-    export_header("Detector angle (Z/R)", "°", atan(DETECTOR[3])*180.0/PI, run.folder_out, run.runnumber);
-    export_header("Detector angle (T/R)", "°", atan(DETECTOR[4])*180.0/PI, run.folder_out, run.runnumber);
+    export_header("Detector position (R)", "m", common->detector_geometry[0], run.folder_out, run.runnumber);
+    export_header("Detector position (Z)", "m", common->detector_geometry[1], run.folder_out, run.runnumber);
+    export_header("Detector position (T)", "m", common->detector_geometry[2], run.folder_out, run.runnumber);
+    export_header("Detector angle (Z/R)", "°", atan(common->detector_geometry[3])*180.0/PI, run.folder_out, run.runnumber);
+    export_header("Detector angle (T/R)", "°", atan(common->detector_geometry[4])*180.0/PI, run.folder_out, run.runnumber);
     export_header(concat("Detector mask:  \t", shot.detector_mask), run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
     export_header("Timestep", "s", run.timestep, run.folder_out, run.runnumber);
@@ -390,4 +378,17 @@ void save_trajectories(TaigaGlobals *host_global, RunProp run){
     export_data(host_global->vrad, host_global->particle_number, run.folder_out, run.runnumber, "t_vrad.dat");
     export_data(host_global->vz,   host_global->particle_number, run.folder_out, run.runnumber, "t_vz.dat");
     export_data(host_global->vtor, host_global->particle_number, run.folder_out, run.runnumber, "t_vtor.dat");
+}
+
+void save_endpoints(TaigaGlobals *host_global, RunProp run){
+    export_data(host_global->rad,  host_global->particle_number, run.folder_out, run.runnumber, "rad.dat");
+    export_data(host_global->z,    host_global->particle_number, run.folder_out, run.runnumber, "z.dat");
+    export_data(host_global->tor,  host_global->particle_number, run.folder_out, run.runnumber, "tor.dat");
+    export_data(host_global->vrad, host_global->particle_number, run.folder_out, run.runnumber, "vrad.dat");
+    export_data(host_global->vz,   host_global->particle_number, run.folder_out, run.runnumber, "vz.dat");
+    export_data(host_global->vtor, host_global->particle_number, run.folder_out, run.runnumber, "vtor.dat");
+    
+    export_table(run.folder_out, run.runnumber, "coords.dat", host_global->particle_number,
+        host_global->rad, "R [m]",      host_global->z, "Z [m]",      host_global->tor, "T [m]", 
+        host_global->vrad, "v_R [m/s]", host_global->vz, "v_Z [m/s]", host_global->vtor, "v_T [m/s]");
 }

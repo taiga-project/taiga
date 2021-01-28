@@ -17,7 +17,7 @@ int read_vector(double **name, char *folder, char *shotname, char *filename, boo
     file = fopen(path,"r");
     if (file != NULL) {
         while (fscanf(file,"%lf",&test) !=EOF ) {
-            i++;
+            ++i;
         }
         fclose(file);
 
@@ -25,7 +25,7 @@ int read_vector(double **name, char *folder, char *shotname, char *filename, boo
 
         file = fopen(path,"r");
         if (file != NULL){
-            for (j=0; j<i; j++){
+            for (j=0; j<i; ++j){
                 fscanf(file,"%lf", &tname[j]);
             }
         }
@@ -63,19 +63,19 @@ int read_matrix_column(double **name, char *path, int coloumn_id){
 
     file = fopen(path,"r");
     if (file != NULL) {
-        for (i=0; fgets(tmp, sizeof tmp, file) != NULL; i++)   ;
+        for (i=0; fgets(tmp, sizeof tmp, file) != NULL; ++i)   ;
         fclose(file);
         tname = (double*)malloc(i*sizeof(double));
 
         file = fopen(path,"r");
         for (i=0; (fgets(tmp, sizeof tmp, file) != NULL); NULL){
             token = strtok( tmp, " " );
-            for(j = 0; j<coloumn_id && token != NULL; j++){
+            for(j = 0; j<coloumn_id && token != NULL; ++j){
                 if (j == coloumn_id-1){
                     value = atof(token);
                     if (value || (token[0]=='0') || (strncmp(token,"-0",2) == 0) ){
                         tname[i] = value;
-                        i++;
+                        ++i;
                     }
                 }
                 token = strtok( NULL, " " );

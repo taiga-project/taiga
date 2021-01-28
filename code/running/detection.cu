@@ -7,7 +7,6 @@ __device__ double interpolate(double y1, double y2, double x, double x1, double 
 }
 
 __device__ int calculate_detection_position(double *X, double *X_prev, double *detector_geometry){
-
     int finished = 0;
     
     double detector_R   = detector_geometry[0];
@@ -21,15 +20,15 @@ __device__ int calculate_detection_position(double *X, double *X_prev, double *d
         double detector_cos = 1/sqrt(1+detector_tan*detector_tan);
         detector_distance *= detector_cos;
         detector_distance_prev *= detector_cos;
-
+        
         double X_new[6];     
         double detector_distance_rate = -detector_distance_prev/(detector_distance-detector_distance_prev);
         
         double v = sqrt(X[3]*X[3] + X[4]*X[4] +  X[5]*X[5]);
-        double v_prev = sqrt(X_prev[3]*X_prev[3] + X_prev[4]*X_prev[4] +  X_prev[5]*X_prev[5]);        
+        double v_prev = sqrt(X_prev[3]*X_prev[3] + X_prev[4]*X_prev[4] +  X_prev[5]*X_prev[5]);
         
-        for (int i=0; i<6; i++) X_new[i] = interpolate(X_prev[i], X[i], 0, detector_distance_prev, detector_distance);        
-        for (int i=0; i<6; i++) X[i] = X_new[i];
+        for (int i=0; i<6; ++i) X_new[i] = interpolate(X_prev[i], X[i], 0, detector_distance_prev, detector_distance);
+        for (int i=0; i<6; ++i) X[i] = X_new[i];
         
         finished = 1;
     }

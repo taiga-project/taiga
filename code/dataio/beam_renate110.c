@@ -16,7 +16,7 @@ void load_beam(TaigaGlobals *g, BeamProp beam, ShotProp shot, RunProp run){
     
     /* cross section normalisation */
     /*if (prof_size[1] > 0){
-        for (i=0; i<prof_size[1]; i++){
+        for (i=0; i<prof_size[1]; ++i){
             profx_d[i] /= profx_r[i];
         }
     }*/
@@ -24,7 +24,7 @@ void load_beam(TaigaGlobals *g, BeamProp beam, ShotProp shot, RunProp run){
     /* initialize random generator */
     srand ( time(NULL) );
     
-    for (i=0; i<run.particle_number; i++){
+    for (i=0; i<run.particle_number; ++i){
         /* set position of particles */
         do{
             ionisation_yeald = (double)rand()/RAND_MAX;
@@ -103,7 +103,7 @@ void load_ion_profile(char* shotname, BeamProfile* prof){
         read_vector(&local_profx_r, "input/ionProf", shotname, "xrad.dat", false);
         read_vector(&local_profx_d, "input/ionProf", shotname, "xionyeald.dat", false);
         
-        for (i=0; i<prof->cross_section.N; i++){
+        for (i=0; i<prof->cross_section.N; ++i){
             prof->cross_section.grid[i]    = local_profx_r[i];
             prof->cross_section.profile[i] = local_profx_d[i];
         }

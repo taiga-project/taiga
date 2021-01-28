@@ -1,6 +1,6 @@
 __device__ double device_linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){
     int i;       
-    for (i=1; (i<x_length) && (x_vector[i-1]>x_value); i++);    
+    for (i=1; (i<x_length) && (x_vector[i-1]>x_value); ++i);    
     if(i>1){--i;}else{i=1;}    
     return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 }
@@ -21,7 +21,7 @@ __global__ void generate_coords(TaigaGlobals g, TaigaCommons s, BeamProp beam, B
     
     // cross section normalisation 
     /*if (prof.cross_section.N > 0){
-        for (i=0; i<prof.cross_section.N; i++){
+        for (i=0; i<prof.cross_section.N; ++i){
             prof.cross_section.profile[i] /= prof.cross_section.grid[i];
         }
     }*/
