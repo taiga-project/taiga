@@ -9,21 +9,26 @@ DEFAULT_FLAGS = -D'RENATE=0' -D'READINPUTPROF=1' -D'FASTMODE=0'
 RENATE_FLAGS = -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=0'
 RENATE_FAST_FLAGS = -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=1'
 
+ifndef TAIGA_BUILD
+	TAIGA_BUILD=build
+endif
+$(info Build directory: $(TAIGA_BUILD) )
+
 all: taiga.exe taiga_renate.exe taiga_renate_fast.exe
 
 taiga.exe: main.cu
-	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o taiga.exe  main.cu
+	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga.exe main.cu
 
 taiga_renate.exe: main.cu
-	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FLAGS) -o taiga_renate.exe  main.cu
+	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FLAGS) -o $(TAIGA_BUILD)/taiga_renate.exe main.cu
 
 taiga_renate_fast.exe: main.cu
-	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o taiga_renate_fast.exe  main.cu
+	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o $(TAIGA_BUILD)/taiga_renate_fast.exe main.cu
 
 t: test
 
 test: tests/struct.cu
-	$(NVCC) $(TESTFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o test.exe  tests/struct.cu
+	$(NVCC) $(TESTFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test.exe tests/test_taiga_init.cu
 
 clean:
-	rm *.exe
+	rm $(TAIGA_BUILD)/*.exe
