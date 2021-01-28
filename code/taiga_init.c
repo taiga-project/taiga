@@ -44,8 +44,6 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s
     cudaMemcpy(shared_zgrid, s_host->spline_zgrid, size_Z, cudaMemcpyHostToDevice);
     s_shared->spline_zgrid = shared_zgrid;
     
-//    cudaMemcpy(s_device, s_shared, size_commons, cudaMemcpyHostToDevice);
-    
     printf(" GRID SIZE: %d %d \n", s_host->grid_size[0], s_host->grid_size[1]);
 }
 
@@ -133,7 +131,7 @@ printf("i93 \n");
     cudaMemcpy(&(dev_prof->cross_section.profile), &(host_prof.cross_section.profile), dimBX, cudaMemcpyHostToDevice);*/ 
 }
 
-void coord_memcopy_back(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_shared, TaigaGlobals *g_host, TaigaCommons *c_shared, TaigaCommons *c_host){
+void coord_memcopy_back(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_shared, TaigaGlobals *g_host){
     size_t size_coord = run.block_size * run.block_number * sizeof(double);
     size_t size_detcellid = run.block_size * run.block_number * sizeof(int);
     cudaMemcpy(g_shared->rad, g_host->rad, size_coord, cudaMemcpyDeviceToHost);
@@ -143,29 +141,23 @@ void coord_memcopy_back(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals 
     cudaMemcpy(g_shared->vz,   g_host->vz,   size_coord, cudaMemcpyDeviceToHost);
     cudaMemcpy(g_shared->vtor, g_host->vtor, size_coord, cudaMemcpyDeviceToHost);
     cudaMemcpy(g_shared->detcellid, g_host->detcellid, size_detcellid, cudaMemcpyDeviceToHost);
-    /*cudaMemcpy(&(g_host->rad),       &(g->rad),       size_coord,  cudaMemcpyHostToDevice);
-    cudaMemcpy(&(g_host->z),         &(g->z),         size_coord,  cudaMemcpyHostToDevice);
-    cudaMemcpy(&(g_host->tor),       &(g->tor),       size_coord,  cudaMemcpyHostToDevice);
-    cudaMemcpy(&(g_host->vrad),      &(g->vrad),      size_coord,  cudaMemcpyHostToDevice);
-    cudaMemcpy(&(g_host->vz),        &(g->vz),        size_coord,  cudaMemcpyHostToDevice);
-    cudaMemcpy(&(g_host->vtor),      &(g->vtor),      size_coord,  cudaMemcpyHostToDevice);
-    cudaMemcpy(&(g_host->detcellid), &(g->detcellid), size_detcellid, cudaMemcpyHostToDevice);*/
     
 }
 
-void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_device, TaigaGlobals *g_shared, TaigaCommons *c_device, TaigaCommons *c_shared){
-printf("i143");
+void sync_device_structs(TaigaGlobals *g_device, TaigaGlobals *g_shared, TaigaCommons *c_device, TaigaCommons *c_shared){
+    cudaMemcpy(g_device, g_shared, sizeof(TaigaGlobals), cudaMemcpyHostToDevice);
+    cudaMemcpy(c_device, c_shared, sizeof(TaigaCommons), cudaMemcpyHostToDevice);
+}
+
+void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_shared, TaigaCommons *c_shared){
     g_shared->particle_number = run.particle_number;
     c_shared->max_step_number = run.step_device;        // N_step
     c_shared->step_counter    = 0;
     c_shared->eperm           = ELEMENTARY_CHARGE/ AMU/ beam.mass;
     c_shared->timestep        = run.timestep;
-//    cudaMemcpy(g_device, g_shared, sizeof(TaigaGlobals), cudaMemcpyHostToDevice);
-//    cudaMemcpy(c_device, c_shared, sizeof(TaigaCommons), cudaMemcpyHostToDevice);
-printf("i155");
 }
 
-void set_particle_number(TaigaGlobals *host_global, RunProp *run){
+void set_particle_number(TaigaGlobals *host_global, TaigaGlobals *shared_global, RunProp *run){
     if (READINPUTPROF == 1){
         double *X_temp;
         host_global->particle_number = read_vector(&X_temp, "input", "manual_profile", "rad.dat");
@@ -174,4 +166,5 @@ void set_particle_number(TaigaGlobals *host_global, RunProp *run){
     }else{
         host_global->particle_number = run->block_size * run->block_number;
     }
+    shared_global->particle_number = host_global->particle_number;
 }
