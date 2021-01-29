@@ -107,7 +107,7 @@ int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     s_shared->erad = er_ptr;
     s_shared->ez   = ez_ptr;
     s_shared->etor = et_ptr;
-    s_shared->espline_on = s;
+    s_shared->electric_field_on = s;
     
     return s;
 }

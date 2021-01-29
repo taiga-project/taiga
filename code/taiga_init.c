@@ -13,7 +13,7 @@ void init_host(TaigaGlobals *g, TaigaCommons *s){
     s->max_step_number = 0;
     s->eperm = 0;
     s->timestep = 0;
-    s->espline_on = false;
+    s->electric_field_on = false;
     g->particle_number = 0;
 }
 

@@ -25,7 +25,7 @@ struct TaigaCommons{
     double *spline_rgrid;
     double *spline_zgrid;
     double **brad, **bz, **btor;
-    int espline_on;
+    int electric_field_on;
     double **erad, **ez, **etor;
     double *detector_geometry;
 };
@@ -54,7 +54,7 @@ struct ShotProp{
     char time[40];
     char detector_mask[40];
     char detector_geometry[100];
-    int electric_field_module;
+    int electric_field_on;
 };
 
 void init_shot_prop(ShotProp *shot){
@@ -63,7 +63,7 @@ void init_shot_prop(ShotProp *shot){
     strcpy(shot->time, "1000");
     strcpy(shot->detector_mask, "test");
     strcpy(shot->detector_geometry, "0.685,0.23,0,38,0");
-    shot->electric_field_module = 0;
+    shot->electric_field_on = 0;
 };
 
 struct RunProp{

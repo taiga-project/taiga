@@ -174,7 +174,7 @@ int main(int argc, char *argv[]){
         //! grid
         init_grid(shot, run, host_common, shared_common);
         magnetic_field_read_and_init(shot, run, host_common, shared_common);
-        if (shot.electric_field_module) shot.electric_field_module = electric_field_read_and_init(shot, run, host_common, shared_common);
+        if (shot.electric_field_on) shot.electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
         
         // detector cell id
         size_t size_detcellid = host_global->particle_number * sizeof(int);

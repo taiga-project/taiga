@@ -32,7 +32,6 @@ __global__ void taiga(TaigaGlobals *g, TaigaCommons *c, double *service_var){
     service_var[4] =c->max_step_number;
     service_var[5] =c->step_counter;
     service_var[6]=g->rad[2];
-    service_var[7]=c->espline_on;
 }
 
 __global__ void cuda_service_test(double *service_var){

@@ -29,7 +29,7 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
                                  double **spline_brad, double **spline_bz, double **spline_btor,
                                  double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                  double **spline_erad, double **spline_ez, double **spline_etor,
-                                 int espline_on){
+                                 int electric_field_on){
     int rci, zci;
     int i, i2;
     
@@ -48,7 +48,7 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
             local_spline_bz[i]   = spline_bz[i][i2];
             local_spline_btor[i] = spline_btor[i][i2];
         }
-        if (espline_on){
+        if (electric_field_on){
             for(i=0; i<16; ++i){
                 local_spline_erad[i] = spline_erad[i][i2];
                 local_spline_ez[i]   = spline_ez[i][i2];
@@ -103,7 +103,7 @@ __device__ int traj(TaigaCommons *c, double *X, int detcellid){
     
     double eperm = c->eperm;
     double timestep = c->timestep;
-    int espline_on = c->espline_on;
+    int electric_field_on = c->electric_field_on;
     
     double  X_prev[6];
     //double X[6], X_prev[6];
@@ -126,7 +126,7 @@ __device__ int traj(TaigaCommons *c, double *X, int detcellid){
                          local_spline_brad, local_spline_bz, local_spline_btor,
                          c->brad, c->bz, c->btor,
                          local_spline_erad, local_spline_ez, local_spline_etor,
-                         c->erad, c->ez, c->etor, espline_on);
+                         c->erad, c->ez, c->etor, electric_field_on);
         
         dr = R-c->spline_rgrid[local_spline_indices[0]];
         dz = X[1]-c->spline_zgrid[local_spline_indices[1]];
@@ -137,7 +137,7 @@ __device__ int traj(TaigaCommons *c, double *X, int detcellid){
         local_brad = cyl2tor_rad  (local_brad, local_btor, X[0], X[2]);
         local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);
         
-        if (espline_on){
+        if (electric_field_on){
             local_erad = calculate_local_field(local_spline_erad, dr, dz);
             local_ez   = calculate_local_field(local_spline_ez,   dr, dz);
             local_etor = calculate_local_field(local_spline_etor, dr, dz);
@@ -148,13 +148,13 @@ __device__ int traj(TaigaCommons *c, double *X, int detcellid){
         // archive coordinates
         for(int i=0; i<6; ++i)  X_prev[i] = X[i];
         
-        if (espline_on){
+        if (electric_field_on){
             solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, eperm, timestep);
         }else{
             solve_diffeq(X, local_brad, local_bz, local_btor, eperm, timestep);
         }
         
-        //finished = calculate_detection_position(X, X_prev, c->detector_geometry);
+        //mafinished = calculate_detection_position(X, X_prev, c->detector_geometry);
     }
     
 //    l->coords[0] = X[0];//d
