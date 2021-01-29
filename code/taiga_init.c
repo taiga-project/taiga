@@ -157,7 +157,7 @@ void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals
     c_shared->timestep        = run.timestep;
 }
 
-void set_particle_number(TaigaGlobals *host_global, TaigaGlobals *shared_global, RunProp *run){
+void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global){
     if (READINPUTPROF == 1){
         double *X_temp;
         host_global->particle_number = read_vector(&X_temp, "input", "manual_profile", "rad.dat");
@@ -167,4 +167,23 @@ void set_particle_number(TaigaGlobals *host_global, TaigaGlobals *shared_global,
         host_global->particle_number = run->block_size * run->block_number;
     }
     shared_global->particle_number = host_global->particle_number;
+}
+
+void set_detector_geometry(ShotProp shot, TaigaCommons *host_common, TaigaCommons *shared_common){
+    char *tokaniser;
+    double *DETECTOR;
+    double *shared_detector_geometry;
+    
+    size_t size_detector = 5 * sizeof(double);
+    DETECTOR = (double *)malloc(size_detector);
+    tokaniser = strtok(shot.detector_geometry, ",");    DETECTOR[0] = strtod (tokaniser, NULL);
+    tokaniser = strtok(NULL,",");                       DETECTOR[1] = strtod (tokaniser, NULL);
+    tokaniser = strtok(NULL,",");                       DETECTOR[2] = tan(strtod (tokaniser, NULL) * PI/180.0);
+    tokaniser = strtok(NULL,",");                       DETECTOR[3] = tan(strtod (tokaniser, NULL) * PI/180.0);
+    
+    host_common->detector_geometry = DETECTOR;
+    
+    cudaMalloc((void **) &shared_detector_geometry, size_detector);
+    cudaMemcpy(shared_detector_geometry, host_common->detector_geometry, size_detector, cudaMemcpyHostToDevice);
+    shared_common->detector_geometry = shared_detector_geometry;
 }

@@ -4,4 +4,3 @@ int runnumber_reader(ShotProp *shot, RunProp *run);
 int parameter_reader(BeamProp *beam, ShotProp *shot, RunProp *run);
 
 double get_mass(char *s);
-void set_detector_geometry(double *DETECTOR, char* values);

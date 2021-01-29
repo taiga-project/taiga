@@ -113,7 +113,7 @@ void test_init_coords(){
     
     printf("Init coords\n");
     init_coords(beam, shot, run, host_global, shared_global);
-    set_particle_number(host_global, shared_global, &run);
+    set_particle_number(&run, host_global, shared_global);
     cudaMemcpy(dev_global, shared_global, dim_globals, cudaMemcpyHostToDevice);
         
     double *h_tmp, *d_tmp;

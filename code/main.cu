@@ -142,27 +142,7 @@ int main(int argc, char *argv[]){
         
         init_host(host_global, host_common);
         
-        size_t dimD = 5 * sizeof(double);
-        double *DETECTOR, *detector;
-        DETECTOR = (double *)malloc(dimD);  cudaMalloc((void **) &detector,  dimD);
-        
-        set_detector_geometry(DETECTOR, shot.detector_geometry);
-        set_particle_number(host_global, shared_global, &run);
-        
-        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
-        printf("Shotname: %s\n", shot.name); 
-        printf("Detector: %s\n", shot.detector_mask);
-        printf("  R:\t%lf\n", DETECTOR[0]);
-        printf("  Z:\t%lf\n", DETECTOR[1]);
-        printf("  T:\t%lf\n", DETECTOR[2]);
-        printf("  angle (Z/R):\t%lf°\n", atan(DETECTOR[3])/PI*180.0);
-        printf("  angle (T/R):\t%lf°\n", atan(DETECTOR[4])/PI*180.0);
-        printf("===============================\n");
-        printf("Number of blocks (threads): %d\n", run.block_number);
-        printf("Block size: %d\n", run.block_size);
-        printf("Number of particles: %d\n", host_global->particle_number);
-        printf("Max steps on device (GPU): %d\n", run.step_device);
-        printf("Max steps on host (HDD): %d\n", run.step_host);
+        set_particle_number(&run, host_global, shared_global);
         
         // set timestamp
         time_t rawtime;
@@ -177,6 +157,7 @@ int main(int argc, char *argv[]){
         if (shot.electric_field_on) shot.electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
         
         // detector cell id
+        set_detector_geometry(shot, host_common, shared_common);
         size_t size_detcellid = host_global->particle_number * sizeof(int);
         int *DETCELLID, *detcellid;
         DETCELLID = (int *)malloc(size_detcellid); cudaMalloc((void **) &detcellid, size_detcellid);
@@ -194,12 +175,24 @@ int main(int argc, char *argv[]){
         cudaMalloc((void **) &service_var,  dimService);
         cudaMemcpy(service_var, SERVICE_VAR, dimService, cudaMemcpyHostToDevice);
         
-        //! DETECTOR COORDS (HOST2device)
-        shared_common->detector_geometry = DETECTOR;
-        
         if (!FASTMODE){
             save_trajectories(host_global, run);
         }
+        
+        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
+        printf("Shotname: %s\n", shot.name); 
+        printf("Detector: %s\n", shot.detector_mask);
+        printf("  R:\t%lf\n", host_common->detector_geometry[0]);
+        printf("  Z:\t%lf\n", host_common->detector_geometry[1]);
+        printf("  T:\t%lf\n", host_common->detector_geometry[2]);
+        printf("  angle (Z/R):\t%lf°\n", atan(host_common->detector_geometry[3])/PI*180.0);
+        printf("  angle (T/R):\t%lf°\n", atan(host_common->detector_geometry[4])/PI*180.0);
+        printf("===============================\n");
+        printf("Number of blocks (threads): %d\n", run.block_number);
+        printf("Block size: %d\n", run.block_size);
+        printf("Number of particles: %d\n", host_global->particle_number);
+        printf("Max steps on device (GPU): %d\n", run.step_device);
+        printf("Max steps on host (HDD): %d\n", run.step_host);
         
         //! Set CUDA timer 
         cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
@@ -259,7 +252,7 @@ int main(int argc, char *argv[]){
         
         //! MEMCOPY (device2HOST)
         cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
-        if(SERVICE_VAR[0]!=42.24){
+        if(SERVICE_VAR[0] != 42.24){
             printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n\n", SERVICE_VAR[0]);
         }else{
             printf("\nSuccessful run. \n\n");
@@ -276,7 +269,7 @@ int main(int argc, char *argv[]){
         //! CUDA profiler STOP
         cudaProfilerStop();
         
-        fill_header_file(shot, beam, run, shared_common);
+        fill_header_file(shot, beam, run, host_common);
         
         if (!FASTMODE){
             save_endpoints(host_global, run);

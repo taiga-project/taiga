@@ -113,11 +113,3 @@ double get_mass(char *s){
     }
     return mass;
 }
-
-void set_detector_geometry(double *DETECTOR, char* values){
-    char *el;
-    el = strtok(values,",");    DETECTOR[0] = strtod (el, NULL);
-    el = strtok(NULL,",");      DETECTOR[1] = strtod (el, NULL);
-    el = strtok(NULL,",");      DETECTOR[2] = tan(strtod (el, NULL) * PI/180.0);
-    el = strtok(NULL,",");      DETECTOR[3] = tan(strtod (el, NULL) * PI/180.0);
-}
