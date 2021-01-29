@@ -25,7 +25,7 @@ struct TaigaCommons{
     double *spline_rgrid;
     double *spline_zgrid;
     double **brad, **bz, **btor;
-    bool espline_on;
+    int espline_on;
     double **erad, **ez, **etor;
     double *detector_geometry;
 };

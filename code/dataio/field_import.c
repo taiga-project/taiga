@@ -50,18 +50,16 @@ int spline_read_and_init(ShotProp shot, RunProp run, char* field_name, double **
         free(S4);   free(S5);   free(S6);   free(S7);
         free(S8);   free(S9);   free(S10);  free(S11);
         free(S12);  free(S13);  free(S14);  free(S15);
-    }else{
-        printf("Fatal memory allocation error at %s",field_name);
-        exit(0);
-    }
-    
-    if (run.debug == 1){
-        for (int i=0; i<10; ++i){
-            printf("%s spline spl11 %d %lf\n", field_name, i, S0[i]);
+        
+        if (run.debug == 1){
+            for (int i=0; i<10; ++i){
+                printf("%s spline spl11 %d %lf\n", field_name, i, S0[i]);
+            }
         }
+        
+        *return_s_ptr = s_ptr;
     }
     
-    *return_s_ptr = s_ptr; 
     return suc[0];
     
 }
@@ -84,6 +82,11 @@ int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     s_shared->bz   = bz_ptr;
     s_shared->btor = bt_ptr;
     
+    if (s==0){
+        printf("Fatal error in the memory allocation of the magnetic field");
+        exit(1);
+    }
+    
     return s;
 }
 
@@ -104,6 +107,7 @@ int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     s_shared->erad = er_ptr;
     s_shared->ez   = ez_ptr;
     s_shared->etor = et_ptr;
+    s_shared->espline_on = s;
     
     return s;
 }
