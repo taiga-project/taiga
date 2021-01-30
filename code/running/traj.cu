@@ -81,7 +81,7 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
-__device__ int traj(TaigaCommons *c, double *X, int detcellid){
+__device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     
     // next grid
     int local_spline_indices[2];
@@ -106,16 +106,8 @@ __device__ int traj(TaigaCommons *c, double *X, int detcellid){
     int electric_field_on = c->electric_field_on;
     
     double  X_prev[6];
-    //double X[6], X_prev[6];
     
     int finished = detcellid + 1;
-    
-//    X[0] = l->coords[0];//d
-//    X[1] = l->coords[1];//d
-//    X[2] = l->coords[2];//d
-//    X[3] = l->coords[3];//d
-//    X[4] = l->coords[4];//d
-//    X[5] = l->coords[5];//d
     
     for (int loopi=0; (loopi<c->max_step_number && (!finished)); ++loopi){
         // Get local magnetic field
@@ -154,15 +146,8 @@ __device__ int traj(TaigaCommons *c, double *X, int detcellid){
             solve_diffeq(X, local_brad, local_bz, local_btor, eperm, timestep);
         }
         
-        //mafinished = calculate_detection_position(X, X_prev, c->detector_geometry);
+        finished = calculate_detection_position(X, X_prev, c->detector_geometry);
     }
-    
-//    l->coords[0] = X[0];//d
-//    l->coords[1] = X[1];//d
-//    l->coords[2] = X[2];//d
-//    l->coords[3] = X[3];//d
-//    l->coords[4] = X[4];//d
-//    l->coords[5] = X[5];//d
     
     if (finished){
         detcellid = 0;

@@ -211,7 +211,7 @@ int main(int argc, char *argv[]){
             if (!FASTMODE){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
-                //coord_memcopy_back(beam, shot, run, host_global, shared_global);
+                coord_memcopy_back(beam, shot, run, host_global, shared_global);
                 //ERRORCHECK();
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
                 
@@ -222,7 +222,7 @@ int main(int argc, char *argv[]){
             }
             
             if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
-            if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global->rad, host_global->z, host_global->tor, host_global->vrad, host_global->vz, host_global->vtor);
+            /*if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global->rad, host_global->z, host_global->tor, host_global->vrad, host_global->vz, host_global->vtor);*/
         }
         // Get CUDA timer 
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
