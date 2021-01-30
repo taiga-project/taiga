@@ -50,7 +50,7 @@
 #include "running/generate_coords.cu"
 #include "running/taiga.cu"
 
-#include "detector_module.c"
+#include "detector_module.cu"
 //#include "running/detector_postproc.cu"
 
 void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, RunProp *run){
@@ -126,27 +126,27 @@ int main(int argc, char *argv[]){
         cudaProfilerStart();
         set_cuda(run.debug);
         
-        TaigaGlobals *dev_global, *host_global, *shared_global;
-        TaigaCommons *dev_common, *host_common, *shared_common;
+        TaigaGlobals *device_global, *host_global, *shared_global;
+        TaigaCommons *device_common, *host_common, *shared_common;
+        DetectorProp *shared_detector, *device_detector;
         
-        size_t dim_global = sizeof(TaigaGlobals);
-        size_t dim_commons = sizeof(TaigaCommons);
+        size_t size_global = sizeof(TaigaGlobals);
+        size_t size_commons = sizeof(TaigaCommons);
+        size_t size_detector_prop = sizeof(DetectorProp);
         
-        host_global = (TaigaGlobals*)malloc(dim_global);
-        shared_global = (TaigaGlobals*)malloc(dim_global);
-        host_common = (TaigaCommons*)malloc(dim_commons);
-        shared_common = (TaigaCommons*)malloc(dim_commons);
+        host_global = (TaigaGlobals*)malloc(size_global);
+        shared_global = (TaigaGlobals*)malloc(size_global);
+        host_common = (TaigaCommons*)malloc(size_commons);
+        shared_common = (TaigaCommons*)malloc(size_commons);
+        shared_detector = (DetectorProp*)malloc(size_detector_prop);
         
-        cudaMalloc((void **) &dev_global, dim_global);
-        cudaMalloc((void **) &dev_common, dim_commons);
+        cudaMalloc((void **) &device_global, size_global);
+        cudaMalloc((void **) &device_common, size_commons);
+        cudaMalloc((void **) &device_detector, size_detector_prop);
         
         init_host(host_global, host_common);
         
         set_particle_number(&run, host_global, shared_global);
-        
-        // set timestamp
-        time_t rawtime;
-        struct tm *info;
         
         //! coordinates
         init_coords(beam, shot, run, host_global, shared_global);
@@ -156,13 +156,14 @@ int main(int argc, char *argv[]){
         magnetic_field_read_and_init(shot, run, host_common, shared_common);
         if (shot.electric_field_on) shot.electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
         
-        // detector cell id
+        // detector
         set_detector_geometry(shot, host_common, shared_common);
         size_t size_detcellid = host_global->particle_number * sizeof(int);
         int *DETCELLID, *detcellid;
         DETCELLID = (int *)malloc(size_detcellid); cudaMalloc((void **) &detcellid, size_detcellid);
+        init_detector(shared_detector, device_detector, shot);
         
-        // service value
+        // <service value>
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
         double *SERVICE_VAR, *service_var;
         SERVICE_VAR = (double *)malloc(dimService);
@@ -174,25 +175,13 @@ int main(int argc, char *argv[]){
         SERVICE_VAR[4] = 55555.55555;
         cudaMalloc((void **) &service_var,  dimService);
         cudaMemcpy(service_var, SERVICE_VAR, dimService, cudaMemcpyHostToDevice);
+        // </service value>
         
         if (!FASTMODE){
             save_trajectories(host_global, run);
         }
         
-        printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
-        printf("Shotname: %s\n", shot.name); 
-        printf("Detector: %s\n", shot.detector_mask);
-        printf("  R:\t%lf\n", host_common->detector_geometry[0]);
-        printf("  Z:\t%lf\n", host_common->detector_geometry[1]);
-        printf("  T:\t%lf\n", host_common->detector_geometry[2]);
-        printf("  angle (Z/R):\t%lf°\n", atan(host_common->detector_geometry[3])/PI*180.0);
-        printf("  angle (T/R):\t%lf°\n", atan(host_common->detector_geometry[4])/PI*180.0);
-        printf("===============================\n");
-        printf("Number of blocks (threads): %d\n", run.block_number);
-        printf("Block size: %d\n", run.block_size);
-        printf("Number of particles: %d\n", host_global->particle_number);
-        printf("Max steps on device (GPU): %d\n", run.step_device);
-        printf("Max steps on host (HDD): %d\n", run.step_host);
+        print_run_details(host_global, host_common, shot, run);
         
         //! Set CUDA timer 
         cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
@@ -208,12 +197,12 @@ int main(int argc, char *argv[]){
         size_t dimX = host_global->particle_number*sizeof(double);
         
         init_device_structs(beam, shot, run, shared_global, shared_common);
-        sync_device_structs(dev_global, shared_global, dev_common, shared_common);
+        sync_device_structs(device_global, shared_global, device_common, shared_common);
         
         for (int step_i=0; step_i<run.step_host; ++step_i){
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
             
-            taiga <<< run.block_number, run.block_size >>> (dev_global, dev_common, service_var);
+            taiga <<< run.block_number, run.block_size >>> (device_global, device_common, service_var);
             
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
@@ -222,7 +211,7 @@ int main(int argc, char *argv[]){
             if (!FASTMODE){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
-                coord_memcopy_back(beam, shot, run, host_global, shared_global);
+                //coord_memcopy_back(beam, shot, run, host_global, shared_global);
                 //ERRORCHECK();
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
                 
@@ -260,16 +249,21 @@ int main(int argc, char *argv[]){
         
         printf("Lost particle ratio: \t %.4lf % \n\n", SERVICE_VAR[1]*100);
         
-        /* --> detector_module(x_ptr, detector, detcellid, shot.detector_mask, run.block_number, run.block_size, host_global->particle_number, run.folder_out, run.runnumber);
+        detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
+        
+        detector_sum <<<1,1>>> (device_global, device_common, device_detector);
+        
+        export_detector(shared_detector, device_detector, device_global, device_common, shot, run);
+        
         cudaMemcpy(DETCELLID, detcellid, size_detcellid, cudaMemcpyDeviceToHost);
-        export_data(DETCELLID, host_global->particle_number, run.folder_out, run.runnumber, "detector", "cellid.dat"); <--*/
+        export_data(DETCELLID, host_global->particle_number, run.folder_out, run.runnumber, "detector", "cellid.dat"); 
         
         if (run.debug == 1)    debug_service_vars(SERVICE_VAR);
         
         //! CUDA profiler STOP
         cudaProfilerStop();
         
-        fill_header_file(shot, beam, run, host_common);
+        fill_header_file(host_common, beam, shot, run);
         
         if (!FASTMODE){
             save_endpoints(host_global, run);
@@ -282,9 +276,9 @@ int main(int argc, char *argv[]){
             cudaFree(host_global.coords[i]);
         }
         cudaFree(host_global.coords);
-        cudaFree(dev_common.spline_grid[0]);
-        cudaFree(dev_common.spline_grid[1]);
-        cudaFree(dev_common.spline_grid);
+        cudaFree(device_common.spline_grid[0]);
+        cudaFree(device_common.spline_grid[1]);
+        cudaFree(device_common.spline_grid);
 
         for (int i=0; i<3; ++i){
             cudaFree(host_common.espline[i]);
@@ -295,9 +289,9 @@ int main(int argc, char *argv[]){
         
 
         //! Free RAM    
-        free(dev_common.spline_grid[0]);
-        free(dev_common.spline_grid[1]);
-        free(dev_common.spline_grid);
+        free(device_common.spline_grid[0]);
+        free(device_common.spline_grid[1]);
+        free(device_common.spline_grid);
 
         for (int i=0; i<3; ++i){
             free(host_common.espline[i]);
@@ -315,12 +309,30 @@ int main(int argc, char *argv[]){
         
         //! FREE SERVICE_VAR variables (RAM, cuda)
         free(SERVICE_VAR);  cudaFree(service_var);
-        
         printf("Ready.\n\n");
     }
 }
 
-void fill_header_file(ShotProp shot, BeamProp beam, RunProp run, TaigaCommons *common){
+void print_run_details(TaigaGlobals *host_global, TaigaCommons *host_common, ShotProp shot, RunProp run){
+    printf("===============================\n");
+    printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
+    printf("Shotname: %s\n", shot.name); 
+    printf("Detector: %s\n", shot.detector_mask);
+    printf("  R:\t%lf\n", host_common->detector_geometry[0]);
+    printf("  Z:\t%lf\n", host_common->detector_geometry[1]);
+    printf("  T:\t%lf\n", host_common->detector_geometry[2]);
+    printf("  angle (Z/R):\t%lf°\n", atan(host_common->detector_geometry[3])/PI*180.0);
+    printf("  angle (T/R):\t%lf°\n", atan(host_common->detector_geometry[4])/PI*180.0);
+    printf("===============================\n");
+    printf("Number of blocks (threads): %d\n", run.block_number);
+    printf("Block size: %d\n", run.block_size);
+    printf("Number of particles: %d\n", host_global->particle_number);
+    printf("Max steps on device (GPU): %d\n", run.step_device);
+    printf("Max steps on host (HDD): %d\n", run.step_host);
+    printf("===============================\n");
+}
+
+void fill_header_file(TaigaCommons *common, BeamProp beam, ShotProp shot, RunProp run){
     export_header(concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"), run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
     export_header(concat("Shot ID: ",shot.name), run.folder_out, run.runnumber);

@@ -1,26 +1,29 @@
-__global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, double *det_y, int N_det_y, double *det, int *detcellid){
+__global__ void detector_postproc(TaigaGlobals *global, TaigaCommons *common, DetectorProp *detector){
+//(double **x_ptr, double *detector->xgrid, int detector->length_xgrid, double *detector->ygrid, int detector->length_ygrid, double *det, int *detcellid){
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     
-    if (detcellid[idx] == 0){
-        double x,y;
+    if (global->detcellid[idx] == 0){
+        double x, y;
         
-        x = x_ptr[2][idx] - det[2];                x*=1000; //in mm
-        y = (det[1] - x_ptr[1][idx]) / det[3];     y*=1000; //in mm
+        x = global->tor[idx] - common->detector_geometry[2];
+        x*=1000; //in mm
+        y = (common->detector_geometry[1] - global->z[idx]) / common->detector_geometry[3];
+        y*=1000; //in mm
         
         int x_cellid = -1, y_cellid = -1;
         
-        if ((x >= det_x[0]) & (x <= det_x[N_det_x-1]) & (y >= det_y[0]) & (y <= det_y[N_det_y-1])) {
-            for (int i=0; i<(N_det_x/2); ++i) {
-                if ((x >= det_x[2*i]) & (x <= det_x[2*i+1]))    x_cellid = i;
+        if ((x >= detector->xgrid[0]) & (x <= detector->xgrid[detector->length_xgrid-1]) & (y >= detector->ygrid[0]) & (y <= detector->ygrid[detector->length_ygrid-1])) {
+            for (int i=0; i<(detector->length_xgrid/2); ++i) {
+                if ((x >= detector->xgrid[2*i]) & (x <= detector->xgrid[2*i+1]))    x_cellid = i;
             }
-            for (int j=0; j<N_det_y/2; ++j) {
-                if ((y >= det_y[2*j]) & (y <= det_y[2*j+1]))    y_cellid = j;
+            for (int j=0; j<detector->length_ygrid/2; ++j) {
+                if ((y >= detector->ygrid[2*j]) & (y <= detector->ygrid[2*j+1]))    y_cellid = j;
             }
         }
         
         if ((x_cellid >= 0) & (y_cellid >= 0)) {
-            detcellid[idx] = x_cellid * N_det_y/2 +  N_det_y/2-1 - y_cellid + 1;
+            global->detcellid[idx] = x_cellid * detector->length_ygrid/2 + detector->length_ygrid/2-1 - y_cellid + 1;
         }
     }
 }

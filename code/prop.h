@@ -105,17 +105,13 @@ void init_run_prop(RunProp *run){
 };
 
 struct DetectorProp{
-    int N_xgrid;
+    int detector_module_on;
+    int length_xgrid;
+    int length_ygrid;
+    int number_of_detector_cells;
+    int* counter;
     double* xgrid;
-    int N_ygrid;
     double* ygrid;
-    double* position;
-    double* angles;
-};
-
-void init_detector_prop(DetectorProp *det){
-    det->N_xgrid = 0;
-    det->N_ygrid = 0;
 };
 
 struct BeamDistribution{

@@ -1,1 +1,2 @@
-void detector_module(double **x_ptr, double *detector, int *detcellid, char *detector_name, int max_blocks, int shot_block_size, int number_of_particles, char *export_folder, char *runnumber);
+void init_detector(DetectorProp* shared_detector, DetectorProp *device_detector, ShotProp shot);
+void export_detector(DetectorProp* shared_detector, DetectorProp *device_detector, TaigaGlobals *device_global, TaigaCommons *device_common, ShotProp shot, RunProp run);
