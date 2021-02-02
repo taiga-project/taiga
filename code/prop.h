@@ -4,7 +4,7 @@
 #define UNDEFINED_FLOAT -1e99
 
 struct TaigaGlobals{
-    double **coords;
+//    double **coords;
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
     int particle_number;

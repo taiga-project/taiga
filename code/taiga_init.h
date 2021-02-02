@@ -8,3 +8,4 @@ void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals
 void sync_device_structs(TaigaGlobals *g_device, TaigaGlobals *g_shared, TaigaCommons *c_device, TaigaCommons *c_shared);
 void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global);
 void set_detector_geometry(ShotProp shot, TaigaCommons *host_common, TaigaCommons *shared_common);
+void init_detector(DetectorProp* shared_detector, DetectorProp *device_detector, ShotProp shot);

@@ -51,7 +51,8 @@
 #include "running/taiga.cu"
 
 #include "detector_module.cu"
-//#include "running/detector_postproc.cu"
+#include "running/detector_postproc.cu"
+#include "running/detector_sum.cu"
 
 void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, RunProp *run){
     
@@ -105,7 +106,7 @@ void print_help_message(){
     printf("      --ion-source-coords=XXX Order of coordinates (RZT or RTZ) in input file\n");
 }
 
-int main(int argc, char *argv[]){    
+int main(int argc, char *argv[]){
     ShotProp shot; init_shot_prop(&shot);
     BeamProp beam; init_beam_prop(&beam);
     RunProp run;   init_run_prop(&run);
@@ -158,23 +159,20 @@ int main(int argc, char *argv[]){
         
         // detector
         set_detector_geometry(shot, host_common, shared_common);
-        size_t size_detcellid = host_global->particle_number * sizeof(int);
-        int *DETCELLID, *detcellid;
-        DETCELLID = (int *)malloc(size_detcellid); cudaMalloc((void **) &detcellid, size_detcellid);
         init_detector(shared_detector, device_detector, shot);
         
         // <service value>
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
-        double *SERVICE_VAR, *service_var;
-        SERVICE_VAR = (double *)malloc(dimService);
+        double *host_service_array, *device_service_array;
+        host_service_array = (double *)malloc(dimService);
         
         for(int i=0; i<SERVICE_VAR_LENGTH; ++i){
-            SERVICE_VAR[i] = 0;
+            host_service_array[i] = 0;
         }
         
-        SERVICE_VAR[4] = 55555.55555;
-        cudaMalloc((void **) &service_var,  dimService);
-        cudaMemcpy(service_var, SERVICE_VAR, dimService, cudaMemcpyHostToDevice);
+        host_service_array[4] = 55555.55555;
+        cudaMalloc((void **) &device_service_array,  dimService);
+        cudaMemcpy(device_service_array, host_service_array, dimService, cudaMemcpyHostToDevice);
         // </service value>
         
         if (!FASTMODE){
@@ -202,7 +200,7 @@ int main(int argc, char *argv[]){
         for (int step_i=0; step_i<run.step_host; ++step_i){
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
             
-            taiga <<< run.block_number, run.block_size >>> (device_global, device_common, service_var);
+            taiga <<< run.block_number, run.block_size >>> (device_global, device_common, device_service_array);
             
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
@@ -222,7 +220,7 @@ int main(int argc, char *argv[]){
             }
             
             if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
-            /*if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global->rad, host_global->z, host_global->tor, host_global->vrad, host_global->vz, host_global->vtor);*/
+            // UNSOLVED: if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global->rad, host_global->z, host_global->tor, host_global->vrad, host_global->vz, host_global->vtor);
         }
         // Get CUDA timer 
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
@@ -237,28 +235,26 @@ int main(int argc, char *argv[]){
         printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
         printf("===============================\n");
         
-        undetected <<<1,1>>>(detcellid, host_global->particle_number, service_var);
+        //UNSOLVED: undetected <<<1,1>>>(detcellid, host_global->particle_number, device_service_array);
+        //UNSOLVED: printf("Lost particle ratio: \t %.4lf % \n\n", host_service_array[1]*100);
         
         //! MEMCOPY (device2HOST)
-        cudaMemcpy(SERVICE_VAR, service_var, dimService, cudaMemcpyDeviceToHost);
-        if(SERVICE_VAR[0] != 42.24){
-            printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n\n", SERVICE_VAR[0]);
+        cudaMemcpy(host_service_array, device_service_array, dimService, cudaMemcpyDeviceToHost);
+        if(host_service_array[0] != 42.24){
+            printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n\n", host_service_array[0]);
         }else{
             printf("\nSuccessful run. \n\n");
         }
         
-        printf("Lost particle ratio: \t %.4lf % \n\n", SERVICE_VAR[1]*100);
         
         detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
         
+        
         detector_sum <<<1,1>>> (device_global, device_common, device_detector);
         
-        export_detector(shared_detector, device_detector, device_global, device_common, shot, run);
+        export_detector(shared_detector, device_detector, shared_global, shot, run);
         
-        cudaMemcpy(DETCELLID, detcellid, size_detcellid, cudaMemcpyDeviceToHost);
-        export_data(DETCELLID, host_global->particle_number, run.folder_out, run.runnumber, "detector", "cellid.dat"); 
-        
-        if (run.debug == 1)    debug_service_vars(SERVICE_VAR);
+        if (run.debug == 1)    debug_service_vars(host_service_array);
         
         //! CUDA profiler STOP
         cudaProfilerStop();
@@ -307,8 +303,8 @@ int main(int argc, char *argv[]){
         }*/
         
         
-        //! FREE SERVICE_VAR variables (RAM, cuda)
-        free(SERVICE_VAR);  cudaFree(service_var);
+        //! FREE host_service_array variables (RAM, cuda)
+        free(host_service_array);  cudaFree(device_service_array);
         printf("Ready.\n\n");
     }
 }

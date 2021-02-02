@@ -4,7 +4,7 @@ __global__ void detector_sum(TaigaGlobals *global, TaigaCommons *common, Detecto
     }
     for (int idx = 0; idx < global->particle_number; ++idx){
         if ((global->detcellid[idx] > 0) 
-        /*& (global->detcellid[idx] < detector->number_of_detector_cells+1)*/ ){
+        & (global->detcellid[idx] < detector->number_of_detector_cells+1) ){
             detector->counter[global->detcellid[idx]-1]++;
         }
     }

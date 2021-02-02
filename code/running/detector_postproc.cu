@@ -13,17 +13,18 @@ __global__ void detector_postproc(TaigaGlobals *global, TaigaCommons *common, De
         
         int x_cellid = -1, y_cellid = -1;
         
-        if ((x >= detector->xgrid[0]) & (x <= detector->xgrid[detector->length_xgrid-1]) & (y >= detector->ygrid[0]) & (y <= detector->ygrid[detector->length_ygrid-1])) {
-            for (int i=0; i<(detector->length_xgrid/2); ++i) {
+        if ((x >= detector->xgrid[0]) & (x <= detector->xgrid[detector->length_xgrid*2-1]) & (y >= detector->ygrid[0]) & (y <= detector->ygrid[detector->length_ygrid*2-1])) {
+            for (int i=0; i<(detector->length_xgrid); ++i) {
                 if ((x >= detector->xgrid[2*i]) & (x <= detector->xgrid[2*i+1]))    x_cellid = i;
             }
-            for (int j=0; j<detector->length_ygrid/2; ++j) {
+            for (int j=0; j<detector->length_ygrid; ++j) {
                 if ((y >= detector->ygrid[2*j]) & (y <= detector->ygrid[2*j+1]))    y_cellid = j;
             }
         }
         
         if ((x_cellid >= 0) & (y_cellid >= 0)) {
-            global->detcellid[idx] = x_cellid * detector->length_ygrid/2 + detector->length_ygrid/2-1 - y_cellid + 1;
+            global->detcellid[idx] = x_cellid * detector->length_ygrid + detector->length_ygrid-1 - y_cellid + 1;
         }
+        global->detcellid[idx] =detector->xgrid[1];
     }
 }

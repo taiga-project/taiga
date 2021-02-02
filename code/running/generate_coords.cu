@@ -1,14 +1,14 @@
 __device__ double device_linear_interpolate(double *x_vector, int x_length, double *y_vector, int y_length, double x_value){
-    int i;       
-    for (i=1; (i<x_length) && (x_vector[i-1]>x_value); ++i);    
-    if(i>1){--i;}else{i=1;}    
+    int i;
+    for (i=1; (i<x_length) && (x_vector[i-1]>x_value); ++i);
+    if(i>1){--i;}else{i=1;}
     return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
 }
 
 
 /*(double beam.diameter, double beam.energy, double beam.vertical_deflection, double beam.toroidal_deflection,
                                 double **position_all, double **speed_all, double eperm, int *prof_size, double *prof.radial.grid, double *prof.radial.profile, double *prof.cross_section.grid, double *prof.cross_section.profile)*/
-__global__ void generate_coords(TaigaGlobals g, TaigaCommons s, BeamProp beam, BeamProfile prof){
+__global__ void generate_coords(TaigaGlobals *g, TaigaCommons *s, BeamProp beam, BeamProfile prof){
 
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -17,7 +17,7 @@ __global__ void generate_coords(TaigaGlobals g, TaigaCommons s, BeamProp beam, B
     double Vabs, ionisation_yeald, xsec_rad, xsec_ang;
     double XR, XZ, XT;
     
-    Vabs = sqrt(2*beam.energy*1000*s.eperm);
+    Vabs = sqrt(2*beam.energy*1000*s->eperm);
     
     // cross section normalisation 
     /*if (prof.cross_section.N > 0){
@@ -34,14 +34,14 @@ __global__ void generate_coords(TaigaGlobals g, TaigaCommons s, BeamProp beam, B
     do{
         ionisation_yeald = curand_uniform_double(&state);
         XR = device_linear_interpolate(prof.radial.profile, prof.radial.N, prof.radial.grid, prof.radial.N, ionisation_yeald);
-        g.coords[0][idx] = XR;
+        g->rad[idx] = XR;
     }while (isnan(XR)||XR<0);
     do{
         //if (prof.cross_section.N <= 0){
             XZ = (curand_uniform_double(&state)-0.5)*beam.diameter;
             XT = (curand_uniform_double(&state)-0.5)*beam.diameter;
-            g.coords[1][idx] = XZ;
-            g.coords[2][idx] = XT;
+            g->z[idx] = XZ;
+            g->tor[idx] = XT;
         //}else{
          //#   ionisation_yeald = curand_uniform_double(&state);
          //   xsec_ang = curand_uniform_double(&state)*2*PI;
@@ -53,11 +53,11 @@ __global__ void generate_coords(TaigaGlobals g, TaigaCommons s, BeamProp beam, B
     
     
     // deflection 
-    g.coords[1][idx] += tan(beam.vertical_deflection) * ($R_defl - XR);
-    g.coords[2][idx] += tan(beam.toroidal_deflection) * ($R_defl - XR);
+    g->z[idx] += tan(beam.vertical_deflection) * ($R_defl - XR);
+    g->tor[idx] += tan(beam.toroidal_deflection) * ($R_defl - XR);
     
     // set velocity of particles
-    g.coords[3][idx] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
-    g.coords[4][idx] =  Vabs*sin(beam.vertical_deflection);
-    g.coords[5][idx] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
+    g->vrad[idx] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
+    g->vz[idx] =  Vabs*sin(beam.vertical_deflection);
+    g->vtor[idx] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
 }
