@@ -3,11 +3,11 @@ __device__ __forceinline__ double calculate_detector_x(double particle_tor, doub
 }
 
 __device__ __forceinline__ double calculate_detector_y(double particle_z, double detector_z, double tan_alpha){
-    return (detector_z - particle_z)/tan_alpha*1000.0; //in mm
+    return (particle_z - detector_z)/tan_alpha*1000.0; //in mm
 }
 
-__device__ int get_cell_array_index(double value, double *array, int array_length){
-    for (int i=0; i<(array_length); ++i) {
+__device__ int get_cell_array_index(double value, double *array, int cell_number){
+    for (int i=0; i<(cell_number); ++i) {
         if ((value >= array[2*i]) & (value <= array[2*i+1]))    return i;
     }
     return UNDETECTED;
@@ -34,8 +34,7 @@ __global__ void detector_postproc(TaigaGlobals *global, TaigaCommons *common, De
         }
         
         if ((x_cellid >= 0) & (y_cellid >= 0)) {
-            global->detcellid[idx] = x_cellid * detector->length_ygrid + detector->length_ygrid-1 - y_cellid + 1;
+            global->detcellid[idx] = x_cellid * detector->length_ygrid + y_cellid + 1;
         }
-        //global->detcellid[idx] = detector->xgrid[1];
     }
 }
