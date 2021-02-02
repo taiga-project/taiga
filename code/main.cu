@@ -1,8 +1,7 @@
-// TAIGA default parameters
+
+
 
 #define $R_defl 2.3                 //! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
-
-
 #define SERVICE_VAR_LENGTH 10
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
@@ -266,42 +265,6 @@ int main(int argc, char *argv[]){
         }
         
         printf("\nData folder: %s/%s\n\n", run.folder_out, run.runnumber);
-        
-        //! Free CUDA
-        /*for (int i=0; i<6; ++i){
-            cudaFree(host_global.coords[i]);
-        }
-        cudaFree(host_global.coords);
-        cudaFree(device_common.spline_grid[0]);
-        cudaFree(device_common.spline_grid[1]);
-        cudaFree(device_common.spline_grid);
-
-        for (int i=0; i<3; ++i){
-            cudaFree(host_common.espline[i]);
-            cudaFree(host_common.bspline[i]);
-        }
-        cudaFree(host_common.espline);
-        cudaFree(host_common.bspline);
-        
-
-        //! Free RAM    
-        free(device_common.spline_grid[0]);
-        free(device_common.spline_grid[1]);
-        free(device_common.spline_grid);
-
-        for (int i=0; i<3; ++i){
-            free(host_common.espline[i]);
-            free(host_common.bspline[i]);
-        }
-        free(host_common.espline);
-        free(host_common.bspline);
-        if (!FASTMODE){
-            for (int i=0; i<6; ++i){
-                free(host_global.coords[i]);
-            }
-            free(host_global.coords);
-        }*/
-        
         
         //! FREE host_service_array variables (RAM, cuda)
         free(host_service_array);  cudaFree(device_service_array);
