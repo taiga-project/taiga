@@ -2,6 +2,8 @@
 #define PROP_H
 
 #define UNDEFINED_FLOAT -1e99
+#define UNDETECTED -1
+#define DETECTED 0
 
 struct TaigaGlobals{
 //    double **coords;

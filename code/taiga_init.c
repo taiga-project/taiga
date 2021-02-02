@@ -71,7 +71,7 @@ void init_coords(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_host
         load_beam(g_host, beam, shot, run);
         
         for (int i=0; i<run.block_size * run.block_number; ++i){
-            g_host->detcellid[i] = -1;
+            g_host->detcellid[i] = UNDETECTED;
         }
         
         memcpy(g_shared, g_host, size_globals);

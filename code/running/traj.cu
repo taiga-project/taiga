@@ -150,7 +150,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     }
     
     if (finished){
-        detcellid = 0;
+        detcellid = DETECTED;
     }
     
     return detcellid;
