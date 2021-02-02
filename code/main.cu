@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
         print_help_message();
     }else if (run.help == 2){
         set_cuda(1);
-    }else{        
+    }else{
         parameter_reader(&beam, &shot, &run);
         runnumber_reader(&shot, &run);
         
@@ -222,13 +222,13 @@ int main(int argc, char *argv[]){
             if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
             // UNSOLVED: if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global->rad, host_global->z, host_global->tor, host_global->vrad, host_global->vz, host_global->vtor);
         }
+        
         // Get CUDA timer 
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
         if (!FASTMODE) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
         run.cuda_time_copy = (double) (1.0+run.step_host)*cuda_event_copy/1000.0;
         run.cuda_time_core =  run.step_host*cuda_event_core/1000.0;
-        
         printf("===============================\n");
         printf ("CUDA kernel runtime: %lf s\n", run.cuda_time_core);
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
@@ -246,18 +246,14 @@ int main(int argc, char *argv[]){
             printf("\nSuccessful run. \n\n");
         }
         
-        
         detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
-        
-        
         detector_sum <<<1,1>>> (device_global, device_common, device_detector);
-        
         export_detector(shared_detector, device_detector, shared_global, shot, run);
-        
-        if (run.debug == 1)    debug_service_vars(host_service_array);
         
         //! CUDA profiler STOP
         cudaProfilerStop();
+        
+        if (run.debug == 1)    debug_service_vars(host_service_array);
         
         fill_header_file(host_common, beam, shot, run);
         

@@ -12,11 +12,6 @@ void export_detector(DetectorProp* shared_detector, DetectorProp *device_detecto
         cudaMemcpy(host_counter, shared_detector->counter, size_counter, cudaMemcpyDeviceToHost);
         export_data(host_counter, shared_detector->number_of_detector_cells, run.folder_out, run.runnumber, "detector", "cellcounter.dat", shared_detector->length_ygrid);
         
-        /*printf("number of cells:%d\n",shared_detector->number_of_detector_cells);
-        for(int i=0; i<shared_detector->number_of_detector_cells; ++i){
-            printf("%2d. %d\n",i, shared_detector->counter[i]);
-        }*/
-        
         if (!FASTMODE){
             size_t size_detcellid = run.block_size * run.block_number * sizeof(int);
             int* host_detcellid =(int*)malloc(size_detcellid);
@@ -28,5 +23,4 @@ void export_detector(DetectorProp* shared_detector, DetectorProp *device_detecto
     CopyFile(concat("input/detector/", shot.detector_mask, "/detx"), concat(run.folder_out,"/",run.runnumber,"/detector/detx"));
     
     CopyFile(concat("input/detector/", shot.detector_mask, "/dety"), concat(run.folder_out,"/",run.runnumber,"/detector/dety"));
-        
 }
