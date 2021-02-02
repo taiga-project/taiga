@@ -53,8 +53,8 @@ __global__ void generate_coords(TaigaGlobals *g, TaigaCommons *s, BeamProp beam,
     
     
     // deflection 
-    g->z[idx] += tan(beam.vertical_deflection) * ($R_defl - XR);
-    g->tor[idx] += tan(beam.toroidal_deflection) * ($R_defl - XR);
+    g->z[idx] += tan(beam.vertical_deflection) * (beam.deflection_coordinate - XR);
+    g->tor[idx] += tan(beam.toroidal_deflection) * (beam.deflection_coordinate - XR);
     
     // set velocity of particles
     g->vrad[idx] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);

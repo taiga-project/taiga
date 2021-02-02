@@ -107,9 +107,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     
     double  X_prev[6];
     
-    int finished = detcellid + 1;
-    
-    for (int loopi=0; (loopi<c->max_step_number && (!finished)); ++loopi){
+    for (int loopi=0; (loopi<c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
         // Get local magnetic field
         
         R = cyl2tor_coord(X[0], X[2]);
@@ -146,11 +144,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
             solve_diffeq(X, local_brad, local_bz, local_btor, eperm, timestep);
         }
         
-        finished = calculate_detection_position(X, X_prev, c->detector_geometry);
-    }
-    
-    if (finished){
-        detcellid = DETECTED;
+        detcellid = calculate_detection_position(X, X_prev, c->detector_geometry);
     }
     
     return detcellid;

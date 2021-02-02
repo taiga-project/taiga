@@ -71,7 +71,7 @@ void init_coords(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_host
         load_beam(g_host, beam, shot, run);
         
         for (int i=0; i<run.block_size * run.block_number; ++i){
-            g_host->detcellid[i] = UNDETECTED;
+            g_host->detcellid[i] = CALCULATION_NOT_FINISHED;
         }
         
         memcpy(g_shared, g_host, size_globals);
@@ -190,9 +190,9 @@ void set_detector_geometry(ShotProp shot, TaigaCommons *host_common, TaigaCommon
     tokaniser = strtok(NULL,",");
         host_common->detector_geometry[2] = strtod (tokaniser, NULL);
     tokaniser = strtok(NULL,",");
-        host_common->detector_geometry[3] = tan(strtod (tokaniser, NULL) * PI/180.0);
+        host_common->detector_geometry[3] = (strtod (tokaniser, NULL) * PI/180.0);
     tokaniser = strtok(NULL,",");
-        host_common->detector_geometry[4] = tan(strtod (tokaniser, NULL) * PI/180.0);
+        host_common->detector_geometry[4] = (strtod (tokaniser, NULL) * PI/180.0);
     
     cudaMalloc((void **) &shared_detector_geometry, size_detector);
     cudaMemcpy(shared_detector_geometry, host_common->detector_geometry, size_detector, cudaMemcpyHostToDevice);

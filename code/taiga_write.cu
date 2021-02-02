@@ -49,8 +49,8 @@ void fill_header_file(TaigaCommons *common, BeamProp beam, ShotProp shot, RunPro
     export_header("Detector position (R)", "m", common->detector_geometry[0], run.folder_out, run.runnumber);
     export_header("Detector position (Z)", "m", common->detector_geometry[1], run.folder_out, run.runnumber);
     export_header("Detector position (T)", "m", common->detector_geometry[2], run.folder_out, run.runnumber);
-    export_header("Detector angle (Z/R)", "°", atan(common->detector_geometry[3])*180.0/PI, run.folder_out, run.runnumber);
-    export_header("Detector angle (T/R)", "°", atan(common->detector_geometry[4])*180.0/PI, run.folder_out, run.runnumber);
+    export_header("Detector angle (Z/R)", "°", (common->detector_geometry[3])*180.0/PI, run.folder_out, run.runnumber);
+    export_header("Detector angle (T/R)", "°", (common->detector_geometry[4])*180.0/PI, run.folder_out, run.runnumber);
     export_header(concat("Detector mask:  \t", shot.detector_mask), run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
     export_header("Timestep", "s", run.timestep, run.folder_out, run.runnumber);

@@ -2,8 +2,9 @@
 #define PROP_H
 
 #define UNDEFINED_FLOAT -1e99
-#define UNDETECTED -1
-#define DETECTED 0
+#define CALCULATION_NOT_FINISHED -1
+#define CALCULATION_FINISHED 0
+#define OUT_OF_RANGE -1
 
 struct TaigaGlobals{
 //    double **coords;
@@ -38,7 +39,8 @@ struct BeamProp{
     double energy;              // in keV
     double diameter;            // in meter
     double toroidal_deflection; // in radian
-    double vertical_deflection; // in radian    
+    double vertical_deflection; // in radian
+    double deflection_coordinate;// radial position of deflection plates in meter
 };
 
 void init_beam_prop(BeamProp *beam){
@@ -48,6 +50,7 @@ void init_beam_prop(BeamProp *beam){
     beam->diameter = 0.025;
     beam->toroidal_deflection = 0;
     beam->vertical_deflection = 0;
+    beam->deflection_coordinate = 2.3;
 }
 
 struct ShotProp{

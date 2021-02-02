@@ -198,13 +198,13 @@ __global__ void test_detector_full_cuda(DetectorProp *d, double *tmp){
     tmp[0] = d->counter[0];
     tmp[1] = d->counter[1];
     tmp[2] = d->counter[2];
-    tmp[3] = d->counter[3];
-    tmp[4] = d->counter[4];
-    tmp[5] = d->counter[5];
-    tmp[6] = d->counter[6];
-    tmp[7] = d->counter[7];
-    tmp[8] = d->counter[8];
-    tmp[9] = d->counter[9];
+    tmp[3] = d->counter[9];
+    tmp[4] = d->counter[10];
+    tmp[5] = d->counter[11];
+    tmp[6] = d->counter[12];
+    tmp[7] = d->counter[13];
+    tmp[8] = d->counter[14];
+    tmp[9] = d->counter[15];
 }
 
 void test_init_detector_full(){
@@ -226,7 +226,7 @@ void test_init_detector_full(){
     cudaMalloc((void **) &device_common, dim_commons);
     
     strcpy(shot.name, "17178_1097");
-    strcpy(shot.detector_geometry, "0.7, 0.2, 0, 1, 0");
+    strcpy(shot.detector_geometry, "0.7, 0.2, 0, 0, 0");
     run.block_number = 20;
     run.block_size = 20;
     
@@ -309,7 +309,7 @@ void test_init_detector_full(){
     cudaMemcpy(device_common, shared_common, sizeof(TaigaCommons), cudaMemcpyHostToDevice);
     
     detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
-    detector_sum <<<1,1>>> (device_global, device_common, device_detector);
+//    detector_sum <<<1,1>>> (device_global, device_common, device_detector);
     
     
     double *h_tmp, *d_tmp;
@@ -319,18 +319,21 @@ void test_init_detector_full(){
     cudaMalloc((void **) &(d_tmp), dim_tmp);
     cudaMemcpy(d_tmp, h_tmp, dim_tmp, cudaMemcpyHostToDevice);
     
+    printf("test_detector_detcellid\n");
     test_detector_detcellid <<< 1, 1 >>> (device_global, d_tmp);
     
     cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
     
     print_tmp(h_tmp);
     
+    printf("test_detector_struct\n");
     test_detector_struct <<< 1, 1 >>> (device_common, device_detector, d_tmp);
     
     cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
     
     print_tmp(h_tmp);
     
+    printf("test_detector_full_cuda\n");
     test_detector_full_cuda <<< 1, 1 >>> (device_detector, d_tmp);
     
     cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);

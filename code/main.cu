@@ -1,7 +1,3 @@
-
-
-
-#define $R_defl 2.3                 //! radial position of deflection plates in meter -> TOROIDAL DEFLECTION
 #define SERVICE_VAR_LENGTH 10
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
