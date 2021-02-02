@@ -154,6 +154,6 @@ void export_header(char *text, char *folder, char *runnumber){
     fclose(f);
 }
 
-void export_header_addline(char *folder, char *runnumber){    
+void export_header_addline(char *folder, char *runnumber){
     export_header("-----------------------------------", folder, runnumber);
 }
