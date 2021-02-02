@@ -339,9 +339,57 @@ void test_init_detector_full(){
     
 }
 
+__global__ void test_detector_range_cuda(double *tmp){
+    
+    tmp[7] = is_in_range(tmp[4], tmp[0], tmp[3]);
+    tmp[8] = is_in_range(tmp[5], tmp[0], tmp[3]);
+    tmp[9] = is_in_range(tmp[6], tmp[0], tmp[3]);
+}
+
+__global__ void test_detector_index_cuda(double *tmp){
+    
+    double array[] = {tmp[0], tmp[1], tmp[1], tmp[2], tmp[2], tmp[3]};
+    
+    tmp[7] = get_cell_array_index(tmp[4], array, 3);
+    tmp[8] = get_cell_array_index(tmp[5], array, 3);
+    tmp[9] = get_cell_array_index(tmp[6], array, 3);
+}
+
+void test_detector_conversion(){
+    printf("test_detector_conversion()\n");
+    double *h_tmp, *d_tmp;
+    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
+    h_tmp = (double *) malloc(dim_tmp);
+    init_tmp(h_tmp);
+    
+    h_tmp[0] = 0.20;
+    h_tmp[1] = 0.21;
+    h_tmp[2] = 0.22;
+    h_tmp[3] = 0.23;
+    h_tmp[4] = 0.195;
+    h_tmp[5] = 0.224;
+    h_tmp[6] = 0.242;
+    
+    cudaMalloc((void **) &(d_tmp), dim_tmp);
+    cudaMemcpy(d_tmp, h_tmp, dim_tmp, cudaMemcpyHostToDevice);
+    
+    test_detector_range_cuda <<< 1, 1 >>> (d_tmp);
+    
+    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
+    
+    print_tmp(h_tmp);
+    
+    test_detector_index_cuda <<< 1, 1 >>> (d_tmp);
+    
+    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
+    
+    print_tmp(h_tmp);
+}
+
 int main(){
     test_init_grid();
     test_init_coords();
     test_init_detector();
     test_init_detector_full();
+    test_detector_conversion();
 }
