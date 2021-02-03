@@ -4,7 +4,7 @@
 // set beam inline parameters
 void load_beam(TaigaGlobals *g, BeamProp beam, ShotProp shot, RunProp run){
     int i, prof_size[2];
-    double *prof_r, *prof_d, *profx_r, *profx_d, Vabs, ionisation_yeald, xsec_rad, xsec_ang;
+    double *radial_grid, *radial_profile, *cross_section_grid, *cross_section_profile, speed, ionisation_yeald, xsec_rad, xsec_ang;
     
     char* shotname = concat(shot.shotnumber, "_", shot.time);
     
@@ -12,12 +12,12 @@ void load_beam(TaigaGlobals *g, BeamProp beam, ShotProp shot, RunProp run){
     init_ion_profile(shotname, &prof);
     load_ion_profile(shotname, &prof);
     
-    Vabs = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ beam.mass/ AMU);
+    speed = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ beam.mass/ AMU);
     
     /* cross section normalisation */
     /*if (prof_size[1] > 0){
         for (i=0; i<prof_size[1]; ++i){
-            profx_d[i] /= profx_r[i];
+            cross_section_profile[i] /= cross_section_grid[i];
         }
     }*/
     
@@ -48,64 +48,65 @@ void load_beam(TaigaGlobals *g, BeamProp beam, ShotProp shot, RunProp run){
         g->tor[i] += tan(beam.toroidal_deflection) * (beam.deflection_coordinate - g->rad[i]);
         
         /* set velocity of particles */
-        g->vrad[i] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
-        g->vz[i]   =  Vabs*sin(beam.vertical_deflection);
-        g->vtor[i] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
+        g->vrad[i] = -speed*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
+        g->vz[i]   =  speed*sin(beam.vertical_deflection);
+        g->vtor[i] =  speed*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
     }
+    printf("Renate Particle number %d\n",run.particle_number);
 }
 
 void init_ion_profile(char* shotname, BeamProfile* prof){
-    int prof_r_length = read_vector(&(prof->radial.grid),    "input/ionProf", shotname, "rad.dat");
-    int prof_d_length = read_vector(&(prof->radial.profile), "input/ionProf", shotname, "ionyeald.dat");    
+    int radial_grid_length = read_vector(&(prof->radial.grid),    "input/ionProf", shotname, "rad.dat");
+    int radial_profile_length = read_vector(&(prof->radial.profile), "input/ionProf", shotname, "ionyeald.dat");    
     
-    int profx_r_length = read_vector(&(prof->cross_section.grid),    "input/ionProf", shotname, "xrad.dat", false);
-    int profx_d_length = read_vector(&(prof->cross_section.profile), "input/ionProf", shotname, "xionyeald.dat", false);
+    int cross_section_grid_length = read_vector(&(prof->cross_section.grid),    "input/ionProf", shotname, "xrad.dat", false);
+    int cross_section_profile_length = read_vector(&(prof->cross_section.profile), "input/ionProf", shotname, "xionyeald.dat", false);
     
-    if (prof_r_length <= 1){
-        printf("ERROR: Invalid length of PROF_R!\n");
-        exit(0);
+    if (radial_grid_length <= 1){
+        printf("ERROR: Invalid length of radial_grid!\n");
+        exit(1);
     }
     
-    if (prof_r_length == prof_d_length){
-        prof->radial.N = prof_r_length;
+    if (radial_grid_length == radial_profile_length){
+        prof->radial.N = radial_grid_length;
     }else{
-        printf("ERROR: Length of PROF_R and PROF_D are different!\n");
-        exit(0);
+        printf("ERROR: Length of radial_grid and radial_profile are different!\n");
+        exit(1);
     }
 
-    if (profx_r_length == profx_d_length){
-        if (profx_r_length <= 1){
+    if (cross_section_grid_length == cross_section_profile_length){
+        if (cross_section_grid_length <= 1){
             printf("Cross section beam profile: OFF\n");            
             prof->cross_section.N = 0;
         }else{
             printf("Cross section beam profile: ON\n");
-            prof->cross_section.N = profx_r_length;
+            prof->cross_section.N = cross_section_grid_length;
         }
     }else{
-        printf("WARNING: Length of PROFX_R and PROFX_D are different!\nCross section beam profile: OFF\n");
+        printf("WARNING: Length of cross_section_grid and cross_section_profile are different!\nCross section beam profile: OFF\n");
         prof->cross_section.N = 0;
     }    
 }
 
 void load_ion_profile(char* shotname, BeamProfile* prof){
 
-    double *local_prof_r, *local_prof_d, *local_profx_r, *local_profx_d;
+    double *local_radial_grid, *local_radial_profile, *local_cross_section_grid, *local_cross_section_profile;
     int i;
 
-    read_vector(&local_prof_r, "input/ionProf", shotname, "rad.dat");
-    read_vector(&local_prof_d, "input/ionProf", shotname, "ionyeald.dat");
+    read_vector(&local_radial_grid, "input/ionProf", shotname, "rad.dat");
+    read_vector(&local_radial_profile, "input/ionProf", shotname, "ionyeald.dat");
     for (i=0; i<prof->radial.N; ++i){
-        prof->radial.grid[i]    = local_prof_r[i];
-        prof->radial.profile[i] = local_prof_d[i];
+        prof->radial.grid[i]    = local_radial_grid[i];
+        prof->radial.profile[i] = local_radial_profile[i];
     }
     
     if (prof->cross_section.N > 1){
-        read_vector(&local_profx_r, "input/ionProf", shotname, "xrad.dat", false);
-        read_vector(&local_profx_d, "input/ionProf", shotname, "xionyeald.dat", false);
+        read_vector(&local_cross_section_grid, "input/ionProf", shotname, "xrad.dat", false);
+        read_vector(&local_cross_section_profile, "input/ionProf", shotname, "xionyeald.dat", false);
         
         for (i=0; i<prof->cross_section.N; ++i){
-            prof->cross_section.grid[i]    = local_profx_r[i];
-            prof->cross_section.profile[i] = local_profx_d[i];
+            prof->cross_section.grid[i]    = local_cross_section_grid[i];
+            prof->cross_section.profile[i] = local_cross_section_profile[i];
         }
     }
 }

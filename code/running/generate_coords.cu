@@ -8,16 +8,16 @@ __device__ double device_linear_interpolate(double *x_vector, int x_length, doub
 
 /*(double beam.diameter, double beam.energy, double beam.vertical_deflection, double beam.toroidal_deflection,
                                 double **position_all, double **speed_all, double eperm, int *prof_size, double *prof.radial.grid, double *prof.radial.profile, double *prof.cross_section.grid, double *prof.cross_section.profile)*/
-__global__ void generate_coords(TaigaGlobals *g, TaigaCommons *s, BeamProp beam, BeamProfile prof){
+__global__ void generate_coords(TaigaGlobals *globals, BeamProp beam, BeamProfile prof){
 
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     
     int i;
-    double Vabs, ionisation_yeald, xsec_rad, xsec_ang;
+    double speed, ionisation_yeald/*, xsec_rad, xsec_ang*/;
     double XR, XZ, XT;
     
-    Vabs = sqrt(2*beam.energy*1000*s->eperm);
+    speed = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ AMU/ beam.mass);
     
     // cross section normalisation 
     /*if (prof.cross_section.N > 0){
@@ -34,14 +34,14 @@ __global__ void generate_coords(TaigaGlobals *g, TaigaCommons *s, BeamProp beam,
     do{
         ionisation_yeald = curand_uniform_double(&state);
         XR = device_linear_interpolate(prof.radial.profile, prof.radial.N, prof.radial.grid, prof.radial.N, ionisation_yeald);
-        g->rad[idx] = XR;
+        globals->rad[idx] = XR;
     }while (isnan(XR)||XR<0);
     do{
         //if (prof.cross_section.N <= 0){
             XZ = (curand_uniform_double(&state)-0.5)*beam.diameter;
             XT = (curand_uniform_double(&state)-0.5)*beam.diameter;
-            g->z[idx] = XZ;
-            g->tor[idx] = XT;
+            globals->z[idx] = XZ;
+            globals->tor[idx] = XT;
         //}else{
          //#   ionisation_yeald = curand_uniform_double(&state);
          //   xsec_ang = curand_uniform_double(&state)*2*PI;
@@ -51,13 +51,13 @@ __global__ void generate_coords(TaigaGlobals *g, TaigaCommons *s, BeamProp beam,
         //}
     }while ((XZ*XZ+XT*XT)>=(beam.diameter/2)*(beam.diameter/2));
     
-    
     // deflection 
-    g->z[idx] += tan(beam.vertical_deflection) * (beam.deflection_coordinate - XR);
-    g->tor[idx] += tan(beam.toroidal_deflection) * (beam.deflection_coordinate - XR);
+    globals->z[idx] += tan(beam.vertical_deflection) * (beam.deflection_coordinate - XR);
+    globals->tor[idx] += tan(beam.toroidal_deflection) * (beam.deflection_coordinate - XR);
     
     // set velocity of particles
-    g->vrad[idx] = -Vabs*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
-    g->vz[idx] =  Vabs*sin(beam.vertical_deflection);
-    g->vtor[idx] =  Vabs*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
+    globals->vrad[idx] = -speed*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);
+    globals->vz[idx] =  speed*sin(beam.vertical_deflection);
+    globals->vtor[idx] =  speed*cos(beam.vertical_deflection)*sin(beam.toroidal_deflection);
+    globals->detcellid[idx] = CALCULATION_NOT_FINISHED;
 }

@@ -11,12 +11,12 @@ void print_run_details(TaigaGlobals *host_global, TaigaCommons *host_common, Sho
     printf("  R:\t%lf\n", host_common->detector_geometry[0]);
     printf("  Z:\t%lf\n", host_common->detector_geometry[1]);
     printf("  T:\t%lf\n", host_common->detector_geometry[2]);
-    printf("  angle (Z/R):\t%lf°\n", atan(host_common->detector_geometry[3])/PI*180.0);
-    printf("  angle (T/R):\t%lf°\n", atan(host_common->detector_geometry[4])/PI*180.0);
+    printf("  angle (Z/R):\t%lf°\n", (host_common->detector_geometry[3])/PI*180.0);
+    printf("  angle (T/R):\t%lf°\n", (host_common->detector_geometry[4])/PI*180.0);
     printf("===============================\n");
     printf("Number of blocks (threads): %d\n", run.block_number);
     printf("Block size: %d\n", run.block_size);
-    printf("Number of particles: %d\n", host_global->particle_number);
+    printf("Number of particles: %d (%d)\n", run.particle_number, host_global->particle_number);
     printf("Max steps on device (GPU): %d\n", run.step_device);
     printf("Max steps on host (HDD): %d\n", run.step_host);
     printf("===============================\n");
@@ -66,23 +66,23 @@ void fill_header_file(TaigaCommons *common, BeamProp beam, ShotProp shot, RunPro
 }
 
 void save_trajectories(TaigaGlobals *host_global, RunProp run){
-    export_data(host_global->rad,  host_global->particle_number, run.folder_out, run.runnumber, "t_rad.dat");
-    export_data(host_global->z,    host_global->particle_number, run.folder_out, run.runnumber, "t_z.dat");
-    export_data(host_global->tor,  host_global->particle_number, run.folder_out, run.runnumber, "t_tor.dat");
-    export_data(host_global->vrad, host_global->particle_number, run.folder_out, run.runnumber, "t_vrad.dat");
-    export_data(host_global->vz,   host_global->particle_number, run.folder_out, run.runnumber, "t_vz.dat");
-    export_data(host_global->vtor, host_global->particle_number, run.folder_out, run.runnumber, "t_vtor.dat");
+    export_data(host_global->rad,  run.particle_number, run.folder_out, run.runnumber, "t_rad.dat");
+    export_data(host_global->z,    run.particle_number, run.folder_out, run.runnumber, "t_z.dat");
+    export_data(host_global->tor,  run.particle_number, run.folder_out, run.runnumber, "t_tor.dat");
+    export_data(host_global->vrad, run.particle_number, run.folder_out, run.runnumber, "t_vrad.dat");
+    export_data(host_global->vz,   run.particle_number, run.folder_out, run.runnumber, "t_vz.dat");
+    export_data(host_global->vtor, run.particle_number, run.folder_out, run.runnumber, "t_vtor.dat");
 }
 
 void save_endpoints(TaigaGlobals *host_global, RunProp run){
-    export_data(host_global->rad,  host_global->particle_number, run.folder_out, run.runnumber, "rad.dat");
-    export_data(host_global->z,    host_global->particle_number, run.folder_out, run.runnumber, "z.dat");
-    export_data(host_global->tor,  host_global->particle_number, run.folder_out, run.runnumber, "tor.dat");
-    export_data(host_global->vrad, host_global->particle_number, run.folder_out, run.runnumber, "vrad.dat");
-    export_data(host_global->vz,   host_global->particle_number, run.folder_out, run.runnumber, "vz.dat");
-    export_data(host_global->vtor, host_global->particle_number, run.folder_out, run.runnumber, "vtor.dat");
+    export_data(host_global->rad,  run.particle_number, run.folder_out, run.runnumber, "rad.dat");
+    export_data(host_global->z,    run.particle_number, run.folder_out, run.runnumber, "z.dat");
+    export_data(host_global->tor,  run.particle_number, run.folder_out, run.runnumber, "tor.dat");
+    export_data(host_global->vrad, run.particle_number, run.folder_out, run.runnumber, "vrad.dat");
+    export_data(host_global->vz,   run.particle_number, run.folder_out, run.runnumber, "vz.dat");
+    export_data(host_global->vtor, run.particle_number, run.folder_out, run.runnumber, "vtor.dat");
     
-    export_table(run.folder_out, run.runnumber, "coords.dat", host_global->particle_number,
+    export_table(run.folder_out, run.runnumber, "coords.dat", run.particle_number,
         host_global->rad, "R [m]",      host_global->z, "Z [m]",      host_global->tor, "T [m]", 
         host_global->vrad, "v_R [m/s]", host_global->vz, "v_Z [m/s]", host_global->vtor, "v_T [m/s]");
 }

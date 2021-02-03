@@ -103,7 +103,7 @@ void init_coords(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_host
         BeamProfile dev_beam_prof;
         init_beam_profile(&dev_beam_prof, shot);
         printf("i84 \n");//# 
-        //generate_coords <<< run.block_number, run.block_size >>> (*g, *s, beam, dev_beam_prof);
+        generate_coords <<< run.block_number, run.block_size >>> (g_shared, beam, dev_beam_prof);
     }
 }
 

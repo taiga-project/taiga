@@ -14,8 +14,7 @@ ifndef TAIGA_BUILD
 endif
 $(info Build directory: $(TAIGA_BUILD) )
 
-all: taiga.exe 
-#taiga_renate.exe taiga_renate_fast.exe
+all: taiga.exe taiga_renate.exe taiga_renate_fast.exe
 
 taiga.exe: main.cu
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga.exe main.cu

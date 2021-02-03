@@ -25,7 +25,7 @@ inline void cErrorCheck(const char *file, int line){
     if (err != cudaSuccess){
         printf("Error: %s\n", cudaGetErrorString(err));
         printf(" @ %s: %d\n", file, line);
-        exit(-1);
+        exit(1);
     }
 }
 
