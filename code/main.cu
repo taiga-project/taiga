@@ -186,7 +186,7 @@ int main(int argc, char *argv[]){
         cudaEventCreate(&cuda_event_copy_start);
         cudaEventCreate(&cuda_event_copy_end);
         
-        if (run.debug == 1 && !FASTMODE)   debug_message_init(host_global->rad, host_global->z, host_global->tor, host_global->vrad, host_global->vz, host_global->vtor);
+        if (run.debug == 1 && !FASTMODE)   debug_message_init(host_global);
         
         size_t dimX = host_global->particle_number*sizeof(double);
         
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]){
             }
             
             if (run.debug == 1)    printf("Step\t%ld/%ld\n",step_i,run.step_host);
-            // UNSOLVED: if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global->rad, host_global->z, host_global->tor, host_global->vrad, host_global->vz, host_global->vtor);
+            if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global);
         }
         
         // Get CUDA timer 
