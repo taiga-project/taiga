@@ -24,8 +24,6 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
     
     /* initialize random generator */
     srand ( time(NULL) );
-    printf("r25\n");
-    printf("r26 %d\n", prof->radial_length);
     for (i=0; i<run->particle_number; ++i){
         /* set position of particles */
         do{
@@ -54,17 +52,16 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
         g->vz[i]   =  speed*sin(beam->vertical_deflection);
         g->vtor[i] =  speed*cos(beam->vertical_deflection)*sin(beam->toroidal_deflection);
     }
-    printf("Renate Particle number %d\n",run->particle_number);
 }
 
 void init_ion_profile(char* shotname, BeamProfile *prof){
     prof->radial_length = 0;
     prof->cross_length = 0;
     
-    int radial_grid_length = read_vector(&prof->radial_grid, "input/ionProf", shotname, "rad.dat");
-    int radial_profile_length = read_vector(&prof->radial_profile, "input/ionProf", shotname, "ionyeald.dat");
-    int cross_section_grid_length = read_vector(&prof->cross_grid, "input/ionProf", shotname, "xrad.dat", false);
-    int cross_section_profile_length = read_vector(&prof->cross_profile, "input/ionProf", shotname, "xionyeald.dat", false);
+    long radial_grid_length = read_vector(&prof->radial_grid, "input/ionProf", shotname, "rad.dat");
+    long radial_profile_length = read_vector(&prof->radial_profile, "input/ionProf", shotname, "ionyeald.dat");
+    long cross_section_grid_length = read_vector(&prof->cross_grid, "input/ionProf", shotname, "xrad.dat", false);
+    long cross_section_profile_length = read_vector(&prof->cross_profile, "input/ionProf", shotname, "xionyeald.dat", false);
     
     if (radial_grid_length <= 1){
         printf("ERROR: Invalid length of radial_grid!\n");

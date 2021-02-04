@@ -9,7 +9,7 @@
 void export_table(char *folder, char *runnumber, char *filename, int Ndat, 
                   double *dat1, char *head1, double *dat2, char *head2, double *dat3, char *head3, double *dat4, char *head4, double *dat5, char *head5, double *dat6, char *head6 ){
     
-    char path[100];
+    char path[STRING_LENGTH];
     mkdir(folder, 0777);
     mkdir(concat(folder,"/",runnumber), 0777);
     strcpy(path,concat(folder,"/",runnumber,"/",filename));
@@ -29,7 +29,7 @@ void export_table(char *folder, char *runnumber, char *filename, int Ndat,
 }
 
 void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
-    char path[100];
+    char path[STRING_LENGTH];
     init_dir(folder, runnumber, subdir);
     strcpy(path,concat(folder,"/",runnumber,"/",subdir,"/",filename));
     
@@ -61,7 +61,7 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *sub
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
-    char path[100];
+    char path[STRING_LENGTH];
     init_dir(folder, runnumber, subdir);
     strcpy(path,concat(folder,"/",runnumber,"/",subdir,"/",filename));
     
@@ -93,8 +93,41 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir
     export_data(dat, Ndat, folder, runnumber, subdir, filename, INFINITY);
 }
 
+void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
+    char path[STRING_LENGTH];
+    init_dir(folder, runnumber, subdir);
+    strcpy(path,concat(folder,"/",runnumber,"/",subdir,"/",filename));
+    
+    //! make file (open for editing)
+    FILE *f = fopen(path, "a");
+    if (f == NULL) {
+        printf("\nError opening file!\t\t%s\n",path);
+        exit(1);
+    }
+    
+    //! write data
+    for (int i=0; i<Ndat; ++i){
+        fprintf(f,"%ld\t",dat[i]);
+        if ((i+1)%dat_per_line == 0)    fprintf(f,"\n");
+    }
+    fprintf(f,"\n");
+    fclose(f);
+}
+
+void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *filename){
+    export_data(dat, Ndat, folder, runnumber, "", filename, INFINITY);
+}
+
+void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
+    export_data(dat, Ndat, folder, runnumber, "", filename, dat_per_line);
+}
+
+void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename){
+    export_data(dat, Ndat, folder, runnumber, subdir, filename, INFINITY);
+}
+
 void export_header(char *dataname, char *unitname, double dat, char *folder, char *runnumber){
-    char path[100];
+    char path[STRING_LENGTH];
     init_dir(folder, runnumber, "");
     strcpy(path,concat(folder,"/",runnumber,"/header.dat"));
     
@@ -114,7 +147,7 @@ void export_header(char *dataname, char *unitname, double dat, char *folder, cha
 }
 
 void export_header(char *dataname, char *unitname, double dat, double dat2, char *folder, char *runnumber){
-    char path[100];
+    char path[STRING_LENGTH];
     mkdir(folder, 0777);
     mkdir(concat(folder,"/",runnumber), 0777);
     strcpy(path,concat(folder,"/",runnumber,"/header.dat"));
@@ -136,7 +169,7 @@ void export_header(char *dataname, char *unitname, double dat, double dat2, char
 }
 
 void export_header(char *text, char *folder, char *runnumber){
-    char path[100];
+    char path[STRING_LENGTH];
     mkdir(folder, 0777);
     mkdir(concat(folder,"/",runnumber), 0777);
     strcpy(path,concat(folder,"/",runnumber,"/header.dat"));

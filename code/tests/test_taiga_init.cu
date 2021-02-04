@@ -7,6 +7,7 @@
 //#include <stdbool.h>
 //#include <curand_kernel.h>
 #include "../basic_functions.h"
+#include "../taiga_constants.h"
 #include "../prop.h"
 #include "../taiga_constants.h"
 #include "../running/generate_coords.cu"
@@ -134,7 +135,7 @@ void test_init_coords(){
     
     print_tmp(h_tmp);
     
-    printf("Number of ions: %d\n", host_global->particle_number);
+    printf("Number of ions: %ld\n", host_global->particle_number);
     
     printf("1st:  [%lf, %lf, %lf]\n", host_global->rad[0], host_global->z[0], host_global->tor[0]);
     printf("2nd:  [%lf, %lf, %lf]\n", host_global->rad[1], host_global->z[1], host_global->tor[1]);

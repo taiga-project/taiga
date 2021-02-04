@@ -1,40 +1,33 @@
 #ifndef PROP_H
 #define PROP_H
 
-#define UNDEFINED_FLOAT -1e99
-#define CALCULATION_NOT_FINISHED -1
-#define CALCULATION_FINISHED 0
-#define OUT_OF_RANGE -1
-
 struct TaigaGlobals{
-//    double **coords;
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
-    int particle_number;
+    long particle_number;
 };
 
 struct TaigaLocals{
     double coords[6];
-//    int step_counter;
     int detcellid;
 };
 
 struct TaigaCommons{
-    int max_step_number;        // N_step
-    int step_counter;
+    long max_step_number;        // N_step
+    long step_counter;
     double eperm;
     double timestep;
     int *grid_size; 
     double *spline_rgrid;
     double *spline_zgrid;
     double **brad, **bz, **btor;
-    int electric_field_on;
+    bool is_electric_field_on;
     double **erad, **ez, **etor;
     double *detector_geometry;
 };
 
 struct BeamProp{
-    char matter[40];
+    char matter[STRING_LENGTH];
     double mass;                // in amu
     double energy;              // in keV
     double diameter;            // in meter
@@ -46,20 +39,18 @@ struct BeamProp{
 void init_beam_prop(BeamProp *beam){
     strcpy(beam->matter, "Li");
     beam->mass =  7.016004558;
-//    beam->energy = 60;
-//    beam->diameter = 0.025;
     beam->toroidal_deflection = 0;
     beam->vertical_deflection = 0;
     beam->deflection_coordinate = 2.3;
 }
 
 struct ShotProp{
-    char name[100];
-    char shotnumber[40];
-    char time[40];
-    char detector_mask[40];
-    char detector_geometry[100];
-    int electric_field_on;
+    char name[STRING_LENGTH];
+    char shotnumber[STRING_LENGTH];
+    char time[STRING_LENGTH];
+    char detector_mask[STRING_LENGTH];
+    char detector_geometry[STRING_LENGTH];
+    bool is_electric_field_on;
 };
 
 void init_shot_prop(ShotProp *shot){
@@ -68,25 +59,25 @@ void init_shot_prop(ShotProp *shot){
     strcpy(shot->time, "1000");
     strcpy(shot->detector_mask, "test");
     strcpy(shot->detector_geometry, "0.685,0.23,0,38,0");
-    shot->electric_field_on = 0;
+    shot->is_electric_field_on = false;
 };
 
 struct RunProp{
     int debug;
     int help;
-    int particle_number;
+    long particle_number;
     int block_number;
     int block_size;         //size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
-    int step_host;          // on HDD
-    int step_device;        // on GPU
+    long step_host;          // on HDD
+    long step_device;        // on GPU
     double timestep;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
-    char runnumber[10];
-    char parameter_file[200];
-    char runnumber_file[200];
-    char ion_source_file[200];
-    char io_coordinate_order[200];
-    char folder_out[200];
+    char runnumber[STRING_LENGTH];
+    char parameter_file[STRING_LENGTH];
+    char runnumber_file[STRING_LENGTH];
+    char ion_source_file[STRING_LENGTH];
+    char io_coordinate_order[STRING_LENGTH];
+    char folder_out[STRING_LENGTH];
 };
 
 void init_run_prop(RunProp *run){
@@ -120,11 +111,10 @@ struct DetectorProp{
 };
 
 struct BeamProfile{
-    int radial_length;
+    long radial_length;
     double *radial_grid;
     double *radial_profile;
-    
-    int cross_length;
+    long cross_length;
     double *cross_grid;
     double *cross_profile;
 };

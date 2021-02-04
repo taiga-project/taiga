@@ -71,8 +71,8 @@ int main(){
     
     print_tmp(h_tmp);
     
-    printf("TEST: Particle number (10): %d\n", h_global->particle_number);
-    printf("TEST: Particle number (20): %d\n", h2_global->particle_number);
+    printf("TEST: Particle number (10): %ld\n", h_global->particle_number);
+    printf("TEST: Particle number (20): %ld\n", h2_global->particle_number);
     printf("TEST: Detcellid[%d] (42): %d\n", DETCELLID_INDEX, h_global->detcellid[DETCELLID_INDEX]);
     printf("TEST: Detcellid[%d] (24): %d\n", DETCELLID_INDEX, h2_global->detcellid[DETCELLID_INDEX]);
     

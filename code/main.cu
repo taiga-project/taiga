@@ -151,7 +151,7 @@ int main(int argc, char *argv[]){
         //! grid
         init_grid(shot, run, host_common, shared_common);
         magnetic_field_read_and_init(shot, run, host_common, shared_common);
-        if (shot.electric_field_on) shot.electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
+        if (shot.is_electric_field_on) shot.is_electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
         
         // detector
         set_detector_geometry(shot, host_common, shared_common);
@@ -194,7 +194,7 @@ int main(int argc, char *argv[]){
         sync_device_structs(device_global, shared_global, device_common, shared_common);
         if (FASTMODE)   init_fastmode(beam, shot, run, device_global);
         
-        for (int step_i=0; step_i<run.step_host; ++step_i){
+        for (long step_i=0; step_i<run.step_host; ++step_i){
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
             
             taiga <<< run.block_number, run.block_size >>> (device_global, device_common, device_service_array);
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]){
                 cpu_event_copy_end = clock();
             }
             
-            if (run.debug == 1)    printf("Step\t%d/%d\n",step_i,run.step_host);
+            if (run.debug == 1)    printf("Step\t%ld/%ld\n",step_i,run.step_host);
             // UNSOLVED: if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global->rad, host_global->z, host_global->tor, host_global->vrad, host_global->vz, host_global->vtor);
         }
         

@@ -100,14 +100,14 @@ int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     double *ET_PTR[16]; double **et_ptr;    cudaMalloc((void **) &et_ptr,  dimB);
     double *EZ_PTR[16]; double **ez_ptr;    cudaMalloc((void **) &ez_ptr,  dimB);
     
-    int s = spline_read_and_init(shot, run, "erad", &er_ptr, dimRZ);
+    int is_electric_field_on = spline_read_and_init(shot, run, "erad", &er_ptr, dimRZ);
     spline_read_and_init(shot, run, "ez",   &ez_ptr, dimRZ);
     spline_read_and_init(shot, run, "etor", &et_ptr, dimRZ);
     
     s_shared->erad = er_ptr;
     s_shared->ez   = ez_ptr;
     s_shared->etor = et_ptr;
-    s_shared->electric_field_on = s;
+    s_shared->is_electric_field_on = is_electric_field_on;
     
-    return s;
+    return is_electric_field_on;
 }
