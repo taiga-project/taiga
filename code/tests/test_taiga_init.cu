@@ -8,6 +8,8 @@
 //#include <curand_kernel.h>
 #include "../basic_functions.h"
 #include "../prop.h"
+#include "../taiga_constants.h"
+#include "../running/generate_coords.cu"
 #include "../dataio/data_import.c"
 #include "../taiga_init.c"
 #include "../dataio/parameter_reader.c"
@@ -100,8 +102,8 @@ void test_init_grid(){
 }
 
 void test_init_coords(){
-    int tmp_length = 20;
-
+    printf("Init coords\n");
+    
     ShotProp shot; init_shot_prop(&shot);
     BeamProp beam; init_beam_prop(&beam);
     RunProp run;   init_run_prop(&run);
@@ -112,12 +114,10 @@ void test_init_coords(){
     shared_global = (TaigaGlobals*)malloc(size_globals);
     cudaMalloc((void **) &dev_global, size_globals);
     
-    printf("Init coords\n");
     strcpy(shot.name, "17178_1097");
     init_taiga_props("particles", "1000", &beam, &shot, &run);
     
-    printf("Init coords\n");
-    init_coords(beam, shot, run, host_global, shared_global);
+    init_coords(&beam, &shot, &run, host_global, shared_global);
     set_particle_number(&run, host_global, shared_global);
     cudaMemcpy(dev_global, shared_global, size_globals, cudaMemcpyHostToDevice);
         

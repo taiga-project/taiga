@@ -46,8 +46,8 @@ struct BeamProp{
 void init_beam_prop(BeamProp *beam){
     strcpy(beam->matter, "Li");
     beam->mass =  7.016004558;
-    beam->energy = 60;
-    beam->diameter = 0.025;
+//    beam->energy = 60;
+//    beam->diameter = 0.025;
     beam->toroidal_deflection = 0;
     beam->vertical_deflection = 0;
     beam->deflection_coordinate = 2.3;
@@ -119,15 +119,14 @@ struct DetectorProp{
     double* ygrid;
 };
 
-struct BeamDistribution{
-    int N;
-    double *grid;
-    double *profile;
-};
-
 struct BeamProfile{
-    struct BeamDistribution radial;
-    struct BeamDistribution cross_section;
+    int radial_length;
+    double *radial_grid;
+    double *radial_profile;
+    
+    int cross_length;
+    double *cross_grid;
+    double *cross_profile;
 };
 
 #endif

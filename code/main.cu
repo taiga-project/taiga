@@ -146,7 +146,7 @@ int main(int argc, char *argv[]){
         set_particle_number(&run, host_global, shared_global);
         
         //! coordinates
-        init_coords(beam, shot, run, host_global, shared_global);
+        init_coords(&beam, &shot, &run, host_global, shared_global);
         
         //! grid
         init_grid(shot, run, host_common, shared_common);
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]){
         // </service value>
         
         if (!FASTMODE){
-            save_trajectories(host_global, run);
+           save_trajectories(host_global, run);
         }
         
         print_run_details(host_global, host_common, shot, run);
@@ -192,6 +192,7 @@ int main(int argc, char *argv[]){
         
         init_device_structs(beam, shot, run, shared_global, shared_common);
         sync_device_structs(device_global, shared_global, device_common, shared_common);
+        if (FASTMODE)   init_fastmode(beam, shot, run, device_global);
         
         for (int step_i=0; step_i<run.step_host; ++step_i){
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
@@ -228,7 +229,7 @@ int main(int argc, char *argv[]){
         printf("===============================\n");
         printf ("CUDA kernel runtime: %lf s\n", run.cuda_time_core);
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
-        printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
+        if (!FASTMODE)  printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
         printf("===============================\n");
         
         //UNSOLVED: undetected <<<1,1>>>(detcellid, host_global->particle_number, device_service_array);
