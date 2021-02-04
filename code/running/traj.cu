@@ -107,7 +107,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     
     double  X_prev[6];
     
-    for (int loopi=0; (loopi<c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
+    for (int loopi=0; (loopi < c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
         // Get local magnetic field
         
         R = cyl2tor_coord(X[0], X[2]);

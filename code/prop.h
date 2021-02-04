@@ -7,7 +7,6 @@
 #define OUT_OF_RANGE -1
 
 struct TaigaGlobals{
-//    double **coords;
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
     long particle_number;
@@ -15,7 +14,6 @@ struct TaigaGlobals{
 
 struct TaigaLocals{
     double coords[6];
-//    int step_counter;
     int detcellid;
 };
 
@@ -46,8 +44,6 @@ struct BeamProp{
 void init_beam_prop(BeamProp *beam){
     strcpy(beam->matter, "Li");
     beam->mass =  7.016004558;
-//    beam->energy = 60;
-//    beam->diameter = 0.025;
     beam->toroidal_deflection = 0;
     beam->vertical_deflection = 0;
     beam->deflection_coordinate = 2.3;
@@ -74,7 +70,7 @@ void init_shot_prop(ShotProp *shot){
 struct RunProp{
     int debug;
     int help;
-    int particle_number;
+    long particle_number;
     int block_number;
     int block_size;         //size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
     int step_host;          // on HDD

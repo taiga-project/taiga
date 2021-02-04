@@ -16,7 +16,7 @@ void print_run_details(TaigaGlobals *host_global, TaigaCommons *host_common, Sho
     printf("===============================\n");
     printf("Number of blocks (threads): %d\n", run.block_number);
     printf("Block size: %d\n", run.block_size);
-    printf("Number of particles: %d (%d)\n", run.particle_number, host_global->particle_number);
+    printf("Number of particles: %ld (%ld)\n", run.particle_number, host_global->particle_number);
     printf("Max steps on device (GPU): %d\n", run.step_device);
     printf("Max steps on host (HDD): %d\n", run.step_host);
     printf("===============================\n");
