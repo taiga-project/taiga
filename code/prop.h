@@ -10,7 +10,7 @@ struct TaigaGlobals{
 //    double **coords;
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
-    int particle_number;
+    long particle_number;
 };
 
 struct TaigaLocals{
@@ -20,15 +20,15 @@ struct TaigaLocals{
 };
 
 struct TaigaCommons{
-    int max_step_number;        // N_step
-    int step_counter;
+    long max_step_number;        // N_step
+    long step_counter;
     double eperm;
     double timestep;
     int *grid_size; 
     double *spline_rgrid;
     double *spline_zgrid;
     double **brad, **bz, **btor;
-    int electric_field_on;
+    bool is_electric_field_on;
     double **erad, **ez, **etor;
     double *detector_geometry;
 };
@@ -59,7 +59,7 @@ struct ShotProp{
     char time[40];
     char detector_mask[40];
     char detector_geometry[100];
-    int electric_field_on;
+    bool is_electric_field_on;
 };
 
 void init_shot_prop(ShotProp *shot){
@@ -68,7 +68,7 @@ void init_shot_prop(ShotProp *shot){
     strcpy(shot->time, "1000");
     strcpy(shot->detector_mask, "test");
     strcpy(shot->detector_geometry, "0.685,0.23,0,38,0");
-    shot->electric_field_on = 0;
+    shot->is_electric_field_on = false;
 };
 
 struct RunProp{
