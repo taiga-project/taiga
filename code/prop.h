@@ -27,7 +27,7 @@ struct TaigaCommons{
 };
 
 struct BeamProp{
-    char matter[40];
+    char matter[STRING_LENGTH];
     double mass;                // in amu
     double energy;              // in keV
     double diameter;            // in meter
@@ -45,11 +45,11 @@ void init_beam_prop(BeamProp *beam){
 }
 
 struct ShotProp{
-    char name[100];
-    char shotnumber[40];
-    char time[40];
-    char detector_mask[40];
-    char detector_geometry[100];
+    char name[STRING_LENGTH];
+    char shotnumber[STRING_LENGTH];
+    char time[STRING_LENGTH];
+    char detector_mask[STRING_LENGTH];
+    char detector_geometry[STRING_LENGTH];
     bool is_electric_field_on;
 };
 
@@ -72,12 +72,12 @@ struct RunProp{
     long step_device;        // on GPU
     double timestep;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
-    char runnumber[10];
-    char parameter_file[200];
-    char runnumber_file[200];
-    char ion_source_file[200];
-    char io_coordinate_order[200];
-    char folder_out[200];
+    char runnumber[STRING_LENGTH];
+    char parameter_file[STRING_LENGTH];
+    char runnumber_file[STRING_LENGTH];
+    char ion_source_file[STRING_LENGTH];
+    char io_coordinate_order[STRING_LENGTH];
+    char folder_out[STRING_LENGTH];
 };
 
 void init_run_prop(RunProp *run){
@@ -114,7 +114,6 @@ struct BeamProfile{
     long radial_length;
     double *radial_grid;
     double *radial_profile;
-    
     long cross_length;
     double *cross_grid;
     double *cross_profile;
