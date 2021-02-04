@@ -1,5 +1,5 @@
-__device__ double device_linear_interpolate(double *x_vector, double *y_vector, int length, double x_value){
-    int i=0;
+__device__ double device_linear_interpolate(double *x_vector, double *y_vector, long length, double x_value){
+    long i=0;
     for (i=0; (i<length-1) && (x_vector[i]>x_value); ++i);
     return y_vector[i+1] - (y_vector[i+1]-y_vector[i])*(x_value-x_vector[i])/(x_vector[i+1]-x_vector[i]);
 }

@@ -17,8 +17,8 @@ void print_run_details(TaigaGlobals *host_global, TaigaCommons *host_common, Sho
     printf("Number of blocks (threads): %d\n", run.block_number);
     printf("Block size: %d\n", run.block_size);
     printf("Number of particles: %ld (%ld)\n", run.particle_number, host_global->particle_number);
-    printf("Max steps on device (GPU): %d\n", run.step_device);
-    printf("Max steps on host (HDD): %d\n", run.step_host);
+    printf("Max steps on device (GPU): %ld\n", run.step_device);
+    printf("Max steps on host (HDD): %ld\n", run.step_host);
     printf("===============================\n");
 }
 
@@ -44,7 +44,7 @@ void fill_header_file(TaigaCommons *common, BeamProp beam, ShotProp shot, RunPro
         export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection*180.0/PI, beam.vertical_deflection*180.0/PI, run.folder_out, run.runnumber);
     }
     
-    export_header("Number of ions", "", (double)run.particle_number, run.folder_out, run.runnumber);
+    export_header("Number of ions", "", run.particle_number, run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
     export_header("Detector position (R)", "m", common->detector_geometry[0], run.folder_out, run.runnumber);
     export_header("Detector position (Z)", "m", common->detector_geometry[1], run.folder_out, run.runnumber);

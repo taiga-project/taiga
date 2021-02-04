@@ -1,11 +1,6 @@
 #ifndef PROP_H
 #define PROP_H
 
-#define UNDEFINED_FLOAT -1e99
-#define CALCULATION_NOT_FINISHED -1
-#define CALCULATION_FINISHED 0
-#define OUT_OF_RANGE -1
-
 struct TaigaGlobals{
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
@@ -73,8 +68,8 @@ struct RunProp{
     long particle_number;
     int block_number;
     int block_size;         //size of blocks (max 192 on Geforce GTS450) (max 768 on Geforce GTS650Ti)
-    int step_host;          // on HDD
-    int step_device;        // on GPU
+    long step_host;          // on HDD
+    long step_device;        // on GPU
     double timestep;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
     char runnumber[10];
@@ -116,11 +111,11 @@ struct DetectorProp{
 };
 
 struct BeamProfile{
-    int radial_length;
+    long radial_length;
     double *radial_grid;
     double *radial_profile;
     
-    int cross_length;
+    long cross_length;
     double *cross_grid;
     double *cross_profile;
 };

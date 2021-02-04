@@ -3,9 +3,9 @@
 #include <math.h>
 #include "data_import.h"
 
-int read_vector(double **name, char *folder, char *shotname, char *filename, bool warning_on){
-    int i = 0;
-    int j;
+long read_vector(double **name, char *folder, char *shotname, char *filename, bool warning_on){
+    long i = 0;
+    long j;
     double test;
     double *tname;
     tname = *name;
@@ -39,19 +39,19 @@ int read_vector(double **name, char *folder, char *shotname, char *filename, boo
     return i;
 }
 
-int read_vector(double **name, char *folder, char *shotname, char *filename){
+long read_vector(double **name, char *folder, char *shotname, char *filename){
     return read_vector(name, folder, shotname, filename, true);
 }
 
-int read_vector(double **name, char *folder, char *shotname, char *filename, int *successful){
+long read_vector(double **name, char *folder, char *shotname, char *filename, int *successful){
     int l = read_vector(name, folder, shotname, filename, true);
     int *s;
     if (l < 0)  successful[0] = 0;
     return l;
 }
 
-int read_matrix_column(double **name, char *path, int coloumn_id){
-    int i, j;
+long read_matrix_column(double **name, char *path, int coloumn_id){
+    long i, j;
 
     char tmp[1000];
     char *token;
