@@ -1,5 +1,5 @@
 __device__ __forceinline__ double calculate_detector_x(double particle_tor, double detector_tor, double angle){
-    return (particle_tor - detector_tor)/cos(angle)*1000.0; //in mm
+    return (detector_tor - particle_tor)/cos(angle)*1000.0; //in mm
 }
 
 __device__ __forceinline__ double calculate_detector_y(double particle_z, double detector_z, double angle){
@@ -34,7 +34,7 @@ __global__ void detector_postproc(TaigaGlobals *global, TaigaCommons *common, De
         }
         
         if ((x_cellid != OUT_OF_RANGE) & (y_cellid != OUT_OF_RANGE)) {
-            global->detcellid[idx] = x_cellid * detector->length_ygrid + y_cellid + 1;
+            global->detcellid[idx] = x_cellid + detector->length_xgrid * y_cellid + 1;
         }
     }
 }
