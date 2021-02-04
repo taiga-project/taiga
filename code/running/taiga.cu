@@ -1,70 +1,29 @@
-__global__ void taiga(double timestep, int NR, int NZ, double eperm, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_grid, double **position_all, double **speed_all, double *detector_geometry, int *detcellid, int N_step, double *service_var, int step_i){
-    // thread index
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (step_i == 0)    detcellid[idx] = -1;
+__global__ void taiga(TaigaGlobals *g, TaigaCommons *c, double *service_var){
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;    // thread index
     
-    if (detcellid[idx] == -1){
-        double *spline_grid_rad, *spline_grid_z;
-        spline_grid_rad = spline_grid[0];
-        spline_grid_z   = spline_grid[1];
-
-        double position[3], speed[3];
-
-        position[0] = position_all[0][idx];
-        position[1] = position_all[1][idx];
-        position[2] = position_all[2][idx];
-
-        speed[0] = speed_all[0][idx];
-        speed[1] = speed_all[1][idx];
-        speed[2] = speed_all[2][idx];
+    if (g->detcellid[idx] == -1){
+        double generalised_coordinates[6];
+        int detcellid = g->detcellid[idx];
         
-        detcellid[idx] = traj(timestep, spline_grid_rad, NR, spline_grid_z, NZ, position, speed, spline_brad, spline_bz, spline_btor, eperm, detector_geometry, N_step, detcellid[idx]);
-
-        position_all[0][idx] = position[0];
-        position_all[1][idx] = position[1];
-        position_all[2][idx] = position[2];
-
-        speed_all[0][idx] = speed[0];
-        speed_all[1][idx] = speed[1];
-        speed_all[2][idx] = speed[2];
+        generalised_coordinates[0] = g->rad[idx];
+        generalised_coordinates[1] = g->z[idx];
+        generalised_coordinates[2] = g->tor[idx];
+        generalised_coordinates[3] = g->vrad[idx];
+        generalised_coordinates[4] = g->vz[idx];
+        generalised_coordinates[5] = g->vtor[idx];
+        
+        g->detcellid[idx] = traj(c, generalised_coordinates, detcellid);
+        
+        g->rad[idx]  = generalised_coordinates[0];
+        g->z[idx]    = generalised_coordinates[1];
+        g->tor[idx]  = generalised_coordinates[2];
+        g->vrad[idx] = generalised_coordinates[3];
+        g->vz[idx]   = generalised_coordinates[4];
+        g->vtor[idx] = generalised_coordinates[5];
     }
-
     service_var[0] = 42.24;
 }
 
-__global__ void taiga(double timestep, int NR, int NZ, double eperm, double **spline_brad, double **spline_bz, double **spline_btor, double **spline_erad, double **spline_ez, double **spline_etor, 
-                      double **spline_grid, double **position_all, double **speed_all, double *detector_geometry, int *detcellid, int N_step, double *service_var, int step_i){
-    // thread index
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (step_i == 0)    detcellid[idx] = -1;
-    
-    if (detcellid[idx] == -1){
-        double *spline_grid_rad, *spline_grid_z;
-        spline_grid_rad = spline_grid[0];
-        spline_grid_z   = spline_grid[1];
-        
-        double position[3], speed[3];
-
-        position[0] = position_all[0][idx];
-        position[1] = position_all[1][idx];
-        position[2] = position_all[2][idx];
-
-        speed[0] = speed_all[0][idx];
-        speed[1] = speed_all[1][idx];
-        speed[2] = speed_all[2][idx];
-
-        detcellid[idx] = traj(timestep, spline_grid_rad, NR, spline_grid_z, NZ, position, speed, spline_brad, spline_bz, spline_btor, spline_erad, spline_ez, spline_etor, eperm, detector_geometry, N_step, detcellid[idx]);
-
-        position_all[0][idx] = position[0];
-        position_all[1][idx] = position[1];
-        position_all[2][idx] = position[2];
-
-        speed_all[0][idx] = speed[0];
-        speed_all[1][idx] = speed[1];
-        speed_all[2][idx] = speed[2];
-    }
-
-    service_var[0] = 42.24;
+__global__ void cuda_service_test(double *service_var){
+    service_var[9] = 3.1415926535897932456;
 }

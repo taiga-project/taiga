@@ -1,26 +1,40 @@
-__global__ void detector_postproc(double **x_ptr, double *det_x, int N_det_x, double *det_y, int N_det_y, double *det, int *detcellid){
+__device__ __forceinline__ double calculate_detector_x(double particle_tor, double detector_tor, double angle){
+    return (detector_tor - particle_tor)/cos(angle)*1000.0; //in mm
+}
 
+__device__ __forceinline__ double calculate_detector_y(double particle_z, double detector_z, double angle){
+    return (particle_z - detector_z)/cos(angle)*1000.0; //in mm
+}
+
+__device__ int get_cell_array_index(double value, double *array, int cell_number){
+    for (int i=0; i<(cell_number); ++i) {
+        if ((value >= array[2*i]) & (value <= array[2*i+1]))    return i;
+    }
+    return OUT_OF_RANGE;
+}
+
+__device__ __forceinline__ bool is_in_range(double value, double limit1, double limit2){
+    return ( ( (value >=limit1)&(value<=limit2) ) | ( (value >=limit2)&(value<=limit1) ) );
+}
+
+__global__ void detector_postproc(TaigaGlobals *global, TaigaCommons *common, DetectorProp *detector){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     
-    if (detcellid[idx] == 0){
-        double x,y;
+    if (global->detcellid[idx] == CALCULATION_FINISHED){
+        double x, y;
+        x = calculate_detector_x(global->tor[idx], common->detector_geometry[2], common->detector_geometry[4]);
+        y = calculate_detector_y(global->z[idx], common->detector_geometry[1], common->detector_geometry[3]);
         
-        x = x_ptr[2][idx] - det[2];                x*=1000; //in mm
-        y = (det[1] - x_ptr[1][idx]) / det[3];     y*=1000; //in mm
+        int x_cellid = OUT_OF_RANGE, y_cellid = OUT_OF_RANGE;
         
-        int x_cellid = -1, y_cellid = -1;
-        
-        if ((x >= det_x[0]) & (x <= det_x[N_det_x-1]) & (y >= det_y[0]) & (y <= det_y[N_det_y-1])) {
-            for (int i=0; i<(N_det_x/2); i++) {
-                if ((x >= det_x[2*i]) & (x <= det_x[2*i+1]))    x_cellid = i;
-            }
-            for (int j=0; j<N_det_y/2; j++) {
-                if ((y >= det_y[2*j]) & (y <= det_y[2*j+1]))    y_cellid = j;
-            }
+        if ( is_in_range(x, detector->xgrid[0], detector->xgrid[detector->length_xgrid*2-1]) & 
+             is_in_range(y, detector->ygrid[0], detector->ygrid[detector->length_ygrid*2-1])){
+            x_cellid = get_cell_array_index(x, detector->xgrid, detector->length_xgrid);
+            y_cellid = get_cell_array_index(y, detector->ygrid, detector->length_ygrid);
         }
         
-        if ((x_cellid >= 0) & (y_cellid >= 0)) {
-            detcellid[idx] = x_cellid * N_det_y/2 +  N_det_y/2-1 - y_cellid + 1;
+        if ((x_cellid != OUT_OF_RANGE) & (y_cellid != OUT_OF_RANGE)) {
+            global->detcellid[idx] = x_cellid + detector->length_xgrid * y_cellid + 1;
         }
     }
 }

@@ -14,3 +14,4 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir
 void export_header(char *text, char *folder, char *runnumber);
 void export_header(char *dataname,char *unitname,double dat, char *folder, char *runnumber);
 void export_header(char *dataname, char *unitname, double dat, double dat2, char *folder, char *runnumber);
+void export_header_addline(char *folder, char *runnumber);
