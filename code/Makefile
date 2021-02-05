@@ -14,22 +14,27 @@ ifndef TAIGA_BUILD
 endif
 $(info Build directory: $(TAIGA_BUILD) )
 
-all: taiga.exe taiga_renate.exe taiga_renate_fast.exe
+all: taiga.exe taiga_debug.exe taiga_renate.exe taiga_renate_fast.exe
 
-taiga.exe: main.cu
+taiga.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga.exe main.cu
+
+taiga_debug.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(TESTFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga_debug.exe main.cu
 
-taiga_renate.exe: main.cu
+taiga_renate.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FLAGS) -o $(TAIGA_BUILD)/taiga_renate.exe main.cu
 
-taiga_renate_fast.exe: main.cu
+taiga_renate_fast.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(INPUT_FLAGS) $(RENATE_FAST_FLAGS) -o $(TAIGA_BUILD)/taiga_renate_fast.exe main.cu
 
 t: test
 
-test: tests/tests.cu
+test: tests/tests.cu | $(TAIGA_BUILD)
 	$(NVCC) $(TESTFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test.exe tests/tests.cu
+
+$(TAIGA_BUILD):
+	mkdir $@
 
 clean:
 	rm $(TAIGA_BUILD)/*.exe
