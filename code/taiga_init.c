@@ -104,50 +104,12 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
     g_shared->detcellid = shared_detcellid;
 }
 
-__global__ void test_renate_fast_cuda(TaigaGlobals* g, double *tmp){
-    tmp[0] = g->rad[0];
-    tmp[1] = g->rad[1];
-    tmp[2] = g->rad[2];
-    tmp[3] = g->vrad[0];
-    tmp[4] = g->vrad[1];
-    tmp[5] = g->vrad[2];
-    tmp[6] = g->detcellid[0];
-    tmp[7] = g->detcellid[1];
-    tmp[8] = g->detcellid[2];
-}
-
-void test_renate_fast(TaigaGlobals *g){
-    int LENGTH_TMP=10;
-    printf("test_renate_fast()\n");
-    double *h_tmp, *d_tmp;
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    h_tmp = (double *) malloc(dim_tmp);
-//    init_tmp(h_tmp);
-    for (int i=0; i<LENGTH_TMP; ++i){
-        h_tmp[i] = UNDEFINED_FLOAT;
-    }
-
-//</init_tmp>
-    cudaMalloc((void **) &(d_tmp), dim_tmp);
-    cudaMemcpy(d_tmp, h_tmp, dim_tmp, cudaMemcpyHostToDevice);
-    
-    test_renate_fast_cuda <<< 1, 1 >>> (g, d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-//    print_tmp(h_tmp);
-    for (int i=0; i<LENGTH_TMP; ++i){
-        printf("TMP %d: %lf\n", i, h_tmp[i]);
-    }
-}
-
 void init_fastmode(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *device_global){
     BeamProfile *device_prof;
     size_t size_prof = sizeof(BeamProfile);
     cudaMalloc((void **) &device_prof, size_prof);
     init_beam_profile(device_prof, shot);
     generate_coords <<< run.block_number, run.block_size >>> (device_global, beam, device_prof);
-    test_renate_fast(device_global);
 }
 
 void init_beam_profile(BeamProfile *device_prof, ShotProp shot){
