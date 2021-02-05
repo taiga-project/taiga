@@ -357,3 +357,23 @@ void test_detector_conversion(){
     test_detector_index_cuda <<< 1, 1 >>> (d_tmp);
     end_reference(&h_tmp, &d_tmp);
 }
+
+__global__ void test_renate_fast_cuda(TaigaGlobals* g, double *tmp){
+    tmp[0] = g->rad[0];
+    tmp[1] = g->rad[1];
+    tmp[2] = g->rad[2];
+    tmp[3] = g->vrad[0];
+    tmp[4] = g->vrad[1];
+    tmp[5] = g->vrad[2];
+    tmp[6] = g->detcellid[0];
+    tmp[7] = g->detcellid[1];
+    tmp[8] = g->detcellid[2];
+}
+
+void test_renate_fast(TaigaGlobals *g){
+    printf("test_renate_fast()\n");
+    double *h_tmp, *d_tmp;
+    start_reference(&h_tmp, &d_tmp);
+    test_renate_fast_cuda <<< 1, 1 >>> (g, d_tmp);
+    end_reference(&h_tmp, &d_tmp);
+}
