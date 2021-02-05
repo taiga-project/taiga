@@ -24,13 +24,10 @@
     #error A valid beam module is required!
 #endif
 
-
 #include "../running/detector_postproc.cu"
 #include "../running/detector_sum.cu"
 
 #define LENGTH_TMP 10
-
-
 
 __global__ void test_init_grid_cuda(TaigaCommons* c, double *tmp){
     tmp[0] = PI;
@@ -164,7 +161,6 @@ void test_init_detector(){
     start_reference(&h_tmp, &d_tmp);
     test_detector_cuda <<< 1, 1 >>> (device_detector, d_tmp);
     end_reference(&h_tmp, &d_tmp);
-    
 }
 
 __global__ void test_detector_struct(TaigaCommons *c, DetectorProp *d, double *tmp){
@@ -305,7 +301,6 @@ void test_init_detector_full(){
     detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
 //    detector_sum <<<1,1>>> (device_global, device_common, device_detector);
     
-    
     double *h_tmp, *d_tmp;
     start_reference(&h_tmp, &d_tmp);
     
@@ -320,7 +315,6 @@ void test_init_detector_full(){
     printf("test_detector_full_cuda\n");
     test_detector_full_cuda <<< 1, 1 >>> (device_detector, d_tmp);
     end_reference(&h_tmp, &d_tmp);
-    
 }
 
 __global__ void test_detector_range_cuda(double *tmp){
