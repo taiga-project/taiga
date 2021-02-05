@@ -28,8 +28,8 @@ taiga_renate_fast.exe: main.cu
 
 t: test
 
-test: tests/struct.cu
-	$(NVCC) $(TESTFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test.exe tests/test_taiga_init.cu
+test: tests/tests.cu
+	$(NVCC) $(TESTFLAGS) $(INPUT_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test.exe tests/tests.cu
 
 clean:
 	rm $(TAIGA_BUILD)/*.exe

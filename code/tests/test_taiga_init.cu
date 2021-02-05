@@ -24,7 +24,6 @@
     #error A valid beam module is required!
 #endif
 
-
 #include "../running/detector_postproc.cu"
 #include "../running/detector_sum.cu"
 
@@ -68,7 +67,22 @@ void print_tmp(double *h_tmp){
     }
 }
 
+void start_reference(double **h_tmp, double **d_tmp){
+    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
+    *h_tmp = (double *) malloc(dim_tmp);
+    init_tmp(*h_tmp);
+    cudaMalloc((void **) d_tmp, dim_tmp);
+    cudaMemcpy(*d_tmp, *h_tmp, dim_tmp, cudaMemcpyHostToDevice);
+}
+
+void end_reference(double **h_tmp, double **d_tmp){
+    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
+    cudaMemcpy(*h_tmp, *d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
+    print_tmp(*h_tmp);
+}
+
 void test_init_grid(){
+    printf("Test: test_init_grid()l()\n");
     int tmp_length = 20;
 
     ShotProp shot;
@@ -86,24 +100,16 @@ void test_init_grid(){
     cudaMemcpy(dev_common, shared_common, dim_commons, cudaMemcpyHostToDevice);
         
     double *h_tmp, *d_tmp;
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    h_tmp = (double *) malloc(dim_tmp);
-    init_tmp(h_tmp);
-    cudaMalloc((void **) &(d_tmp), dim_tmp);
-    cudaMemcpy(d_tmp, h_tmp, dim_tmp, cudaMemcpyHostToDevice);
-    
+    start_reference(&h_tmp, &d_tmp);
     test_init_grid_cuda <<< 1, 1 >>> (dev_common, d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-    print_tmp(h_tmp);
+    end_reference(&h_tmp, &d_tmp);
     
     printf("R = %lf ... %lf\n", host_common->spline_rgrid[0], host_common->spline_rgrid[host_common->grid_size[0]-1]);
     printf("Z = %lf ... %lf\n", host_common->spline_zgrid[0], host_common->spline_zgrid[host_common->grid_size[1]-1]);
 }
 
 void test_init_coords(){
-    printf("Init coords\n");
+    printf("Test: test_init_coords()\n");
     
     ShotProp shot; init_shot_prop(&shot);
     BeamProp beam; init_beam_prop(&beam);
@@ -123,24 +129,15 @@ void test_init_coords(){
     cudaMemcpy(dev_global, shared_global, size_globals, cudaMemcpyHostToDevice);
         
     double *h_tmp, *d_tmp;
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    h_tmp = (double *) malloc(dim_tmp);
-    init_tmp(h_tmp);
-    cudaMalloc((void **) &(d_tmp), dim_tmp);
-    cudaMemcpy(d_tmp, h_tmp, dim_tmp, cudaMemcpyHostToDevice);
-    
+    start_reference(&h_tmp, &d_tmp);
     test_init_coords_cuda <<< 1, 1 >>> (dev_global, d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-    print_tmp(h_tmp);
+    end_reference(&h_tmp, &d_tmp);
     
     printf("Number of ions: %ld\n", host_global->particle_number);
     
     printf("1st:  [%lf, %lf, %lf]\n", host_global->rad[0], host_global->z[0], host_global->tor[0]);
     printf("2nd:  [%lf, %lf, %lf]\n", host_global->rad[1], host_global->z[1], host_global->tor[1]);
     printf("Last: [%lf, %lf, %lf]\n", host_global->rad[host_global->particle_number-1], host_global->z[host_global->particle_number-1], host_global->tor[host_global->particle_number-1]);
-    
 }
 
 __global__ void test_detector_cuda(DetectorProp *d,  double *tmp){
@@ -150,6 +147,7 @@ __global__ void test_detector_cuda(DetectorProp *d,  double *tmp){
 }
 
 void test_init_detector(){
+    printf("Test: test_detector()\n");
     ShotProp shot; init_shot_prop(&shot);
     DetectorProp *shared_detector, *device_detector;
     
@@ -160,18 +158,9 @@ void test_init_detector(){
     init_detector(shared_detector, device_detector, shot);
     
     double *h_tmp, *d_tmp;
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    h_tmp = (double *) malloc(dim_tmp);
-    init_tmp(h_tmp);
-    cudaMalloc((void **) &(d_tmp), dim_tmp);
-    cudaMemcpy(d_tmp, h_tmp, dim_tmp, cudaMemcpyHostToDevice);
-    
+    start_reference(&h_tmp, &d_tmp);
     test_detector_cuda <<< 1, 1 >>> (device_detector, d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-    print_tmp(h_tmp);
-    
+    end_reference(&h_tmp, &d_tmp);
 }
 
 __global__ void test_detector_struct(TaigaCommons *c, DetectorProp *d, double *tmp){
@@ -209,7 +198,7 @@ __global__ void test_detector_full_cuda(DetectorProp *d, double *tmp){
 }
 
 void test_init_detector_full(){
-
+    printf("Test: test_init_detector_full()\n");
     double z_unit = 0.001;
     double z_center = 0.2101;
     double tor_unit = 0.001;
@@ -312,35 +301,20 @@ void test_init_detector_full(){
     detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
 //    detector_sum <<<1,1>>> (device_global, device_common, device_detector);
     
-    
     double *h_tmp, *d_tmp;
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    h_tmp = (double *) malloc(dim_tmp);
-    init_tmp(h_tmp);
-    cudaMalloc((void **) &(d_tmp), dim_tmp);
-    cudaMemcpy(d_tmp, h_tmp, dim_tmp, cudaMemcpyHostToDevice);
+    start_reference(&h_tmp, &d_tmp);
     
     printf("test_detector_detcellid\n");
     test_detector_detcellid <<< 1, 1 >>> (device_global, d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-    print_tmp(h_tmp);
+    end_reference(&h_tmp, &d_tmp);
     
     printf("test_detector_struct\n");
     test_detector_struct <<< 1, 1 >>> (device_common, device_detector, d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-    print_tmp(h_tmp);
+    end_reference(&h_tmp, &d_tmp);
     
     printf("test_detector_full_cuda\n");
     test_detector_full_cuda <<< 1, 1 >>> (device_detector, d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-    print_tmp(h_tmp);
-    
+    end_reference(&h_tmp, &d_tmp);
 }
 
 __global__ void test_detector_range_cuda(double *tmp){
@@ -360,7 +334,7 @@ __global__ void test_detector_index_cuda(double *tmp){
 }
 
 void test_detector_conversion(){
-    printf("test_detector_conversion()\n");
+    printf("Test: test_detector_conversion()\n");
     double *h_tmp, *d_tmp;
     size_t dim_tmp = sizeof(double)*LENGTH_TMP;
     h_tmp = (double *) malloc(dim_tmp);
@@ -378,22 +352,8 @@ void test_detector_conversion(){
     cudaMemcpy(d_tmp, h_tmp, dim_tmp, cudaMemcpyHostToDevice);
     
     test_detector_range_cuda <<< 1, 1 >>> (d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-    print_tmp(h_tmp);
+    end_reference(&h_tmp, &d_tmp);
     
     test_detector_index_cuda <<< 1, 1 >>> (d_tmp);
-    
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    
-    print_tmp(h_tmp);
-}
-
-int main(){
-    test_init_grid();
-    test_init_coords();
-    test_init_detector();
-    test_init_detector_full();
-    test_detector_conversion();
+    end_reference(&h_tmp, &d_tmp);
 }
