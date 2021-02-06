@@ -64,8 +64,8 @@ int parameter_reader(BeamProp *beam, ShotProp *shot, RunProp *run){
         }
     }
     fclose(fp);
-    strcpy(shot->name,concat(shot->shotnumber,"_",shot->time));
-    strcpy(run->folder_out,concat("results/",shot->shotnumber,"_",shot->time));
+    strcpy(shot->name, concat(shot->shotnumber, "_", shot->time, NULL));
+    strcpy(run->folder_out, concat("results/", shot->shotnumber, "_", shot->time, NULL));
     return 0;
 }
 

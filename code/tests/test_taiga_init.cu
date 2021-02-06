@@ -82,7 +82,7 @@ void end_reference(double **h_tmp, double **d_tmp){
 }
 
 void test_init_grid(){
-    printf("Test: test_init_grid()l()\n");
+    printf("Test: test_init_grid()\n");
     int tmp_length = 20;
 
     ShotProp shot;
@@ -377,3 +377,4 @@ void test_renate_fast(TaigaGlobals *g){
     test_renate_fast_cuda <<< 1, 1 >>> (g, d_tmp);
     end_reference(&h_tmp, &d_tmp);
 }
+

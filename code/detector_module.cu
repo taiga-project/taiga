@@ -20,7 +20,7 @@ void export_detector(DetectorProp* shared_detector, DetectorProp *device_detecto
         }
     }
     
-    CopyFile(concat("input/detector/", shot.detector_mask, "/detx"), concat(run.folder_out,"/",run.runnumber,"/detector/detx"));
+    CopyFile(concat("input/detector/", shot.detector_mask, "/detx", NULL), concat(run.folder_out,"/",run.runnumber,"/detector/detx", NULL));
     
-    CopyFile(concat("input/detector/", shot.detector_mask, "/dety"), concat(run.folder_out,"/",run.runnumber,"/detector/dety"));
+    CopyFile(concat("input/detector/", shot.detector_mask, "/dety", NULL), concat(run.folder_out,"/",run.runnumber,"/detector/dety", NULL));
 }

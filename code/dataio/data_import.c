@@ -11,8 +11,7 @@ long read_vector(double **name, char *folder, char *shotname, char *filename, bo
     tname = *name;
     FILE *file;
 
-    char path[100];
-    strcpy(path,concat(folder,"/",shotname,"/",filename));
+    char* path = concat(folder, "/", shotname, "/", filename, NULL);
 
     file = fopen(path,"r");
     if (file != NULL) {
