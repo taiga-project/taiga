@@ -105,7 +105,7 @@ struct DetectorProp{
     int length_xgrid;
     int length_ygrid;
     int number_of_detector_cells;
-    int* counter;
+    long* counter;
     double* xgrid;
     double* ygrid;
 };
