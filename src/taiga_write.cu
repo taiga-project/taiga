@@ -5,7 +5,7 @@
 
 void print_run_details(TaigaGlobals *host_global, TaigaCommons *host_common, ShotProp shot, RunProp run){
     printf("===============================\n");
-    printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
+    printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")", NULL));
     printf("Shotname: %s\n", shot.name); 
     printf("Detector: %s\n", shot.detector_mask);
     printf("  R:\t%lf\n", host_common->detector_geometry[0]);
@@ -23,10 +23,10 @@ void print_run_details(TaigaGlobals *host_global, TaigaCommons *host_common, Sho
 }
 
 void fill_header_file(TaigaCommons *common, BeamProp beam, ShotProp shot, RunProp run){
-    export_header(concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"), run.folder_out, run.runnumber);
+    export_header(concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")", NULL), run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
-    export_header(concat("Shot ID: ",shot.name), run.folder_out, run.runnumber);
-    export_header(concat("Run ID:  ",run.runnumber), run.folder_out, run.runnumber);
+    export_header(concat("Shot ID: ", shot.name, NULL), run.folder_out, run.runnumber);
+    export_header(concat("Run ID:  ", run.runnumber, NULL), run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
     export_header("ABP ION TRAJECTORIES", run.folder_out, run.runnumber);
     
@@ -51,7 +51,7 @@ void fill_header_file(TaigaCommons *common, BeamProp beam, ShotProp shot, RunPro
     export_header("Detector position (T)", "m", common->detector_geometry[2], run.folder_out, run.runnumber);
     export_header("Detector angle (Z/R)", "°", (common->detector_geometry[3])*180.0/PI, run.folder_out, run.runnumber);
     export_header("Detector angle (T/R)", "°", (common->detector_geometry[4])*180.0/PI, run.folder_out, run.runnumber);
-    export_header(concat("Detector mask:  \t", shot.detector_mask), run.folder_out, run.runnumber);
+    export_header(concat("Detector mask:  \t", shot.detector_mask, NULL), run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
     export_header("Timestep", "s", run.timestep, run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);

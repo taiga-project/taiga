@@ -89,7 +89,7 @@ void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, Ru
 }
 
 void print_help_message(){        
-    printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")"));
+    printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")", NULL));
     printf("Usage: taiga.exe [options]\nOptions:\n");
     printf("  -d, --debug                 Print additional debug informations\n");
     printf("  -f, --fulltrace             Save coordinates at every timestep\n");
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]){
         runnumber_reader(&shot, &run);
         
         init_dir(run.folder_out, run.runnumber);
-        CopyFile(run.parameter_file, concat(run.folder_out,"/",run.runnumber,"/parameters.sh"));
+        CopyFile(run.parameter_file, concat(run.folder_out,"/",run.runnumber,"/parameters.sh", NULL));
         
         //! CUDA profiler START
         cudaProfilerStart();

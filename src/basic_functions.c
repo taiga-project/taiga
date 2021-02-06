@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include "basic_functions.h"
 
 #if defined(_WIN32)
@@ -10,8 +11,8 @@
     #include <sys/stat.h>
     #include <sys/types.h>
     void CopyFile(char* source, char* target, int sw){
-        if(sw)  system(concat("cp -n", source, " ", target));
-        else    system(concat("cp ", source, " ", target));
+        if(sw)  system(concat("cp -n", source, " ", target, NULL));
+        else    system(concat("cp ", source, " ", target, NULL));
     }
 #endif
 
@@ -47,7 +48,7 @@ void set_cuda(int debug_flag){
         cudaSetDevice(active_device);
         if (debug_flag){
             for (device_i = 0; device_i < num_devices; ++device_i){
-                cudaGetDeviceProperties(&properties, device_i);                
+                cudaGetDeviceProperties(&properties, device_i);
                 if(device_i==active_device) printf("[*] "); else    printf("[ ] ");
                 printf("Card %d:    %s\n", device_i, &properties.name);
                 printf("      L2Cache:         %d\n", properties.l2CacheSize);
@@ -61,7 +62,7 @@ void set_cuda(int debug_flag){
     }
 
     cudaGetDevice(&active_device);
-    cudaGetDeviceProperties(&properties, active_device);    
+    cudaGetDeviceProperties(&properties, active_device);
     printf("Active card:\t%s\n", &properties.name);
 }
 
@@ -80,65 +81,30 @@ int get_array_size(double *array){
 void init_dir(char *folder, char *runnumber){ 
     init_dir(folder, runnumber, "");
 }
-void init_dir(char *folder, char *runnumber, char *subdir){    
+void init_dir(char *folder, char *runnumber, char *subdir){
     mkdir(folder, 0777);
-    mkdir(concat(folder,"/",runnumber), 0777);
-    mkdir(concat(folder,"/",runnumber,"/",subdir), 0777);
+    mkdir(concat(folder, "/", runnumber, NULL), 0777);
+    mkdir(concat(folder, "/", runnumber, "/", subdir, NULL), 0777);
 }
 
-char* concat(const char *s1, const char *s2){
-    char *result = (char*)malloc(strlen(s1)+strlen(s2)+1);
-    strcpy(result, s1);
-    strcat(result, s2);
-    return result;
+char* concat(const char *s1, ...){
+    const char *s;
+    va_list args;
+    char *r;//r[STRING_LENGTH];
+    size_t arg_length = 1;
+    
+    va_start(args, s1);
+    for(s=s1; s!=NULL; s=va_arg(args, const char*)){
+        arg_length += strlen(s);
+    }
+    va_end(args);
+    r = (char*)malloc(arg_length);
+    r[0] = NULL;
+    va_start(args, s1);
+    for(s=s1; s!=NULL; s=va_arg(args, const char*)){
+        strcat(r, s);
+    }
+    va_end(args);
+    return r;
 }
 
-char* concat(const char *s1, const char *s2, const char *s3){
-    char *result = (char*)malloc(strlen(s1)+strlen(s2)+strlen(s3)+1);
-    strcpy(result, s1);
-    strcat(result, s2);
-    strcat(result, s3);
-    return result;
-}
-
-char* concat(const char *s1, const char *s2, const char *s3, const char *s4){
-    char *result = (char*)malloc(strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+1);
-    strcpy(result, s1);
-    strcat(result, s2);
-    strcat(result, s3);
-    strcat(result, s4);
-    return result;
-}
-
-char* concat(const char *s1, const char *s2, const char *s3, const char *s4, const char *s5){
-    char *result = (char*)malloc(strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+strlen(s5)+1);
-    strcpy(result, s1);
-    strcat(result, s2);
-    strcat(result, s3);
-    strcat(result, s4);
-    strcat(result, s5);
-    return result;
-}
-
-char* concat(const char *s1, const char *s2, const char *s3, const char *s4, const char *s5, const char *s6){
-    char *result = (char*)malloc(strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+strlen(s5)+strlen(s6)+1);
-    strcpy(result, s1);
-    strcat(result, s2);
-    strcat(result, s3);
-    strcat(result, s4);
-    strcat(result, s5);
-    strcat(result, s6);
-    return result;
-}
-
-char* concat(const char *s1, const char *s2, const char *s3, const char *s4, const char *s5, const char *s6, const char *s7){
-    char *result = (char*)malloc(strlen(s1)+strlen(s2)+strlen(s3)+strlen(s4)+strlen(s5)+strlen(s6)+strlen(s7)+1);
-    strcpy(result, s1);
-    strcat(result, s2);
-    strcat(result, s3);
-    strcat(result, s4);
-    strcat(result, s5);
-    strcat(result, s6);
-    strcat(result, s7);
-    return result;
-}

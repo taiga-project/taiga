@@ -6,7 +6,7 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
     int i, prof_size[2];
     double *radial_grid, *radial_profile, *cross_section_grid, *cross_section_profile, speed, ionisation_yeald, xsec_rad, xsec_ang;
     
-    char* shotname = concat(shot->shotnumber, "_", shot->time);
+    char* shotname = concat(shot->shotnumber, "_", shot->time, NULL);
     
     BeamProfile *prof;
     size_t size_prof = sizeof(BeamProfile);
