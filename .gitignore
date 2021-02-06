@@ -1,5 +1,11 @@
-#Ignored files and folders:
+# IDE
+src/.idea/
+
+# result folder
 results/*
 !results/.gitkeep
+
+# compiled files
 *.exe
 code/*.exe
+
