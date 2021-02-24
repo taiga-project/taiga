@@ -67,19 +67,21 @@ except:
 
 try:
 	
-	x = T[particle_on_detector]
-	y = Z[particle_on_detector]
-	xmin, xmax = -4e-2, 4e-2
-	ymin, ymax = -4e-2, 4e-2
+#	x = T[particle_on_detector]
+#	y = Z[particle_on_detector]
+#	xmin, xmax = -4e-2, 4e-2
+#	ymin, ymax = -4e-2, 4e-2
 	
 	fig = pl.figure()
 	ax = fig.gca()
-	ax.set_xlim(xmin, xmax)
-	ax.set_ylim(ymin, ymax)
+#	ax.set_xlim(xmin, xmax)
+#	ax.set_ylim(ymin, ymax)
 	ax.set_aspect('equal')
 	
 	# Contourf plot
-	pl.contourf(X[:,0],Y[::-1,0],C, cmap='afmhot')
+#	pl.contourf(X[:,0],Y[::-1,0],C, cmap='afmhot')
+	pl.contourf(C, cmap='afmhot')
+	print(C)
 	pl.xlabel(r"$x \mathrm{ [mm]}$")
 	pl.ylabel(r"$y \mathrm{ [mm]}$")
 except:

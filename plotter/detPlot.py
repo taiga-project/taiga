@@ -67,7 +67,7 @@ except:
 
 try:
 	particle_on_detector = np.abs((Z-Z0) *np.tan((detector_RZ_angle/180.0)*np.pi) + (R-R0)) < max_distance
-	
+
 	x = T[particle_on_detector]
 	y = Z[particle_on_detector]
 	xmin, xmax = -4e-2, 4e-2
@@ -95,7 +95,7 @@ try:
 	pl.xlabel(r"$T \mathrm{ [m]}$")
 	pl.ylabel(r"$Z \mathrm{ [m]}$")
 except:
-	print 'Unable to plot: '+results_folder
+	print 'Unable to plot: '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
 
 try:
 	print 'Save plot to '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
@@ -103,7 +103,7 @@ try:
 	pl.clf()
 
 except:
-	print 'Unable to save to : '+results_folder
+	print 'Unable to save to : '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
 	pl.show()
 
 xmin, xmax = -4e-2, 4e-2
