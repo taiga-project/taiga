@@ -59,18 +59,26 @@ except:
 results_folder = 'results/'+shotnumber+'_'+time+'/'+runnumber+'/'
 
 try:
-	C = np.loadtxt(results_folder+'detector/cellcounter.dat')
-	X = np.loadtxt(results_folder+'detector/detx')
-	Y = np.loadtxt(results_folder+'detector/dety')
+	R = np.loadtxt(results_folder+'rad.dat') #, delimiter="\t"
+	Z = np.loadtxt(results_folder+'z.dat')
+	T = np.loadtxt(results_folder+'tor.dat')
 except:
 	print 'Invalid input folder: '+results_folder
 
 try:
-	
+	particle_on_detector = np.abs((Z-Z0) *np.tan((detector_RZ_angle/180.0)*np.pi) + (R-R0)) < max_distance
+
 	x = T[particle_on_detector]
 	y = Z[particle_on_detector]
 	xmin, xmax = -4e-2, 4e-2
-	ymin, ymax = -4e-2, 4e-2
+	ymin, ymax = 18e-2, 26e-2
+	
+	# Peform the kernel density estimate
+	xx, yy = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
+	positions = np.vstack([xx.ravel(), yy.ravel()])
+	values = np.vstack([x, y])
+	kernel = st.gaussian_kde(values,0.05)
+	f = np.reshape(kernel(positions).T, xx.shape)
 	
 	fig = pl.figure()
 	ax = fig.gca()
@@ -79,19 +87,23 @@ try:
 	ax.set_aspect('equal')
 	
 	# Contourf plot
-	pl.contourf(X[:,0],Y[::-1,0],C, cmap='afmhot')
-	pl.xlabel(r"$x \mathrm{ [mm]}$")
-	pl.ylabel(r"$y \mathrm{ [mm]}$")
+	#cfset = ax.contourf(xx, yy, f, 500, cmap='hot')  # Blues, afmhot; magma, inferno
+	ax.hist2d(x, y, bins=250, range = [[xmin,xmax],[ymin,ymax]], cmap='afmhot')
+	# Contour plot
+	# Label plot
+
+	pl.xlabel(r"$T \mathrm{ [m]}$")
+	pl.ylabel(r"$Z \mathrm{ [m]}$")
 except:
-	print 'Unable to plot: '+results_folder
+	print 'Unable to plot: '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
 
 try:
-	print 'Save plot to '+results_folder+'detpy2_'+shotnumber+'_'+time+'.pdf'
-	pl.savefig(results_folder+'detpy2_'+shotnumber+'_'+time+'.pdf')
+	print 'Save plot to '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
+	pl.savefig(results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
 	pl.clf()
 
 except:
-	print 'Unable to save to : '+results_folder
+	print 'Unable to save to : '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf'
 	pl.show()
 
 xmin, xmax = -4e-2, 4e-2
