@@ -34,7 +34,7 @@ __global__ void detector_postproc(TaigaGlobals *global, TaigaCommons *common, De
         }
         
         if ((x_cellid != OUT_OF_RANGE) & (y_cellid != OUT_OF_RANGE)) {
-            global->detcellid[idx] = x_cellid + detector->length_xgrid * y_cellid + 1;
+            global->detcellid[idx] = detector->length_xgrid * (y_cellid + 1) - x_cellid;
         }
     }
 }
