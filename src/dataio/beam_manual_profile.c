@@ -3,24 +3,43 @@
 
 void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
     double *xr,*xz,*xt,*vr,*vz,*vt;
-    int profile_length = -1;
+    long profile_length = -1;
 
     if (strcmp(run->ion_source_file, "")){
         if (!strcmp(run->io_coordinate_order, "rtz") || !strcmp(run->io_coordinate_order, "RTZ")){
             profile_length = read_matrix_column(&g->rad, run->ion_source_file, 1);
             read_matrix_column(&g->z, run->ion_source_file, 3);
             read_matrix_column(&g->tor, run->ion_source_file, 2);
-            read_matrix_column(&g->vrad, run->ion_source_file, 4);
-            read_matrix_column(&g->vz, run->ion_source_file, 6);
-            read_matrix_column(&g->vtor, run->ion_source_file, 5);
+            if(read_matrix_column(&g->vrad, run->ion_source_file, 4)){
+                read_matrix_column(&g->vz, run->ion_source_file, 6);
+                read_matrix_column(&g->vtor, run->ion_source_file, 5);
+            }else{
+                if (run->debug==1)  printf("Velocity is calculated from beam energy\n");
+                double speed = sqrt(2.0 * beam->energy*1000.0*ELEMENTARY_CHARGE/ beam->mass/ AMU);
+                for (long i=0; i<profile_length; ++i){
+                    g->vrad[i] = -speed*cos(beam->vertical_deflection)*cos(beam->toroidal_deflection);
+                    g->vz[i]   =  speed*sin(beam->vertical_deflection);
+                    g->vtor[i] =  speed*cos(beam->vertical_deflection)*sin(beam->toroidal_deflection);
+                }
+            }
 
         }else if (!strcmp(run->io_coordinate_order, "rzt") || !strcmp(run->io_coordinate_order, "RZT")){
             profile_length = read_matrix_column(&g->rad, run->ion_source_file, 1);
             read_matrix_column(&g->z, run->ion_source_file, 2);
             read_matrix_column(&g->tor, run->ion_source_file, 3);
-            read_matrix_column(&g->vrad, run->ion_source_file, 4);
-            read_matrix_column(&g->vz, run->ion_source_file, 5);
-            read_matrix_column(&g->vtor, run->ion_source_file, 6);
+            if (read_matrix_column(&g->vrad, run->ion_source_file, 4)){
+                read_matrix_column(&g->vz, run->ion_source_file, 5);
+                read_matrix_column(&g->vtor, run->ion_source_file, 6);
+            }else{
+                if (run->debug==1)  printf("Velocity is calculated from beam energy\n");
+                double speed = sqrt(2.0 * beam->energy*1000.0*ELEMENTARY_CHARGE/ beam->mass/ AMU);
+                printf("energy: %lf keV,\tmass: %lf amu\tspeed: %lf m/s\n", beam->energy, beam->mass, speed);
+                for (long i=0; i<profile_length; ++i){
+                    g->vrad[i] = -speed*cos(beam->vertical_deflection)*cos(beam->toroidal_deflection);
+                    g->vz[i]   =  speed*sin(beam->vertical_deflection);
+                    g->vtor[i] =  speed*cos(beam->vertical_deflection)*sin(beam->toroidal_deflection);
+                }
+            }
             
         }else{
             printf("Invalid input format. Reading directly.");
