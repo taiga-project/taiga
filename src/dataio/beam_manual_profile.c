@@ -15,7 +15,7 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
                 read_matrix_column(&g->vtor, run->ion_source_file, 5);
             }else{
                 if (run->debug==1)  printf("Velocity is calculated from beam energy\n");
-                double speed = sqrt(2.0 * beam->energy*1000.0*ELEMENTARY_CHARGE/ beam->mass/ AMU);
+                double speed = calculate_speed(beam->energy, beam->mass);
                 for (long i=0; i<profile_length; ++i){
                     g->vrad[i] = -speed*cos(beam->vertical_deflection)*cos(beam->toroidal_deflection);
                     g->vz[i]   =  speed*sin(beam->vertical_deflection);
@@ -32,7 +32,7 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
                 read_matrix_column(&g->vtor, run->ion_source_file, 6);
             }else{
                 if (run->debug==1)  printf("Velocity is calculated from beam energy\n");
-                double speed = sqrt(2.0 * beam->energy*1000.0*ELEMENTARY_CHARGE/ beam->mass/ AMU);
+                double speed = calculate_speed(beam->energy, beam->mass);
                 printf("energy: %lf keV,\tmass: %lf amu\tspeed: %lf m/s\n", beam->energy, beam->mass, speed);
                 for (long i=0; i<profile_length; ++i){
                     g->vrad[i] = -speed*cos(beam->vertical_deflection)*cos(beam->toroidal_deflection);
