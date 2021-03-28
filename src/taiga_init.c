@@ -5,9 +5,6 @@
 #include "running/generate_coords.cuh"
 #include "dataio/beam.h"
 
-void init_taiga(TaigaGlobals *g, TaigaCommons *s){
-}
-
 void init_host(TaigaGlobals *g, TaigaCommons *s){
     s->step_counter = 0;
     s->max_step_number = 0;
