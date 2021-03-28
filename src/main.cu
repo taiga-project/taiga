@@ -151,7 +151,7 @@ int main(int argc, char *argv[]){
         //! grid
         init_grid(shot, run, host_common, shared_common);
         magnetic_field_read_and_init(shot, run, host_common, shared_common);
-        if (shot.is_electric_field_on) shot.is_electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
+        if (run.is_electric_field_on) run.is_electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
         
         // detector
         set_detector_geometry(shot, host_common, shared_common);

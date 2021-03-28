@@ -7,7 +7,7 @@
 
 char* clean_string (char* str_in){
     char* str_out = str_in;
-    ++str_out;    
+    ++str_out;
     str_out[strlen(str_out)-2] = 0;
     return str_out;
 }
@@ -34,7 +34,7 @@ void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp 
     else if (!strcmp(par_name, "diameter"))                 beam->diameter = par_value_lf/1000.0;
     else if (!strcmp(par_name, "detector"))                 strcpy(shot->detector_geometry, clean_string(par_value));
     else if (!strcmp(par_name, "detector_mask"))            strcpy(shot->detector_mask, clean_string(par_value));
-    else if (!strcmp(par_name, "electric_field_module"))    shot->is_electric_field_on = (bool)par_value_d;
+    else if (!strcmp(par_name, "electric_field_module"))    run->is_electric_field_on = (bool)par_value_d;
     else if (!strcmp(par_name, "timestep"))                 run->timestep = par_value_lf;
     else if (!strcmp(par_name, "step_device"))              run->step_device = par_value_d;
     else if (!strcmp(par_name, "step_host"))                run->step_host = par_value_d;
@@ -57,7 +57,7 @@ int parameter_reader(BeamProp *beam, ShotProp *shot, RunProp *run){
         return 1;
     }
     while (fgets(str, MAXCHAR, fp) != NULL){
-        if (str[0] != '#'){        
+        if (str[0] != '#'){
             par_name = strtok(str, "=");
             par_value = strtok(NULL, "#");
             init_taiga_props(par_name, par_value, beam, shot, run);
