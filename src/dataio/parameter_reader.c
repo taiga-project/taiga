@@ -5,10 +5,7 @@
 
 #define MAXCHAR 1000
 
-#define MASS_OF_D 2.013553212724
-#define MASS_OF_LI7 7.016004558
-#define MASS_OF_NA23 22.98976928
-#define MASS_OF_K40 39.9639984821
+#define MASS_OF_ELECTRON 0.000549
 
 char* clean_string (char* str_in){
     char* str_out = str_in;
@@ -116,5 +113,5 @@ double get_mass(char *name_of_ion){
             mass = 7.016004558;
         }
     }
-    return mass;
+    return mass-MASS_OF_ELECTRON;
 }
