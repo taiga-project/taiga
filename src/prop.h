@@ -3,6 +3,8 @@
 
 #define SOLVER_RK45 45
 
+#define MAGNETIC_FIELD_FROM_SPLINE 0
+
 struct TaigaGlobals{
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
@@ -72,6 +74,7 @@ struct RunProp{
     long step_device;        // on GPU
     double timestep;
     int solver;
+    int magnetic_field_mode;
     bool is_electric_field_on;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
     char runnumber[STRING_LENGTH];
@@ -92,6 +95,7 @@ void init_run_prop(RunProp *run){
     run->step_device = 2000; // on GPU
     run->timestep = 1e-9;
     run->solver = SOLVER_RK45;
+    run->magnetic_field_mode = MAGNETIC_FIELD_FROM_SPLINE;
     run->is_electric_field_on = false;
     run->cpu_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_copy = UNDEFINED_FLOAT;
