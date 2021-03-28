@@ -21,10 +21,12 @@ struct TaigaCommons{
     long step_counter;
     double eperm;
     double timestep;
-    int *grid_size; 
+    int solver;
+    int *grid_size;
     double *spline_rgrid;
     double *spline_zgrid;
     double **brad, **bz, **btor;
+    int magnetic_field_mode;
     bool is_electric_field_on;
     double **erad, **ez, **etor;
     double *detector_geometry;
