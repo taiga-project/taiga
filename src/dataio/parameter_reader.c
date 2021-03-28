@@ -5,6 +5,11 @@
 
 #define MAXCHAR 1000
 
+#define MASS_OF_D 2.013553212724
+#define MASS_OF_LI7 7.016004558
+#define MASS_OF_NA23 22.98976928
+#define MASS_OF_K40 39.9639984821
+
 char* clean_string (char* str_in){
     char* str_out = str_in;
     ++str_out;
@@ -93,28 +98,20 @@ void set_solver(RunProp *run, char* solver){
     }
 }
 
-double get_mass(char *s){
+double get_mass(char *name_of_ion){
     double mass;
     
-    if (strcmp(s,"D")==0){
+    if (!strcmp(name_of_ion,"D") || !strcmp(name_of_ion,"H2")){
         mass = 2.013553212724;
-    }else if (strcmp(s,"Li")==0){
+    }else if (!strcmp(name_of_ion,"Li") || !strcmp(name_of_ion,"Li7")){
         mass = 7.016004558;
-    }else if (strcmp(s,"Na")==0){
+    }else if (!strcmp(name_of_ion,"Na") || !strcmp(name_of_ion,"Na23")){
         mass = 22.98976928;
-    }else if (strcmp(s,"K")==0){
-        mass = 39.9639984821;
-    }else if (strcmp(s,"H2")==0){
-        mass = 2.013553212724;
-    }else if (strcmp(s,"Li7")==0){
-        mass = 7.016004558;
-    }else if (strcmp(s,"Na23")==0){
-        mass = 22.98976928;
-    }else if (strcmp(s,"K40")==0){
+    }else if (!strcmp(name_of_ion,"K") || !strcmp(name_of_ion,"K40")){
         mass = 39.9639984821;
     }else{
         try{
-            mass = atof(s);
+            mass = atof(name_of_ion);
         }catch (...){
             mass = 7.016004558;
         }
