@@ -73,7 +73,7 @@ int parameter_reader(BeamProp *beam, ShotProp *shot, RunProp *run){
 }
 
 int runnumber_reader(ShotProp *shot, RunProp *run){
-    if (strcmp(run->runnumber,"0") == 0){
+    if (!strcmp(run->runnumber, UNDEFINED_RUNNUMBER)){
         FILE *fp;
         char txt[10], *runnumber;
         

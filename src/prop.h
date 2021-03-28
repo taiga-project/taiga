@@ -1,6 +1,8 @@
 #ifndef PROP_H
 #define PROP_H
 
+#define UNDEFINED_RUNNUMBER "/"
+
 #define SOLVER_RK45 45
 
 #define MAGNETIC_FIELD_FROM_SPLINE 0
@@ -102,7 +104,7 @@ void init_run_prop(RunProp *run){
     run->cpu_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_core = UNDEFINED_FLOAT;
-    strcpy(run->runnumber, "0");
+    strcpy(run->runnumber, UNDEFINED_RUNNUMBER);
     strcpy(run->parameter_file, "parameters.sh");
     strcpy(run->runnumber_file, "runnumber");
     strcpy(run->ion_source_file, "");
