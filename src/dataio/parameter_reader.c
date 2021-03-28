@@ -15,7 +15,6 @@ char* clean_string (char* str_in){
 }
 
 void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp *shot, RunProp *run){
-    
     double par_value_lf;    sscanf(par_value, "%lf", &par_value_lf);
     int par_value_d;        sscanf(par_value, "%d", &par_value_d);
     
@@ -48,7 +47,6 @@ void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp 
 }
 
 int parameter_reader(BeamProp *beam, ShotProp *shot, RunProp *run){
-    
     FILE *fp;
     char str[MAXCHAR];
     char* par_name;
