@@ -1,6 +1,13 @@
 #ifndef PROP_H
 #define PROP_H
 
+#define UNDEFINED_RUNNUMBER "/"
+
+#define SOLVER_RK45 45
+
+#define MAGNETIC_FIELD_FROM_VALUE 0
+#define MAGNETIC_FIELD_FROM_FLUX 1
+
 struct TaigaGlobals{
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;
@@ -17,10 +24,12 @@ struct TaigaCommons{
     long step_counter;
     double eperm;
     double timestep;
-    int *grid_size; 
+    int solver;
+    int *grid_size;
     double *spline_rgrid;
     double *spline_zgrid;
     double **brad, **bz, **btor;
+    int magnetic_field_mode;
     bool is_electric_field_on;
     double **erad, **ez, **etor;
     double *detector_geometry;
@@ -50,7 +59,6 @@ struct ShotProp{
     char time[STRING_LENGTH];
     char detector_mask[STRING_LENGTH];
     char detector_geometry[STRING_LENGTH];
-    bool is_electric_field_on;
 };
 
 void init_shot_prop(ShotProp *shot){
@@ -59,7 +67,6 @@ void init_shot_prop(ShotProp *shot){
     strcpy(shot->time, "1000");
     strcpy(shot->detector_mask, "test");
     strcpy(shot->detector_geometry, "0.685,0.23,0,38,0");
-    shot->is_electric_field_on = false;
 };
 
 struct RunProp{
@@ -71,6 +78,9 @@ struct RunProp{
     long step_host;          // on HDD
     long step_device;        // on GPU
     double timestep;
+    int solver;
+    int magnetic_field_mode;
+    bool is_electric_field_on;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
     char runnumber[STRING_LENGTH];
     char parameter_file[STRING_LENGTH];
@@ -89,10 +99,13 @@ void init_run_prop(RunProp *run){
     run->step_host = 1;      // on HDD
     run->step_device = 2000; // on GPU
     run->timestep = 1e-9;
+    run->solver = SOLVER_RK45;
+    run->magnetic_field_mode = MAGNETIC_FIELD_FROM_VALUE;
+    run->is_electric_field_on = false;
     run->cpu_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_core = UNDEFINED_FLOAT;
-    strcpy(run->runnumber, "0");
+    strcpy(run->runnumber, UNDEFINED_RUNNUMBER);
     strcpy(run->parameter_file, "parameters.sh");
     strcpy(run->runnumber_file, "runnumber");
     strcpy(run->ion_source_file, "");

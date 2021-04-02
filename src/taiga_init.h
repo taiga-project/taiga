@@ -1,4 +1,3 @@
-void init_taiga(TaigaGlobals *g, TaigaCommons *s);
 void init_host(TaigaGlobals *g, TaigaCommons *s);
 void init_grid(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared);
 void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_host, TaigaGlobals *g_shared);
