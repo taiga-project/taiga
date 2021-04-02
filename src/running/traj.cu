@@ -104,6 +104,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     double eperm = c->eperm;
     double timestep = c->timestep;
     bool is_electric_field_on = c->is_electric_field_on;
+    int magnetic_field_mode = c->magnetic_field_mode;
     
     double  X_prev[6];
     
@@ -124,6 +125,13 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
         local_brad = calculate_local_field(local_spline_brad, dr, dz);
         local_bz   = calculate_local_field(local_spline_bz,   dr, dz);
         local_btor = calculate_local_field(local_spline_btor, dr, dz);
+        
+        if (magnetic_field_mode == MAGNETIC_FIELD_FROM_FLUX){
+            local_brad /= -X[0];    //Brad = -dPsi_dZ / R
+            local_bz   /=  X[0];    //Bz = dPsi_dR / R
+            local_btor /=  X[0];    //Btor = (R*Btor) / R
+        }
+        
         local_brad = cyl2tor_rad  (local_brad, local_btor, X[0], X[2]);
         local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);
         
