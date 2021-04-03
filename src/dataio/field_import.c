@@ -95,6 +95,7 @@ int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     s_shared->brad = br_ptr;
     s_shared->bz   = bz_ptr;
     s_shared->btor = bt_ptr;
+    s_shared->magnetic_field_mode = run.magnetic_field_mode;
     
     if (s == 0){
         printf("Fatal error in the memory allocation of the magnetic field\n");
