@@ -176,7 +176,6 @@ void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals
     c_shared->eperm                 = ELEMENTARY_CHARGE/ AMU/ beam.mass;
     c_shared->timestep              = run.timestep;
     c_shared->solver                = run.solver;
-    c_shared->magnetic_field_mode   = run.magnetic_field_mode;
 }
 
 void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global){
