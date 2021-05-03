@@ -2,6 +2,7 @@ from crm_solver.beamlet import Beamlet
 import pandas
 import numpy
 import lxml
+import os
 
 
 def get_param():
@@ -21,6 +22,13 @@ def get_components():
     return components
 
 
+def load_profiles():
+    distance = [0, 0.1, 0.2]
+    density = [1e19, 1.2e19, 1.5e19]
+    temperature = [1000, 1500, 2500]
+    return distance, density, temperature
+
+
 def get_profiles():
     tuples = [('beamlet grid', 'distance', 'm'),
               ('electron', 'density', 'm-3'),
@@ -29,10 +37,8 @@ def get_profiles():
               ('ion1', 'temperature', 'eV')]
 
     header = pandas.MultiIndex.from_tuples(tuples, names=['type', 'property', 'unit'])
+    distance, density, temperature = load_profiles()
 
-    distance = [0, 0.1, 0.2]
-    density = [1e19, 1.2e19, 1.5e19]
-    temperature = [1000, 1500, 2500]
     profiles_data = numpy.transpose(numpy.array([distance, density, temperature, density, temperature]))
     profiles = pandas.DataFrame(profiles_data, columns=header)
 
@@ -47,10 +53,10 @@ def export_beamlet_profile():
     ionisation_degree = 1 - rates.sum(1)
     print(ionisation_degree)
 
-    b.profiles.to_html('data/output/matyi/temp.html')
-    b.profiles.to_csv('data/output/matyi/temp.txt')
     b.profiles['beamlet grid'].to_csv('data/output/matyi/rad.txt', index=False, header=False)
     ionisation_degree.to_csv('data/output/matyi/degree.txt', index=False, header=False)
+
+    print(b.profiles)
 
 
 if __name__ == "__main__":
