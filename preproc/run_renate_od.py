@@ -1,8 +1,8 @@
 from crm_solver.beamlet import Beamlet
+from load_ts_profile import *
 import pandas
 import numpy
 import lxml
-import os
 
 
 def get_param():
@@ -22,13 +22,6 @@ def get_components():
     return components
 
 
-def load_profiles():
-    distance = [0, 0.1, 0.2]
-    density = [1e19, 1.2e19, 1.5e19]
-    temperature = [1000, 1500, 2500]
-    return distance, density, temperature
-
-
 def get_profiles():
     tuples = [('beamlet grid', 'distance', 'm'),
               ('electron', 'density', 'm-3'),
@@ -45,7 +38,7 @@ def get_profiles():
     return profiles
 
 
-def export_beamlet_profile():
+def export_beamlet_profile(export_directory='data/output/matyi'):
     b = Beamlet(param=get_param(), profiles=get_profiles(), components=get_components())
     pops = b.profiles.filter(like='level', axis=1)
     reference_pop = pops.iat[0, 0]
@@ -53,8 +46,8 @@ def export_beamlet_profile():
     ionisation_degree = 1 - rates.sum(1)
     print(ionisation_degree)
 
-    b.profiles['beamlet grid'].to_csv('data/output/matyi/rad.txt', index=False, header=False)
-    ionisation_degree.to_csv('data/output/matyi/degree.txt', index=False, header=False)
+    b.profiles['beamlet grid'].to_csv(export_directory+'/rad.txt', index=False, header=False)
+    ionisation_degree.to_csv(export_directory+'/degree.txt', index=False, header=False)
 
     print(b.profiles)
 
