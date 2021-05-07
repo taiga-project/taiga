@@ -46,50 +46,57 @@ class ThomsonProfiles:
         except KeyError:
             home_directory = '/home/matyi/work/taiga_local'  # '.'
 
-        data_directory = home_directory + '/' + database_directory + '/' + str(shot_number)
-        thomson_directory = data_directory + '/' + thomson_subdir
-        efit_file = data_directory + '/' + efit_subdir + '/' + 'EFITXX.' + str(reconstruction_id) + '.h5'
+        self.data_directory = home_directory + '/' + database_directory + '/' + str(shot_number)
+        self.thomson_directory = self.data_directory + '/' + thomson_subdir
+        self.efit_file = self.data_directory + '/' + efit_subdir + '/' + 'EFITXX.' + str(reconstruction_id) + '.h5'
+        self.reconstruction_id = reconstruction_id
+        self.ts_time_source = ts_time_source
+        self.time = time
 
+        self.read_thomson_database()
+        self.plot_profiles()
+
+    def read_thomson_database(self):
         try:
-            time_dataset = self.get_ts_dataset('TS_' + ts_time_source + '_time', thomson_directory, reconstruction_id=1)
-            z_axis = self.get_ts_dataset('TS_z_axis', thomson_directory, reconstruction_id)
-            print('Thomson scattering time and geometry files read successfully from: ' + thomson_directory)
+            time_dataset = self.get_ts_dataset('TS_' + self.ts_time_source + '_time', reconstruction_id=1)
+            z_axis = self.get_ts_dataset('TS_z_axis', self.reconstruction_id)
+            print('Thomson scattering time and geometry files read successfully from: ' + self.thomson_directory)
         except OSError:
             raise OSError('Invalid Thomson scattering file structure! '
-                          '\nPlease check the directory tree here:\n' + thomson_directory)
+                          '\nPlease check the directory tree here:\n' + self.thomson_directory)
         except KeyError:
             raise KeyError(
                 'Invalid Thomson scattering data structure!\nExample for a correct structure:\nTe.1.h5\n\tTe')
 
-        time_index = self.get_ts_time_index(time, time_dataset)
+        self.time_index = self.get_ts_time_index(time_dataset)
 
         try:
-            temperature_profile = self.get_ts_profile('Te', time_index, thomson_directory, reconstruction_id)
-            temperature_error_profile = self.get_ts_profile('Te_err', time_index, thomson_directory, reconstruction_id)
-            density_profile = self.get_ts_profile('ne', time_index, thomson_directory, reconstruction_id)
-            density_error_profile = self.get_ts_profile('ne_err', time_index, thomson_directory, reconstruction_id)
-            normalised_poloidal_flux_profile = self.get_ts_profile('psi_n', time_index, thomson_directory,
-                                                                   reconstruction_id=1)
-            print('Thomson scattering profile files read successfully from: ' + thomson_directory)
+            self.temperature_profile = self.get_ts_profile('Te', reconstruction_id=self.reconstruction_id)
+            self.temperature_error_profile = self.get_ts_profile('Te_err', reconstruction_id=self.reconstruction_id)
+            self.density_profile = self.get_ts_profile('ne', reconstruction_id=self.reconstruction_id)
+            self.density_error_profile = self.get_ts_profile('ne_err', reconstruction_id=self.reconstruction_id)
+            self.normalised_poloidal_flux_profile = self.get_ts_profile('psi_n', reconstruction_id=1)
+            print('Thomson scattering profile files read successfully from: ' + self.thomson_directory)
         except OSError:
             raise OSError('Invalid Thomson scattering file structure! '
-                          '\nPlease check the directory tree here:\n' + thomson_directory)
+                          '\nPlease check the directory tree here:\n' + self.thomson_directory)
         except KeyError:
             raise KeyError(
                 'Invalid Thomson scattering data structure!\nExample for a correct structure:\nTe.1.h5\n\tTe')
 
-        self.plot_profile(normalised_poloidal_flux_profile, temperature_profile, temperature_error_profile)
-        self.plot_profile(normalised_poloidal_flux_profile, density_profile, density_error_profile)
+    def plot_profiles(self):
+        self.plot_profile(self.normalised_poloidal_flux_profile, self.temperature_profile, self.temperature_error_profile)
+        self.plot_profile(self.normalised_poloidal_flux_profile, self.density_profile, self.density_error_profile)
 
-    def get_ts_time_index(self, time, time_dataset):
-        return (numpy.abs(time_dataset - int(time))).argmin()
+    def get_ts_time_index(self, time_dataset):
+        return (numpy.abs(time_dataset - int(self.time))).argmin()
 
-    def get_ts_dataset(self, field, thomson_directory, reconstruction_id):
-        file = h5py.File(thomson_directory + '/' + field + '.' + str(reconstruction_id) + '.h5')
+    def get_ts_dataset(self, field, reconstruction_id):
+        file = h5py.File(self.thomson_directory + '/' + field + '.' + str(reconstruction_id) + '.h5')
         return file[field][()]
 
-    def get_ts_profile(self, field, time_index, thomson_directory, reconstruction_id):
-        return self.get_ts_dataset(field, thomson_directory, reconstruction_id)[time_index]
+    def get_ts_profile(self, field, reconstruction_id):
+        return self.get_ts_dataset(field, reconstruction_id)[self.time_index]
 
     def filter_sol_outliers(self, x, y):
         return (numpy.fmin.accumulate(y) == y) | (x < 1.02)
