@@ -30,7 +30,11 @@ def get_profiles():
               ('ion1', 'temperature', 'eV')]
 
     header = pandas.MultiIndex.from_tuples(tuples, names=['type', 'property', 'unit'])
-    distance, density, temperature = load_profiles()
+
+    p = MockedProfiles()
+    distance = p.get_distance()
+    density = p.get_density()
+    temperature = p.get_temperature()
 
     profiles_data = numpy.transpose(numpy.array([distance, density, temperature, density, temperature]))
     profiles = pandas.DataFrame(profiles_data, columns=header)
