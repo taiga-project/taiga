@@ -1,5 +1,6 @@
 # IDE
 src/.idea/
+*/__pycache__
 
 # result folder
 results/*

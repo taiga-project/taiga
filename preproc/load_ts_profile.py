@@ -1,9 +1,12 @@
 import os
-import numpy
 import h5py
 import matplotlib
+import numpy
 import scipy
 from statsmodels.nonparametric.smoothers_lowess import lowess
+
+from stefanikova2016 import *
+
 
 def get_ts_time_index(time, time_dataset):
     return (numpy.abs(time_dataset - int(time))).argmin()
@@ -18,27 +21,20 @@ def get_ts_profile(field, time_index, thomson_directory, reconstruction_id):
     return get_ts_dataset(field, thomson_directory, reconstruction_id)[time_index]
 
 
-def stefanikova_core(r, a_height, a_width, a_exp):
-    return a_height * (numpy.exp(-r**2 / a_width) ** a_exp)
-
-
-def stefanikova_ped(r, b_height, b_sol, b_pos, b_width, b_slope):
-    return (b_height - b_sol) / 2 * (mtanh((b_pos - r) / (2 * b_width), b_slope) + 1)
-
-
-def mtanh(x, b_slope):
-    return ((1 + b_slope * x) * scipy.exp(x) - scipy.exp(-x)) / (scipy.exp(x) + scipy.exp(-x))
+def filter_sol_outliers(x, y):
+    return (numpy.fmin.accumulate(y) == y) | (x < 1.02)
 
 
 def get_valid_profile_indices(x, y, yerr):
-    return numpy.where(~numpy.isnan(x) & (yerr < y) & (x > 0.1) & (x < 1.1))
+    return numpy.where(~numpy.isnan(y) & (x > 0.0) & (x < 1.2) &
+                       (yerr < y) & filter_sol_outliers(x, y))
 
 
-def get_valid_profile(x, y, yerr):
-    valid_indices = get_valid_profile_indices(x, y, yerr)
-    x = x[valid_indices]
-    y = y[valid_indices]
-    yerr = yerr[valid_indices]
+def get_valid_profile(x_in, y_in, yerr_in):
+    valid_indices = get_valid_profile_indices(x_in, y_in, yerr_in)
+    x = x_in[valid_indices]
+    y = y_in[valid_indices]
+    yerr = yerr_in[valid_indices]
     return x, y, yerr
 
 
@@ -48,27 +44,53 @@ def add_error_to_raw_profile(x, y, yerr):
     return x2.flatten(), y2.flatten()
 
 
-def get_fitted_profile(x, y, yerr):
-    x2, y2 = add_error_to_raw_profile(x, y, yerr)
-    #fit = scipy.optimize.curve_fit(stefanikova_ped, x, y, sigma=yerr, p0=[y2[0], y2[-1], 1, 0.02, y2[0]/1000])
-    fit = scipy.optimize.curve_fit(stefanikova_core, x, y, sigma=3 * yerr, p0=[y2[0], 0.4, 3])
+def set_negatives_to_zero(x):
+    return x*(x > 0)
+
+
+def get_smoothed_profile(x, y):
+    smooth = lowess(y, x, is_sorted=True, frac=0.3, it=0)
+    y_smooth = smooth[:, 1]
+    y_smooth_non_zero = set_negatives_to_zero(y_smooth)
+    return refine_smoothed_profile(x, y_smooth_non_zero)
+
+
+def refine_smoothed_profile(x_in, y_in):
+    f = interpolate_smoothed_profile(x_in, y_in)
+    x = numpy.linspace(x_in[0], 1.2, 1000)
+    return x, f(x)
+
+
+def interpolate_smoothed_profile(x, y):
+    x_ext = numpy.append(x, [x[-1]+0.001, 1.2])
+    y_ext = numpy.append(y, [0., 0.])
+    return scipy.interpolate.interp1d(x_ext, y_ext, kind='linear')
+
+
+def get_fitted_profile(x, y):
+    fit = scipy.optimize.curve_fit(stefanikova_ped_old, x, y,
+                                   p0=[y[0], y[-1], 1, 0.02, y[0]/1000])
     p = fit[0]
-    #return stefanikova_core(x, p[0], p[1], p[2])
-    return lowess(y, x, is_sorted=True, frac=0.3, it=0)
+    return x, stefanikova_ped(p, x)
 
 
-def plot_profile(x, y, yerr):
-    x, y, yerr = get_valid_profile(x, y, yerr)
-    y_fit = get_fitted_profile(x, y, yerr)
+def plot_profile(x_raw, y_raw, yerr_raw):
+    x, y, yerr = get_valid_profile(x_raw, y_raw, yerr_raw)
+    x_smooth, y_smooth = get_smoothed_profile(x, y)
+    #x_fit, y_fit = get_fitted_profile(x, y_smooth)
 
     fig, ax = matplotlib.pyplot.subplots()
+    ax.plot(x_raw, y_raw, '.')
     ax.plot(x, y, '.')
-    ax.fill_between(x, y - 3 * yerr, y + 3 * yerr, color='gray', alpha=0.2)
-    ax.plot(x, y_fit)
+    ax.fill_between(x, y - 1 * yerr, y + 1 * yerr, color='gray', alpha=0.4)
+    ax.fill_between(x, y - 3 * yerr, y + 3 * yerr, color='gray', alpha=0.3)
+    ax.fill_between(x, y - 5 * yerr, y + 5 * yerr, color='gray', alpha=0.2)
+    ax.plot(x_smooth, y_smooth)
+    #ax.plot(x_fit, y_fit)
     matplotlib.pyplot.show()
 
 
-def load_profiles(shot_number='17178', time='1097', reconstruction_id=1,
+def load_profiles(shot_number='17178', time='1097', reconstruction_id=2,
                   database_directory='input/cdb', thomson_subdir='THOMSON', efit_subdir='EFITXX',
                   ts_time_source='EFIT'):
     try:

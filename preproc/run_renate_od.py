@@ -1,8 +1,8 @@
+import pandas
+import lxml
+
 from crm_solver.beamlet import Beamlet
 from load_ts_profile import *
-import pandas
-import numpy
-import lxml
 
 
 def get_param():
