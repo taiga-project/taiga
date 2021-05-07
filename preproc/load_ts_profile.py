@@ -38,20 +38,18 @@ def get_valid_profile(x_in, y_in, yerr_in):
     return x, y, yerr
 
 
-def add_error_to_raw_profile(x, y, yerr):
-    x2 = x * numpy.ones((100, len(x)))
-    y2 = y + yerr * numpy.random.randn(100, len(y))
-    return x2.flatten(), y2.flatten()
-
-
 def set_negatives_to_zero(x):
     return x*(x > 0)
 
 
-def get_smoothed_profile(x, y):
+def smooth_profile(x, y):
     smooth = lowess(y, x, is_sorted=True, frac=0.3, it=0)
     y_smooth = smooth[:, 1]
-    y_smooth_non_zero = set_negatives_to_zero(y_smooth)
+    return set_negatives_to_zero(y_smooth)
+
+
+def get_smoothed_profile(x, y):
+    y_smooth_non_zero = smooth_profile(x, y)
     return refine_smoothed_profile(x, y_smooth_non_zero)
 
 
@@ -127,8 +125,8 @@ def load_profiles(shot_number='17178', time='1097', reconstruction_id=2,
     except KeyError:
         raise KeyError('Invalid Thomson scattering data structure!\nExample for a correct structure:\nTe.1.h5\n\tTe')
 
-    plot_profile(numpy.sqrt(normalised_poloidal_flux_profile), temperature_profile, temperature_error_profile)
-    plot_profile(numpy.sqrt(normalised_poloidal_flux_profile), density_profile, density_error_profile)
+    plot_profile(normalised_poloidal_flux_profile, temperature_profile, temperature_error_profile)
+    plot_profile(normalised_poloidal_flux_profile, density_profile, density_error_profile)
 
     distance, density, temperature = load_profiles_mock()
     return distance, density, temperature
