@@ -53,7 +53,18 @@ class ThomsonProfiles:
         self.ts_time_source = ts_time_source
         self.time = time
 
+        self.time_index = []
+        self.temperature_profile = []
+        self.temperature_error_profile = []
+        self.density_profile = []
+        self.density_error_profile = []
+        self.normalised_poloidal_flux_profile = []
+
         self.read_thomson_database()
+        self.density_manager = ProfileManager(self.normalised_poloidal_flux_profile,
+                                              self.density_profile, self.density_error_profile)
+        self.temperature_manager = ProfileManager(self.normalised_poloidal_flux_profile,
+                                                  self.temperature_profile, self.temperature_error_profile)
         self.plot_profiles()
 
     def read_thomson_database(self):
@@ -85,8 +96,8 @@ class ThomsonProfiles:
                 'Invalid Thomson scattering data structure!\nExample for a correct structure:\nTe.1.h5\n\tTe')
 
     def plot_profiles(self):
-        self.plot_profile(self.normalised_poloidal_flux_profile, self.temperature_profile, self.temperature_error_profile)
-        self.plot_profile(self.normalised_poloidal_flux_profile, self.density_profile, self.density_error_profile)
+        self.density_manager.plot_profile()
+        self.temperature_manager.plot_profile()
 
     def get_ts_time_index(self, time_dataset):
         return (numpy.abs(time_dataset - int(self.time))).argmin()
@@ -98,61 +109,66 @@ class ThomsonProfiles:
     def get_ts_profile(self, field, reconstruction_id):
         return self.get_ts_dataset(field, reconstruction_id)[self.time_index]
 
-    def filter_sol_outliers(self, x, y):
-        return (numpy.fmin.accumulate(y) == y) | (x < 1.02)
 
-    def get_valid_profile_indices(self, x, y, yerr):
-        return numpy.where(~numpy.isnan(y) & (x > 0.0) & (x < 1.2) &
-                           (yerr < y) & self.filter_sol_outliers(x, y))
+def set_negatives_to_zero(values):
+    return values * (values > 0)
 
-    def get_valid_profile(self, x_in, y_in, yerr_in):
-        valid_indices = self.get_valid_profile_indices(x_in, y_in, yerr_in)
-        x = x_in[valid_indices]
-        y = y_in[valid_indices]
-        yerr = yerr_in[valid_indices]
-        return x, y, yerr
 
-    def set_negatives_to_zero(self, x):
-        return x * (x > 0)
+class ProfileManager:
+    def __init__(self, x, y, y_error):
+        self.x_raw = x
+        self.y_raw = y
+        self.y_error_raw = y_error
+        self.x = x
+        self.y = y
+        self.y_error = y_error
+        self.y_smooth = []
+        self.f_smooth = ValueError
 
-    def smooth_profile(self, x, y):
-        smooth = lowess(y, x, is_sorted=True, frac=0.3, it=0)
+        self.x_fine = []
+        self.y_fine = []
+
+        self.get_valid_profile()
+        self.get_smoothed_profile()
+
+    def get_valid_profile(self):
+        valid_indices = self.get_valid_profile_indices()
+        self.x = self.x_raw[valid_indices]
+        self.y = self.y_raw[valid_indices]
+        self.y_error = self.y_error_raw[valid_indices]
+
+    def get_valid_profile_indices(self):
+        return numpy.where(~numpy.isnan(self.y) & (self.x > 0.0) & (self.x < 1.2) &
+                           (self.y_error < self.y) & self.filter_sol_outliers())
+
+    def filter_sol_outliers(self):
+        return (numpy.fmin.accumulate(self.y) == self.y) | (self.x < 1.02)
+
+    def get_smoothed_profile(self):
+        self.smooth_profile()
+        self.refine_smoothed_profile()
+
+    def smooth_profile(self):
+        smooth = lowess(self.y, self.x, is_sorted=True, frac=0.3, it=0)
         y_smooth = smooth[:, 1]
-        return self.set_negatives_to_zero(y_smooth)
+        self.y_smooth = set_negatives_to_zero(y_smooth)
 
-    def get_smoothed_profile(self, x, y):
-        y_smooth_non_zero = self.smooth_profile(x, y)
-        return self.refine_smoothed_profile(x, y_smooth_non_zero)
+    def refine_smoothed_profile(self):
+        self.interpolate_smoothed_profile()
+        self.x_fine = numpy.linspace(self.x[0], 1.2, 1000)
+        self.y_fine = self.f_smooth(self.x_fine)
 
-    def refine_smoothed_profile(self, x_in, y_in):
-        f = self.interpolate_smoothed_profile(x_in, y_in)
-        x = numpy.linspace(x_in[0], 1.2, 1000)
-        return x, f(x)
+    def interpolate_smoothed_profile(self):
+        x_ext = numpy.append(self.x, [self.x[-1] + 0.001, 1.2])
+        y_ext = numpy.append(self.y_smooth, [0., 0.])
+        self.f_smooth = scipy.interpolate.interp1d(x_ext, y_ext, kind='linear', bounds_error=False)
 
-    def interpolate_smoothed_profile(self, x, y):
-        x_ext = numpy.append(x, [x[-1] + 0.001, 1.2])
-        y_ext = numpy.append(y, [0., 0.])
-        return scipy.interpolate.interp1d(x_ext, y_ext, kind='linear')
-
-    def get_fitted_profile(self, x, y):
-        fit = scipy.optimize.curve_fit(stefanikova_ped_old, x, y,
-                                       p0=[y[0], y[-1], 1, 0.02, y[0] / 1000])
-        p = fit[0]
-        return x, stefanikova_ped(p, x)
-
-    def plot_profile(self, x_raw, y_raw, yerr_raw):
-        x, y, yerr = self.get_valid_profile(x_raw, y_raw, yerr_raw)
-        x_smooth, y_smooth = self.get_smoothed_profile(x, y)
-        # x_fit, y_fit = get_fitted_profile(x, y_smooth)
-
+    def plot_profile(self):
         fig, ax = matplotlib.pyplot.subplots()
-        ax.plot(x_raw, y_raw, '.')
-        ax.plot(x, y, '.')
-        ax.fill_between(x, y - 1 * yerr, y + 1 * yerr, color='gray', alpha=0.4)
-        ax.fill_between(x, y - 3 * yerr, y + 3 * yerr, color='gray', alpha=0.3)
-        ax.fill_between(x, y - 5 * yerr, y + 5 * yerr, color='gray', alpha=0.2)
-        ax.plot(x_smooth, y_smooth)
-        # ax.plot(x_fit, y_fit)
+        ax.plot(self.x_raw, self.y_raw, '.')
+        ax.plot(self.x, self.y, '.')
+        ax.fill_between(self.x, self.y - 1 * self.y_error, self.y + 1 * self.y_error, color='gray', alpha=0.4)
+        ax.fill_between(self.x, self.y - 3 * self.y_error, self.y + 3 * self.y_error, color='gray', alpha=0.3)
+        ax.fill_between(self.x, self.y - 5 * self.y_error, self.y + 5 * self.y_error, color='gray', alpha=0.2)
+        ax.plot(self.x_fine, self.y_fine)
         matplotlib.pyplot.show()
-
-

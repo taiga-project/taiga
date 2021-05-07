@@ -4,6 +4,12 @@ import scipy
 from scipy import odr
 
 
+def get_fitted_profile(self):
+    fit = scipy.optimize.curve_fit(stefanikova_ped_old, self.x, self.y,
+                                   p0=[self.y[0], self.y[-1], 1, 0.02, self.y[0] / 1000])
+    p = fit[0]
+    self.y_fit = stefanikova_ped(p, self.x)
+
 def stefanikova_core(a, r):
     a_height, a_width, a_exp = a
     return a_height * (numpy.exp(-r ** 2 / a_width) ** a_exp)
