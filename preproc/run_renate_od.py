@@ -7,7 +7,7 @@ from load_ts_profile import *
 
 def get_param():
     xml_content = '<xml lang="en"><head><id>taiga beamlet</id></head><body>' \
-                  '<beamlet_energy unit = "keV">60</beamlet_energy>' \
+                  '<beamlet_energy unit = "keV">40</beamlet_energy>' \
                   '<beamlet_species unit = "">Na</beamlet_species>' \
                   '<beamlet_current unit = "A">0.001</beamlet_current>' \
                   '</body></xml>'
@@ -22,7 +22,7 @@ def get_components():
     return components
 
 
-def get_profiles():
+def get_profiles(r_max):
     tuples = [('beamlet grid', 'distance', 'm'),
               ('electron', 'density', 'm-3'),
               ('electron', 'temperature', 'eV'),
@@ -31,7 +31,9 @@ def get_profiles():
 
     header = pandas.MultiIndex.from_tuples(tuples, names=['type', 'property', 'unit'])
 
+    TestProfilePlot()
     p = MockedProfiles()
+    p = Profiles(r_max=r_max)
     distance = p.get_distance()
     density = p.get_density()
     temperature = p.get_temperature()
@@ -43,17 +45,25 @@ def get_profiles():
 
 
 def export_beamlet_profile(export_directory='data/output/matyi'):
-    b = Beamlet(param=get_param(), profiles=get_profiles(), components=get_components())
+    r_max = 0.78
+    b = Beamlet(param=get_param(), profiles=get_profiles(r_max=r_max), components=get_components())
     pops = b.profiles.filter(like='level', axis=1)
     reference_pop = pops.iat[0, 0]
     rates = pops / reference_pop
     ionisation_degree = 1 - rates.sum(1)
-    print(ionisation_degree)
-
-    b.profiles['beamlet grid'].to_csv(export_directory+'/rad.txt', index=False, header=False)
-    ionisation_degree.to_csv(export_directory+'/degree.txt', index=False, header=False)
+    radial_coordinate = r_max-b.profiles['beamlet grid']
+    radial_coordinate.to_csv(export_directory+'/rad.dat', index=False, header=False)
+    rates.sum(1).to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
 
     print(b.profiles)
+    plot_ionisation_profile(radial_coordinate, ionisation_degree)
+
+
+def plot_ionisation_profile(radial_coordinate, ionisation_degree):
+    fig, ax = matplotlib.pyplot.subplots()
+    ax.plot(radial_coordinate, ionisation_degree, '.')
+    matplotlib.pyplot.show()
+    print(ionisation_degree)
 
 
 if __name__ == "__main__":
