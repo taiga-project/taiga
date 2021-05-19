@@ -8,24 +8,57 @@ from statsmodels.nonparametric.smoothers_lowess import lowess
 from stefanikova2016 import *
 
 
+def get_home_directory():
+    try:
+        return os.environ['TAIGA_HOME']
+    except KeyError:
+        return '/home/matyi/work/taiga_local'  # '.'
+
+
+def set_negatives_to_zero(values):
+    return values * (values > 0)
+
+
+def transform_to_poloidal_cross_section(r, tor):
+    return numpy.hypot(r, tor)
+
+
+class BeamletGeometry:
+    def __init__(self):
+        self.rad = []
+        self.z = []
+        self.tor = []
+        self.set_default_values()
+
+    def set_with_value(self, value, field, reference):
+        value_array = numpy.full_like(getattr(self, reference), value)
+        setattr(self, field, value_array)
+
+    def set_default_values(self):
+        self.rad = numpy.linspace(0.78, 0.35, 200)
+        self.set_with_value(0, 'z', 'rad')
+        self.set_with_value(0, 'tor', 'rad')
+
+    def get_distance(self):
+        return self.rad[0]-self.rad
+
+
 class Profiles:
-    def __init__(self, shot_number='17178', time='1097', ts_time_source='EFIT',
+    def __init__(self, shot_number='17178', time='1097',
+                 beamlet_geometry=BeamletGeometry(),
+                 ts_time_source='EFIT',
                  efit_reconstruction_id=1, thomson_reconstruction_id=2,
-                 r_min=0.35, r_max=0.78, r_points=200,
                  database_directory='input/cdb', thomson_subdir='THOMSON', efit_subdir='EFITXX'):
         self.data_directory = None
         self.set_data_directory(database_directory, shot_number)
         thomson_directory, efit_file = self.set_path(efit_subdir, thomson_subdir, efit_reconstruction_id)
-        thomson_profiles = ThomsonProfiles(thomson_directory, time, thomson_reconstruction_id, ts_time_source)
-        efit = EFITManager(efit_file, time)
-        beamlet_r = numpy.linspace(r_max, r_min, r_points)
-        beamlet_z = numpy.full_like(beamlet_r, 0)
-        beamlet_tor = numpy.full_like(beamlet_r, 0)
-        beamlet_normalised_poloidal_flux = efit.get_normalised_poloidal_flux(beamlet_r, beamlet_z, beamlet_tor)
+        self.thomson_profiles = ThomsonProfiles(thomson_directory, time, thomson_reconstruction_id, ts_time_source)
+        self.efit = EFITManager(efit_file, time)
+        beamlet_normalised_poloidal_flux = self.efit.get_normalised_poloidal_flux(beamlet_geometry)
 
-        self.distance = beamlet_r[0] - beamlet_r
-        self.density = thomson_profiles.density.get_value(beamlet_normalised_poloidal_flux)
-        self.temperature = thomson_profiles.temperature.get_value(beamlet_normalised_poloidal_flux)
+        self.distance = beamlet_geometry.get_distance()
+        self.density = self.thomson_profiles.density.get_value(beamlet_normalised_poloidal_flux)
+        self.temperature = self.thomson_profiles.temperature.get_value(beamlet_normalised_poloidal_flux)
 
     def set_data_directory(self, database_directory, shot_number):
         self.data_directory = get_home_directory() + '/' + database_directory + '/' + str(shot_number)
@@ -45,6 +78,7 @@ class Profiles:
         return self.temperature
 
 
+# pylint: disable=super-init-not-called
 class MockedProfiles(Profiles):
     def __init__(self):
         self.distance = [0, 0.1, 0.2]
@@ -52,33 +86,31 @@ class MockedProfiles(Profiles):
         self.temperature = [1000, 1500, 2500]
 
 
-def get_home_directory():
-    try:
-        return os.environ['TAIGA_HOME']
-    except KeyError:
-        return '/home/matyi/work/taiga_local'  # '.'
-
-
 class TestProfilePlot(Profiles):
-    def __init__(self, shot_number='17178', time='1097', ts_time_source='EFIT',
-                 efit_reconstruction_id=1, thomson_reconstruction_id=2,
-                 database_directory='input/cdb', thomson_subdir='THOMSON', efit_subdir='EFITXX'):
-        self.data_directory = None
-        self.set_data_directory(database_directory, shot_number)
-        thomson_directory, efit_file = self.set_path(efit_subdir, thomson_subdir, efit_reconstruction_id)
-        thomson_profiles = ThomsonProfiles(thomson_directory, time, thomson_reconstruction_id, ts_time_source)
-        thomson_profiles.plot_profiles()
+    reference_beamlet = BeamletGeometry()
 
-        ts_normalised_poloidal_flux = thomson_profiles.normalised_poloidal_flux_profile
-        ts_r = numpy.linspace(0.556, 0.558, 11)
-        ts_z = thomson_profiles.z_axis
-        efit = EFITManager(efit_file, time)
-        efit_normalised_poloidal_flux = efit.get_normalised_poloidal_flux(ts_r, ts_z, grid=True)
+    def __init__(self, shot_number='17178', time='1097',
+                 beamlet_geometry=reference_beamlet, ts_time_source='EFIT',
+                 efit_reconstruction_id=1, thomson_reconstruction_id=2, database_directory='input/cdb',
+                 thomson_subdir='THOMSON', efit_subdir='EFITXX'):
+        super().__init__(shot_number, time, beamlet_geometry, ts_time_source, efit_reconstruction_id,
+                         thomson_reconstruction_id, database_directory, thomson_subdir, efit_subdir)
+        self.plot()
+
+    def plot(self):
+        ts_normalised_poloidal_flux = self.thomson_profiles.normalised_poloidal_flux_profile
+
+        ts_beamlet = BeamletGeometry()
+        ts_beamlet.z = self.thomson_profiles.z_axis
+        ts_beamlet.rad = numpy.linspace(0.556, 0.558, 11)
+        ts_beamlet.set_with_value(0, 'tor', 'rad')
+
+        efit_normalised_poloidal_flux = self.efit.get_normalised_poloidal_flux(ts_beamlet, grid=True)
 
         fig, ax = matplotlib.pyplot.subplots()
         ax.plot(efit_normalised_poloidal_flux.T, (ts_normalised_poloidal_flux - efit_normalised_poloidal_flux).T, '.')
 
-        matplotlib.pyplot.legend(ts_r.round(4), bbox_to_anchor=(0.92, 1), loc='upper left')
+        matplotlib.pyplot.legend(ts_beamlet.rad.round(4), bbox_to_anchor=(0.92, 1), loc='upper left')
         matplotlib.pyplot.show()
 
 
@@ -121,13 +153,10 @@ class EFITManager:
         print(self.poloidal_flux_profile.shape)
         self.get_poloidal_flux = scipy.interpolate.RectBivariateSpline(self.r, self.z, self.poloidal_flux_profile)
 
-    def get_normalised_poloidal_flux(self, r, z, tor=numpy.array(0), grid=False):
-        r_poloidal_cross_section = self.transform_to_poloidal_cross_section(r, tor)
-        poloidal_flux = self.get_poloidal_flux(r_poloidal_cross_section, z, grid=grid)
+    def get_normalised_poloidal_flux(self, beamlet_geometry, grid=False):
+        r_poloidal_cross_section = transform_to_poloidal_cross_section(beamlet_geometry.rad, beamlet_geometry.tor)
+        poloidal_flux = self.get_poloidal_flux(r_poloidal_cross_section, beamlet_geometry.z, grid=grid)
         return self.normalise_poloidal_flux(poloidal_flux)
-
-    def transform_to_poloidal_cross_section(self, r, tor):
-        return numpy.hypot(r, tor)
 
 
 class ThomsonProfiles:
@@ -192,10 +221,6 @@ class ThomsonProfiles:
 
     def get_profile(self, field, reconstruction_id):
         return self.get_dataset(field, reconstruction_id)[self.time_index]
-
-
-def set_negatives_to_zero(values):
-    return values * (values > 0)
 
 
 class ProfileManager:

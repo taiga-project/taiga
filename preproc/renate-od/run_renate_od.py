@@ -22,7 +22,7 @@ def get_components():
     return components
 
 
-def get_profiles(r_max):
+def get_profiles(beamlet_geometry):
     tuples = [('beamlet grid', 'distance', 'm'),
               ('electron', 'density', 'm-3'),
               ('electron', 'temperature', 'eV'),
@@ -33,7 +33,7 @@ def get_profiles(r_max):
 
     TestProfilePlot()
     p = MockedProfiles()
-    p = Profiles(r_max=r_max)
+    p = Profiles(beamlet_geometry=beamlet_geometry)
     distance = p.get_distance()
     density = p.get_density()
     temperature = p.get_temperature()
@@ -45,17 +45,23 @@ def get_profiles(r_max):
 
 
 def export_beamlet_profile(export_directory='data/output/matyi'):
-    r_max = 0.78
-    b = Beamlet(param=get_param(), profiles=get_profiles(r_max=r_max), components=get_components())
-    pops = b.profiles.filter(like='level', axis=1)
+
+    beamlet_geometry = BeamletGeometry()
+    beamlet_geometry.rad = numpy.linspace(0.78, 0.35, 200)
+    beamlet_geometry.set_with_value(0, 'z', 'rad')
+    beamlet_geometry.set_with_value(0, 'tor', 'rad')
+
+    beamlet = Beamlet(param=get_param(), profiles=get_profiles(beamlet_geometry=beamlet_geometry),
+                      components=get_components())
+    pops = beamlet.profiles.filter(like='level', axis=1)
     reference_pop = pops.iat[0, 0]
     rates = pops / reference_pop
     ionisation_degree = 1 - rates.sum(1)
-    radial_coordinate = r_max-b.profiles['beamlet grid']
+    radial_coordinate = pandas.DataFrame(beamlet_geometry.rad)
+
     radial_coordinate.to_csv(export_directory+'/rad.dat', index=False, header=False)
     rates.sum(1).to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
 
-    print(b.profiles)
     plot_ionisation_profile(radial_coordinate, ionisation_degree)
 
 
