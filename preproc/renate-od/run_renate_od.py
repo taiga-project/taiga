@@ -44,24 +44,32 @@ def get_profiles(beamlet_geometry):
     return profiles
 
 
-def export_beamlet_profile(export_directory='data/output/matyi'):
-
-    beamlet_geometry = BeamletGeometry()
-    beamlet_geometry.rad = numpy.linspace(0.78, 0.35, 200)
-    beamlet_geometry.set_with_value(0, 'z', 'rad')
-    beamlet_geometry.set_with_value(0, 'tor', 'rad')
-
-    beamlet = Beamlet(param=get_param(), profiles=get_profiles(beamlet_geometry=beamlet_geometry),
-                      components=get_components())
+def calculate_ionisation_degree(beamlet):
     pops = beamlet.profiles.filter(like='level', axis=1)
     reference_pop = pops.iat[0, 0]
     rates = pops / reference_pop
-    ionisation_degree = 1 - rates.sum(1)
+    unionisation_degree = rates.sum(1)
+    ionisation_degree = 1 - unionisation_degree
+    return ionisation_degree, unionisation_degree
+
+
+def calculate_beamlet(z=0, tor=0):
+    beamlet_geometry = BeamletGeometry()
+    beamlet_geometry.rad = numpy.linspace(0.78, 0.35, 200)
+    beamlet_geometry.set_with_value(z, 'z', 'rad')
+    beamlet_geometry.set_with_value(tor, 'tor', 'rad')
+    beamlet = Beamlet(param=get_param(), profiles=get_profiles(beamlet_geometry=beamlet_geometry),
+                      components=get_components())
+    ionisation_degree, unionisation_degree = calculate_ionisation_degree(beamlet)
     radial_coordinate = pandas.DataFrame(beamlet_geometry.rad)
+    return radial_coordinate, ionisation_degree, unionisation_degree
 
+
+def export_beamlet_profile(export_directory='data/output/matyi'):
+
+    radial_coordinate, ionisation_degree, unionisation_degree = calculate_beamlet()
     radial_coordinate.to_csv(export_directory+'/rad.dat', index=False, header=False)
-    rates.sum(1).to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
-
+    unionisation_degree.to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
     plot_ionisation_profile(radial_coordinate, ionisation_degree)
 
 
