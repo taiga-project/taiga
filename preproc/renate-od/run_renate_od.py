@@ -31,8 +31,8 @@ def get_profiles(beamlet_geometry):
 
     header = pandas.MultiIndex.from_tuples(tuples, names=['type', 'property', 'unit'])
 
-    TestProfilePlot()
-    p = MockedProfiles()
+    #TestProfilePlot()
+    #p = MockedProfiles()
     p = Profiles(beamlet_geometry=beamlet_geometry)
     distance = p.get_distance()
     density = p.get_density()
@@ -53,11 +53,15 @@ def calculate_ionisation_degree(beamlet):
     return ionisation_degree, unionisation_degree
 
 
-def calculate_beamlet(z=0, tor=0):
+def set_beamlet(z, tor):
     beamlet_geometry = BeamletGeometry()
     beamlet_geometry.rad = numpy.linspace(0.78, 0.35, 200)
     beamlet_geometry.set_with_value(z, 'z', 'rad')
     beamlet_geometry.set_with_value(tor, 'tor', 'rad')
+    return beamlet_geometry
+
+
+def calculate_beamlet(beamlet_geometry):
     beamlet = Beamlet(param=get_param(), profiles=get_profiles(beamlet_geometry=beamlet_geometry),
                       components=get_components())
     ionisation_degree, unionisation_degree = calculate_ionisation_degree(beamlet)
@@ -66,7 +70,6 @@ def calculate_beamlet(z=0, tor=0):
 
 
 def export_beamlet_profile(export_directory='data/output/matyi'):
-
     radial_coordinate, ionisation_degree, unionisation_degree = calculate_beamlet()
     radial_coordinate.to_csv(export_directory+'/rad.dat', index=False, header=False)
     unionisation_degree.to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
@@ -80,5 +83,21 @@ def plot_ionisation_profile(radial_coordinate, ionisation_degree):
     print(ionisation_degree)
 
 
+def mock_beam(diameter=5e-3, z_length=3, tor_length=3):
+    fig, ax = matplotlib.pyplot.subplots()
+    for z in numpy.linspace(-diameter/2, diameter/2, z_length):
+        if z_length == 1:
+            z = 0
+        for tor in numpy.linspace(-diameter/2, diameter/2, tor_length):
+            if tor_length == 1:
+                tor = 0
+            beamlet_geometry = set_beamlet(z, tor)
+            radial_coordinate, ionisation_degree, unionisation_degree = calculate_beamlet(beamlet_geometry)
+            ax.plot(radial_coordinate, ionisation_degree, '-')
+    matplotlib.pyplot.xlim(0.6, 0.75)
+    matplotlib.pyplot.show()
+
+
 if __name__ == "__main__":
-    export_beamlet_profile()
+    # export_beamlet_profile()
+    mock_beam()
