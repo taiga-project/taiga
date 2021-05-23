@@ -57,8 +57,8 @@ function cdb_reader(varargin)
         efit = readMagneticAxis(in, efit);
         efit = readMagneticBoundary(in, efit);
         
-        efit = readToroidalFlux(in, out, efit);
         efit = readPoloidalFlux(in, out, efit);
+        efit = readToroidalFlux(in, out, efit);
 
         efit = calcMagneticGrid (in, out, efit);
         out = normaliseFlux(in, out, efit);    
@@ -340,9 +340,14 @@ function efit = readToroidalFlux(in, out, efit)
     efit.bvacrgeom = readScalarData(in);
     
     in.hdf5flag = '/output/fluxFunctionProfiles/rBphi';
-    efit.rbtor = readVectorData(in);
+    rbtor = readVectorData(in);
     
-    efit.btor = -kron(efit.rbtor ./ efit.r, ones(1,length(efit.z)));
+    in.hdf5flag = '/output/fluxFunctionProfiles/poloidalFlux';
+    polflux = readVectorData(in);
+    
+    rbtor = interp1(polflux, rbtor, efit.polflux, 'spline',rbtor(end));
+    btor = -rbtor./out.flux.r;
+    efit.btor =  btor';
 
 end
 
