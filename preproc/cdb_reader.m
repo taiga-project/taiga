@@ -66,7 +66,6 @@ function cdb_reader(varargin)
     
     saveMagneticGrid (in, out, efit);
     saveMagneticSpline (in, out, efit);
-    savePsiProfile (in, out, efit);
     
     if in.make_field.e.loaded
         efit = makeElectricGrid (in, out, efit);
@@ -98,11 +97,11 @@ function efit = calcMagneticGrid (in, out, efit)
     psi_RZ = efit.polflux;
     R_M = out.flux.r;
     Z_M = out.flux.z;
-    dx = 1e-6;
-    psi_dR1 = interp2(R_M,Z_M, psi_RZ, R_M-dx/2,Z_M, 'spline');
-    psi_dR2 = interp2(R_M,Z_M, psi_RZ, R_M+dx/2,Z_M, 'spline');
-    psi_dZ1 = interp2(R_M,Z_M, psi_RZ, R_M,Z_M-dx/2, 'spline');
-    psi_dZ2 = interp2(R_M,Z_M, psi_RZ, R_M,Z_M+dx/2, 'spline');
+    dx=1e-6;
+    psi_dR1 = interp2(R_M,Z_M,psi_RZ,R_M-dx/2,Z_M,'spline');
+    psi_dR2 = interp2(R_M,Z_M,psi_RZ,R_M+dx/2,Z_M,'spline');
+    psi_dZ1 = interp2(R_M,Z_M,psi_RZ,R_M,Z_M-dx/2,'spline');
+    psi_dZ2 = interp2(R_M,Z_M,psi_RZ,R_M,Z_M+dx/2,'spline');
 
     psi_dR = (psi_dR2-psi_dR1)/dx;
     psi_dZ = (psi_dZ2-psi_dZ1)/dx;
@@ -208,11 +207,6 @@ end
 
 function saveMagneticSpline (in, out, efit)
     complist = {'brad','bz','btor'};
-    saveSplineCoeffs (in, out, efit,complist);
-end
-
-function savePsiProfile (in, out, efit)
-    complist = {'polflux'};
     saveSplineCoeffs (in, out, efit,complist);
 end
 
