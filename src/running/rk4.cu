@@ -4,7 +4,6 @@ __device__ void calculate_rk4_coeff(double *X,
                                     double *S, double *S_prev, double rk_weight,
                                     double l_br, double l_bz,  double l_bt,
                                     double eperm, double timestep){
-    
     for (int i=3; i<6; ++i){
         S[i] = X[i] + rk_weight * S_prev[i];
     }
@@ -26,7 +25,6 @@ __device__ void calculate_rk4_coeff(double *X,
                                     double l_br, double l_bz,  double l_bt,
                                     double l_er, double l_ez, double l_et,
                                     double eperm, double timestep){
-    
     for (int i=3; i<6; ++i){
         S[i] = X[i] + rk_weight * S_prev[i];
     }
@@ -43,10 +41,9 @@ __device__ void calculate_rk4_coeff(double *X,
     }
 }
 
-__device__ void solve_diffeq(double *X,
-                             double l_br, double l_bz, double l_bt,
-                             double eperm, double timestep){
-    
+__device__ void solve_diffeq_by_rk4(double *X,
+                                    double l_br, double l_bz, double l_bt,
+                                    double eperm, double timestep){
     double S1[6], S2[6], S3[6], S4[6];
     
     calculate_rk4_coeff(X, S1, X,  0.0, l_br, l_bz, l_bt, eperm ,timestep);
@@ -59,11 +56,10 @@ __device__ void solve_diffeq(double *X,
     }
 }
 
-__device__ void solve_diffeq(double *X,
-                             double l_br, double l_bz, double l_bt,
-                             double l_er, double l_ez, double l_et,
-                             double eperm, double timestep){
-    
+__device__ void solve_diffeq_with_efield_by_rk4(double *X,
+                                                double l_br, double l_bz, double l_bt,
+                                                double l_er, double l_ez, double l_et,
+                                                double eperm, double timestep){
     double S1[6], S2[6], S3[6], S4[6];
     
     calculate_rk4_coeff(X, S1, X,  0.0, l_br, l_bz, l_bt, l_er, l_ez, l_et, eperm ,timestep);
