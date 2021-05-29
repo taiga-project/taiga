@@ -7,10 +7,12 @@ __device__ void copy_local_field(TaigaCommons *c,
                                  double *local_spline_erad, double *local_spline_ez, double *local_spline_etor){
     int rci, zci;
     int i, i2;
+    int rgrid_length = c->grid_size[0];
+    int zgrid_length = c->grid_size[1];
 
-    for(rci=0; (c->spline_rgrid[rci+1]<position_rad)&&(rci<c->grid_size[0]-1); ++rci){;}
+    for(rci=0; (c->spline_rgrid[rci+1]<position_rad)&&(rci<rgrid_length-1); ++rci){;}
 
-    for(zci=0; (c->spline_zgrid[zci+1]<position_z)&&(zci<c->grid_size[1]-1); ++zci){;}
+    for(zci=0; (c->spline_zgrid[zci+1]<position_z)&&(zci<zgrid_length-1); ++zci){;}
 
     // Particle leave out the cell
     if ((local_spline_indices[0] != rci) || (local_spline_indices[1] != zci)){
@@ -18,7 +20,7 @@ __device__ void copy_local_field(TaigaCommons *c,
         local_spline_indices[1] = zci;
 
         for(i=0; i<16; ++i){
-            i2 = (local_spline_indices[0])*(c->grid_size[1]-1)+local_spline_indices[1];
+            i2 = (local_spline_indices[0])*(zgrid_length-1)+local_spline_indices[1];
             local_spline_brad[i] = c->brad[i][i2];
             local_spline_bz[i]   = c->bz[i][i2];
             local_spline_btor[i] = c->btor[i][i2];
