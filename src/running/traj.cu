@@ -57,14 +57,9 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
-__device__ void (*solve_diffeq_with_efield)(double *X,
-                                            double l_br, double l_bz, double l_bt,
-                                            double l_er, double l_ez, double l_et,
-                                            double eperm, double timestep);
+__device__ void (*solve_diffeq_with_efield)(double *X, double *B, double *E, double eperm, double timestep);
 
-__device__ void (*solve_diffeq)(double *X,
-                                double l_br, double l_bz, double l_bt,
-                                double eperm, double timestep);
+__device__ void (*solve_diffeq)(double *X, double *B, double eperm, double timestep);
 
 __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     // next grid
@@ -80,8 +75,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     double local_spline_ez[16];
     double local_spline_etor[16];
 
-    double local_brad=0, local_bz=0, local_btor=0;
-    double local_erad=0, local_ez=0, local_etor=0;
+    double local_bfield[3], local_efield[3];
     double dr, dz;
     double R;
 
@@ -111,34 +105,34 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
         dr = R-c->spline_rgrid[local_spline_indices[0]];
         dz = X[1]-c->spline_zgrid[local_spline_indices[1]];
 
-        local_brad = calculate_local_field(local_spline_brad, dr, dz);
-        local_bz   = calculate_local_field(local_spline_bz,   dr, dz);
-        local_btor = calculate_local_field(local_spline_btor, dr, dz);
+        local_bfield[0] = calculate_local_field(local_spline_brad, dr, dz);
+        local_bfield[1] = calculate_local_field(local_spline_bz,   dr, dz);
+        local_bfield[2] = calculate_local_field(local_spline_btor, dr, dz);
 
         if (magnetic_field_mode == MAGNETIC_FIELD_FROM_FLUX){
-            local_brad /= -X[0];    //Brad = -dPsi_dZ / R
-            local_bz   /=  X[0];    //Bz   =  dPsi_dR / R
-            local_btor /=  X[0];    //Btor = (R*Btor) / R
+            local_bfield[0] /= -X[0];    //Brad = -dPsi_dZ / R
+            local_bfield[1] /=  X[0];    //Bz   =  dPsi_dR / R
+            local_bfield[2] /=  X[0];    //Btor = (R*Btor) / R
         }
 
-        local_brad = cyl2tor_rad  (local_brad, local_btor, X[0], X[2]);
-        local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);
+        local_bfield[0] = cyl2tor_rad  (local_bfield[0], local_bfield[2], X[0], X[2]);
+        local_bfield[2] = cyl2tor_field(local_bfield[0], local_bfield[2], X[0], X[2]);
 
         if (is_electric_field_on){
-            local_erad = calculate_local_field(local_spline_erad, dr, dz);
-            local_ez   = calculate_local_field(local_spline_ez,   dr, dz);
-            local_etor = calculate_local_field(local_spline_etor, dr, dz);
-            local_erad = cyl2tor_rad  (local_erad, local_etor, X[0], X[2]);
-            local_etor = cyl2tor_field(local_erad, local_etor, X[0], X[2]);
+            local_efield[0] = calculate_local_field(local_spline_erad, dr, dz);
+            local_efield[1] = calculate_local_field(local_spline_ez,   dr, dz);
+            local_efield[2] = calculate_local_field(local_spline_etor, dr, dz);
+            local_efield[0] = cyl2tor_rad  (local_efield[0], local_efield[2], X[0], X[2]);
+            local_efield[2] = cyl2tor_field(local_efield[0], local_efield[2], X[0], X[2]);
         }
 
         // archive coordinates
         for(int i=0; i<6; ++i)  X_prev[i] = X[i];
 
         if (is_electric_field_on){
-            (*solve_diffeq_with_efield)(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, eperm, timestep);
+            (*solve_diffeq_with_efield)(X, local_bfield, local_efield, eperm, timestep);
         }else{
-            (*solve_diffeq)(X, local_brad, local_bz, local_btor, eperm, timestep);
+            (*solve_diffeq)(X, local_bfield, eperm, timestep);
         }
 
         detcellid = calculate_detection_position(X, X_prev, c->detector_geometry);
