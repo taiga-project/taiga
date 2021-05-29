@@ -1,19 +1,16 @@
 #define SPLINE_INDEX_ERROR -1
 
-__device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
+__device__ void copy_local_field(TaigaCommons *c,
                                  double position_rad, double position_z,
                                  int *local_spline_indices,
                                  double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                                 double **spline_brad, double **spline_bz, double **spline_btor,
-                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                 double **spline_erad, double **spline_ez, double **spline_etor,
-                                 bool is_electric_field_on){
+                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor){
     int rci, zci;
     int i, i2;
 
-    for(rci=0; (r_grid[rci+1]<position_rad)&&(rci<NR-1); ++rci){;}
+    for(rci=0; (c->spline_rgrid[rci+1]<position_rad)&&(rci<c->grid_size[0]-1); ++rci){;}
 
-    for(zci=0; (z_grid[zci+1]<position_z)&&(zci<NR-1); ++zci){;}
+    for(zci=0; (c->spline_zgrid[zci+1]<position_z)&&(zci<c->grid_size[1]-1); ++zci){;}
 
     // Particle leave out the cell
     if ((local_spline_indices[0] != rci) || (local_spline_indices[1] != zci)){
@@ -21,16 +18,16 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
         local_spline_indices[1] = zci;
 
         for(i=0; i<16; ++i){
-            i2 = (local_spline_indices[0])*(NZ-1)+local_spline_indices[1];
-            local_spline_brad[i] = spline_brad[i][i2];
-            local_spline_bz[i]   = spline_bz[i][i2];
-            local_spline_btor[i] = spline_btor[i][i2];
+            i2 = (local_spline_indices[0])*(c->grid_size[1]-1)+local_spline_indices[1];
+            local_spline_brad[i] = c->brad[i][i2];
+            local_spline_bz[i]   = c->bz[i][i2];
+            local_spline_btor[i] = c->btor[i][i2];
         }
-        if (is_electric_field_on){
+        if (c->is_electric_field_on){
             for(i=0; i<16; ++i){
-                local_spline_erad[i] = spline_erad[i][i2];
-                local_spline_ez[i]   = spline_ez[i][i2];
-                local_spline_etor[i] = spline_etor[i][i2];
+                local_spline_erad[i] = c->erad[i][i2];
+                local_spline_ez[i]   = c->ez[i][i2];
+                local_spline_etor[i] = c->etor[i][i2];
             }
         }
     }
@@ -95,12 +92,9 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     for (int loopi=0; (loopi < c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
         // Get local magnetic field
         R = cyl2tor_coord(X[0], X[2]);
-        copy_local_field(c->spline_rgrid, c->grid_size[0], c->spline_zgrid, c->grid_size[1],
-                         R, X[1], local_spline_indices,
+        copy_local_field(c, R, X[1], local_spline_indices,
                          local_spline_brad, local_spline_bz, local_spline_btor,
-                         c->brad, c->bz, c->btor,
-                         local_spline_erad, local_spline_ez, local_spline_etor,
-                         c->erad, c->ez, c->etor, is_electric_field_on);
+                         local_spline_erad, local_spline_ez, local_spline_etor);
 
         dr = R-c->spline_rgrid[local_spline_indices[0]];
         dz = X[1]-c->spline_zgrid[local_spline_indices[1]];
