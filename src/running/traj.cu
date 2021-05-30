@@ -56,9 +56,9 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
-__device__ void (*solve_diffeq_with_efield)(double *X, double *B, double *E, double eperm, double timestep);
+__device__ void (*solve_diffeq_with_efield)(double *X, double *a, double *B, double *E, double eperm, double timestep);
 
-__device__ void (*solve_diffeq)(double *X, double *B, double eperm, double timestep);
+__device__ void (*solve_diffeq)(double *X, double *a, double *B, double eperm, double timestep);
 
 __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     // next grid
@@ -83,7 +83,8 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     bool is_electric_field_on = c->is_electric_field_on;
     int magnetic_field_mode = c->magnetic_field_mode;
 
-    double  X_prev[6];
+    double X_prev[6];
+    double a[3] = {0, 0, 0};
 
     if (is_electric_field_on){
         solve_diffeq_with_efield = &solve_diffeq_with_efield_by_rk4;
@@ -125,9 +126,9 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
         for(int i=0; i<6; ++i)  X_prev[i] = X[i];
 
         if (is_electric_field_on){
-            (*solve_diffeq_with_efield)(X, local_bfield, local_efield, eperm, timestep);
+            (*solve_diffeq_with_efield)(X, a, local_bfield, local_efield, eperm, timestep);
         }else{
-            (*solve_diffeq)(X, local_bfield, eperm, timestep);
+            (*solve_diffeq)(X, a, local_bfield, eperm, timestep);
         }
 
         detcellid = calculate_detection_position(X, X_prev, c->detector_geometry);
