@@ -92,8 +92,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     }
 
     for (int loopi=0; (loopi < c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
-        // Get local magnetic field
-        R = cyl2tor_coord(X[0], X[2]);
+        R = get_major_radius(X[0], X[2]);
         copy_local_field(c, R, X[1], local_spline_indices,
                          local_spline_brad, local_spline_bz, local_spline_btor,
                          local_spline_erad, local_spline_ez, local_spline_etor);
@@ -111,15 +110,15 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
             local_bfield[2] /=  X[0];    //Btor = (R*Btor) / R
         }
 
-        local_bfield[0] = cyl2tor_rad  (local_bfield[0], local_bfield[2], X[0], X[2]);
-        local_bfield[2] = cyl2tor_field(local_bfield[0], local_bfield[2], X[0], X[2]);
+        local_bfield[0] = get_rad_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
+        local_bfield[2] = get_tor_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
 
         if (is_electric_field_on){
             local_efield[0] = calculate_local_field(local_spline_erad, dr, dz);
             local_efield[1] = calculate_local_field(local_spline_ez,   dr, dz);
             local_efield[2] = calculate_local_field(local_spline_etor, dr, dz);
-            local_efield[0] = cyl2tor_rad  (local_efield[0], local_efield[2], X[0], X[2]);
-            local_efield[2] = cyl2tor_field(local_efield[0], local_efield[2], X[0], X[2]);
+            local_efield[0] = get_rad_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
+            local_efield[2] = get_tor_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
         }
 
         // archive coordinates
