@@ -20,7 +20,7 @@ void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp 
     if (!strcmp(par_name, "shotnumber"))                    strcpy(shot->shotnumber, clean_string(par_value));
     else if (!strcmp(par_name, "time"))                     strcpy(shot->time, clean_string(par_value));
     else if (!strcmp(par_name, "runnumber"))                strcpy(run->runnumber, clean_string(par_value));
-    else if (!strcmp(par_name, "matter") || !strcmp(par_name, "beammatter")){
+    else if (!strcmp(par_name, "matter") || !strcmp(par_name, "species")){
         strcpy(beam->matter, clean_string(par_value));
         beam->mass = get_mass(beam->matter);
     }
