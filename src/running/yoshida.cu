@@ -59,25 +59,35 @@ __device__ void calculate_yoshida_v(double d, double *X_new, double *X, double *
 __device__ void solve_diffeq_by_yoshida(double *X, double *a, double *B,
                                         double eperm, double timestep){
     double X_new[3];
+    double cbrt2 = cbrt(2);
+    double w1 = 1/(2-cbrt2);
+    double w0 = -cbrt2*w1;
+    double c1 = 0.5*w1;
+    double c2 = 0.5*(w0+w1);
     calculate_yoshida_x(c1, X_new, X, a, timestep);
-    calculate_yoshida_v(d1, X_new, X, a, B, eperm, timestep);
+    calculate_yoshida_v(w1, X_new, X, a, B, eperm, timestep);
     calculate_yoshida_x(c2, X, X_new, a, timestep);
-    calculate_yoshida_v(d2, X, X_new, a, B, eperm, timestep);
-    calculate_yoshida_x(c3, X_new, X, a, timestep);
-    calculate_yoshida_v(d3, X_new, X, a, B, eperm, timestep);
-    calculate_yoshida_x(c4, X, X_new, a, timestep);
+    calculate_yoshida_v(w0, X, X_new, a, B, eperm, timestep);
+    calculate_yoshida_x(c2, X_new, X, a, timestep);
+    calculate_yoshida_v(w1, X_new, X, a, B, eperm, timestep);
+    calculate_yoshida_x(c1, X, X_new, a, timestep);
     memcpy(&X[3], &X_new[3], 3*sizeof(double));
 }
 
 __device__ void solve_diffeq_with_efield_by_yoshida(double *X, double *a, double *B, double *E,
                                                     double eperm, double timestep){
     double X_new[3];
+    double cbrt2 = cbrt(2);
+    double w1 = 1/(2-cbrt2);
+    double w0 = -cbrt2*w1;
+    double c1 = 0.5*w1;
+    double c2 = 0.5*(w0+w1);
     calculate_yoshida_x(c1, X_new, X, a, timestep);
-    calculate_yoshida_v(d1, X_new, X, a, B, E, eperm, timestep);
+    calculate_yoshida_v(w1, X_new, X, a, B, E, eperm, timestep);
     calculate_yoshida_x(c2, X, X_new, a, timestep);
-    calculate_yoshida_v(d2, X, X_new, a, B, E, eperm, timestep);
-    calculate_yoshida_x(c3, X_new, X, a, timestep);
-    calculate_yoshida_v(d3, X_new, X, a, B, E, eperm, timestep);
-    calculate_yoshida_x(c4, X, X_new, a, timestep);
+    calculate_yoshida_v(w0, X, X_new, a, B, E, eperm, timestep);
+    calculate_yoshida_x(c2, X_new, X, a, timestep);
+    calculate_yoshida_v(w1, X_new, X, a, B, E, eperm, timestep);
+    calculate_yoshida_x(c1, X, X_new, a, timestep);
     memcpy(&X[3], &X_new[3], 3*sizeof(double));
 }
