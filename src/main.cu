@@ -44,7 +44,6 @@
 
 #include "running/rk4.cu"
 #include "running/detection.cu"
-#include "running/undetected.cu"
 #include "running/cyl2tor.cu"
 #include "running/traj.cu"
 #include "running/generate_coords.cu"
@@ -240,7 +239,7 @@ int main(int argc, char *argv[]){
             if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global);
         }
         
-        // Get CUDA timer 
+        // Get CUDA timer
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
         if (!FASTMODE) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
@@ -251,9 +250,6 @@ int main(int argc, char *argv[]){
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
         if (!FASTMODE)  printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
         printf("===============================\n");
-        
-        //UNSOLVED: undetected <<<1,1>>>(detcellid, host_global->particle_number, device_service_array);
-        //UNSOLVED: printf("Lost particle ratio: \t %.4lf % \n\n", host_service_array[1]*100);
         
         //! MEMCOPY (device2HOST)
         cudaMemcpy(host_service_array, device_service_array, dimService, cudaMemcpyDeviceToHost);
