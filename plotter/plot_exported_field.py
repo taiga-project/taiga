@@ -121,6 +121,7 @@ class PlotMagneticFieldComponent(MagneticFieldComponent):
         ax_reference.tick_params(direction='out', left=True, right=True, labelright=True)
         ax_reference.set_title('Reference')
         plt.suptitle(self.name+' @ Compass #'+shot_number+' ('+time+' ms) ')
+        plt.savefig(self.name+'_'+shot_number+'_'+time+'.svg')
         plt.show()
 
     def get_levels(self):
@@ -131,3 +132,4 @@ if __name__ == "__main__":
     PlotMagneticFieldComponent(rad)
     PlotMagneticFieldComponent(z)
     PlotMagneticFieldComponent(tor)
+
