@@ -22,7 +22,7 @@ def get_components():
     return components
 
 
-def get_profiles(beamlet_geometry):
+def get_profiles(beamlet_geometry, shot_number, time):
     tuples = [('beamlet grid', 'distance', 'm'),
               ('electron', 'density', 'm-3'),
               ('electron', 'temperature', 'eV'),
@@ -33,7 +33,7 @@ def get_profiles(beamlet_geometry):
 
     #TestProfilePlot()
     #p = MockedProfiles()
-    p = Profiles(beamlet_geometry=beamlet_geometry)
+    p = Profiles(beamlet_geometry=beamlet_geometry, shot_number=shot_number, time=time)
     distance = p.get_distance()
     density = p.get_density()
     temperature = p.get_temperature()
@@ -61,18 +61,19 @@ def set_beamlet(z, tor):
     return beamlet_geometry
 
 
-def calculate_beamlet(beamlet_geometry):
-    beamlet = Beamlet(param=get_param(), profiles=get_profiles(beamlet_geometry=beamlet_geometry),
+def calculate_beamlet(beamlet_geometry, shot_number, time):
+    beamlet = Beamlet(param=get_param(),
+                      profiles=get_profiles(beamlet_geometry=beamlet_geometry, shot_number=shot_number, time=time),
                       components=get_components())
-    ionisation_degree, unionisation_degree = calculate_ionisation_degree(beamlet)
+    ionisation_degree, attenuation_degree = calculate_ionisation_degree(beamlet)
     radial_coordinate = pandas.DataFrame(beamlet_geometry.rad)
-    return radial_coordinate, ionisation_degree, unionisation_degree
+    return radial_coordinate, ionisation_degree, attenuation_degree
 
 
 def export_beamlet_profile(export_directory='data/output/matyi'):
-    radial_coordinate, ionisation_degree, unionisation_degree = calculate_beamlet()
+    radial_coordinate, ionisation_degree, attenuation_degree = calculate_beamlet()
     radial_coordinate.to_csv(export_directory+'/rad.dat', index=False, header=False)
-    unionisation_degree.to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
+    attenuation_degree.to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
     plot_ionisation_profile(radial_coordinate, ionisation_degree)
 
 
@@ -84,6 +85,8 @@ def plot_ionisation_profile(radial_coordinate, ionisation_degree):
 
 
 def mock_beam(diameter=5e-3, z_length=3, tor_length=3):
+    shot_number = '17178'
+    time = '1097'
     fig, ax = matplotlib.pyplot.subplots()
     for z in numpy.linspace(-diameter/2, diameter/2, z_length):
         if z_length == 1:
@@ -92,9 +95,15 @@ def mock_beam(diameter=5e-3, z_length=3, tor_length=3):
             if tor_length == 1:
                 tor = 0
             beamlet_geometry = set_beamlet(z, tor)
-            radial_coordinate, ionisation_degree, unionisation_degree = calculate_beamlet(beamlet_geometry)
-            ax.plot(radial_coordinate, ionisation_degree, '-')
+            radial_coordinate, ionisation_degree,  attenuation_degree = \
+                calculate_beamlet(beamlet_geometry, shot_number, time)
+            ax.plot(radial_coordinate, attenuation_degree, '-')
+
+    ax.set_xlabel('R [m]')
+    ax.set_ylabel('normalised linear density attenuation')
+    ax.set_title('COMPASS #'+shot_number+' ('+time+' ms) ')
     matplotlib.pyplot.xlim(0.6, 0.75)
+    matplotlib.pyplot.savefig('attenuation_'+shot_number+'_'+time+'.svg')
     matplotlib.pyplot.show()
 
 

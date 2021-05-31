@@ -12,7 +12,7 @@ def get_home_directory():
     try:
         return os.environ['TAIGA_HOME']
     except KeyError:
-        return '/home/matyi/work/taiga_local'  # '.'
+        return '.'
 
 
 def set_negatives_to_zero(values):
@@ -52,7 +52,7 @@ class Profiles:
         self.data_directory = None
         self.set_data_directory(database_directory, shot_number)
         thomson_directory, efit_file = self.set_path(efit_subdir, thomson_subdir, efit_reconstruction_id)
-        self.thomson_profiles = ThomsonProfiles(thomson_directory, time, thomson_reconstruction_id, ts_time_source)
+        self.thomson_profiles = ThomsonProfiles(thomson_directory, shot_number, time, thomson_reconstruction_id, ts_time_source)
         self.efit = EFITManager(efit_file, time)
         beamlet_normalised_poloidal_flux = self.efit.get_normalised_poloidal_flux(beamlet_geometry)
 
@@ -160,10 +160,11 @@ class EFITManager:
 
 
 class ThomsonProfiles:
-    def __init__(self, thomson_directory, time, reconstruction_id, ts_time_source):
+    def __init__(self, thomson_directory, shot_number, time, reconstruction_id, ts_time_source):
         self.thomson_directory = thomson_directory
         self.reconstruction_id = reconstruction_id
         self.ts_time_source = ts_time_source
+        self.shot_number = shot_number
         self.time = time
 
         self.time_index = []
@@ -209,8 +210,8 @@ class ThomsonProfiles:
                 'Invalid Thomson scattering data structure!\nExample for a correct structure:\nTe.1.h5\n\tTe')
 
     def plot_profiles(self):
-        self.density.plot_profile()
-        self.temperature.plot_profile()
+        self.density.plot_profile(self.shot_number, self.time, 'n_e (m^{-3})')
+        self.temperature.plot_profile(self.shot_number, self.time, 'T_e (keV)')
 
     def get_time_index(self, time_dataset):
         return (numpy.abs(time_dataset - int(self.time))).argmin()
@@ -272,7 +273,7 @@ class ProfileManager:
         y_ext = numpy.append(self.y_smooth, [0., 0.])
         self.f_smooth = scipy.interpolate.interp1d(x_ext, y_ext, kind='linear', bounds_error=False)
 
-    def plot_profile(self):
+    def plot_profile(self, shot_number, time, ylabel):
         fig, ax = matplotlib.pyplot.subplots()
         ax.plot(self.x_raw, self.y_raw, '.')
         ax.plot(self.x, self.y, '.')
@@ -280,6 +281,9 @@ class ProfileManager:
         ax.fill_between(self.x, self.y - 3 * self.y_error, self.y + 3 * self.y_error, color='gray', alpha=0.3)
         ax.fill_between(self.x, self.y - 5 * self.y_error, self.y + 5 * self.y_error, color='gray', alpha=0.2)
         ax.plot(self.x_fine, self.y_fine)
+        ax.set_xlabel('R [m]')
+        ax.set_ylabel(ylabel)
+        ax.set_title('TAIGA')('Compass #'+shot_number+' ('+time+' ms) ')
         matplotlib.pyplot.show()
 
     def get_value(self, normalised_poloidal_flux):
