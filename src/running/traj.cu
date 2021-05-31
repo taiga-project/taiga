@@ -1,19 +1,18 @@
 #define SPLINE_INDEX_ERROR -1
 
-__device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
+__device__ void copy_local_field(TaigaCommons *c,
                                  double position_rad, double position_z,
                                  int *local_spline_indices,
                                  double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                                 double **spline_brad, double **spline_bz, double **spline_btor,
-                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                 double **spline_erad, double **spline_ez, double **spline_etor,
-                                 bool is_electric_field_on){
+                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor){
     int rci, zci;
     int i, i2;
+    int rgrid_length = c->grid_size[0];
+    int zgrid_length = c->grid_size[1];
 
-    for(rci=0; (r_grid[rci+1]<position_rad)&&(rci<NR-1); ++rci){;}
+    for(rci=0; (c->spline_rgrid[rci+1]<position_rad)&&(rci<rgrid_length-1); ++rci){;}
 
-    for(zci=0; (z_grid[zci+1]<position_z)&&(zci<NR-1); ++zci){;}
+    for(zci=0; (c->spline_zgrid[zci+1]<position_z)&&(zci<zgrid_length-1); ++zci){;}
 
     // Particle leave out the cell
     if ((local_spline_indices[0] != rci) || (local_spline_indices[1] != zci)){
@@ -21,16 +20,16 @@ __device__ void copy_local_field(double *r_grid, int NR, double *z_grid, int NZ,
         local_spline_indices[1] = zci;
 
         for(i=0; i<16; ++i){
-            i2 = (local_spline_indices[0])*(NZ-1)+local_spline_indices[1];
-            local_spline_brad[i] = spline_brad[i][i2];
-            local_spline_bz[i]   = spline_bz[i][i2];
-            local_spline_btor[i] = spline_btor[i][i2];
+            i2 = (local_spline_indices[0])*(zgrid_length-1)+local_spline_indices[1];
+            local_spline_brad[i] = c->brad[i][i2];
+            local_spline_bz[i]   = c->bz[i][i2];
+            local_spline_btor[i] = c->btor[i][i2];
         }
-        if (is_electric_field_on){
+        if (c->is_electric_field_on){
             for(i=0; i<16; ++i){
-                local_spline_erad[i] = spline_erad[i][i2];
-                local_spline_ez[i]   = spline_ez[i][i2];
-                local_spline_etor[i] = spline_etor[i][i2];
+                local_spline_erad[i] = c->erad[i][i2];
+                local_spline_ez[i]   = c->ez[i][i2];
+                local_spline_etor[i] = c->etor[i][i2];
             }
         }
     }
@@ -57,6 +56,10 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
+__device__ void (*solve_diffeq_with_efield)(double *X, double *a, double *B, double *E, double eperm, double timestep);
+
+__device__ void (*solve_diffeq)(double *X, double *a, double *B, double eperm, double timestep);
+
 __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     // next grid
     int local_spline_indices[2];
@@ -71,8 +74,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     double local_spline_ez[16];
     double local_spline_etor[16];
 
-    double local_brad=0, local_bz=0, local_btor=0;
-    double local_erad=0, local_ez=0, local_etor=0;
+    double local_bfield[3], local_efield[3];
     double dr, dz;
     double R;
 
@@ -81,49 +83,52 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     bool is_electric_field_on = c->is_electric_field_on;
     int magnetic_field_mode = c->magnetic_field_mode;
 
-    double  X_prev[6];
+    double X_prev[6];
+    double a[3] = {0, 0, 0};
+
+    if (is_electric_field_on){
+        solve_diffeq_with_efield = &solve_diffeq_with_efield_by_rk4;
+    }else{
+        solve_diffeq = &solve_diffeq_by_rk4;
+    }
 
     for (int loopi=0; (loopi < c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
-        // Get local magnetic field
-        R = cyl2tor_coord(X[0], X[2]);
-        copy_local_field(c->spline_rgrid, c->grid_size[0], c->spline_zgrid, c->grid_size[1],
-                         R, X[1], local_spline_indices,
+        R = get_major_radius(X[0], X[2]);
+        copy_local_field(c, R, X[1], local_spline_indices,
                          local_spline_brad, local_spline_bz, local_spline_btor,
-                         c->brad, c->bz, c->btor,
-                         local_spline_erad, local_spline_ez, local_spline_etor,
-                         c->erad, c->ez, c->etor, is_electric_field_on);
+                         local_spline_erad, local_spline_ez, local_spline_etor);
 
         dr = R-c->spline_rgrid[local_spline_indices[0]];
         dz = X[1]-c->spline_zgrid[local_spline_indices[1]];
 
-        local_brad = calculate_local_field(local_spline_brad, dr, dz);
-        local_bz   = calculate_local_field(local_spline_bz,   dr, dz);
-        local_btor = calculate_local_field(local_spline_btor, dr, dz);
+        local_bfield[0] = calculate_local_field(local_spline_brad, dr, dz);
+        local_bfield[1] = calculate_local_field(local_spline_bz,   dr, dz);
+        local_bfield[2] = calculate_local_field(local_spline_btor, dr, dz);
 
         if (magnetic_field_mode == MAGNETIC_FIELD_FROM_FLUX){
-            local_brad /= -X[0];    //Brad = -dPsi_dZ / R
-            local_bz   /=  X[0];    //Bz   =  dPsi_dR / R
-            local_btor /=  X[0];    //Btor = (R*Btor) / R
+            local_bfield[0] /= -X[0];    //Brad = -dPsi_dZ / R
+            local_bfield[1] /=  X[0];    //Bz   =  dPsi_dR / R
+            local_bfield[2] /=  X[0];    //Btor = (R*Btor) / R
         }
 
-        local_brad = cyl2tor_rad  (local_brad, local_btor, X[0], X[2]);
-        local_btor = cyl2tor_field(local_brad, local_btor, X[0], X[2]);
+        local_bfield[0] = get_rad_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
+        local_bfield[2] = get_tor_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
 
         if (is_electric_field_on){
-            local_erad = calculate_local_field(local_spline_erad, dr, dz);
-            local_ez   = calculate_local_field(local_spline_ez,   dr, dz);
-            local_etor = calculate_local_field(local_spline_etor, dr, dz);
-            local_erad = cyl2tor_rad  (local_erad, local_etor, X[0], X[2]);
-            local_etor = cyl2tor_field(local_erad, local_etor, X[0], X[2]);
+            local_efield[0] = calculate_local_field(local_spline_erad, dr, dz);
+            local_efield[1] = calculate_local_field(local_spline_ez,   dr, dz);
+            local_efield[2] = calculate_local_field(local_spline_etor, dr, dz);
+            local_efield[0] = get_rad_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
+            local_efield[2] = get_tor_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
         }
 
         // archive coordinates
         for(int i=0; i<6; ++i)  X_prev[i] = X[i];
 
         if (is_electric_field_on){
-            solve_diffeq(X, local_brad, local_bz, local_btor, local_erad, local_ez, local_etor, eperm, timestep);
+            (*solve_diffeq_with_efield)(X, a, local_bfield, local_efield, eperm, timestep);
         }else{
-            solve_diffeq(X, local_brad, local_bz, local_btor, eperm, timestep);
+            (*solve_diffeq)(X, a, local_bfield, eperm, timestep);
         }
 
         detcellid = calculate_detection_position(X, X_prev, c->detector_geometry);
