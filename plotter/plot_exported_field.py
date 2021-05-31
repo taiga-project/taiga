@@ -131,3 +131,4 @@ if __name__ == "__main__":
     PlotMagneticFieldComponent(rad)
     PlotMagneticFieldComponent(z)
     PlotMagneticFieldComponent(tor)
+
