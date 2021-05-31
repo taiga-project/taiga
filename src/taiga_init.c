@@ -5,9 +5,6 @@
 #include "running/generate_coords.cuh"
 #include "dataio/beam.h"
 
-void init_taiga(TaigaGlobals *g, TaigaCommons *s){
-}
-
 void init_host(TaigaGlobals *g, TaigaCommons *s){
     s->step_counter = 0;
     s->max_step_number = 0;
@@ -173,11 +170,12 @@ void sync_device_structs(TaigaGlobals *g_device, TaigaGlobals *g_shared, TaigaCo
 }
 
 void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_shared, TaigaCommons *c_shared){
-    g_shared->particle_number = run.particle_number;
-    c_shared->max_step_number = run.step_device;        // N_step
-    c_shared->step_counter    = 0;
-    c_shared->eperm           = ELEMENTARY_CHARGE/ AMU/ beam.mass;
-    c_shared->timestep        = run.timestep;
+    g_shared->particle_number       = run.particle_number;
+    c_shared->max_step_number       = run.step_device;
+    c_shared->step_counter          = 0;
+    c_shared->eperm                 = ELEMENTARY_CHARGE/ AMU/ beam.mass;
+    c_shared->timestep              = run.timestep;
+    c_shared->solver                = run.solver;
 }
 
 void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global){

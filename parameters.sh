@@ -12,3 +12,4 @@ electric_field_module=0
 #magnetic_field_value='brad=0;bz=0;btor=1'
 matlab='matlab'
 detector_mask='final'
+solver='rk45'

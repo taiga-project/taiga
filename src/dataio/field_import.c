@@ -74,16 +74,31 @@ int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     double *BT_PTR[16];     double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB);
     double *BZ_PTR[16];     double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
     
-    int s = spline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
-    spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
-    spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
+    int s = 0;
+    
+    if (run.magnetic_field_mode == MAGNETIC_FIELD_FROM_FLUX){
+        s = spline_read_and_init(shot, run, "bfluxrad", &br_ptr, dimRZ);
+        spline_read_and_init(shot, run, "bfluxz",   &bz_ptr, dimRZ);
+        spline_read_and_init(shot, run, "bfluxtor", &bt_ptr, dimRZ);
+        if (s == 0){
+            run.magnetic_field_mode = MAGNETIC_FIELD_FROM_VALUE;
+            printf("Warning: There are no flux spline coefficients. Magnetic field coefficients are imported.\n");
+        }
+    }
+    
+    if (run.magnetic_field_mode == MAGNETIC_FIELD_FROM_VALUE){
+        s = spline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
+        spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
+        spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
+    }
     
     s_shared->brad = br_ptr;
     s_shared->bz   = bz_ptr;
     s_shared->btor = bt_ptr;
+    s_shared->magnetic_field_mode = run.magnetic_field_mode;
     
-    if (s==0){
-        printf("Fatal error in the memory allocation of the magnetic field");
+    if (s == 0){
+        printf("Fatal error in the memory allocation of the magnetic field\n");
         exit(1);
     }
     
