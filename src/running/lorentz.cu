@@ -1,4 +1,4 @@
-__device__ void get_acceleration_from_lorentz_force(double *v, double *a,
+__device__ void get_acceleration_from_lorentz_force(double *a, double *v,
                                               double *B, double *E,
                                               double eperm){
     a[0] = eperm*(E[0] + v[1]*B[2] - v[2]*B[1]); // f(vR) = q/m * (ER + vZ*BT - vT*BZ)
@@ -6,7 +6,7 @@ __device__ void get_acceleration_from_lorentz_force(double *v, double *a,
     a[2] = eperm*(E[2] + v[0]*B[1] - v[1]*B[0]); // f(vT) = q/m * (ET + vR*BZ - vZ*BR)
 }
 
-__device__ void get_acceleration_from_lorentz_force(double *v, double *a,
+__device__ void get_acceleration_from_lorentz_force(double *a, double *v,
                                               double *B,
                                               double eperm){
     a[0] = eperm*(v[1]*B[2] - v[2]*B[1]); // f(vR) = q/m * (vZ*BT - vT*BZ)

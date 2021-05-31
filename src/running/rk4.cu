@@ -13,7 +13,7 @@ __device__ void calculate_runge_kutta_coeff(double *X,
     S[0] = S[3]; // f(R) = vR
     S[1] = S[4]; // f(Z) = vZ
     S[2] = S[5]; // f(T) = vT
-    get_acceleration_from_lorentz_force(S, &S[3], B, eperm);
+    get_acceleration_from_lorentz_force(&S[3], S, B, eperm);
     
     for (int i=0; i<6; ++i){
         S[i] *= timestep;
@@ -31,7 +31,7 @@ __device__ void calculate_runge_kutta_coeff(double *X,
     S[0] = S[3]; // f(R) = vR
     S[1] = S[4]; // f(Z) = vZ
     S[2] = S[5]; // f(T) = vT
-    get_acceleration_from_lorentz_force(S, &S[3], B, E, eperm);
+    get_acceleration_from_lorentz_force(&S[3], S, B, E, eperm);
     
     for (int i=0; i<6; ++i){
         S[i] *= timestep;
