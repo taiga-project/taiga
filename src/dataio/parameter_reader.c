@@ -41,6 +41,8 @@ void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp 
     else if (!strcmp(par_name, "particles")){
         run->particle_number = (long)par_value_d;
         run->block_number    = par_value_d/run->block_size+1;
+    }else{
+        printf("Warning: Undefined parameter:\n\t%s: %s\n", par_name, par_value);
     }
 }
 

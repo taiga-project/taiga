@@ -84,6 +84,8 @@ void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, Ru
             input = strtok(NULL, "=");
             strcpy(run->io_coordinate_order, input);
             printf("Order of coordinates in input file: %s\n", run->io_coordinate_order);
+        }else{
+            printf("Warning: Undefined command line parameter: %s\n", input);
         }
     }
 }
