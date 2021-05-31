@@ -1,7 +1,7 @@
 ##!/usr/bin/bash
 shotnumber='17178'
 time='1097'
-beammatter='Li'
+species='Li'
 energy=80 #keV
 toroidal_deflection=0 #degree
 diameter=25 #mm

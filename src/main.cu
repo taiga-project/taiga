@@ -92,6 +92,8 @@ void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, Ru
         }else if (!strcmp(input, "--version") || !strcmp(input, "-v")){
             input = strtok(NULL, "=");
             run->help = HELP_VERSION;
+        }else{
+            printf("Warning: Undefined command line parameter: %s\n", input);
         }
     }
 }

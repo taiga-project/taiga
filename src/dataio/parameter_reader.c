@@ -21,7 +21,7 @@ void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp 
     if (!strcmp(par_name, "shotnumber"))                    strcpy(shot->shotnumber, clean_string(par_value));
     else if (!strcmp(par_name, "time"))                     strcpy(shot->time, clean_string(par_value));
     else if (!strcmp(par_name, "runnumber"))                strcpy(run->runnumber, clean_string(par_value));
-    else if (!strcmp(par_name, "matter")){
+    else if (!strcmp(par_name, "matter") || !strcmp(par_name, "beammatter") || !strcmp(par_name, "species")){
         strcpy(beam->matter, clean_string(par_value));
         beam->mass = get_mass(beam->matter);
     }
@@ -44,6 +44,9 @@ void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp 
         run->block_number    = par_value_d/run->block_size+1;
     }
     else if (!strcmp(par_name, "solver"))                   set_solver(run, clean_string(par_value));
+    else{
+        printf("Warning: Undefined parameter:\n\t%s: %s\n", par_name, par_value);
+    }
 }
 
 int parameter_reader(BeamProp *beam, ShotProp *shot, RunProp *run){

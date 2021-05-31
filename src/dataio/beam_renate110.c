@@ -13,7 +13,7 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
     prof = (BeamProfile*)malloc(size_prof);
     init_ion_profile(shotname, prof);
     
-    speed = sqrt(2 * beam->energy*1000*ELEMENTARY_CHARGE/ beam->mass/ AMU);
+    speed = calculate_speed(beam->energy, beam->mass);
     
     /* cross section normalisation */
     /*if (prof_size[1] > 0){
