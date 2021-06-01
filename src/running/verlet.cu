@@ -7,7 +7,7 @@ __device__ void solve_diffeq_by_verlet(double *X, double *a, double *B, double *
     double Z = X[1] + X[4]*timestep + 0.5*a[1]*timestep*timestep;
     double T = X[2] + X[5]*timestep + 0.5*a[2]*timestep*timestep;
     double new_a[3];
-    (*get_acceleration_from_lorentz_force)(&X[3], new_a, B, E, eperm);
+    (*get_acceleration_from_lorentz_force)(new_a, &X[3], B, E, eperm);
     X[0] = R;
     X[1] = Z;
     X[2] = T;
