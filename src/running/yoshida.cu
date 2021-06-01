@@ -1,6 +1,6 @@
 // Yoshida integrator
 
-__device__ void (*get_acceleration_from_lorentz_force)(double *a, double *v, double *B, double *E, double eperm);
+#include "solvers.cuh"
 
 __device__ void calculate_yoshida_x(double c, double *X_new, double *X, double *a, double timestep){
     double c_dt = c*timestep;
@@ -31,17 +31,17 @@ __device__ void calculate_yoshida_v(double d, double *X_new, double *X, double *
     X_new[3] = X[3] + d_dt*eperm*a_new[0];
     X_new[4] = X[4] + d_dt*eperm*a_new[1];
     X_new[5] = X[5] + d_dt*eperm*a_new[2];
-    a_new[0] = a[0] + d_dt*eperm*eperm*(B_dot_v*B[0]-B_square*X[3];
-    a_new[1] = a[1] + d_dt*eperm*eperm*(B_dot_v*B[1]-B_square*X[4];
-    a_new[2] = a[2] + d_dt*eperm*eperm*(B_dot_v*B[2]-B_square*X[5];
+    a_new[0] = a[0] + d_dt*eperm*eperm*(B_dot_v*B[0]-B_square*X[3]);
+    a_new[1] = a[1] + d_dt*eperm*eperm*(B_dot_v*B[1]-B_square*X[4]);
+    a_new[2] = a[2] + d_dt*eperm*eperm*(B_dot_v*B[2]-B_square*X[5]);
     memcpy(a, a_new, 3*sizeof(double));
 }
 
 __device__ void solve_diffeq_by_yoshida(double *X, double *a, double *B, double *E,
                                                     double eperm, double timestep){
     double X_new[3];
-    double cbrt2 = cbrt(2);
-    double w1 = 1/(2-cbrt2);
+    double cbrt2 = cbrt(2.0);
+    double w1 = 1.0/(2.0-cbrt2);
     double w0 = -cbrt2*w1;
     double c1 = 0.5*w1;
     double c2 = 0.5*(w0+w1);
