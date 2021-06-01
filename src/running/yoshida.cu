@@ -37,8 +37,7 @@ __device__ void calculate_yoshida_v(double d, double *X_new, double *X, double *
     memcpy(a, a_new, 3*sizeof(double));
 }
 
-__device__ void solve_diffeq_by_yoshida(double *X, double *a, double *B, double *E,
-                                                    double eperm, double timestep){
+__device__ void solve_diffeq_by_yoshida(double *X, double *a, double *B, double *E, double eperm, double timestep){
     double X_new[3];
     double cbrt2 = cbrt(2.0);
     double w1 = 1.0/(2.0-cbrt2);

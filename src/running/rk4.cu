@@ -1,6 +1,6 @@
 // Runge--Kutta method
 
-__device__ void (*get_acceleration_from_lorentz_force)(double *a, double *v, double *B, double *E, double eperm);
+#include "solvers.cuh"
 
 __device__ void calculate_runge_kutta_coeff(double *X,
                                             double *S, double *S_prev, double rk_weight,
@@ -20,8 +20,7 @@ __device__ void calculate_runge_kutta_coeff(double *X,
     }
 }
 
-__device__ void solve_diffeq_by_rk4(double *X, double *a, double *B, double *E,
-                                                double eperm, double timestep){
+__device__ void solve_diffeq_by_rk4(double *X, double *a, double *B, double *E, double eperm, double timestep){
     double S1[6], S2[6], S3[6], S4[6];
     
     calculate_runge_kutta_coeff(X, S1, X,  0.0, B, E, eperm ,timestep);

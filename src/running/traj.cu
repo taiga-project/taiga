@@ -86,7 +86,17 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     double X_prev[6];
     double a[3] = {0, 0, 0};
 
-    solve_diffeq = &solve_diffeq_by_rk4;
+    switch(c->solver){
+        case SOLVER_RK45:
+            solve_diffeq = &solve_diffeq_by_rk4;
+            break;
+        case SOLVER_VERLET:
+            solve_diffeq = &solve_diffeq_by_verlet;
+            break;
+        case SOLVER_YOSHIDA:
+            solve_diffeq = &solve_diffeq_by_yoshida;
+            break;
+    }
 
     if (is_electric_field_on){
         get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_with_electric_field;

@@ -1,9 +1,8 @@
 // velocity Verlet
 
-__device__ void (*get_acceleration_from_lorentz_force)(double *a, double *v, double *B, double *E, double eperm);
+#include "solvers.cuh"
 
-__device__ void solve_diffeq_by_verlet(double *X, double *a, double *B, double *E,
-                                                   double eperm, double timestep){
+__device__ void solve_diffeq_by_verlet(double *X, double *a, double *B, double *E, double eperm, double timestep){
     double R = X[0] + X[3]*timestep + 0.5*a[0]*timestep*timestep;
     double Z = X[1] + X[4]*timestep + 0.5*a[1]*timestep*timestep;
     double T = X[2] + X[5]*timestep + 0.5*a[2]*timestep*timestep;

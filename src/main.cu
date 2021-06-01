@@ -43,6 +43,9 @@
 #include "dataio/data_export.c"
 
 #include "running/rk4.cu"
+#include "running/solvers.cuh"
+#include "running/verlet.cu"
+#include "running/yoshida.cu"
 #include "running/detection.cu"
 #include "running/cyl2tor.cu"
 #include "running/traj.cu"
