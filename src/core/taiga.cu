@@ -12,7 +12,7 @@ __global__ void taiga(TaigaGlobals *g, TaigaCommons *c, double *service_var){
         generalised_coordinates[4] = g->vz[idx];
         generalised_coordinates[5] = g->vtor[idx];
         
-        g->detcellid[idx] = traj(c, generalised_coordinates, detcellid);
+        g->detcellid[idx] = calculate_trajectory(c, generalised_coordinates, detcellid);
         
         g->rad[idx]  = generalised_coordinates[0];
         g->z[idx]    = generalised_coordinates[1];

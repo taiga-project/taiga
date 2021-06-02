@@ -48,6 +48,7 @@
 #include "core/yoshida.cu"
 #include "core/detection.cu"
 #include "core/cyl2tor.cu"
+#include "core/localise_field.cu"
 #include "core/traj.cu"
 #include "core/generate_coords.cu"
 #include "core/taiga.cu"

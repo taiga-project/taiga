@@ -11,11 +11,9 @@
 #include "init/taiga_init2.c"
 #include "core/cyl2tor.cu"
 #include "core/detection.cu"
-#include "core/traj.cu"
+#include "core/localise_field.cu"
 
 #define GRID_RES 101
-#define SPLINE_INDEX_ERROR -1
-
 
 __global__ void fieldTester(TaigaCommons *c, double *R, double *Z, double *field){
 
@@ -38,13 +36,10 @@ __global__ void fieldTester(TaigaCommons *c, double *R, double *Z, double *field
     double local_brad=0, local_bz=0, local_btor=0;
     double local_erad=0, local_ez=0, local_etor=0;
     double dr, dz;
-    
-    copy_local_field(c->spline_rgrid, c->grid_size[0], c->spline_zgrid, c->grid_size[1],
-                 r, z, local_spline_indices,
-                 local_spline_brad, local_spline_bz, local_spline_btor,
-                 c->brad, c->bz, c->btor,
-                 local_spline_erad, local_spline_ez, local_spline_etor,
-                 c->erad, c->ez, c->etor, false);
+
+    copy_local_field(c, r, z, local_spline_indices,
+                     local_spline_brad, local_spline_bz, local_spline_btor,
+                     local_spline_erad, local_spline_ez, local_spline_etor);
                  
     dr = r-c->spline_rgrid[local_spline_indices[0]];
     dz = z-c->spline_zgrid[local_spline_indices[1]];

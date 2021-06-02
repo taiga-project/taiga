@@ -5,8 +5,6 @@
 
 #define MAXCHAR 1000
 
-#define MASS_OF_ELECTRON 0.000549
-
 char* clean_string (char* str_in){
     char* str_out = str_in;
     ++str_out;
@@ -14,7 +12,7 @@ char* clean_string (char* str_in){
     return str_out;
 }
 
-void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp *shot, RunProp *run){
+void set_taiga_parameter(char* par_name, char* par_value, BeamProp *beam, ShotProp *shot, RunProp *run){
     double par_value_lf;    sscanf(par_value, "%lf", &par_value_lf);
     int par_value_d;        sscanf(par_value, "%d", &par_value_d);
     
@@ -44,6 +42,8 @@ void init_taiga_props(char* par_name, char* par_value, BeamProp *beam, ShotProp 
         run->block_number    = par_value_d/run->block_size+1;
     }
     else if (!strcmp(par_name, "solver"))                   set_solver(run, clean_string(par_value));
+    else if (!strcmp(par_name, "electric_field_value") || !strcmp(par_name, "matlab"))
+        ;
     else{
         printf("Warning: Undefined parameter:\n\t%s: %s\n", par_name, par_value);
     }
@@ -64,7 +64,7 @@ int parameter_reader(BeamProp *beam, ShotProp *shot, RunProp *run){
         if (str[0] != '#'){
             par_name = strtok(str, "=");
             par_value = strtok(NULL, "#");
-            init_taiga_props(par_name, par_value, beam, shot, run);
+            set_taiga_parameter(par_name, par_value, beam, shot, run);
         }
     }
     fclose(fp);
