@@ -30,7 +30,11 @@
 #include "dataio/field_import.c"
 #include "dataio/parameter_reader.c"
 
-#include "init/taiga_init.c"
+#include "init/beam.cu"
+#include "init/init.c"
+#include "init/sync.cu"
+#include "init/detector.cu"
+#include "init/fast_mode.cu"
 #include "dataio/beam.h"
 #if READINPUTPROF == 1
     #include "dataio/beam_manual_profile.c"

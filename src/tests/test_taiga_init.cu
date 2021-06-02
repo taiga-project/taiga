@@ -12,7 +12,9 @@
 #include "utils/taiga_constants.h"
 #include "core/generate_coords.cu"
 #include "dataio/data_import.c"
-#include "init/taiga_init.c"
+#include "init/init.c"
+#include "init/detector.cu"
+#include "init/beam.cu"
 #include "dataio/parameter_reader.c"
 
 #include "dataio/beam.h"
@@ -122,7 +124,7 @@ void test_init_coords(){
     cudaMalloc((void **) &dev_global, size_globals);
     
     strcpy(shot.name, "17178_1097");
-    init_taiga_props("particles", "1000", &beam, &shot, &run);
+    set_taiga_parameter("particles", "1000", &beam, &shot, &run);
     
     init_coords(&beam, &shot, &run, host_global, shared_global);
     set_particle_number(&run, host_global, shared_global);

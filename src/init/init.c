@@ -41,13 +41,6 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s
     printf(" GRID SIZE: %d %d \n", s_host->grid_size[0], s_host->grid_size[1]);
 }
 
-void sync_device_structs(TaigaGlobals *g_device, TaigaGlobals *g_shared, TaigaCommons *c_device, TaigaCommons *c_shared){
-    cudaMemcpy(c_device, c_shared, sizeof(TaigaCommons), cudaMemcpyHostToDevice);
-    if (!FASTMODE){
-        cudaMemcpy(g_device, g_shared, sizeof(TaigaGlobals), cudaMemcpyHostToDevice);
-    }
-}
-
 void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *g_shared, TaigaCommons *c_shared){
     g_shared->particle_number       = run.particle_number;
     c_shared->max_step_number       = run.step_device;
@@ -55,4 +48,16 @@ void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals
     c_shared->eperm                 = ELEMENTARY_CHARGE/ AMU/ beam.mass;
     c_shared->timestep              = run.timestep;
     c_shared->solver                = run.solver;
+}
+
+void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global){
+    if (READINPUTPROF == 1){
+        double *X_temp;
+        host_global->particle_number = read_vector(&X_temp, "input", "manual_profile", "rad.dat");
+        run->block_number = host_global->particle_number / run->block_size+1;
+        free(X_temp);
+    }else{
+        host_global->particle_number = run->block_size * run->block_number;
+    }
+    shared_global->particle_number = host_global->particle_number;
 }
