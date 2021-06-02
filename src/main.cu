@@ -22,7 +22,8 @@
 #include "utils/taiga_constants.h"
 #include "utils/prop.h"
 #include "main.cuh"
-#include "interface/taiga_write.cu"
+#include "interface/save.c"
+#include "interface/feedback.c"
 #include "utils/debug_functions.c"
 #include "utils/basic_functions.h"
 
