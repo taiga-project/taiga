@@ -93,6 +93,12 @@ int runnumber_reader(ShotProp *shot, RunProp *run){
 void set_solver(RunProp *run, char* solver){
     if (!strcmp(solver, "RK") || !strcmp(solver, "rk") || !strcmp(solver, "RK45") || !strcmp(solver, "rk45") || !strcmp(solver, "Runge-Kutta") || !strcmp(solver, "Runge--Kutta")){
         run->solver = SOLVER_RK45;
+    }else if (!strcmp(solver, "Verlet") || !strcmp(solver, "verlet")){
+        run->solver = SOLVER_VERLET;
+    }else if (!strcmp(solver, "Yoshida") || !strcmp(solver, "yoshida")){
+        run->solver = SOLVER_YOSHIDA;
+    }else{
+        printf("Warning: Unvalid numerical solver: %s\nSolver set to RK45.", solver);
     }
 }
 

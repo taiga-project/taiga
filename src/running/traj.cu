@@ -1,5 +1,7 @@
 #define SPLINE_INDEX_ERROR -1
 
+#include "lorentz.cu"
+
 __device__ void copy_local_field(TaigaCommons *c,
                                  double position_rad, double position_z,
                                  int *local_spline_indices,
@@ -56,9 +58,7 @@ __device__ double calculate_local_field(double *local_spline, double dr, double 
     return local_field;
 }
 
-__device__ void (*solve_diffeq_with_efield)(double *X, double *a, double *B, double *E, double eperm, double timestep);
-
-__device__ void (*solve_diffeq)(double *X, double *a, double *B, double eperm, double timestep);
+__device__ void (*solve_diffeq)(double *X, double *a, double *B, double *E, double eperm, double timestep);
 
 __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     // next grid
@@ -86,10 +86,22 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
     double X_prev[6];
     double a[3] = {0, 0, 0};
 
+    switch(c->solver){
+        case SOLVER_RK45:
+            solve_diffeq = &solve_diffeq_by_rk4;
+            break;
+        case SOLVER_VERLET:
+            solve_diffeq = &solve_diffeq_by_verlet;
+            break;
+        case SOLVER_YOSHIDA:
+            solve_diffeq = &solve_diffeq_by_yoshida;
+            break;
+    }
+
     if (is_electric_field_on){
-        solve_diffeq_with_efield = &solve_diffeq_with_efield_by_rk4;
+        get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_with_electric_field;
     }else{
-        solve_diffeq = &solve_diffeq_by_rk4;
+        get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_without_electric_field;
     }
 
     for (int loopi=0; (loopi < c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
@@ -125,11 +137,7 @@ __device__ int traj(TaigaCommons *c, double X[6], int detcellid){
         // archive coordinates
         for(int i=0; i<6; ++i)  X_prev[i] = X[i];
 
-        if (is_electric_field_on){
-            (*solve_diffeq_with_efield)(X, a, local_bfield, local_efield, eperm, timestep);
-        }else{
-            (*solve_diffeq)(X, a, local_bfield, eperm, timestep);
-        }
+        (*solve_diffeq)(X, a, local_bfield, local_efield, eperm, timestep);
 
         detcellid = calculate_detection_position(X, X_prev, c->detector_geometry);
     }
