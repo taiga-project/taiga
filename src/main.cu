@@ -58,9 +58,9 @@
 #include "core/generate_coords.cu"
 #include "core/taiga.cu"
 
-#include "detector/detector_module.cu"
-#include "detector/detector_postproc.cu"
-#include "detector/detector_sum.cu"
+#include "detector/module.cu"
+#include "detector/postproc.cu"
+#include "detector/sum.cu"
 
 void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, RunProp *run){
     
