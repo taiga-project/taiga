@@ -6,26 +6,26 @@
 #include <curand_kernel.h>
 //#include <stdbool.h>
 //#include <curand_kernel.h>
-#include "../basic_functions.h"
-#include "../taiga_constants.h"
-#include "../prop.h"
-#include "../taiga_constants.h"
-#include "../running/generate_coords.cu"
-#include "../dataio/data_import.c"
-#include "../taiga_init.c"
-#include "../dataio/parameter_reader.c"
+#include "utils/basic_functions.h"
+#include "utils/taiga_constants.h"
+#include "utils/prop.h"
+#include "utils/taiga_constants.h"
+#include "core/generate_coords.cu"
+#include "dataio/data_import.c"
+#include "init/taiga_init.c"
+#include "dataio/parameter_reader.c"
 
-#include "../dataio/beam.h"
+#include "dataio/beam.h"
 #if READINPUTPROF == 1
-    #include "../dataio/beam_manual_profile.c"
+    #include "dataio/beam_manual_profile.c"
 #elif RENATE == 110
-    #include "../dataio/beam_renate110.c"
+    #include "dataio/beam_renate110.c"
 #else
     #error A valid beam module is required!
 #endif
 
-#include "../running/detector_postproc.cu"
-#include "../running/detector_sum.cu"
+#include "detector/detector_postproc.cu"
+#include "detector/detector_sum.cu"
 
 #define LENGTH_TMP 10
 

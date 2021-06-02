@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../basic_functions.h"
+#include "utils/basic_functions.h"
 
 void test_concat(){
     printf("CONCAT: %s\n", concat("He","ll","oWor","ld","!",NULL)) ;

@@ -19,18 +19,18 @@
 #include <cuda_profiler_api.h>
 //#include "test/cuda/nvToolsExt.h"
 
-#include "taiga_constants.h"
-#include "prop.h"
+#include "utils/taiga_constants.h"
+#include "utils/prop.h"
 #include "main.cuh"
-#include "taiga_write.cu"
-#include "debug_functions.c"
-#include "basic_functions.h"
+#include "interface/taiga_write.cu"
+#include "utils/debug_functions.c"
+#include "utils/basic_functions.h"
 
 #include "dataio/data_import.c"
 #include "dataio/field_import.c"
 #include "dataio/parameter_reader.c"
 
-#include "taiga_init.c"
+#include "init/taiga_init.c"
 #include "dataio/beam.h"
 #if READINPUTPROF == 1
     #include "dataio/beam_manual_profile.c"
@@ -42,19 +42,19 @@
 
 #include "dataio/data_export.c"
 
-#include "running/rk4.cu"
-#include "running/solvers.cuh"
-#include "running/verlet.cu"
-#include "running/yoshida.cu"
-#include "running/detection.cu"
-#include "running/cyl2tor.cu"
-#include "running/traj.cu"
-#include "running/generate_coords.cu"
-#include "running/taiga.cu"
+#include "core/rk4.cu"
+#include "core/solvers.cuh"
+#include "core/verlet.cu"
+#include "core/yoshida.cu"
+#include "core/detection.cu"
+#include "core/cyl2tor.cu"
+#include "core/traj.cu"
+#include "core/generate_coords.cu"
+#include "core/taiga.cu"
 
-#include "detector_module.cu"
-#include "running/detector_postproc.cu"
-#include "running/detector_sum.cu"
+#include "detector/detector_module.cu"
+#include "detector/detector_postproc.cu"
+#include "detector/detector_sum.cu"
 
 void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, RunProp *run){
     

@@ -2,17 +2,16 @@
 #include <stdlib.h>
 #include <cuda.h>
 
-#include "../taiga_constants.h"
-#include "../prop.h"
-#include "../basic_functions.h"
-#include "../dataio/data_import.c"
-#include "../dataio/field_import.c"
-#include "../dataio/parameter_reader.c"
-#include "../taiga_init2.c"
-#include "../running/cyl2tor.cu"
-#include "../running/rk4.cu"
-#include "../running/detection.cu"
-#include "../running/traj.cu"
+#include "utils/taiga_constants.h"
+#include "utils/prop.h"
+#include "utils/basic_functions.h"
+#include "dataio/data_import.c"
+#include "dataio/field_import.c"
+#include "dataio/parameter_reader.c"
+#include "init/taiga_init2.c"
+#include "core/cyl2tor.cu"
+#include "core/detection.cu"
+#include "core/traj.cu"
 
 #define GRID_RES 101
 #define SPLINE_INDEX_ERROR -1

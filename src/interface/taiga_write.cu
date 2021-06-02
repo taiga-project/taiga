@@ -1,6 +1,6 @@
 #include "taiga_write.cuh"
-#include "prop.h"
-#include "basic_functions.h"
+#include "utils/prop.h"
+#include "utils/basic_functions.h"
 #include "dataio/data_export.h"
 
 void print_run_details(TaigaGlobals *host_global, TaigaCommons *host_common, ShotProp shot, RunProp run){
