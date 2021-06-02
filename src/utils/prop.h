@@ -1,15 +1,6 @@
 #ifndef PROP_H
 #define PROP_H
 
-#define UNDEFINED_RUNNUMBER "/"
-
-#define SOLVER_RK45 0
-#define SOLVER_VERLET 2
-#define SOLVER_YOSHIDA 4
-
-#define MAGNETIC_FIELD_FROM_VALUE 0
-#define MAGNETIC_FIELD_FROM_FLUX 1
-
 struct TaigaGlobals{
     double *rad, *z, *tor, *vrad, *vz, *vtor;
     int *detcellid;

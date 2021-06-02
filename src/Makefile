@@ -1,5 +1,5 @@
 NVCC = nvcc
-COMMON_FLAGS = --ptxas-options=-v -w -Xptxas -dlcm=cg -maxrregcount=32 -lcurand -arch=compute_30
+COMMON_FLAGS = --ptxas-options=-v -w -Xptxas -dlcm=cg -maxrregcount=32 -lcurand -arch=compute_30 -I.
 CFLAGS = $(COMMON_FLAGS) -O3
 TESTFLAGS = $(COMMON_FLAGS) -g -G
 
