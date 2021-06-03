@@ -21,7 +21,7 @@ matlabscript="cd preproc,try, cdb_reader('$shotnumber',$time, $electric_field_mo
 eval '$matlab -nodesktop -r "$matlabscript"'
 if (( $? == 0 ))
 then
-    echo "Initialisation was successfull"
+    echo "Initialisation was successful"
 else
     echo "Error in initialisation. Please run init_debug.sh"
 fi
