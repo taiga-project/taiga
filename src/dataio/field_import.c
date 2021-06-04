@@ -126,3 +126,19 @@ int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     
     return is_electric_field_on;
 }
+
+int poloidal_flux_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared){
+
+    size_t dimB = 16*sizeof(double*);
+    size_t dimCommons = sizeof(TaigaCommons);
+
+    size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
+    double *POLFLUX[16]; double **polflux;    cudaMalloc((void **) &polflux,  dimB);
+
+    int is_magnetic_field_perturbation = spline_read_and_init(shot, run, "polflux", &polflux, dimRZ);
+
+    s_shared->polflux = polflux;
+    s_shared->is_magnetic_field_perturbation = is_magnetic_field_perturbation;
+
+    return is_magnetic_field_perturbation;
+}

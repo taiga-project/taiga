@@ -182,7 +182,8 @@ int main(int argc, char *argv[]){
         init_grid(shot, run, host_common, shared_common);
         magnetic_field_read_and_init(shot, run, host_common, shared_common);
         if (run.is_electric_field_on) run.is_electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
-        
+        if (run.is_magnetic_field_perturbation) run.is_magnetic_field_perturbation = poloidal_flux_read_and_init(shot, run, host_common, shared_common);
+
         // detector
         set_detector_geometry(shot, host_common, shared_common);
         init_detector(shared_detector, device_detector, shot);

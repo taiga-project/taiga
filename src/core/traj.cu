@@ -16,6 +16,8 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     double local_spline_ez[16];
     double local_spline_etor[16];
 
+    double local_polflux[16];
+
     double local_bfield[3], local_efield[3];
     double dr, dz;
     double R;
@@ -50,7 +52,8 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
         R = get_major_radius(X[0], X[2]);
         copy_local_field(c, R, X[1], local_spline_indices,
                          local_spline_brad, local_spline_bz, local_spline_btor,
-                         local_spline_erad, local_spline_ez, local_spline_etor);
+                         local_spline_erad, local_spline_ez, local_spline_etor,
+                         local_polflux);
 
         dr = R-c->spline_rgrid[local_spline_indices[0]];
         dz = X[1]-c->spline_zgrid[local_spline_indices[1]];

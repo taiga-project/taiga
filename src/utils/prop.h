@@ -25,6 +25,8 @@ struct TaigaCommons{
     int magnetic_field_mode;
     bool is_electric_field_on;
     double **erad, **ez, **etor;
+    bool is_magnetic_field_perturbation;
+    double **polflux;
     double *detector_geometry;
 };
 
@@ -74,6 +76,7 @@ struct RunProp{
     int solver;
     int magnetic_field_mode;
     bool is_electric_field_on;
+    bool is_magnetic_field_perturbation;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
     char runnumber[STRING_LENGTH];
     char parameter_file[STRING_LENGTH];
@@ -95,6 +98,7 @@ void init_run_prop(RunProp *run){
     run->solver = SOLVER_RK45;
     run->magnetic_field_mode = MAGNETIC_FIELD_FROM_VALUE;
     run->is_electric_field_on = false;
+    run->is_magnetic_field_perturbation = false;
     run->cpu_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_core = UNDEFINED_FLOAT;

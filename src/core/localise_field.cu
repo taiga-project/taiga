@@ -2,7 +2,8 @@ __device__ void copy_local_field(TaigaCommons *c,
                                  double position_rad, double position_z,
                                  int *local_spline_indices,
                                  double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor){
+                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                 double *local_polflux){
     int rci, zci;
     int i, i2;
     int rgrid_length = c->grid_size[0];
@@ -22,12 +23,13 @@ __device__ void copy_local_field(TaigaCommons *c,
             local_spline_brad[i] = c->brad[i][i2];
             local_spline_bz[i]   = c->bz[i][i2];
             local_spline_btor[i] = c->btor[i][i2];
-        }
-        if (c->is_electric_field_on){
-            for(i=0; i<16; ++i){
+            if (c->is_electric_field_on){
                 local_spline_erad[i] = c->erad[i][i2];
                 local_spline_ez[i]   = c->ez[i][i2];
                 local_spline_etor[i] = c->etor[i][i2];
+            }
+            if (c->is_magnetic_field_perturbation){
+                local_polflux[i] = c->polflux[i][i2];
             }
         }
     }
