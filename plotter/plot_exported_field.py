@@ -7,7 +7,7 @@ time = '1097'
 
 global_settings = {
     'taiga_directory': '.',
-    'reference_directory': 'input/fieldGrid/'+shot_number+'_'+time,
+    'reference_directory': 'input/fieldGrid/' + shot_number + '_' + time,
     'reference_rad_filename': 'rcord.dat',
     'reference_z_filename': 'zcord.dat'
 }
@@ -22,7 +22,7 @@ rad.update(global_settings)
 
 z = {
     'name': 'B_z',
-    'value_range': [-0.3, 0.3],
+    'value_range': [-0.4, 0.4],
     'taiga_filename': 'exported_fieldZ.dat',
     'reference_filename': 'bz.dat'
 }
@@ -38,7 +38,7 @@ tor.update(global_settings)
 
 polflux = {
     'name': 'psi',
-    'value_range': [-0.03, 0.03],
+    'value_range': [-0.02, 0.02],
     'taiga_filename': 'exported_polflux.dat',
     'reference_filename': 'psi2.dat'
 }
@@ -118,22 +118,32 @@ class MagneticFieldComponent:
 class PlotMagneticFieldComponent(MagneticFieldComponent):
     def __init__(self, component_name):
         super().__init__(component_name)
-        fig, (ax_taiga, ax_reference) = plt.subplots(1, 2, sharex='all', sharey='all')
+        fig, (ax_taiga, ax_reference) = plt.subplots(1, 2, sharex='all', sharey='all',
+                                                     subplot_kw=dict(aspect='equal'))
         ax_taiga.tricontourf(self.taiga.rad, self.taiga.z, self.taiga.value, levels=self.get_levels())
         ax_taiga.set_xlabel('R [m]')
         ax_taiga.set_ylabel('Z [m]')
         ax_taiga.set_title('TAIGA')
         ax_reference.tick_params(direction='out', left=True, right=True, labelleft=True)
-        ax_reference.contourf(self.reference.rad, self.reference.z, self.reference.value, levels=self.get_levels())
+        c = ax_reference.contourf(self.reference.rad, self.reference.z, self.reference.value, levels=self.get_levels())
         ax_reference.set_xlabel('R [m]')
-        ax_reference.tick_params(direction='out', left=True, right=True, labelright=True)
+        ax_reference.tick_params(direction='out', left=True, right=True)
         ax_reference.set_title('Reference')
-        plt.suptitle(self.name+' @ COMPASS #'+shot_number+' ('+time+' ms) ')
-        plt.savefig(self.name+'_'+shot_number+'_'+time+'.svg')
+        plt.suptitle(self.name + ' @ COMPASS #' + shot_number + ' (' + time + ' ms) ')
+        if self.name == 'psi':
+            ax_reference.tick_params(direction='out', left=True, right=True, labelright=True)
+        else:
+
+            cbar = fig.colorbar(c, ax=(ax_taiga, ax_reference), pad=0.02, fraction=0.034)
+            cbar.set_ticks(self.get_tick_levels())
+        plt.savefig(self.name + '_' + shot_number + '_' + time + '.svg')
         plt.show()
 
     def get_levels(self):
-        return numpy.linspace(self.value_range[0], self.value_range[1], 20)
+        return numpy.linspace(self.value_range[0], self.value_range[1], 21)
+
+    def get_tick_levels(self):
+        return numpy.linspace(self.value_range[0], self.value_range[1], 9)
 
 
 if __name__ == "__main__":
