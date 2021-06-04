@@ -70,9 +70,9 @@ int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     size_t dimCommons = sizeof(TaigaCommons);
     
     size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
-    double *BR_PTR[16];     double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB);
-    double *BT_PTR[16];     double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB);
-    double *BZ_PTR[16];     double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
+    double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB);
+    double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB);
+    double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
     
     int s = 0;
     
@@ -111,9 +111,9 @@ int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
     size_t dimCommons = sizeof(TaigaCommons);
     
     size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
-    double *ER_PTR[16]; double **er_ptr;    cudaMalloc((void **) &er_ptr,  dimB);
-    double *ET_PTR[16]; double **et_ptr;    cudaMalloc((void **) &et_ptr,  dimB);
-    double *EZ_PTR[16]; double **ez_ptr;    cudaMalloc((void **) &ez_ptr,  dimB);
+    double **er_ptr;    cudaMalloc((void **) &er_ptr,  dimB);
+    double **et_ptr;    cudaMalloc((void **) &et_ptr,  dimB);
+    double **ez_ptr;    cudaMalloc((void **) &ez_ptr,  dimB);
     
     int is_electric_field_on = spline_read_and_init(shot, run, "erad", &er_ptr, dimRZ);
     spline_read_and_init(shot, run, "ez",   &ez_ptr, dimRZ);
@@ -133,7 +133,7 @@ int poloidal_flux_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host
     size_t dimCommons = sizeof(TaigaCommons);
 
     size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
-    double *POLFLUX[16]; double **polflux;    cudaMalloc((void **) &polflux,  dimB);
+    double **polflux;    cudaMalloc((void **) &polflux,  dimB);
 
     int is_magnetic_field_perturbation = spline_read_and_init(shot, run, "polflux", &polflux, dimRZ);
 
