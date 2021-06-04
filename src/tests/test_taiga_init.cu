@@ -26,8 +26,8 @@
     #error A valid beam module is required!
 #endif
 
-#include "detector/detector_postproc.cu"
-#include "detector/detector_sum.cu"
+#include "detector/postproc.cu"
+#include "detector/sum.cu"
 
 #define LENGTH_TMP 10
 
