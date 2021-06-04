@@ -58,7 +58,6 @@ function cdb_reader(varargin)
         efit = readToroidalFlux(in, out, efit);
 
         efit = calcMagneticGrid (in, out, efit);
-        out = normaliseFlux(in, out, efit);
     end
 
     saveMagneticGrid (in, out, efit);
@@ -73,7 +72,7 @@ function cdb_reader(varargin)
 end
 
 function efit = calcMagneticGrid (in, out, efit)
-    psi_RZ = efit.polflux;
+    psi_RZ = efit.polflux';
     R_M = out.flux.r;
     Z_M = out.flux.z;
     dx = 1e-6;
@@ -85,8 +84,8 @@ function efit = calcMagneticGrid (in, out, efit)
     psi_dR = (psi_dR2-psi_dR1)/dx;
     psi_dZ = (psi_dZ2-psi_dZ1)/dx;
 
-    brad = -psi_dZ./R_M;%*pi;
-    bz   =  psi_dR./R_M;%*pi;
+    brad = -psi_dZ./R_M;
+    bz   =  psi_dR./R_M;
     efit.brad = brad';
     efit.bz = bz';
 end
@@ -266,7 +265,8 @@ function efit = readToroidalFlux(in, out, efit)
     in.hdf5flag = '/output/fluxFunctionProfiles/poloidalFlux';
     polflux = readVectorData(in);
 
-    rbtor = interp1(polflux, rbtor, efit.polflux, 'spline',rbtor(end));
+    psi_RZ = efit.polflux';
+    rbtor = interp1(polflux, rbtor, psi_RZ, 'spline',rbtor(end));
     btor = -rbtor./out.flux.r;
     efit.btor =  btor';
 end
@@ -294,7 +294,7 @@ function efit = readPoloidalFlux(in, out, efit)
     in.source = 'efitxx';
     % EFIT poloidal flux
     in.hdf5flag = '/output/profiles2D/poloidalFlux';
-    efit.polflux    = readMatrixData(in);
+    efit.polflux    = readMatrixData(in)';
     
 end
 
@@ -323,21 +323,6 @@ function efit = readMagneticBoundary(in, efit)
     efit.limiter.r     = readScalarData(in);
     in.hdf5flag = '/output/separatrixGeometry/limiterCoordsZ';
     efit.limiter.z     = readScalarData(in);
-end
-
-function out = normaliseFlux(in, out, efit)
-    in.source = 'efitxx';
-    in.hdf5flag = '/output/singleFluxSurface/poloidalFlux';
-    polflux1dEFIT      = readScalarData(in);
-    
-    in.hdf5flag = '/output/singleFluxSurface/normalizedPoloidalFlux';
-    polflux1dfactorEFIT   = readScalarData(in);
-    
-    
-    polfluxMagnAx = interp2(out.flux.r,out.flux.z,efit.polflux,efit.magnax.r,efit.magnax.z);
-    
-    % Flux normalisation
-    out.flux.normPolFlux = (efit.polflux - polfluxMagnAx) / (polflux1dEFIT - polfluxMagnAx) * polflux1dfactorEFIT;
 end
 
 function  outputData = readScalarData(in)
