@@ -2,7 +2,6 @@
 
 function renate110_setup(varargin)
     startclean
-    add_csapi_if_its_not_installed
 
     in.tokamak = 'compass';
     in.majorradius = 0.56;
@@ -47,6 +46,8 @@ function renate110_setup(varargin)
     ts = initEmpty;
 
     if (in.renate && ~in.make_field.b.loaded)
+        in = readTimes(in);
+        out = efitManager(in, out);
         ts = readThomsonData(in, out, ts);
         %out = fitProfilesNT(ts, out);
         saveRenateFlux(in, out);
@@ -55,6 +56,38 @@ function renate110_setup(varargin)
             %plotProfilesNT (in, out, ts);
         end
     end
+end
+
+function out = efitManager(in, out)
+    in.source = 'efitxx';
+    % EFIT major radius (R)
+    in.hdf5flag = '/output/profiles2D/r';
+    efit.r       = readVectorData(in);
+    % EFIT vertical position (Z)
+    in.hdf5flag = '/output/profiles2D/z';
+    efit.z       = readVectorData(in);
+    [out.flux.r,out.flux.z] = meshgrid(efit.r,efit.z);
+
+    % EFIT poloidal flux
+    in.hdf5flag = '/output/profiles2D/poloidalFlux';
+    polflux2D    = readMatrixData(in)';
+        
+    in.hdf5flag = '/output/singleFluxSurface/poloidalFlux';
+    polflux1dEFIT      = readScalarData(in);
+
+    in.hdf5flag = '/output/singleFluxSurface/normalizedPoloidalFlux';
+    polflux1dfactorEFIT   = readScalarData(in);
+
+    % EFIT magnetic axis
+    in.hdf5flag = '/output/globalParameters/magneticAxisR';
+    magnax_r     = readScalarData(in);
+    in.hdf5flag = '/output/globalParameters/magneticAxisZ';
+    magnax_z     = readScalarData(in);
+
+    polfluxMagnAx = interp2(out.flux.r,out.flux.z,polflux2D,magnax_r,magnax_z);
+    % Flux normalisation
+    % f(x) = (F(x) - F0)/(Fq - F0) * q
+    out.flux.normPolFlux = (polflux2D - polfluxMagnAx) / (polflux1dEFIT - polfluxMagnAx) * polflux1dfactorEFIT;
 end
 
 function savePlot (in, out, plotname)
@@ -76,6 +109,10 @@ function ts= initEmpty
 end
 
 function in = readTimes(in)
+    % EFIT
+    in.source = 'efitxx';
+    in.hdf5flag = '/time';
+    in.index.efit=find(readDataFile(in)>=in.time/1000,1);
     % TS
     in.source = 'ts';
     in.hdf5flag = 'TS_record_time';
@@ -273,6 +310,9 @@ end
 
 function outputin = readDataFile(in)
     switch in.source
+        case 'efitxx'
+            filename = [in.folder,'/',in.shotNumber,'/EFITXX/EFITXX.1.h5'];
+            outputin = h5read(filename, in.hdf5flag);
         case 'ts'
             filename = [in.folder,'/',in.shotNumber,'/THOMSON/',in.hdf5flag,'.1.h5'];
             outputin = h5read(filename, ['/', in.hdf5flag]);
@@ -281,6 +321,8 @@ end
 
 function index = getTimeIndex(in)
     switch in.source
+        case 'efitxx'
+            index = in.index.efit;
         case 'ts'
             index = in.index.ts;
         otherwise
@@ -292,12 +334,4 @@ function startclean
     clear all
     clc
     close all
-end
-
-function add_csapi_if_its_not_installed
-    if ~exist('csapi')
-        p = '/home/maradi/public/splines';
-        addpath(p)
-        disp(['CSAPI loaded from ',p])
-    end
 end
