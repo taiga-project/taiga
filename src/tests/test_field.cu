@@ -16,7 +16,7 @@
 
 #define GRID_RES 101
 
-__global__ void fieldTester(TaigaCommons *c, double *R, double *Z, double *field){
+__global__ void fieldTester(TaigaCommons *c, double *R, double *Z, double *field, double *polflux){
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     double r = R[idx];
@@ -34,22 +34,28 @@ __global__ void fieldTester(TaigaCommons *c, double *R, double *Z, double *field
     double local_spline_ez[16];
     double local_spline_etor[16];
 
+    double local_spline_polflux[16];
+
     double local_brad=0, local_bz=0, local_btor=0;
     double local_erad=0, local_ez=0, local_etor=0;
+    double local_polflux = 0;
     double dr, dz;
 
     copy_local_field(c, r, z, local_spline_indices,
                      local_spline_brad, local_spline_bz, local_spline_btor,
-                     local_spline_erad, local_spline_ez, local_spline_etor);
+                     local_spline_erad, local_spline_ez, local_spline_etor,
+                     local_spline_polflux);
                  
     dr = r-c->spline_rgrid[local_spline_indices[0]];
     dz = z-c->spline_zgrid[local_spline_indices[1]];
     local_brad = calculate_local_field(local_spline_brad, dr, dz);
     local_bz   = calculate_local_field(local_spline_bz,   dr, dz);
     local_btor = calculate_local_field(local_spline_btor, dr, dz);
+    local_polflux = calculate_local_field(local_spline_polflux, dr, dz);
     field[idx] = local_brad;
     field[idx+GRID_RES*GRID_RES] = local_bz;
     field[idx+2*GRID_RES*GRID_RES] = local_btor;
+    polflux[idx] = local_polflux;
 }
 
 int main(){
@@ -75,9 +81,11 @@ int main(){
     cudaMalloc((void **) &device_common, size_commons);
     
     init_host(host_global, host_common);
-    
     init_grid(shot, run, host_common, shared_common);
     magnetic_field_read_and_init(shot, run, host_common, shared_common);
+
+    run.is_magnetic_field_perturbation = true;
+    poloidal_flux_read_and_init(shot, run, host_common, shared_common);
     
     init_device_structs(beam, shot, run, shared_global, shared_common);
     sync_device_structs(device_global, shared_global, device_common, shared_common);
@@ -85,14 +93,17 @@ int main(){
     double *host_field, *device_field;
     double *host_R, *device_R;
     double *host_Z, *device_Z;
+    double *host_polflux, *device_polflux;
     long grid_size = GRID_RES*GRID_RES;
     size_t dim_tmp = sizeof(double)*grid_size;
     host_field = (double *) malloc(3*dim_tmp);
     host_R = (double *) malloc(dim_tmp);
     host_Z = (double *) malloc(dim_tmp);
+    host_polflux = (double *) malloc(dim_tmp);
     cudaMalloc((void **) &(device_field), 3*dim_tmp);
     cudaMalloc((void **) &(device_R), dim_tmp);
     cudaMalloc((void **) &(device_Z), dim_tmp);
+    cudaMalloc((void **) &(device_polflux), dim_tmp);
     
     
     double R_max=0.8;
@@ -105,18 +116,22 @@ int main(){
             int index=i*GRID_RES+j;
             host_R[index] = i*(R_max-R_min)/GRID_RES+R_min;
             host_Z[index] = j*(Z_max-Z_min)/GRID_RES+Z_min;
-            host_field[index]=-99;
+            host_field[index]=UNDEFINED_FLOAT;
+            host_field[grid_size+index]=UNDEFINED_FLOAT;
+            host_field[2*grid_size+index]=UNDEFINED_FLOAT;
+            host_polflux[index]=UNDEFINED_FLOAT;
         }
     }
     
     cudaMemcpy(device_field, host_field, 3*dim_tmp, cudaMemcpyHostToDevice);
     cudaMemcpy(device_R, host_R, dim_tmp, cudaMemcpyHostToDevice);
     cudaMemcpy(device_Z, host_Z, dim_tmp, cudaMemcpyHostToDevice);
+    cudaMemcpy(device_polflux, host_polflux, dim_tmp, cudaMemcpyHostToDevice);
     
-    //cuda code
-    fieldTester <<< GRID_RES, GRID_RES >>> (device_common, device_R, device_Z, device_field);
+    fieldTester <<< GRID_RES, GRID_RES >>> (device_common, device_R, device_Z, device_field, device_polflux);
     
     cudaMemcpy(host_field, device_field, 3*dim_tmp, cudaMemcpyDeviceToHost);
+    cudaMemcpy(host_polflux, device_polflux, dim_tmp, cudaMemcpyDeviceToHost);
     
     FILE *fp;
     fp = fopen ("exported_fieldR.dat", "w");
@@ -134,6 +149,12 @@ int main(){
     fp = fopen ("exported_fieldT.dat", "w");
     for (int i=0; i<grid_size; ++i){
         fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_field[2*grid_size+i]);
+    }
+    fclose(fp);
+
+    fp = fopen ("exported_polflux.dat", "w");
+    for (int i=0; i<grid_size; ++i){
+        fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_polflux[i]);
     }
     fclose(fp);
 }

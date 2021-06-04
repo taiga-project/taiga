@@ -36,6 +36,14 @@ tor = {
 }
 tor.update(global_settings)
 
+polflux = {
+    'name': 'psi',
+    'value_range': [-0.03, 0.03],
+    'taiga_filename': 'exported_polflux.dat',
+    'reference_filename': 'psi2.dat'
+}
+polflux.update(global_settings)
+
 
 class MagneticFieldDataSet:
     def __init__(self):
@@ -120,7 +128,7 @@ class PlotMagneticFieldComponent(MagneticFieldComponent):
         ax_reference.set_xlabel('R [m]')
         ax_reference.tick_params(direction='out', left=True, right=True, labelright=True)
         ax_reference.set_title('Reference')
-        plt.suptitle(self.name+' @ Compass #'+shot_number+' ('+time+' ms) ')
+        plt.suptitle(self.name+' @ COMPASS #'+shot_number+' ('+time+' ms) ')
         plt.savefig(self.name+'_'+shot_number+'_'+time+'.svg')
         plt.show()
 
@@ -132,4 +140,4 @@ if __name__ == "__main__":
     PlotMagneticFieldComponent(rad)
     PlotMagneticFieldComponent(z)
     PlotMagneticFieldComponent(tor)
-
+    PlotMagneticFieldComponent(polflux)

@@ -8,6 +8,7 @@ void init_host(TaigaGlobals *g, TaigaCommons *s){
     s->eperm = 0;
     s->timestep = 0;
     s->is_electric_field_on = false;
+    s->is_magnetic_field_perturbation = false;
     g->particle_number = 0;
 }
 
