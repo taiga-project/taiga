@@ -6,7 +6,7 @@
 #include "utils/prop.h"
 #include "utils/basic_functions.h"
 #include "dataio/data_import.c"
-#include "dataio/field_import.c"
+#include "dataio/field_import.cu"
 #include "dataio/parameter_reader.c"
 #include "init/sync.cu"
 #include "init/init.c"
