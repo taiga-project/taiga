@@ -67,7 +67,6 @@ int spline_read_and_init(ShotProp shot, RunProp run, char* field_name, double **
 int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared){
     
     size_t dimB = 16*sizeof(double*);
-    size_t dimCommons = sizeof(TaigaCommons);
     
     size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
     double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB);
@@ -108,7 +107,6 @@ int magnetic_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
 int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared){
     
     size_t dimB = 16*sizeof(double*);
-    size_t dimCommons = sizeof(TaigaCommons);
     
     size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
     double **er_ptr;    cudaMalloc((void **) &er_ptr,  dimB);
@@ -130,7 +128,6 @@ int electric_field_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_hos
 int poloidal_flux_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared){
 
     size_t dimB = 16*sizeof(double*);
-    size_t dimCommons = sizeof(TaigaCommons);
 
     size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
     double **polflux;    cudaMalloc((void **) &polflux,  dimB);
