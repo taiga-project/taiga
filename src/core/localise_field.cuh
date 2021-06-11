@@ -18,4 +18,7 @@ __device__ void copy_local_field(TaigaCommons *c,
 __device__ double calculate_local_field_with_polynomials(TaigaCommons *c, int *local_spline_indices,
                                                          double *local_spline, double dr, double dz);
 
+__device__ double calculate_local_field_with_bsplines(TaigaCommons *c, int *local_spline_indices,
+                                                      double *local_spline, double dr, double dz);
+
 #endif //LOCALISE_FIELD_CUH

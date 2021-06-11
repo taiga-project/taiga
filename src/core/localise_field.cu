@@ -57,7 +57,7 @@ __device__ double calculate_local_field_with_polynomials(TaigaCommons *c, int *l
                 c21(bs1,bs2)*dsx^2*dsy^3 + c22(bs1,bs2)*dsx^3*dsy^2 + c23(bs1,bs2)*dsx^2*dsy + c24(bs1,bs2)*dsx^2 + ...
                 c31(bs1,bs2)*dsx  *dsy^3 + c32(bs1,bs2)*dsx  *dsy^2 + c33(bs1,bs2)*dsx  *dsy + c34(bs1,bs2)*dsx    + ...
                 c41(bs1,bs2)      *dsy^3 + c42(bs1,bs2)      *dsy^2 + c43(bs1,bs2)      *dsy + c44(bs1,bs2);*/
-    double local_field = 0.0, local_field_comp[16] ;
+    double local_field = 0.0, local_field_comp[16];
     for(int i=0; i<4; ++i){
         for(int j=0; j<4; ++j){
             local_field_comp[i*4+j] = local_spline[i*4+j]*pow(dr,3-i)*pow(dz,3-j);
@@ -71,3 +71,14 @@ __device__ double calculate_local_field_with_polynomials(TaigaCommons *c, int *l
     }
     return local_field;
 }
+
+/*__device__ double calculate_local_field_with_bsplines(TaigaCommons *c, int *local_spline_indices,
+                                                      double *local_spline, double dr, double dz){
+    double local_field = 0.0;
+    for(int i=0; i<4; ++i){
+        for(int j=0; j<4; ++j){
+            local_field += local_spline[i*4+j]* B();
+        }
+    }
+    return local_field;
+}*/
