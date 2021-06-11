@@ -5,11 +5,10 @@
 
 #define MAXCHAR 1000
 
-char* clean_string (char* str_in){
-    char* str_out = str_in;
-    ++str_out;
-    str_out[strlen(str_out)-2] = 0;
-    return str_out;
+char* clean_string (char* str){
+    ++str;
+    str[strlen(str)-2] = 0;
+    return str;
 }
 
 void set_taiga_parameter(char* par_name, char* par_value, BeamProp *beam, ShotProp *shot, RunProp *run){
@@ -42,6 +41,9 @@ void set_taiga_parameter(char* par_name, char* par_value, BeamProp *beam, ShotPr
         run->block_number    = par_value_d/run->block_size+1;
     }
     else if (!strcmp(par_name, "solver"))                   set_solver(run, clean_string(par_value));
+    else if (!strcmp(par_name, "field_interpolation_method")){
+        set_field_interpolation_method(run, clean_string(par_value));
+    }
     else if (!strcmp(par_name, "electric_field_value") || !strcmp(par_name, "matlab"))
         ;
     else{
@@ -91,14 +93,26 @@ int runnumber_reader(ShotProp *shot, RunProp *run){
 }
 
 void set_solver(RunProp *run, char* solver){
-    if (!strcmp(solver, "RK") || !strcmp(solver, "rk") || !strcmp(solver, "RK45") || !strcmp(solver, "rk45") || !strcmp(solver, "Runge-Kutta") || !strcmp(solver, "Runge--Kutta")){
+    string_to_lowercase(solver);
+    if (!strcmp(solver, "rk") || !strcmp(solver, "rk45") || !strcmp(solver, "runge-kutta") || !strcmp(solver, "runge--kutta")){
         run->solver = SOLVER_RK45;
-    }else if (!strcmp(solver, "Verlet") || !strcmp(solver, "verlet")){
+    }else if (!strcmp(solver, "verlet")){
         run->solver = SOLVER_VERLET;
-    }else if (!strcmp(solver, "Yoshida") || !strcmp(solver, "yoshida")){
+    }else if (!strcmp(solver, "yoshida")){
         run->solver = SOLVER_YOSHIDA;
     }else{
-        printf("Warning: Unvalid numerical solver: %s\nSolver set to RK45.", solver);
+        printf("Warning: Unvalid numerical solver: %s\nSet to Runge--Kutta solver [rk45] .", solver);
+    }
+}
+
+void set_field_interpolation_method(RunProp *run, char* method){
+    string_to_lowercase(method);
+    if (!strcmp(method, "spline")){
+        run->solver = SOLVER_VERLET;
+    }else if (!strcmp(method, "bspline") || !strcmp(method, "b-spline")){
+        run->solver = SOLVER_YOSHIDA;
+    }else{
+        printf("Warning: Unvalid interpolationm method: %s\nSet to bicubic spline [spline].", method);
     }
 }
 

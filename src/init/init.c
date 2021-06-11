@@ -49,6 +49,7 @@ void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals
     c_shared->eperm                 = ELEMENTARY_CHARGE/ AMU/ beam.mass;
     c_shared->timestep              = run.timestep;
     c_shared->solver                = run.solver;
+    c_shared->field_interpolation_method = run.field_interpolation_method;
 }
 
 void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global){

@@ -8,4 +8,5 @@ void init_dir(char *folder, char *runnumber);
 void init_dir(char *folder, char *runnumber, char *subdir);
 
 char* concat(const char *s1, ...);
+void string_to_lowercase(char* str);
 

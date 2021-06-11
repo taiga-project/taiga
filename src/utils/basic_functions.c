@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <ctype.h>
 #include "basic_functions.h"
 
 #if defined(_WIN32)
@@ -108,3 +109,6 @@ char* concat(const char *s1, ...){
     return r;
 }
 
+void string_to_lowercase(char* str){
+    for(char *p=str; *p; ++p) *p=tolower(*p);
+}
