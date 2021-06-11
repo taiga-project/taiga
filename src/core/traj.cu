@@ -1,6 +1,16 @@
 #include "lorentz.cu"
+#include "localise_field.cuh"
 
 __device__ void (*solve_diffeq)(double *X, double *a, double *B, double *E, double eperm, double timestep);
+
+__device__ void (*get_coefficients)(TaigaCommons *c,
+                                    int *local_spline_indices,
+                                    double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                    double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                    double *local_polflux, int zgrid_length);
+
+__device__ double (*calculate_local_field)(TaigaCommons *c, int *local_spline_indices,
+                                           double *local_spline, double dr, double dz);
 
 __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid){
     // next grid
@@ -41,6 +51,13 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
             solve_diffeq = &solve_diffeq_by_yoshida;
             break;
     }
+    int spline_mode = 0;
+    switch(spline_mode){//(c->spline_mode){
+        case 0:
+            get_coefficients = &get_coefficients_with_polynomials;
+            calculate_local_field = &calculate_local_field_with_polynomials;
+            break;
+    }
 
     if (is_electric_field_on){
         get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_with_electric_field;
@@ -51,16 +68,16 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     for (int loopi=0; (loopi < c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
         R = get_major_radius(X[0], X[2]);
         copy_local_field(c, R, X[1], local_spline_indices,
-                         local_spline_brad, local_spline_bz, local_spline_btor,
-                         local_spline_erad, local_spline_ez, local_spline_etor,
-                         local_polflux);
+                            local_spline_brad, local_spline_bz, local_spline_btor,
+                            local_spline_erad, local_spline_ez, local_spline_etor,
+                            local_polflux);
 
         dr = R-c->spline_rgrid[local_spline_indices[0]];
         dz = X[1]-c->spline_zgrid[local_spline_indices[1]];
 
-        local_bfield[0] = calculate_local_field(local_spline_brad, dr, dz);
-        local_bfield[1] = calculate_local_field(local_spline_bz,   dr, dz);
-        local_bfield[2] = calculate_local_field(local_spline_btor, dr, dz);
+        local_bfield[0] = (*calculate_local_field)(c, local_spline_indices, local_spline_brad, dr, dz);
+        local_bfield[1] = (*calculate_local_field)(c, local_spline_indices, local_spline_bz,   dr, dz);
+        local_bfield[2] = (*calculate_local_field)(c, local_spline_indices, local_spline_btor, dr, dz);
 
         if (magnetic_field_mode == MAGNETIC_FIELD_FROM_FLUX){
             local_bfield[0] /= -X[0];    //Brad = -dPsi_dZ / R
@@ -72,9 +89,9 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
         local_bfield[2] = get_tor_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
 
         if (is_electric_field_on){
-            local_efield[0] = calculate_local_field(local_spline_erad, dr, dz);
-            local_efield[1] = calculate_local_field(local_spline_ez,   dr, dz);
-            local_efield[2] = calculate_local_field(local_spline_etor, dr, dz);
+            local_efield[0] = (*calculate_local_field)(c, local_spline_indices, local_spline_erad, dr, dz);
+            local_efield[1] = (*calculate_local_field)(c, local_spline_indices, local_spline_ez,   dr, dz);
+            local_efield[2] = (*calculate_local_field)(c, local_spline_indices, local_spline_etor, dr, dz);
             local_efield[0] = get_rad_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
             local_efield[2] = get_tor_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
         }
