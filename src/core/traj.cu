@@ -2,27 +2,27 @@
 #include "localise_field.cuh"
 
 //header
-__device__ double get_dr_with_polynomials(TaigaCommons *c, int *local_spline_indices, double R);
-__device__ double get_dz_with_polynomials(TaigaCommons *c, int *local_spline_indices, double Z);
+__device__ double get_dr_with_polynomials(TaigaCommons *c, const int *local_spline_indices, double R);
+__device__ double get_dz_with_polynomials(TaigaCommons *c, const int *local_spline_indices, double Z);
 
 __device__ void (*solve_diffeq)(double *X, double *a, double *B, double *E, double eperm, double timestep);
 
 __device__ void (*get_coefficients)(TaigaCommons *c,
-                                    int *local_spline_indices,
+                                    const int *local_spline_indices,
                                     double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                     double *local_polflux, int zgrid_length);
 
-__device__ double (*calculate_local_field)(TaigaCommons *c, int *local_spline_indices,
-                                           double *local_spline, double dr, double dz);
+__device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spline_indices,
+                                           const double *local_spline, double dr, double dz);
 
-__device__ double (*get_dr)(TaigaCommons *c, int *local_spline_indices, double R);
-__device__ double (*get_dz)(TaigaCommons *c, int *local_spline_indices, double Z);
+__device__ double (*get_dr)(TaigaCommons *c, const int *local_spline_indices, double R);
+__device__ double (*get_dz)(TaigaCommons *c, const int *local_spline_indices, double Z);
 
-__device__ double get_dr_with_polynomials(TaigaCommons *c, int *local_spline_indices, double R){
+__device__ double get_dr_with_polynomials(TaigaCommons *c, const int *local_spline_indices, double R){
     return R - c->spline_rgrid[local_spline_indices[0]];
 }
-__device__ double get_dz_with_polynomials(TaigaCommons *c, int *local_spline_indices, double Z){
+__device__ double get_dz_with_polynomials(TaigaCommons *c, const int *local_spline_indices, double Z){
     return Z - c->spline_zgrid[local_spline_indices[1]];
 }
 
@@ -68,8 +68,8 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     int spline_mode = 0;
     switch(spline_mode){//(c->spline_mode){
         case 0:
-            get_coefficients = &get_coefficients_with_polynomials;
-            calculate_local_field = &calculate_local_field_with_polynomials;
+            get_coefficients = &get_coefficients_with_splines;
+            calculate_local_field = &calculate_local_field_with_splines;
             get_dr = &get_dr_with_polynomials;
             get_dz = &get_dz_with_polynomials;
             break;
