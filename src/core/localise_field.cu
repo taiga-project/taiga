@@ -1,6 +1,12 @@
 #include "localise_field.cuh"
 #include "bspline.cu"
 
+__device__ void (*get_coefficients)(TaigaCommons *c,
+                                    const int *local_spline_indices,
+                                    double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                    double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                    double *local_polflux, int zgrid_length);
+
 __device__ void get_coefficients_with_splines(
                                 TaigaCommons *c,
                                 const int *local_spline_indices,
@@ -43,7 +49,7 @@ __device__ void copy_local_field(TaigaCommons *c,
         local_spline_indices[0] = rci;
         local_spline_indices[1] = zci;
 
-        (*get_coefficients_with_splines)(c, local_spline_indices,
+        (*get_coefficients)(c, local_spline_indices,
                                          local_spline_brad, local_spline_bz, local_spline_btor,
                                          local_spline_erad, local_spline_ez, local_spline_etor,
                                          local_polflux, zgrid_length);

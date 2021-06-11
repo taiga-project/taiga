@@ -7,12 +7,6 @@ __device__ double get_dz_with_polynomials(TaigaCommons *c, const int *local_spli
 
 __device__ void (*solve_diffeq)(double *X, double *a, double *B, double *E, double eperm, double timestep);
 
-__device__ void (*get_coefficients)(TaigaCommons *c,
-                                    const int *local_spline_indices,
-                                    double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                                    double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                    double *local_polflux, int zgrid_length);
-
 __device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spline_indices,
                                            const double *local_spline, double dr, double dz);
 
