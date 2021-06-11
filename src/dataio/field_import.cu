@@ -135,3 +135,57 @@ int poloidal_flux_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host
 
     return is_magnetic_field_perturbation;
 }
+
+//B-spline
+int bspline_read_and_init(ShotProp shot, RunProp run, char* field_name, double ***return_s_ptr, int dimRZ){
+    char *spline_folder = "input/fieldSpl";
+    int suc[1] = {1};
+
+    double *S0,  *s0;  read_vector(&S0, spline_folder, shot.name, concat(field_name ,".bspl", NULL), suc);
+    cudaMalloc((void **) &s0,  dimRZ);
+
+    size_t dimB = sizeof(double*);
+    double *S_PTR[1];  double **s_ptr; cudaMalloc((void **) &s_ptr,  dimB);
+    S_PTR[0]  = s0;
+
+    if (suc[0] == 1){
+        cudaMemcpy(s0, S0, dimRZ, cudaMemcpyHostToDevice);
+        free(S0);
+        if (run.debug == 1){
+            for (int i=0; i<10; ++i){
+                printf("%s bspline %d %lf\n", field_name, i, S0[i]);
+            }
+        }
+        *return_s_ptr = s_ptr;
+    }
+    return suc[0];
+}
+
+int magnetic_field_read_and_init_with_bsplines(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared){
+
+    size_t dimB = sizeof(double*);
+    size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
+    double **br_ptr;    cudaMalloc((void **) &br_ptr,  dimB);
+    double **bt_ptr;    cudaMalloc((void **) &bt_ptr,  dimB);
+    double **bz_ptr;    cudaMalloc((void **) &bz_ptr,  dimB);
+
+    int s = 0;
+
+    if (run.magnetic_field_mode == MAGNETIC_FIELD_FROM_VALUE){
+        s = spline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
+        spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
+        spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
+    }
+
+    s_shared->brad = br_ptr;
+    s_shared->bz   = bz_ptr;
+    s_shared->btor = bt_ptr;
+    s_shared->magnetic_field_mode = run.magnetic_field_mode;
+
+    if (s == 0){
+        printf("Fatal error in the memory allocation of the magnetic field\n");
+        exit(1);
+    }
+
+    return s;
+}
