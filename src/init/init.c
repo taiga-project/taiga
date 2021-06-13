@@ -19,10 +19,10 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
     size_t size_grid_dim = 2*sizeof(int);
     
     host_common->grid_size = (int*)malloc(size_grid_dim);
-    if (host_common->field_interpolation_method == CUBIC_SPLINE) {
+    if (run.field_interpolation_method == CUBIC_SPLINE) {
         host_common->grid_size[0] = read_vector(&host_common->spline_rgrid, "input/fieldSpl", shot.name, "r.spline");
         host_common->grid_size[1] = read_vector(&host_common->spline_zgrid, "input/fieldSpl", shot.name, "z.spline");
-    }else if (host_common->field_interpolation_method == CUBIC_BSPLINE) {
+    }else if (run.field_interpolation_method == CUBIC_BSPLINE) {
         host_common->grid_size[0] = read_vector(&host_common->spline_rgrid, "input/fieldSpl", shot.name, "r.bspl");
         host_common->grid_size[1] = read_vector(&host_common->spline_zgrid, "input/fieldSpl", shot.name, "z.bspl");
     }else{
