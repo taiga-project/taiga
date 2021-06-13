@@ -132,34 +132,47 @@ void test_field(int field_interpolation_method){
     
     cudaMemcpy(host_field, device_field, 3*dim_tmp, cudaMemcpyDeviceToHost);
     cudaMemcpy(host_polflux, device_polflux, dim_tmp, cudaMemcpyDeviceToHost);
-    
+
+    char* field_interpolation_name;
+    switch (field_interpolation_method) {
+        case CUBIC_SPLINE:
+            field_interpolation_name = "spline";
+            break;
+        case CUBIC_BSPLINE:
+            field_interpolation_name = "bspline";
+            break;
+        default:
+            printf("Invalid interpolation value\n");
+    }
+
     FILE *fp;
-    fp = fopen ("exported_fieldR.dat", "w");
+    fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_brad.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
         fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_field[i]);
     }
     fclose(fp);
     
-    fp = fopen ("exported_fieldZ.dat", "w");
+    fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_bz.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
         fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_field[grid_size+i]);
     }
     fclose(fp);
     
-    fp = fopen ("exported_fieldT.dat", "w");
+    fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_btor.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
         fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_field[2*grid_size+i]);
     }
     fclose(fp);
 
-    fp = fopen ("exported_polflux.dat", "w");
+    fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_psi.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
         fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_polflux[i]);
     }
     fclose(fp);
+    printf("Data exported to: %s\n", run.folder_out);
 }
 
 int main(){
     test_field(CUBIC_SPLINE);
-    //test_field(CUBIC_BSPLINE);
+    test_field(CUBIC_BSPLINE);
 }
