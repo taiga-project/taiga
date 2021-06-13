@@ -16,7 +16,7 @@
 
 #define GRID_RES 101
 
-__global__ void fieldTester(TaigaCommons *c, double *R, double *Z, double *field, double *polflux){
+__global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, double *field, double *polflux){
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     double r = R[idx];
@@ -58,7 +58,7 @@ __global__ void fieldTester(TaigaCommons *c, double *R, double *Z, double *field
     polflux[idx] = local_polflux;
 }
 
-int main(){
+void test_field(int field_interpolation_method){
     ShotProp shot; init_shot_prop(&shot);
     BeamProp beam; init_beam_prop(&beam);
     RunProp run;   init_run_prop(&run);
@@ -81,6 +81,7 @@ int main(){
     cudaMalloc((void **) &device_common, size_commons);
     
     init_host(host_global, host_common);
+    run.field_interpolation_method = field_interpolation_method;
     init_grid(shot, run, host_common, shared_common);
     magnetic_field_read_and_init(shot, run, host_common, shared_common);
 
@@ -127,7 +128,7 @@ int main(){
     cudaMemcpy(device_Z, host_Z, dim_tmp, cudaMemcpyHostToDevice);
     cudaMemcpy(device_polflux, host_polflux, dim_tmp, cudaMemcpyHostToDevice);
     
-    fieldTester <<< GRID_RES, GRID_RES >>> (device_common, device_R, device_Z, device_field, device_polflux);
+    calculate_field_grid <<< GRID_RES, GRID_RES >>> (device_common, device_R, device_Z, device_field, device_polflux);
     
     cudaMemcpy(host_field, device_field, 3*dim_tmp, cudaMemcpyDeviceToHost);
     cudaMemcpy(host_polflux, device_polflux, dim_tmp, cudaMemcpyDeviceToHost);
@@ -156,4 +157,9 @@ int main(){
         fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_polflux[i]);
     }
     fclose(fp);
+}
+
+int main(){
+    test_field(CUBIC_SPLINE);
+    //test_field(CUBIC_BSPLINE);
 }
