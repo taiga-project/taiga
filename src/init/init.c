@@ -23,8 +23,8 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
         host_common->grid_size[0] = read_vector(&host_common->spline_rgrid, "input/fieldSpl", shot.name, "r.spline");
         host_common->grid_size[1] = read_vector(&host_common->spline_zgrid, "input/fieldSpl", shot.name, "z.spline");
     }else if (host_common->field_interpolation_method == CUBIC_BSPLINE) {
-        host_common->grid_size[0] = read_vector(&host_common->spline_rgrid, "input/fieldSpl", shot.name, "r.bspline");
-        host_common->grid_size[1] = read_vector(&host_common->spline_zgrid, "input/fieldSpl", shot.name, "z.bspline");
+        host_common->grid_size[0] = read_vector(&host_common->spline_rgrid, "input/fieldSpl", shot.name, "r.bspl");
+        host_common->grid_size[1] = read_vector(&host_common->spline_zgrid, "input/fieldSpl", shot.name, "z.bspl");
     }else{
         printf("Error: invalid field interpolation method in init.\n");
         exit(1);
