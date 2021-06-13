@@ -48,10 +48,10 @@ __global__ void fieldTester(TaigaCommons *c, double *R, double *Z, double *field
                  
     dr = r-c->spline_rgrid[local_spline_indices[0]];
     dz = z-c->spline_zgrid[local_spline_indices[1]];
-    local_brad = calculate_local_field(local_spline_brad, dr, dz);
-    local_bz   = calculate_local_field(local_spline_bz,   dr, dz);
-    local_btor = calculate_local_field(local_spline_btor, dr, dz);
-    local_polflux = calculate_local_field(local_spline_polflux, dr, dz);
+    local_brad = calculate_local_field_with_splines(c, local_spline_indices, local_spline_brad, dr, dz);
+    local_bz   = calculate_local_field_with_splines(c, local_spline_indices, local_spline_bz,   dr, dz);
+    local_btor = calculate_local_field_with_splines(c, local_spline_indices, local_spline_btor, dr, dz);
+    local_polflux = calculate_local_field_with_splines(c, local_spline_indices, local_spline_polflux, dr, dz);
     field[idx] = local_brad;
     field[idx+GRID_RES*GRID_RES] = local_bz;
     field[idx+2*GRID_RES*GRID_RES] = local_btor;
@@ -104,7 +104,6 @@ int main(){
     cudaMalloc((void **) &(device_R), dim_tmp);
     cudaMalloc((void **) &(device_Z), dim_tmp);
     cudaMalloc((void **) &(device_polflux), dim_tmp);
-    
     
     double R_max=0.8;
     double R_min=0.3;
