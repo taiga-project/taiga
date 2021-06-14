@@ -120,56 +120,6 @@ class CDBReader:
         self.B_phi = scipy.interpolate.RectBivariateSpline(self.Z, self.R, B_phi_2d)
 
 
-class PlotCDB:
-    def __init__(self, cdb):
-        self.cdb = cdb
-        self.value_range = [0, 1]
-        self.plot('B_R')
-        self.plot('B_Z')
-        self.plot('B_phi')
-        self.plot('psi')
-
-    def plot(self, attribute):
-        self.get_range(attribute)
-        f = getattr(self.cdb, attribute)
-
-        fig, (ax_taiga, ax_reference) = plt.subplots(1, 2, sharex='all', sharey='all',
-                                                     subplot_kw=dict(aspect='equal'))
-
-        ax_reference.tick_params(direction='out', left=True, right=True, labelleft=True)
-        value = f(self.cdb.Z, self.cdb.R, grid=True)
-        c = ax_reference.contourf(self.cdb.R, self.cdb.Z, value, levels=self.get_levels())
-        ax_reference.set_xlabel('R [m]')
-        ax_reference.tick_params(direction='out', left=True, right=True)
-        ax_reference.set_title('CDB')
-        plt.suptitle(attribute + ' @ COMPASS #' + self.cdb.shot_number + ' (' + self.cdb.time + ' ms) ')
-        if attribute == 'psi':
-            ax_reference.tick_params(direction='out', left=True, right=True, labelright=True)
-        else:
-            cbar = fig.colorbar(c, ax=(ax_taiga, ax_reference), pad=0.02, fraction=0.034)
-            cbar.set_ticks(self.get_tick_levels())
-
-        fig.show()
-
-    def get_levels(self):
-        return numpy.linspace(self.value_range[0], self.value_range[1], 21)
-
-    def get_tick_levels(self):
-        return numpy.linspace(self.value_range[0], self.value_range[1], 9)
-
-    def get_range(self, attribute):
-        if attribute == 'B_R':
-            self.value_range = [-0.2, 0.2]
-        elif attribute == 'B_Z':
-            self.value_range = [-0.4, 0.4]
-        elif attribute == 'B_phi':
-            self.value_range = [0, 2]
-        elif attribute == 'psi':
-            self.value_range = [-0.02, 0.02]
-        elif attribute == 'normalised_poloidal_flux':
-            self.value_range = [0, 1]
-
-
 class ParseToTaiga:
     def __init__(self, cdb):
         export_dir = get_home_directory() + '/input/fieldSpl/' + str(cdb.shot_number) + '_' + str(cdb.time)
@@ -184,5 +134,4 @@ class ParseToTaiga:
 
 if __name__ == "__main__":
     cr = CDBReader(17178, 1097)
-    #PlotCDB(cr)
     ParseToTaiga(cr)
