@@ -150,6 +150,7 @@ int bspline_read_and_init(ShotProp shot, RunProp run, char* field_name, double *
 
     if (suc[0] == 1){
         cudaMemcpy(s0, S0, dimRZ, cudaMemcpyHostToDevice);
+        cudaMemcpy(s_ptr, S_PTR, dimB, cudaMemcpyHostToDevice);
         free(S0);
         if (run.debug == 1){
             for (int i=0; i<10; ++i){
@@ -173,8 +174,8 @@ int magnetic_field_read_and_init_with_bsplines(ShotProp shot, RunProp run, Taiga
 
     if (run.magnetic_field_mode == MAGNETIC_FIELD_FROM_VALUE){
         s = bspline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
-        s = bspline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
-        s = bspline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
+        bspline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
+        bspline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
     }
 
     s_shared->brad = br_ptr;
