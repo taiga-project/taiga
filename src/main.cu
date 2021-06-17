@@ -73,8 +73,6 @@ void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, Ru
         }else if (!strcmp(input, "--fulltrace") || !strcmp(input, "-f")){
             run->step_host = 2000;
             run->step_device = 1;
-        }else if (!strcmp(input, "--flux") || !strcmp(input, "-F")){
-            run->magnetic_field_mode = MAGNETIC_FIELD_FROM_FLUX;
         }else if (!strcmp(input, "--help") || !strcmp(input, "-h")){
             run->help = HELP_MODE;
         }else if (!strcmp(input, "--devices") || !strcmp(input, "-D") || !strcmp(input, "-l")){
@@ -114,7 +112,6 @@ void print_help_message(){
     printf("  -d,      --debug                 Print additional debug informations\n");
     printf("  -D, -l,  --devices               List GPU devices\n");
     printf("  -f,      --fulltrace             Save coordinates at every timestep\n");
-    printf("  -F,      --flux                  Import magnetic flux instead of magnetic field\n");
     printf("  -h,      --help                  Help message\n");
     printf("  -p=PATH, --parameter_file=PATH   Parameter file path\n");
     printf("  -r=INT,  --runnumber=INTEGER     Runnumber value\n");
