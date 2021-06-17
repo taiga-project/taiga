@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <cuda.h>
 
+#include <cuda_runtime.h>
+#include <cuda_profiler_api.h>
+
 #include "utils/taiga_constants.h"
 #include "utils/prop.h"
 #include "utils/basic_functions.h"
@@ -13,8 +16,16 @@
 #include "core/cyl2tor.cu"
 #include "core/detection.cu"
 #include "core/localise_field.cu"
+#include "core/bspline.cu"
+
 
 #define GRID_RES 101
+
+__device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spline_indices,
+                                           const double *local_spline, double dr, double dz);
+
+__device__ double (*get_dr)(TaigaCommons *c, const int *local_spline_indices, double R);
+__device__ double (*get_dz)(TaigaCommons *c, const int *local_spline_indices, double Z);
 
 __global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, double *field, double *polflux){
 
@@ -41,17 +52,30 @@ __global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, doub
     double local_polflux = 0;
     double dr, dz;
 
+    if (c->field_interpolation_method == CUBIC_SPLINE){
+        get_coefficients = &get_coefficients_with_splines;
+        calculate_local_field = &calculate_local_field_with_splines;
+        get_dr = &get_dr_with_splines;
+        get_dz = &get_dz_with_splines;
+    }else if (c->field_interpolation_method == CUBIC_BSPLINE){
+        get_coefficients = &get_coefficients_with_bsplines;
+        calculate_local_field = &calculate_local_field_with_bsplines;
+        get_dr = &get_dr_with_bsplines;
+        get_dz = &get_dz_with_bsplines;
+    }else{
+            return;
+    }
+
     copy_local_field(c, r, z, local_spline_indices,
                      local_spline_brad, local_spline_bz, local_spline_btor,
                      local_spline_erad, local_spline_ez, local_spline_etor,
                      local_spline_polflux);
-                 
-    dr = r-c->spline_rgrid[local_spline_indices[0]];
-    dz = z-c->spline_zgrid[local_spline_indices[1]];
-    local_brad = calculate_local_field_with_splines(c, local_spline_indices, local_spline_brad, dr, dz);
-    local_bz   = calculate_local_field_with_splines(c, local_spline_indices, local_spline_bz,   dr, dz);
-    local_btor = calculate_local_field_with_splines(c, local_spline_indices, local_spline_btor, dr, dz);
-    local_polflux = calculate_local_field_with_splines(c, local_spline_indices, local_spline_polflux, dr, dz);
+    dr = (*get_dr)(c, local_spline_indices, r);
+    dz = (*get_dz)(c, local_spline_indices, z);
+    local_brad = (*calculate_local_field)(c, local_spline_indices, local_spline_brad, dr, dz);
+    local_bz   = (*calculate_local_field)(c, local_spline_indices, local_spline_bz,   dr, dz);
+    local_btor = (*calculate_local_field)(c, local_spline_indices, local_spline_btor, dr, dz);
+    local_polflux = (*calculate_local_field)(c, local_spline_indices, local_spline_polflux, dr, dz);
     field[idx] = local_brad;
     field[idx+GRID_RES*GRID_RES] = local_bz;
     field[idx+2*GRID_RES*GRID_RES] = local_btor;
@@ -59,9 +83,25 @@ __global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, doub
 }
 
 void test_field(int field_interpolation_method){
+    char* field_interpolation_name;
+    switch (field_interpolation_method) {
+        case CUBIC_SPLINE:
+            field_interpolation_name = "spline";
+            break;
+        case CUBIC_BSPLINE:
+            field_interpolation_name = "bspline";
+            break;
+        default:
+            printf("Invalid interpolation value\n");
+            exit(1);
+    }
+
     ShotProp shot; init_shot_prop(&shot);
     BeamProp beam; init_beam_prop(&beam);
     RunProp run;   init_run_prop(&run);
+
+    cudaProfilerStart();
+    set_cuda(run.debug);
     
     parameter_reader(&beam, &shot, &run);
     runnumber_reader(&shot, &run);
@@ -79,18 +119,30 @@ void test_field(int field_interpolation_method){
     
     cudaMalloc((void **) &device_global, size_global);
     cudaMalloc((void **) &device_common, size_commons);
-    
+
     init_host(host_global, host_common);
     run.field_interpolation_method = field_interpolation_method;
-    init_grid(shot, run, host_common, shared_common);
-    magnetic_field_read_and_init(shot, run, host_common, shared_common);
-
     run.is_magnetic_field_perturbation = true;
-    poloidal_flux_read_and_init(shot, run, host_common, shared_common);
-    
+    init_grid(shot, run, host_common, shared_common);
+
+    switch (field_interpolation_method) {
+        case CUBIC_SPLINE:
+            magnetic_field_read_and_init(shot, run, host_common, shared_common);
+            poloidal_flux_read_and_init(shot, run, host_common, shared_common);
+            break;
+        case CUBIC_BSPLINE:
+            magnetic_field_read_and_init_with_bsplines(shot, run, host_common, shared_common);
+            poloidal_flux_read_and_init_with_bsplines(shot, run, host_common, shared_common);
+            break;
+        default:
+            printf("Invalid interpolation value\n");
+            exit(1);
+    }
+
+
     init_device_structs(beam, shot, run, shared_global, shared_common);
     sync_device_structs(device_global, shared_global, device_common, shared_common);
-    
+
     double *host_field, *device_field;
     double *host_R, *device_R;
     double *host_Z, *device_Z;
@@ -105,12 +157,12 @@ void test_field(int field_interpolation_method){
     cudaMalloc((void **) &(device_R), dim_tmp);
     cudaMalloc((void **) &(device_Z), dim_tmp);
     cudaMalloc((void **) &(device_polflux), dim_tmp);
-    
+
     double R_max=0.8;
     double R_min=0.3;
     double Z_max=0.4;
     double Z_min=-0.4;
-    
+
     for(int i=0; i<GRID_RES; ++i){
         for(int j=0; j<GRID_RES; ++j){
             int index=i*GRID_RES+j;
@@ -122,28 +174,18 @@ void test_field(int field_interpolation_method){
             host_polflux[index]=UNDEFINED_FLOAT;
         }
     }
-    
+
     cudaMemcpy(device_field, host_field, 3*dim_tmp, cudaMemcpyHostToDevice);
     cudaMemcpy(device_R, host_R, dim_tmp, cudaMemcpyHostToDevice);
     cudaMemcpy(device_Z, host_Z, dim_tmp, cudaMemcpyHostToDevice);
     cudaMemcpy(device_polflux, host_polflux, dim_tmp, cudaMemcpyHostToDevice);
-    
+
     calculate_field_grid <<< GRID_RES, GRID_RES >>> (device_common, device_R, device_Z, device_field, device_polflux);
-    
+
     cudaMemcpy(host_field, device_field, 3*dim_tmp, cudaMemcpyDeviceToHost);
     cudaMemcpy(host_polflux, device_polflux, dim_tmp, cudaMemcpyDeviceToHost);
 
-    char* field_interpolation_name;
-    switch (field_interpolation_method) {
-        case CUBIC_SPLINE:
-            field_interpolation_name = "spline";
-            break;
-        case CUBIC_BSPLINE:
-            field_interpolation_name = "bspline";
-            break;
-        default:
-            printf("Invalid interpolation value\n");
-    }
+    cudaProfilerStop();
 
     FILE *fp;
     fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_brad.dat", NULL), "w");
@@ -169,7 +211,8 @@ void test_field(int field_interpolation_method){
         fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_polflux[i]);
     }
     fclose(fp);
-    printf("Data exported to: %s\n", run.folder_out);
+    printf("Data exported to: %s/test_%s_*.dat\n", run.folder_out, field_interpolation_name);
+    cudaDeviceReset() ;
 }
 
 int main(){

@@ -34,7 +34,7 @@ test: tests/tests.cu | $(TAIGA_BUILD)
 	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test.exe tests/tests.cu
 
 field: tests/test_field.cu | $(TAIGA_BUILD)
-	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_field.exe tests/test_field.cu
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_field.exe tests/test_field.cu
 
 $(TAIGA_BUILD):
 	mkdir $@
