@@ -27,7 +27,6 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
         host_common->grid_size[1] = read_vector(&host_common->spline_zgrid, "input/fieldSpl", shot.name, "z.bspl");
     }else{
         printf("Error: invalid field interpolation method in init.\n");
-        exit(1);
     }
     size_t size_R = host_common->grid_size[0] * sizeof(double);
     size_t size_Z = host_common->grid_size[1] * sizeof(double);

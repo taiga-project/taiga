@@ -1,10 +1,6 @@
 #include "lorentz.cu"
 #include "localise_field.cuh"
 
-//header
-__device__ double get_dr_with_polynomials(TaigaCommons *c, const int *local_spline_indices, double R);
-__device__ double get_dz_with_polynomials(TaigaCommons *c, const int *local_spline_indices, double Z);
-
 __device__ void (*solve_diffeq)(double *X, double *a, double *B, double *E, double eperm, double timestep);
 
 __device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spline_indices,
@@ -13,12 +9,6 @@ __device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spl
 __device__ double (*get_dr)(TaigaCommons *c, const int *local_spline_indices, double R);
 __device__ double (*get_dz)(TaigaCommons *c, const int *local_spline_indices, double Z);
 
-__device__ double get_dr_with_polynomials(TaigaCommons *c, const int *local_spline_indices, double R){
-    return R - c->spline_rgrid[local_spline_indices[0]];
-}
-__device__ double get_dz_with_polynomials(TaigaCommons *c, const int *local_spline_indices, double Z){
-    return Z - c->spline_zgrid[local_spline_indices[1]];
-}
 
 __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid){
     // next grid
@@ -59,14 +49,19 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
             solve_diffeq = &solve_diffeq_by_yoshida;
             break;
     }
-    int spline_mode = 0;
-    switch(spline_mode){//(c->spline_mode){
-        case 0:
+
+    switch(c->field_interpolation_method){
+        case CUBIC_SPLINE:
             get_coefficients = &get_coefficients_with_splines;
             calculate_local_field = &calculate_local_field_with_splines;
-            get_dr = &get_dr_with_polynomials;
-            get_dz = &get_dz_with_polynomials;
+            get_dr = &get_dr_with_splines;
+            get_dz = &get_dz_with_splines;
             break;
+        case CUBIC_BSPLINE:
+            get_coefficients = &get_coefficients_with_bsplines;
+            calculate_local_field = &calculate_local_field_with_bsplines;
+            get_dr = &get_dr_with_bsplines;
+            get_dz = &get_dz_with_bsplines;
     }
 
     if (is_electric_field_on){

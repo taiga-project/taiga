@@ -1,17 +1,35 @@
-__device__ double B(double x, int k, int i, double *t){
-    if (k == 0){
-        return ((t[i] <= x)&(x < t[i + 1])) ? 1.0 : 0.0;
+#include "bspline.cuh"
+
+// https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-curve-coef.html
+__device__ void bspline(double *B, double x, int k, int index, double *t){
+    for (int i=0; i<k; ++i){
+        B[i] = 0.0;
     }
-    double c1, c2;
-    if (t[i + k] == t[i]){
-        c1 = 0.0;
-    }else{
-        c1 = (x - t[i]) / (t[i + k] - t[i]) * B(x, k - 1, i, t);
+    B[k] = 1.0;
+    if (index<k) {
+        B[0]=1.0;
+        return;
     }
-    if (t[i + k + 1] == t[i + 1]){
-        c2 = 0.0;
-    }else{
-        c2 = (t[i + k + 1] - x) / (t[i + k + 1] - t[i + 1]) * B(x, k - 1, i + 1, t);
+    int j;
+    for (int d=1; d<=k; ++d){
+        if (t[index + 1] == t[index - d + 1]){
+            B[k - d] = 0;// B[k - d + 1];
+        }else {
+            B[k - d] = (t[index + 1] - x) / (t[index + 1] - t[index - d + 1]) * B[k - d + 1];
+        }
+        for (int i=index-d+1; i<index; ++i) {
+            j = i - index + k;
+            if ((t[i + d] == t[i]) || (t[i + d + 1] == t[i + 1])) {
+                B[j] = 0.0;
+            } else {
+                B[j] = (x - t[i]) / (t[i + d] - t[i]) * B[j] + \
+                       (t[i + d + 1] - x) / (t[i + d + 1] - t[i + 1]) * B[j + 1];
+            }
+        }
+        if (t[index + d] == t[index]){
+            ;//B[k]= 1.0;
+        }else{
+            B[k] = (x - t[index]) / (t[index + d] - t[index]) * B[k];
+        }
     }
-    return c1 + c2;
 }

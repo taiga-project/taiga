@@ -172,9 +172,9 @@ int magnetic_field_read_and_init_with_bsplines(ShotProp shot, RunProp run, Taiga
     int s = 0;
 
     if (run.magnetic_field_mode == MAGNETIC_FIELD_FROM_VALUE){
-        s = spline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
-        spline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
-        spline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
+        s = bspline_read_and_init(shot, run, "brad", &br_ptr, dimRZ);
+        s = bspline_read_and_init(shot, run, "bz",   &bz_ptr, dimRZ);
+        s = bspline_read_and_init(shot, run, "btor", &bt_ptr, dimRZ);
     }
 
     s_shared->brad = br_ptr;
@@ -188,4 +188,19 @@ int magnetic_field_read_and_init_with_bsplines(ShotProp shot, RunProp run, Taiga
     }
 
     return s;
+}
+
+int poloidal_flux_read_and_init_with_bsplines(ShotProp shot, RunProp run, TaigaCommons *s_host, TaigaCommons *s_shared){
+
+    size_t dimB = 16*sizeof(double*);
+
+    size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
+    double **polflux;    cudaMalloc((void **) &polflux,  dimB);
+
+    int is_magnetic_field_perturbation = bspline_read_and_init(shot, run, "polflux", &polflux, dimRZ);
+
+    s_shared->polflux = polflux;
+    s_shared->is_magnetic_field_perturbation = is_magnetic_field_perturbation;
+
+    return is_magnetic_field_perturbation;
 }
