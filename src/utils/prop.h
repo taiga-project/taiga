@@ -23,7 +23,6 @@ struct TaigaCommons{
     double *spline_rgrid;
     double *spline_zgrid;
     double **brad, **bz, **btor;
-    int magnetic_field_mode;
     bool is_electric_field_on;
     double **erad, **ez, **etor;
     bool is_magnetic_field_perturbation;
@@ -76,7 +75,6 @@ struct RunProp{
     double timestep;
     int solver;
     int field_interpolation_method;
-    int magnetic_field_mode;
     bool is_electric_field_on;
     bool is_magnetic_field_perturbation;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
@@ -99,7 +97,6 @@ void init_run_prop(RunProp *run){
     run->timestep = 1e-9;
     run->solver = SOLVER_RK45;
     run->field_interpolation_method = CUBIC_SPLINE;
-    run->magnetic_field_mode = MAGNETIC_FIELD_FROM_VALUE;
     run->is_electric_field_on = false;
     run->is_magnetic_field_perturbation = false;
     run->cpu_time_copy = UNDEFINED_FLOAT;

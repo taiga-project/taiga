@@ -33,7 +33,6 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     double eperm = c->eperm;
     double timestep = c->timestep;
     bool is_electric_field_on = c->is_electric_field_on;
-    int magnetic_field_mode = c->magnetic_field_mode;
 
     double X_prev[6];
     double a[3] = {0, 0, 0};
@@ -83,12 +82,6 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
         local_bfield[0] = (*calculate_local_field)(c, local_spline_indices, local_spline_brad, dr, dz);
         local_bfield[1] = (*calculate_local_field)(c, local_spline_indices, local_spline_bz,   dr, dz);
         local_bfield[2] = (*calculate_local_field)(c, local_spline_indices, local_spline_btor, dr, dz);
-
-        if (magnetic_field_mode == MAGNETIC_FIELD_FROM_FLUX){
-            local_bfield[0] /= -X[0];    //Brad = -dPsi_dZ / R
-            local_bfield[1] /=  X[0];    //Bz   =  dPsi_dR / R
-            local_bfield[2] /=  X[0];    //Btor = (R*Btor) / R
-        }
 
         local_bfield[0] = get_rad_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
         local_bfield[2] = get_tor_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
