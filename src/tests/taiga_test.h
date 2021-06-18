@@ -73,6 +73,11 @@
     NUMBER_OF_FAILS;              \
 })
 
+#define TAIGA_INIT_TEST() { \
+       NUMBER_OF_TESTS = 0;  \
+       NUMBER_OF_FAILS = 0;  \
+}
+
 int number_of_tests = 0;
 int number_of_fails = 0;
 
