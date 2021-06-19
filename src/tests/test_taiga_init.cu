@@ -18,6 +18,8 @@
 #include "dataio/parameter_reader.c"
 
 #include "dataio/beam.h"
+#include "tests/helper.cu"
+
 #if READINPUTPROF == 1
     #include "dataio/beam_manual_profile.c"
 #elif RENATE == 110
@@ -28,8 +30,6 @@
 
 #include "detector/postproc.cu"
 #include "detector/sum.cu"
-
-#define LENGTH_TMP 10
 
 __global__ void test_init_grid_cuda(TaigaCommons* c, double *tmp){
     tmp[0] = PI;
@@ -57,31 +57,7 @@ __global__ void test_init_coords_cuda(TaigaGlobals* g, double *tmp){
     tmp[9] = g->tor[g->particle_number-1];
 }
 
-void init_tmp(double *h_tmp){
-    for (int i=0; i<LENGTH_TMP; ++i){
-        h_tmp[i] = UNDEFINED_FLOAT;
-    }
-}
 
-void print_tmp(double *h_tmp){
-    for (int i=0; i<LENGTH_TMP; ++i){
-        printf("TMP %d: %lf\n", i, h_tmp[i]);
-    }
-}
-
-void start_reference(double **h_tmp, double **d_tmp){
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    *h_tmp = (double *) malloc(dim_tmp);
-    init_tmp(*h_tmp);
-    cudaMalloc((void **) d_tmp, dim_tmp);
-    cudaMemcpy(*d_tmp, *h_tmp, dim_tmp, cudaMemcpyHostToDevice);
-}
-
-void end_reference(double **h_tmp, double **d_tmp){
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    cudaMemcpy(*h_tmp, *d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    print_tmp(*h_tmp);
-}
 
 void test_init_grid(){
     printf("Test: test_init_grid()\n");
@@ -90,17 +66,18 @@ void test_init_grid(){
     ShotProp shot;
     RunProp run;
     TaigaCommons *host_common, *shared_common, *dev_common;
-    
+
     size_t dim_commons = sizeof(TaigaCommons);
     host_common = (TaigaCommons*)malloc(dim_commons);
     shared_common = (TaigaCommons*)malloc(dim_commons);
     cudaMalloc((void **) &dev_common, dim_commons);
-    
+
     strcpy(shot.name, "17178_1097");
+    run.field_interpolation_method = CUBIC_SPLINE;
     printf("Init grid\n");
     init_grid(shot, run, host_common, shared_common);
     cudaMemcpy(dev_common, shared_common, dim_commons, cudaMemcpyHostToDevice);
-        
+
     double *h_tmp, *d_tmp;
     start_reference(&h_tmp, &d_tmp);
     test_init_grid_cuda <<< 1, 1 >>> (dev_common, d_tmp);
@@ -124,6 +101,7 @@ void test_init_coords(){
     cudaMalloc((void **) &dev_global, size_globals);
     
     strcpy(shot.name, "17178_1097");
+    run.field_interpolation_method = CUBIC_SPLINE;
     set_taiga_parameter("particles", "1000", &beam, &shot, &run);
     
     init_coords(&beam, &shot, &run, host_global, shared_global);

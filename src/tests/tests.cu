@@ -1,7 +1,10 @@
+#include <stdio.h>
+#include <string.h>
+#include "taiga_test.h"
 #include "test_basic_functions.c"
 #include "test_taiga_init.cu"
 
-#define LENGTH_TMP 10
+//#define LENGTH_TMP 10
 
 int main(){
     test_concat();
