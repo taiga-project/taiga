@@ -1,15 +1,19 @@
-#include <stdio.h>
 #include "utils/basic_functions.h"
+#include <stdio.h>
+#include <string.h>
+#include "taiga_test.h"
 
 void test_concat(){
-    printf("CONCAT: %s\n", concat("He","ll","oWor","ld","!",NULL)) ;
-    printf("CONCAT: %s\n", concat("He","ll","\3",NULL,"ld","!")) ;
-    printf("CONCAT: %s\n", concat("He","ll","oWor\0",NULL,"ld","!")) ;
-    printf("CONCAT: %s\n", concat("He",NULL,"ll","","ld","!\3",NULL)) ;
-    printf("CONCAT: %s\n", concat(NULL, "He","ll","oWor","!")) ;
-    printf("CONCAT: %s\n", concat("He","ll","o!",NULL)) ;
+    TAIGA_INIT_TEST();
+    TAIGA_ASSERT_COMPARE("HelloWorld!", concat("He","ll","oWor","ld","!",NULL), "concat test 01");
+    TAIGA_ASSERT_COMPARE("Hell\3", concat("He","ll","\3",NULL,"ld","!"), "concat test 02");
+    TAIGA_ASSERT_COMPARE("HelloWor", concat("He","ll","oWor\0",NULL,"ld","!"), "concat test 03");
+    TAIGA_ASSERT_COMPARE("He",  concat("He",NULL,"ll","","ld","!\3",NULL), "concat test 04");
+    TAIGA_ASSERT_COMPARE("",  concat(NULL, "He","ll","oWor","!"), "concat test 05");
+    TAIGA_ASSERT_COMPARE("Hello!",  concat("He","ll","o!",NULL), "concat test 06");
     char* f="RR";
-    
-    printf("CONCAT: %s\n", concat("He",f,"o!",NULL)) ;
+
+    TAIGA_ASSERT_COMPARE("HeRRo!", concat("He",f,"o!",NULL), "concat test 07") ;
+    TAIGA_ASSERT_SUMMARY();
 }
 
