@@ -147,8 +147,8 @@ function efit = makeElectricGrid (in, out, efit)
 end
 
 function saveMagneticGrid (in, out, efit) 
-    complist = {'r',    'z',    'brad','bz','btor','polflux'};
-    filelist = {'rcord','zcord','brad','bz','btor','psi2'};
+    complist = {'r',    'z',    'brad','bz','btor','polflux', 'psi_n'};
+    filelist = {'rcord','zcord','brad','bz','btor','psi2', 'psi_n'};
     saveGrid (in, out, efit, complist, filelist);
 end
 
@@ -181,7 +181,7 @@ function saveMagneticSpline (in, out, efit)
 end
 
 function savePsiProfile (in, out, efit)
-    complist = {'polflux'};
+    complist = {'polflux', 'psi_n'};
     saveSplineCoeffs (in, out, efit,complist);
 end
 
@@ -265,10 +265,15 @@ function efit = readToroidalFlux(in, out, efit)
     in.hdf5flag = '/output/fluxFunctionProfiles/poloidalFlux';
     polflux = readVectorData(in);
 
+    in.hdf5flag = '/output/fluxFunctionProfiles/normalizedPoloidalFlux';
+    normpolflux = readDataFile(in);
+
     psi_RZ = efit.polflux';
-    rbtor = interp1(polflux, rbtor, psi_RZ, 'spline',rbtor(end));
+    rbtor = interp1(polflux, rbtor, psi_RZ, 'spline', rbtor(end));
     btor = -rbtor./out.flux.r;
     efit.btor =  btor';
+
+    efit.psi_n = interp1(polflux, normpolflux, efit.polflux, 'spline');
 end
 
 function [efit, out] = readEfitGrid(in, out, efit)
