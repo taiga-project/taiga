@@ -134,7 +134,7 @@ class ParseToTaiga:
         numpy.savetxt(export_dir + '/brad.bspl', cdb.B_R.tck[2])
         numpy.savetxt(export_dir + '/bz.bspl', cdb.B_Z.tck[2])
         numpy.savetxt(export_dir + '/btor.bspl', cdb.B_phi.tck[2])
-        numpy.savetxt(export_dir + '/polflux.bspl', cdb.psi_n.tck[2])
+        numpy.savetxt(export_dir + '/psi_n.bspl', cdb.psi_n.tck[2])
 
 
 if __name__ == "__main__":
