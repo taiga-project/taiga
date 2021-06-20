@@ -53,7 +53,7 @@ polflux = {
     'value_range': [0, 2],
     'taiga_spline_filename': 'test_spline_psi.dat',
     'taiga_bspline_filename': 'test_bspline_psi.dat',
-    'reference_spline_filename': 'psi2.dat'
+    'reference_spline_filename': 'psi_n.dat'
 }
 polflux.update(global_settings)
 
