@@ -15,6 +15,7 @@ global_settings = {
 
 rad = {
     'name': 'B_rad',
+    'title': 'B_{R}',
     'pycdb_name': 'B_R',
     'value_range': [-0.2, 0.2],
     'taiga_spline_filename': 'test_spline_brad.dat',
@@ -25,6 +26,7 @@ rad.update(global_settings)
 
 z = {
     'name': 'B_z',
+    'title': 'B_{Z}',
     'pycdb_name': 'B_Z',
     'value_range': [-0.4, 0.4],
     'taiga_spline_filename': 'test_spline_bz.dat',
@@ -35,6 +37,7 @@ z.update(global_settings)
 
 tor = {
     'name': 'B_tor',
+    'title': 'B_{\phi}',
     'pycdb_name': 'B_phi',
     'value_range': [0, 2],
     'taiga_spline_filename': 'test_spline_btor.dat',
@@ -44,12 +47,13 @@ tor = {
 tor.update(global_settings)
 
 polflux = {
-    'name': 'psi',
-    'pycdb_name': 'psi',
-    'value_range': [-0.02, 0.02],
+    'name': 'psi_n',
+    'title': '\psi_\mathrm{pol}^\mathrm{n}',
+    'pycdb_name': 'psi_n',
+    'value_range': [0, 2],
     'taiga_spline_filename': 'test_spline_psi.dat',
     'taiga_bspline_filename': 'test_bspline_psi.dat',
-    'reference_spline_filename': 'psi2.dat'
+    'reference_spline_filename': 'psi_n.dat'
 }
 polflux.update(global_settings)
 
@@ -88,6 +92,8 @@ class MagneticFieldComponent:
         self.component = component
         self.name = ''
         self.get_name()
+        self.title = ''
+        self.get_title()
         self.value_range = [0, 1]
         self.set_value_range()
         self.taiga = MagneticFieldDataSet()
@@ -101,6 +107,9 @@ class MagneticFieldComponent:
 
     def get_name(self):
         self.name = self.component['name']
+
+    def get_title(self):
+        self.title = self.component['title']
 
     def set_value_range(self):
         self.value_range = self.component['value_range']
@@ -149,38 +158,35 @@ class MagneticFieldComponent:
 class PlotMagneticFieldComponent(MagneticFieldComponent):
     def __init__(self, component_name):
         super().__init__(component_name)
+        plt.rc('font', family='serif')
+        plt.rc('text', usetex=True)
         fig, ((ax_taiga_spline, ax_reference_spline), (ax_taiga_bspline, ax_reference_bspline)) = \
-            plt.subplots(2, 2, sharex='all', sharey='all', subplot_kw=dict(aspect='equal'), figsize= [6.4, 9])
+            plt.subplots(2, 2, sharex='all', sharey='all', subplot_kw=dict(aspect='equal'), figsize=[6.4, 9])
         ax_taiga_spline.tricontourf(self.taiga.rad, self.taiga.z, self.taiga.value, levels=self.get_levels())
-        ax_taiga_spline.set_xlabel('R [m]')
-        ax_taiga_spline.set_ylabel('Z [m]')
+        ax_taiga_spline.set_xlabel(r'$R$ [m]')
+        ax_taiga_spline.set_ylabel(r'$Z$ [m]')
         ax_taiga_spline.set_title('TAIGA (spline)')
         ax_reference_spline.tick_params(direction='out', left=True, right=True, labelleft=True)
         c = ax_reference_spline.contourf(self.reference.rad, self.reference.z, self.reference.value, levels=self.get_levels())
-        ax_reference_spline.set_xlabel('R [m]')
+        ax_reference_spline.set_xlabel(r'$R$ [m]')
         ax_reference_spline.tick_params(direction='out', left=True, right=True)
         ax_reference_spline.set_title('Reference (spline)')
-        if self.name == 'psi':
-            ax_reference_spline.tick_params(direction='out', left=True, right=True, labelright=True)
-        else:
-            cbar_spline = fig.colorbar(c, ax=(ax_taiga_spline, ax_reference_spline), pad=0.02, fraction=0.034)
-            cbar_spline.set_ticks(self.get_tick_levels())
+        cbar_spline = fig.colorbar(c, ax=(ax_taiga_spline, ax_reference_spline), pad=0.02, fraction=0.034)
+        cbar_spline.set_ticks(self.get_tick_levels())
 
-        ax_taiga_bspline.tricontourf(self.taiga_bspline.rad, self.taiga_bspline.z, self.taiga_bspline.value, levels=self.get_levels())
-        ax_taiga_bspline.set_xlabel('R [m]')
-        ax_taiga_bspline.set_ylabel('Z [m]')
+        i = ~numpy.isnan(self.taiga_bspline.value)
+        ax_taiga_bspline.tricontourf(self.taiga_bspline.rad[i], self.taiga_bspline.z[i], self.taiga_bspline.value[i], levels=self.get_levels())
+        ax_taiga_bspline.set_xlabel(r'$R$ [m]')
+        ax_taiga_bspline.set_ylabel(r'$Z$ [m]')
         ax_taiga_bspline.set_title('TAIGA (B-spline)')
         ax_reference_bspline.tick_params(direction='out', left=True, right=True, labelleft=True)
         c = ax_reference_bspline.contourf(self.reference_bspline.rad, self.reference_bspline.z, self.reference_bspline.value, levels=self.get_levels())
-        ax_reference_bspline.set_xlabel('R [m]')
+        ax_reference_bspline.set_xlabel(r'$R$ [m]')
         ax_reference_bspline.tick_params(direction='out', left=True, right=True)
         ax_reference_bspline.set_title('Reference (B-spline)')
-        plt.suptitle(self.name + ' @ COMPASS #' + shot_number + ' (' + time + ' ms) ')
-        if self.name == 'psi':
-            ax_reference_bspline.tick_params(direction='out', left=True, right=True, labelright=True)
-        else:
-            cbar_bspline = fig.colorbar(c, ax=(ax_taiga_bspline, ax_reference_bspline), pad=0.02, fraction=0.034)
-            cbar_bspline.set_ticks(self.get_tick_levels())
+        plt.suptitle(r'$' + self.title + '$ \@ COMPASS \#' + shot_number + ' (' + time + ' ms) ')
+        cbar_bspline = fig.colorbar(c, ax=(ax_taiga_bspline, ax_reference_bspline), pad=0.02, fraction=0.034)
+        cbar_bspline.set_ticks(self.get_tick_levels())
         plt.savefig(self.name + '_' + shot_number + '_' + time + '.svg')
         plt.show()
 

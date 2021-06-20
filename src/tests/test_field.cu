@@ -49,7 +49,7 @@ __global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, doub
 
     double local_brad=0, local_bz=0, local_btor=0;
     double local_erad=0, local_ez=0, local_etor=0;
-    double local_polflux = 0;
+    double local_psi_n = 0;
     double dr, dz;
 
     if (c->field_interpolation_method == CUBIC_SPLINE){
@@ -75,11 +75,11 @@ __global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, doub
     local_brad = (*calculate_local_field)(c, local_spline_indices, local_spline_brad, dr, dz);
     local_bz   = (*calculate_local_field)(c, local_spline_indices, local_spline_bz,   dr, dz);
     local_btor = (*calculate_local_field)(c, local_spline_indices, local_spline_btor, dr, dz);
-    local_polflux = (*calculate_local_field)(c, local_spline_indices, local_spline_polflux, dr, dz);
+    local_psi_n = (*calculate_local_field)(c, local_spline_indices, local_spline_polflux, dr, dz);
     field[idx] = local_brad;
     field[idx+GRID_RES*GRID_RES] = local_bz;
     field[idx+2*GRID_RES*GRID_RES] = local_btor;
-    polflux[idx] = local_polflux;
+    polflux[idx] = local_psi_n;
 }
 
 void test_field(int field_interpolation_method){
@@ -146,17 +146,17 @@ void test_field(int field_interpolation_method){
     double *host_field, *device_field;
     double *host_R, *device_R;
     double *host_Z, *device_Z;
-    double *host_polflux, *device_polflux;
+    double *host_psi_n, *device_psi_n;
     long grid_size = GRID_RES*GRID_RES;
     size_t dim_tmp = sizeof(double)*grid_size;
     host_field = (double *) malloc(3*dim_tmp);
     host_R = (double *) malloc(dim_tmp);
     host_Z = (double *) malloc(dim_tmp);
-    host_polflux = (double *) malloc(dim_tmp);
+    host_psi_n = (double *) malloc(dim_tmp);
     cudaMalloc((void **) &(device_field), 3*dim_tmp);
     cudaMalloc((void **) &(device_R), dim_tmp);
     cudaMalloc((void **) &(device_Z), dim_tmp);
-    cudaMalloc((void **) &(device_polflux), dim_tmp);
+    cudaMalloc((void **) &(device_psi_n), dim_tmp);
 
     double R_max=0.8;
     double R_min=0.3;
@@ -171,19 +171,19 @@ void test_field(int field_interpolation_method){
             host_field[index]=UNDEFINED_FLOAT;
             host_field[grid_size+index]=UNDEFINED_FLOAT;
             host_field[2*grid_size+index]=UNDEFINED_FLOAT;
-            host_polflux[index]=UNDEFINED_FLOAT;
+            host_psi_n[index]=UNDEFINED_FLOAT;
         }
     }
 
     cudaMemcpy(device_field, host_field, 3*dim_tmp, cudaMemcpyHostToDevice);
     cudaMemcpy(device_R, host_R, dim_tmp, cudaMemcpyHostToDevice);
     cudaMemcpy(device_Z, host_Z, dim_tmp, cudaMemcpyHostToDevice);
-    cudaMemcpy(device_polflux, host_polflux, dim_tmp, cudaMemcpyHostToDevice);
+    cudaMemcpy(device_psi_n, host_psi_n, dim_tmp, cudaMemcpyHostToDevice);
 
-    calculate_field_grid <<< GRID_RES, GRID_RES >>> (device_common, device_R, device_Z, device_field, device_polflux);
+    calculate_field_grid <<< GRID_RES, GRID_RES >>> (device_common, device_R, device_Z, device_field, device_psi_n);
 
     cudaMemcpy(host_field, device_field, 3*dim_tmp, cudaMemcpyDeviceToHost);
-    cudaMemcpy(host_polflux, device_polflux, dim_tmp, cudaMemcpyDeviceToHost);
+    cudaMemcpy(host_psi_n, device_psi_n, dim_tmp, cudaMemcpyDeviceToHost);
 
     cudaProfilerStop();
 
@@ -208,7 +208,7 @@ void test_field(int field_interpolation_method){
 
     fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_psi.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
-        fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_polflux[i]);
+        fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_psi_n[i]);
     }
     fclose(fp);
     printf("Data exported to: %s/test_%s_*.dat\n", run.folder_out, field_interpolation_name);

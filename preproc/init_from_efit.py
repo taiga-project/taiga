@@ -61,6 +61,7 @@ class CDBReader:
     B_Z: scipy.interpolate.RectBivariateSpline
     B_phi: scipy.interpolate.RectBivariateSpline
     psi: scipy.interpolate.RectBivariateSpline
+    psi_n: scipy.interpolate.RectBivariateSpline
     normalise_poloidal_flux: scipy.interpolate.UnivariateSpline
 
     def __init__(self, shot_number, time):
@@ -78,6 +79,7 @@ class CDBReader:
         self.get_normalised_poloidal_flux()
 
         self.set_psi()
+        self.set_psi_n()
         self.set_B_R()
         self.set_B_Z()
         self.set_B_phi()
@@ -101,6 +103,9 @@ class CDBReader:
 
     def set_psi(self):
         self.psi = scipy.interpolate.RectBivariateSpline(self.Z, self.R, self.poloidal_flux, kx=5, ky=5)
+
+    def set_psi_n(self):
+        self.psi_n = scipy.interpolate.RectBivariateSpline(self.Z, self.R, self.normalised_poloidal_flux, kx=5, ky=5)
 
     def set_B_R(self):
         B_R_2d = -self.psi(self.Z, self.R, dx=1, dy=0, grid=True)/self.R
@@ -129,10 +134,9 @@ class ParseToTaiga:
         numpy.savetxt(export_dir + '/brad.bspl', cdb.B_R.tck[2])
         numpy.savetxt(export_dir + '/bz.bspl', cdb.B_Z.tck[2])
         numpy.savetxt(export_dir + '/btor.bspl', cdb.B_phi.tck[2])
-        numpy.savetxt(export_dir + '/polflux.bspl', cdb.psi.tck[2])
+        numpy.savetxt(export_dir + '/psi_n.bspl', cdb.psi_n.tck[2])
 
 
 if __name__ == "__main__":
     cr = CDBReader(17178, 1097)
     ParseToTaiga(cr)
-
