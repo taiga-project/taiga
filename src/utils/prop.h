@@ -26,7 +26,7 @@ struct TaigaCommons{
     bool is_electric_field_on;
     double **erad, **ez, **etor;
     bool is_magnetic_field_perturbation;
-    double **polflux;
+    double **psi_n;
     double *detector_geometry;
 };
 

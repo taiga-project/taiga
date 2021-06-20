@@ -5,14 +5,14 @@ __device__ void (*get_coefficients)(TaigaCommons *c,
                                     int *local_spline_indices,
                                     double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                    double *local_polflux, int rgrid_length, int zgrid_length);
+                                    double *local_psi_n, int rgrid_length, int zgrid_length);
 
 __device__ void get_coefficients_with_bsplines(
                                 TaigaCommons *c,
                                 int *local_spline_indices,
                                 double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                double *local_polflux, int rgrid_length, int zgrid_length){
+                                double *local_psi_n, int rgrid_length, int zgrid_length){
     const int k = 3;
     const int k_plus_1 = 4;
     int i, j, index;
@@ -36,7 +36,7 @@ __device__ void get_coefficients_with_bsplines(
                 local_spline_etor[i*k_plus_1+j] = c->etor[0][index];
             }
             if (c->is_magnetic_field_perturbation) {
-                local_polflux[i*k_plus_1+j] = c->polflux[0][index];
+                local_psi_n[i * k_plus_1 + j] = c->psi_n[0][index];
             }
         }
     }
@@ -47,7 +47,7 @@ __device__ void get_coefficients_with_splines(
         int *local_spline_indices,
         double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
         double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-        double *local_polflux, int rgrid_length, int zgrid_length){
+        double *local_psi_n, int rgrid_length, int zgrid_length){
     int i, i2;
     for(i=0; i<16; ++i){
         i2 = (local_spline_indices[0])*(zgrid_length-1)+local_spline_indices[1];
@@ -60,7 +60,7 @@ __device__ void get_coefficients_with_splines(
             local_spline_etor[i] = c->etor[i][i2];
         }
         if (c->is_magnetic_field_perturbation){
-            local_polflux[i] = c->polflux[i][i2];
+            local_psi_n[i] = c->psi_n[i][i2];
         }
     }
 }
@@ -70,7 +70,7 @@ __device__ void copy_local_field(TaigaCommons *c,
                                  int *local_spline_indices,
                                  double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                  double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                 double *local_polflux){
+                                 double *local_psi_n){
     int rci, zci;
     int rgrid_length = c->grid_size[0];
     int zgrid_length = c->grid_size[1];
@@ -87,7 +87,7 @@ __device__ void copy_local_field(TaigaCommons *c,
         (*get_coefficients)(c, local_spline_indices,
                             local_spline_brad, local_spline_bz, local_spline_btor,
                             local_spline_erad, local_spline_ez, local_spline_etor,
-                            local_polflux, rgrid_length, zgrid_length);
+                            local_psi_n, rgrid_length, zgrid_length);
     }
 }
 

@@ -113,11 +113,11 @@ int poloidal_flux_read_and_init(ShotProp shot, RunProp run, TaigaCommons *s_host
     size_t dimB = 16*sizeof(double*);
 
     size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
-    double **polflux;    cudaMalloc((void **) &polflux,  dimB);
+    double **psi_n;    cudaMalloc((void **) &psi_n, dimB);
 
-    int is_magnetic_field_perturbation = spline_read_and_init(shot, run, "psi_n", &polflux, dimRZ);
+    int is_magnetic_field_perturbation = spline_read_and_init(shot, run, "psi_n", &psi_n, dimRZ);
 
-    s_shared->polflux = polflux;
+    s_shared->psi_n = psi_n;
     s_shared->is_magnetic_field_perturbation = is_magnetic_field_perturbation;
 
     return is_magnetic_field_perturbation;
@@ -179,11 +179,11 @@ int poloidal_flux_read_and_init_with_bsplines(ShotProp shot, RunProp run, TaigaC
     size_t dimB = 16*sizeof(double*);
 
     size_t dimRZ = s_host->grid_size[0]*s_host->grid_size[1]*sizeof(double);
-    double **polflux;    cudaMalloc((void **) &polflux,  dimB);
+    double **psi_n;    cudaMalloc((void **) &psi_n, dimB);
 
-    int is_magnetic_field_perturbation = bspline_read_and_init(shot, run, "psi_n", &polflux, dimRZ);
+    int is_magnetic_field_perturbation = bspline_read_and_init(shot, run, "psi_n", &psi_n, dimRZ);
 
-    s_shared->polflux = polflux;
+    s_shared->psi_n = psi_n;
     s_shared->is_magnetic_field_perturbation = is_magnetic_field_perturbation;
 
     return is_magnetic_field_perturbation;
