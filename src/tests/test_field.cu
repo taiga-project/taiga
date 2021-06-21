@@ -19,7 +19,7 @@
 #include "core/bspline.cu"
 
 
-#define GRID_RES 101
+#define GRID_RES 33
 
 __device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spline_indices,
                                            const double *local_spline, double dr, double dz);
@@ -27,7 +27,7 @@ __device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spl
 __device__ double (*get_dr)(TaigaCommons *c, const int *local_spline_indices, double R);
 __device__ double (*get_dz)(TaigaCommons *c, const int *local_spline_indices, double Z);
 
-__global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, double *field, double *polflux){
+__global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, double *field, double *psi_n){
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     double r = R[idx];
@@ -79,7 +79,7 @@ __global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, doub
     field[idx] = local_brad;
     field[idx+GRID_RES*GRID_RES] = local_bz;
     field[idx+2*GRID_RES*GRID_RES] = local_btor;
-    polflux[idx] = local_psi_n;
+    psi_n[idx] = local_psi_n;
 }
 
 void test_field(int field_interpolation_method){
@@ -123,6 +123,7 @@ void test_field(int field_interpolation_method){
     init_host(host_global, host_common);
     run.field_interpolation_method = field_interpolation_method;
     run.is_magnetic_field_perturbation = true;
+    run.debug = 1;
     init_grid(shot, run, host_common, shared_common);
 
     switch (field_interpolation_method) {
@@ -166,8 +167,8 @@ void test_field(int field_interpolation_method){
     for(int i=0; i<GRID_RES; ++i){
         for(int j=0; j<GRID_RES; ++j){
             int index=i*GRID_RES+j;
-            host_R[index] = i*(R_max-R_min)/GRID_RES+R_min;
-            host_Z[index] = j*(Z_max-Z_min)/GRID_RES+Z_min;
+            host_R[index] = i*(R_max-R_min)/(GRID_RES-1)+R_min;
+            host_Z[index] = j*(Z_max-Z_min)/(GRID_RES-1)+Z_min;
             host_field[index]=UNDEFINED_FLOAT;
             host_field[grid_size+index]=UNDEFINED_FLOAT;
             host_field[2*grid_size+index]=UNDEFINED_FLOAT;
@@ -190,25 +191,25 @@ void test_field(int field_interpolation_method){
     FILE *fp;
     fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_brad.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
-        fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_field[i]);
+        fprintf(fp, "%lf %lf %.18lg\n", host_R[i], host_Z[i], host_field[i]);
     }
     fclose(fp);
     
     fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_bz.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
-        fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_field[grid_size+i]);
+        fprintf(fp, "%lf %lf %.18lg\n", host_R[i], host_Z[i], host_field[grid_size+i]);
     }
     fclose(fp);
     
     fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_btor.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
-        fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_field[2*grid_size+i]);
+        fprintf(fp, "%lf %lf %.18lg\n", host_R[i], host_Z[i], host_field[2*grid_size+i]);
     }
     fclose(fp);
 
     fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_psi.dat", NULL), "w");
     for (int i=0; i<grid_size; ++i){
-        fprintf(fp, "%lf %lf %lf\n", host_R[i], host_Z[i], host_psi_n[i]);
+        fprintf(fp, "%lf %lf %.18lg\n", host_R[i], host_Z[i], host_psi_n[i]);
     }
     fclose(fp);
     printf("Data exported to: %s/test_%s_*.dat\n", run.folder_out, field_interpolation_name);

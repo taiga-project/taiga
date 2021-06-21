@@ -7,11 +7,6 @@ struct TaigaGlobals{
     long particle_number;
 };
 
-struct TaigaLocals{
-    double coords[6];
-    int detcellid;
-};
-
 struct TaigaCommons{
     long max_step_number;        // N_step
     long step_counter;

@@ -8,8 +8,8 @@
 #define PRINT_VALUE(x) {                                 \
     const int string_size = 50;                          \
     char double_x_str[string_size];   double double_x;   \
-    snprintf(double_x_str, string_size, "%lf", x);       \
-    sscanf(double_x_str, "%lf", &double_x);              \
+    snprintf(double_x_str, string_size, "%.18lg", x);    \
+    sscanf(double_x_str, "%.18lg", &double_x);           \
     if (double_x != 0.0) {                               \
         printf("%s", double_x_str);                      \
     } else if (sizeof(x) == sizeof(int)) {               \
@@ -61,6 +61,12 @@
     TAIGA_TEST_MESSAGE(test_name, is_failed, expected, actual); \
 }
 
+#define TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(expected, actual, tolerance, test_name) { \
+    double diff = actual-expected;                                                \
+    int is_failed = ((diff>-tolerance)&(diff<tolerance))?0:1;                     \
+    TAIGA_TEST_MESSAGE(test_name, is_failed, expected, actual);                   \
+}
+
 #define TAIGA_ASSERT_SUMMARY() ({                    \
     if (NUMBER_OF_TESTS < 0) {                       \
         printf("----------\n");                      \
@@ -91,7 +97,7 @@
     NUMBER_OF_FAILS;                                 \
 })
 
-#define TAIGA_INIT_TEST(name) { \
+#define TAIGA_INIT_TEST() {     \
        NUMBER_OF_TESTS = 0;     \
        NUMBER_OF_FAILS = 0;     \
        printf("==========\n");  \

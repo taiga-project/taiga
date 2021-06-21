@@ -18,15 +18,15 @@ __device__ void get_coefficients_with_bsplines(
     int i, j, index;
 
     if (local_spline_indices[0] < k_plus_1){
-        local_spline_indices[0] = k_plus_1;
+        local_spline_indices[0] = k;
     }
     if (local_spline_indices[1] < k_plus_1){
-        local_spline_indices[1] = k_plus_1;
+        local_spline_indices[1] = k;
     }
     for(i=0; i<k_plus_1; ++i){
         for(j=0; j<k_plus_1; ++j){
-            index = (local_spline_indices[1]-k+j-1)*(rgrid_length-k-1)
-                    +local_spline_indices[0]-k+i-1;
+            index = (local_spline_indices[1]-k+j)*(rgrid_length-k_plus_1)
+                    +local_spline_indices[0]-k+i;
             local_spline_brad[i*k_plus_1+j] = c->brad[0][index];
             local_spline_bz[i*k_plus_1+j]   = c->bz[0][index];
             local_spline_btor[i*k_plus_1+j] = c->btor[0][index];
@@ -76,7 +76,6 @@ __device__ void copy_local_field(TaigaCommons *c,
     int zgrid_length = c->grid_size[1];
 
     for(rci=0; (c->spline_rgrid[rci+1]<position_rad)&&(rci<rgrid_length-1); ++rci){;}
-
     for(zci=0; (c->spline_zgrid[zci+1]<position_z)&&(zci<zgrid_length-1); ++zci){;}
 
     // Particle leave out the cell
@@ -119,18 +118,14 @@ __device__ double calculate_local_field_with_bsplines(TaigaCommons *c, const int
     const int k_plus_1 = 4;
     double B_R[k_plus_1];
     double B_Z[k_plus_1];
-    bspline(B_R, R, k, local_spline_indices[0]-1, c->spline_rgrid);
-    bspline(B_Z, Z, k, local_spline_indices[1]-1, c->spline_zgrid);
+    bspline(B_R, R, k, local_spline_indices[0], c->spline_rgrid);
+    bspline(B_Z, Z, k, local_spline_indices[1], c->spline_zgrid);
     double local_field = 0.0;
     for(int i=0; i<k_plus_1; ++i){
         for(int j=0; j<k_plus_1; ++j){
             local_field += local_spline[i*k_plus_1+j] * B_R[i] * B_Z[j];
-    //        local_field = B_R[1];
         }
     }
-    //local_field = local_spline_indices[0]*100.0+local_spline_indices[1];
-    //local_field = local_spline[0];
-    //local_field = c->grid_size[0]*100+c->grid_size[1];
     return local_field;
 }
 

@@ -44,8 +44,10 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
     cudaMalloc((void **) &shared_zgrid, size_Z);
     cudaMemcpy(shared_zgrid, host_common->spline_zgrid, size_Z, cudaMemcpyHostToDevice);
     shared_common->spline_zgrid = shared_zgrid;
-    
-    printf(" GRID SIZE: %d %d \n", host_common->grid_size[0], host_common->grid_size[1]);
+
+    if (run.debug){
+        printf(" GRID SIZE: %d %d \n", host_common->grid_size[0], host_common->grid_size[1]);
+    }
 }
 
 void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *shared_global, TaigaCommons *shared_common){

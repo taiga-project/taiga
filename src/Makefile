@@ -39,6 +39,9 @@ test_framework: tests/taiga_test_example.c  | $(TAIGA_BUILD)
 field: tests/test_field.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_field.exe tests/test_field.cu
 
+bspline: tests/test_bspline.cu | $(TAIGA_BUILD)
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_bspline.exe tests/test_bspline.cu
+
 $(TAIGA_BUILD):
 	mkdir $@
 

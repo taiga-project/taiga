@@ -105,7 +105,7 @@ class CDBReader:
         self.psi = scipy.interpolate.RectBivariateSpline(self.Z, self.R, self.poloidal_flux, kx=5, ky=5)
 
     def set_psi_n(self):
-        self.psi_n = scipy.interpolate.RectBivariateSpline(self.Z, self.R, self.normalised_poloidal_flux, kx=5, ky=5)
+        self.psi_n = scipy.interpolate.RectBivariateSpline(self.Z, self.R, self.normalised_poloidal_flux)
 
     def set_B_R(self):
         B_R_2d = -self.psi(self.Z, self.R, dx=1, dy=0, grid=True)/self.R
