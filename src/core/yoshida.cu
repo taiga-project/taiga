@@ -1,45 +1,32 @@
 // Yoshida integrator
 
 #include "solvers.cuh"
+#include "verlet.cuh"
 
-__device__ void calculate_yoshida_x(double c, double *X_new, double *X, double *a, double timestep){
-    double c_dt = c*timestep;
-    X_new[0] = X[0] + c_dt*X[3];
-    X_new[1] = X[1] + c_dt*X[4];
-    X_new[2] = X[2] + c_dt*X[5];
+__device__ void calculate_yoshida_x(double c, double *X, double timestep){
+    double c_dt = c * timestep;
+    for (int i = 0; i < 3; ++i) {
+        X[i] += c_dt * X[i + 3];
+    }
 }
 
-__device__ double calculate_vector_square(double *v){
-    return v[0]*v[0]+v[1]*v[1]+v[2]*v[2];
-}
-
-__device__ double calculate_dot_product(double *a, double*b){
-    return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
-}
-
-__device__ void calculate_yoshida_v(double d, double *X_new, double *X, double *a,
-                                    double *B, double *E,
+__device__ void calculate_yoshida_v(double d, double *X,
+                                    double *B, double *E, double *E_prev,
                                     double eperm, double timestep){
-    double d_dt = d*timestep;
-    X_new[3] = X[3] + d_dt*a[0];
-    X_new[4] = X[4] + d_dt*a[1];
-    X_new[5] = X[5] + d_dt*a[2];
-    (*get_acceleration_from_lorentz_force)(a, &X[3], B, E, eperm);
+    calculate_verlet_v(X, B, E, E_prev, eperm, d * timestep);
 }
 
-__device__ void solve_diffeq_by_yoshida(double *X, double *a, double *B, double *E, double eperm, double timestep){
-    double X_new[6];
+__device__ void solve_diffeq_by_yoshida(double *X, double *B, double *E, double *E_prev, double eperm, double timestep){
     double cbrt2 = cbrt(2.0);
-    double w1 = 1.0/(2.0-cbrt2);
-    double w0 = -cbrt2*w1;
-    double c1 = 0.5*w1;
-    double c2 = 0.5*(w0+w1);
-    calculate_yoshida_v(w1, X_new, X, a, B, E, eperm, timestep);
-    calculate_yoshida_x(c1, X_new, X, a, timestep);
-    calculate_yoshida_v(w0, X, X_new, a, B, E, eperm, timestep);
-    calculate_yoshida_x(c2, X, X_new, a, timestep);
-    calculate_yoshida_v(w1, X_new, X, a, B, E, eperm, timestep);
-    calculate_yoshida_x(c2, X_new, X, a, timestep);
-    calculate_yoshida_x(c1, X, X_new, a, timestep);
-    memcpy(&X[3], &X_new[3], 3*sizeof(double));
+    double w1 = 1.0 / (2.0 - cbrt2);
+    double w0 = - cbrt2 * w1;
+    double c1 = 0.5 * w1;
+    double c2 = 0.5 * (w0 + w1);
+    calculate_yoshida_x(c1, X, timestep);
+    calculate_yoshida_v(w1, X, B, E, E_prev, eperm, timestep);
+    calculate_yoshida_x(c2, X, timestep);
+    calculate_yoshida_v(w0, X, B, E, E_prev, eperm, timestep);
+    calculate_yoshida_x(c2, X, timestep);
+    calculate_yoshida_v(w1, X, B, E, E_prev, eperm, timestep);
+    calculate_yoshida_x(c1, X, timestep);
 }
