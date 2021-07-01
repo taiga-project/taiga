@@ -47,6 +47,7 @@
 
 #include "dataio/data_export.c"
 
+#include "core/maths.cu"
 #include "core/rk4.cu"
 #include "core/solvers.cuh"
 #include "core/verlet.cu"

@@ -1,10 +1,4 @@
-__device__ double interpolate(double y1, double y2, double x, double x1, double x2, double x2_x1){ 
-    return (x2-x)/x2_x1*y1 + (x-x1)/x2_x1*y2;
-}
-
-__device__ double interpolate(double y1, double y2, double x, double x1, double x2){
-    return interpolate(y1, y2, x, x1, x2, x2-x1);
-}
+#include "maths.cuh"
 
 __device__ int calculate_detection_position(double *X, double *X_prev, double *detector_geometry){
     double detector_R   = detector_geometry[0];

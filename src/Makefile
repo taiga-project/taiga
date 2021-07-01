@@ -28,19 +28,22 @@ taiga_renate.exe: main.cu | $(TAIGA_BUILD)
 taiga_renate_fast.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(RENATE_FAST_FLAGS) -o $(TAIGA_BUILD)/taiga_renate_fast.exe main.cu
 
-t: test
+t: test bspline solver
 
 test: tests/tests.cu | $(TAIGA_BUILD)
 	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test.exe tests/tests.cu
 
 test_framework: tests/taiga_test_example.c  | $(TAIGA_BUILD)
-	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_frameworkq.exe tests/taiga_test_example.c
+	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_framework.exe tests/taiga_test_example.c
 
 field: tests/test_field.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_field.exe tests/test_field.cu
 
 bspline: tests/test_bspline.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_bspline.exe tests/test_bspline.cu
+
+solver: tests/test_solver.cu | $(TAIGA_BUILD)
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_solver.exe tests/test_solver.cu
 
 $(TAIGA_BUILD):
 	mkdir $@

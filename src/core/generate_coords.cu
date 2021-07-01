@@ -1,8 +1,4 @@
-__device__ double device_linear_interpolate(double *x_vector, double *y_vector, long length, double x_value){
-    long i=0;
-    for (i=0; (i<length-1) && (x_vector[i]>x_value); ++i);
-    return y_vector[i+1] - (y_vector[i+1]-y_vector[i])*(x_value-x_vector[i])/(x_vector[i+1]-x_vector[i]);
-}
+#include "maths.cuh"
 
 __global__ void generate_coords(TaigaGlobals *globals, BeamProp beam, BeamProfile *prof){
 
@@ -28,7 +24,7 @@ __global__ void generate_coords(TaigaGlobals *globals, BeamProp beam, BeamProfil
     // set position of particles 
     do{
         ionisation_yeald = curand_uniform_double(&state);
-        XR = device_linear_interpolate(prof->radial_profile, prof->radial_grid, prof->radial_length, ionisation_yeald);
+        XR = interpolate_from_vector(prof->radial_profile, prof->radial_grid, prof->radial_length, ionisation_yeald);
         globals->rad[idx] = XR;
     }while (isnan(XR)||XR<0);
     do{

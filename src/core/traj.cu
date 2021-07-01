@@ -1,7 +1,7 @@
 #include "lorentz.cu"
 #include "localise_field.cuh"
 
-__device__ void (*solve_diffeq)(double *X, double *a, double *B, double *E, double eperm, double timestep);
+__device__ void (*solve_diffeq)(double *X, double *B, double *E, double *E_prev, double eperm, double timestep);
 
 __device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spline_indices,
                                            const double *local_spline, double dr, double dz);
@@ -26,7 +26,7 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
 
     double local_psi_n[16];
 
-    double local_bfield[3], local_efield[3];
+    double local_bfield[3], local_efield[3], local_efield_prev[3]={0, 0, 0};
     double dr, dz;
     double R;
 
@@ -97,7 +97,7 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
         // archive coordinates
         for(int i=0; i<6; ++i)  X_prev[i] = X[i];
 
-        (*solve_diffeq)(X, a, local_bfield, local_efield, eperm, timestep);
+        (*solve_diffeq)(X, local_bfield, local_efield, local_efield_prev, eperm, timestep);
 
         detcellid = calculate_detection_position(X, X_prev, c->detector_geometry);
     }

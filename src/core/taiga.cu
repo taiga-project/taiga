@@ -23,7 +23,3 @@ __global__ void taiga(TaigaGlobals *g, TaigaCommons *c, double *service_var){
     }
     service_var[0] = 42.24;
 }
-
-__global__ void cuda_service_test(double *service_var){
-    service_var[9] = 3.1415926535897932456;
-}
