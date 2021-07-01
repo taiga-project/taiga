@@ -28,7 +28,7 @@ taiga_renate.exe: main.cu | $(TAIGA_BUILD)
 taiga_renate_fast.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(RENATE_FAST_FLAGS) -o $(TAIGA_BUILD)/taiga_renate_fast.exe main.cu
 
-t: test bspline
+t: test bspline solver
 
 test: tests/tests.cu | $(TAIGA_BUILD)
 	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test.exe tests/tests.cu

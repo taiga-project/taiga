@@ -85,11 +85,14 @@ double run_homogeneous_field_with_solver(double timestep,
     return t.extrema[maximum_extrema-1];
 }
 
-int main() {
+void test_solver() {
     TAIGA_INIT_TEST();
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet based Boris-SDC (BGSDC)");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_yoshida), 1e-5, "Yoshida based Boris-SDC");
     TAIGA_ASSERT_SUMMARY();
-    return 0;
+}
+
+int main(){
+    test_solver();
 }
