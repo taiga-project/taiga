@@ -3,4 +3,4 @@
 
 __device__ void (*get_acceleration_from_lorentz_force)(double *a, double *v, double *B, double *E, double eperm);
 
-#endif
+#endif //SOLVERS_CUH

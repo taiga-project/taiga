@@ -5,6 +5,7 @@
 #include "taiga_test.h"
 
 #include "utils/taiga_constants.h"
+#include "core/maths.cu"
 #include "core/rk4.cu"
 #include "core/yoshida.cu"
 #include "core/verlet.cu"
@@ -49,7 +50,7 @@ double get_speed(double *X){
 }
 
 double run_homogeneous_field_with_solver(double timestep,
-                                         void (*solve_diffeq)(double *X, double *X_prev, double *B, double *E, double *E_prev,
+                                         void (*solve_diffeq)(double *X, double *B, double *E, double *E_prev,
                                                  double eperm, double timestep)){
     double X[6] = {0};
     double X_prev[6] = {0};
@@ -78,7 +79,7 @@ double run_homogeneous_field_with_solver(double timestep,
 
     while (t.counter < maximum_extrema) {
         memcpy(&X_prev, &X, 6*sizeof(double));
-        solve_diffeq(X, X_prev, B, E, E_prev, eperm, timestep);
+        solve_diffeq(X, B, E, E_prev, eperm, timestep);
         get_extrema(&t, X, X_prev);
     }
     return t.extrema[maximum_extrema-1];
@@ -88,6 +89,7 @@ int main() {
     TAIGA_INIT_TEST();
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet based Boris-SDC (BGSDC)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_yoshida), 1e-5, "Yoshida based Boris-SDC");
     TAIGA_ASSERT_SUMMARY();
     return 0;
 }

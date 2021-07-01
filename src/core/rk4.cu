@@ -20,7 +20,7 @@ __device__ void calculate_runge_kutta_coeff(double *X,
     }
 }
 
-__device__ void solve_diffeq_by_rk4(double *X, double *X_prev, double *B, double *E, double *E_prev, double eperm, double timestep){
+__device__ void solve_diffeq_by_rk4(double *X, double *B, double *E, double *E_prev, double eperm, double timestep){
     double S1[6], S2[6], S3[6], S4[6];
     
     calculate_runge_kutta_coeff(X, S1, X,  0.0, B, E, eperm ,timestep);
