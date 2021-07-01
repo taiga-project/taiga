@@ -20,14 +20,14 @@ __device__ void calculate_runge_kutta_coeff(double *X,
     }
 }
 
-__device__ void solve_diffeq_by_rk4(double *X, double *a, double *B, double *E, double eperm, double timestep){
+__device__ void solve_diffeq_by_rk4(double *X, double *X_prev, double *B, double *E, double *E_prev, double eperm, double timestep){
     double S1[6], S2[6], S3[6], S4[6];
     
     calculate_runge_kutta_coeff(X, S1, X,  0.0, B, E, eperm ,timestep);
     calculate_runge_kutta_coeff(X, S2, S1, 0.5, B, E, eperm ,timestep);
     calculate_runge_kutta_coeff(X, S3, S2, 0.5, B, E, eperm ,timestep);
     calculate_runge_kutta_coeff(X, S4, S3, 1.0, B, E, eperm ,timestep);
-    
+
     for(int i=0; i<6; ++i){
         X[i] += (S1[i] + 2*S2[i] + 2*S3[i] + S4[i])/6;
     }
