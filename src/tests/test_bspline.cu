@@ -12,8 +12,6 @@ double test_bspline_scenario(double x0, double x1) {
     int t0_length, t1_length;
     int i0, i1;
 
-   /* double x0 = 0.1;
-    double x1 = 0.2;*/
     double ref = 0.10051077;
 
     double t0[] = {-5., -5., -5., -5., -1., 1., 5., 5., 5., 5.};
