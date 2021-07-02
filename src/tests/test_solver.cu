@@ -11,11 +11,6 @@
 #include "core/verlet.cu"
 #include "core/lorentz.cu"
 
-#define WHAT_IS_THE_INPUT(x)({ \
-printf("# %s %s\n",x, #x);            \
-x;                            \
-})
-
 struct SolverTestExtrema {
     double *extrema;
     int index;
@@ -65,11 +60,9 @@ double run_homogeneous_field_with_solver(double timestep,
     int maximum_extrema = 20;
 
     SolverTestExtrema t;
-
     t.index = 0;
     t.direction = -1;
     t.counter = 1;
-
     t.extrema = (double*)malloc(maximum_extrema * sizeof(double));
 
     init_homogeneous_field(X, B);
