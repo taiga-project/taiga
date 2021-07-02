@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <cuda.h>
 
-#include <cuda_runtime.h>
-#include <cuda_profiler_api.h>
-
 #include "utils/taiga_constants.h"
 #include "utils/prop.h"
 #include "utils/basic_functions.h"
@@ -100,7 +97,6 @@ void test_field(int field_interpolation_method){
     BeamProp beam; init_beam_prop(&beam);
     RunProp run;   init_run_prop(&run);
 
-    cudaProfilerStart();
     set_cuda(run.debug);
     
     parameter_reader(&beam, &shot, &run);
@@ -185,8 +181,6 @@ void test_field(int field_interpolation_method){
 
     cudaMemcpy(host_field, device_field, 3*dim_tmp, cudaMemcpyDeviceToHost);
     cudaMemcpy(host_psi_n, device_psi_n, dim_tmp, cudaMemcpyDeviceToHost);
-
-    cudaProfilerStop();
 
     FILE *fp;
     fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_brad.dat", NULL), "w");
