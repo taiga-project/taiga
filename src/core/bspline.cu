@@ -2,7 +2,8 @@
 
 // https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-curve-coef.html
 __device__ void bspline(double *B, double x, int k, int index, double *t){
-    for (int i=0; i<k; ++i){
+    int i, j, d;
+    for (i=0; i<k; ++i){
         B[i] = 0.0;
     }
     B[k] = 1.0;
@@ -10,14 +11,13 @@ __device__ void bspline(double *B, double x, int k, int index, double *t){
         B[0]=1.0;
         return;
     }
-    int j;
-    for (int d=1; d<=k; ++d){
+    for (d=1; d<=k; ++d){
         if (t[index + 1] == t[index - d + 1]){
             B[k - d] = 0;// B[k - d + 1];
         }else {
             B[k - d] = (t[index + 1] - x) / (t[index + 1] - t[index - d + 1]) * B[k - d + 1];
         }
-        for (int i=index-d+1; i<index; ++i) {
+        for (i=index-d+1; i<index; ++i) {
             j = i - index + k;
             if ((t[i + d] == t[i]) || (t[i + d + 1] == t[i + 1])) {
                 B[j] = 0.0;

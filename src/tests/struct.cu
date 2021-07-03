@@ -4,7 +4,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
-#include "../prop.h"
+#include "utils/prop.h"
 
 #define LENGTH_DETCELLID 3
 #define LENGTH_TMP 10

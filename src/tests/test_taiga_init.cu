@@ -18,7 +18,7 @@
 #include "dataio/parameter_reader.c"
 
 #include "dataio/beam.h"
-#include "tests/helper.cu"
+//#include "tests/helper.cuh"
 
 #if READINPUTPROF == 1
     #include "dataio/beam_manual_profile.c"
@@ -31,14 +31,43 @@
 #include "detector/postproc.cu"
 #include "detector/sum.cu"
 
-__global__ void test_init_grid_cuda(TaigaCommons* c, double *tmp){
+#define LENGTH_TMP 10
+
+void init_tmp(double *h_tmp){
+    for (int i=0; i<LENGTH_TMP; ++i){
+        h_tmp[i] = UNDEFINED_FLOAT;
+    }
+}
+
+void print_tmp(double *h_tmp){
+    for (int i=0; i<LENGTH_TMP; ++i){
+        printf("TMP %d: %lf\n", i, h_tmp[i]);
+    }
+}
+
+void start_reference(double **h_tmp, double **d_tmp){
+    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
+    *h_tmp = (double *) malloc(dim_tmp);
+    init_tmp(*h_tmp);
+    cudaMalloc((void **) d_tmp, dim_tmp);
+    cudaMemcpy(*d_tmp, *h_tmp, dim_tmp, cudaMemcpyHostToDevice);
+}
+
+void end_reference(double **h_tmp, double **d_tmp){
+    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
+    cudaMemcpy(*h_tmp, *d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
+    print_tmp(*h_tmp);
+}
+
+
+__global__ void test_init_grid_cuda(/*TaigaCommons* c, */double *tmp){
     tmp[0] = PI;
-    tmp[1] = c->grid_size[0];
+    /*tmp[1] = c->grid_size[0];
     tmp[2] = c->grid_size[1];
     tmp[3] = c->spline_rgrid[0];
     tmp[4] = c->spline_rgrid[c->grid_size[0]-1];
     tmp[5] = c->spline_zgrid[0];
-    tmp[6] = c->spline_zgrid[c->grid_size[1]-1];
+    tmp[6] = c->spline_zgrid[c->grid_size[1]-1];*/
     /*tmp[7] = c->detector_geometry[0];
     tmp[8] = c->detector_geometry[1];
     tmp[9] = c->detector_geometry[2];*/
@@ -57,34 +86,37 @@ __global__ void test_init_coords_cuda(TaigaGlobals* g, double *tmp){
     tmp[9] = g->tor[g->particle_number-1];
 }
 
-
-
 void test_init_grid(){
     printf("Test: test_init_grid()\n");
-    int tmp_length = 20;
+    /*int tmp_length = 20;
 
     ShotProp shot;
     RunProp run;
     TaigaCommons *host_common, *shared_common, *dev_common;
 
     size_t dim_commons = sizeof(TaigaCommons);
-    host_common = (TaigaCommons*)malloc(dim_commons);
-    shared_common = (TaigaCommons*)malloc(dim_commons);
-    cudaMalloc((void **) &dev_common, dim_commons);
-
+    //host_common = (TaigaCommons*)malloc(dim_commons);
+    //shared_common = (TaigaCommons*)malloc(dim_commons);
+    //cudaMalloc((void **) &dev_common, dim_commons);
+/*
     strcpy(shot.name, "17178_1097");
     run.field_interpolation_method = CUBIC_SPLINE;
     printf("Init grid\n");
     init_grid(shot, run, host_common, shared_common);
-    cudaMemcpy(dev_common, shared_common, dim_commons, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_common, shared_common, dim_commons, cudaMemcpyHostToDevice);*/
 
     double *h_tmp, *d_tmp;
     start_reference(&h_tmp, &d_tmp);
-    test_init_grid_cuda <<< 1, 1 >>> (dev_common, d_tmp);
+    test_init_grid_cuda <<< 1, 1 >>> (/*dev_common,*/ d_tmp);
     end_reference(&h_tmp, &d_tmp);
-    
-    printf("R = %lf ... %lf\n", host_common->spline_rgrid[0], host_common->spline_rgrid[host_common->grid_size[0]-1]);
-    printf("Z = %lf ... %lf\n", host_common->spline_zgrid[0], host_common->spline_zgrid[host_common->grid_size[1]-1]);
+
+  /*  size_t dim_tmp = sizeof(double)*LENGTH_TMP;
+    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
+    print_tmp(h_tmp);
+    */
+    //printf("R = %lf ... %lf\n", host_common->spline_rgrid[0], host_common->spline_rgrid[host_common->grid_size[0]-1]);
+    //printf("Z = %lf ... %lf\n", host_common->spline_zgrid[0], host_common->spline_zgrid[host_common->grid_size[1]-1]);
+
 }
 
 void test_init_coords(){
@@ -358,3 +390,11 @@ void test_renate_fast(TaigaGlobals *g){
     end_reference(&h_tmp, &d_tmp);
 }
 
+int main() {
+    test_init_grid();
+    test_init_coords();
+    test_init_detector();
+    test_init_detector_full();
+    test_detector_conversion();
+    return 0;
+}

@@ -26,6 +26,8 @@
 #include "interface/feedback.c"
 #include "utils/debug_functions.c"
 #include "utils/basic_functions.h"
+#include "utils/dir_functions.c"
+#include "utils/cuda_basic_functions.cuh"
 
 #include "dataio/data_import.c"
 #include "dataio/field_import.cu"

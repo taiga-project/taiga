@@ -5,7 +5,8 @@
 
 __device__ void calculate_yoshida_x(double c, double *X, double timestep){
     double c_dt = c * timestep;
-    for (int i = 0; i < 3; ++i) {
+    int i;
+    for (i = 0; i < 3; ++i) {
         X[i] += c_dt * X[i + 3];
     }
 }

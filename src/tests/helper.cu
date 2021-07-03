@@ -1,7 +1,7 @@
-#include "helper.cuh"
-
+#include <stdio.h>
+//#include "helper.cuh"
+//#include "utils/taiga_constants.h"
 #define LENGTH_TMP 10
-
 void init_tmp(double *h_tmp){
     for (int i=0; i<LENGTH_TMP; ++i){
         h_tmp[i] = UNDEFINED_FLOAT;

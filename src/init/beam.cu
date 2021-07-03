@@ -1,8 +1,4 @@
 #include <cuda.h>
-/*#include "taiga_init.h"
-/*#include "utils/taiga_constants.h"
-#include "utils/basic_functions.c"
-#include "core/generate_coords.cuh"*/
 #include "dataio/beam.h"
 
 void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_host, TaigaGlobals *g_shared) {
