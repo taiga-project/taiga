@@ -1,6 +1,8 @@
 #include <cuda.h>
+#include "dataio/data_import.h"
 #include "utils/taiga_constants.h"
 #include "utils/basic_functions.c"
+#include "utils/cuda_basic_functions.cu"
 
 void init_host(TaigaGlobals *host_global, TaigaCommons *host_common){
     host_common->step_counter = 0;

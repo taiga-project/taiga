@@ -6,7 +6,8 @@ __device__ void calculate_runge_kutta_coeff(double *X,
                                             double *S, double *S_prev, double rk_weight,
                                             double *B, double *E,
                                             double eperm, double timestep){
-    for (int i=3; i<6; ++i){
+    int i;
+    for (i=3; i<6; ++i){
         S[i] = X[i] + rk_weight * S_prev[i];
     }
     
@@ -15,7 +16,7 @@ __device__ void calculate_runge_kutta_coeff(double *X,
     S[2] = S[5]; // f(T) = vT
     (*get_acceleration_from_lorentz_force)(&S[3], S, B, E, eperm);
     
-    for (int i=0; i<6; ++i){
+    for (i=0; i<6; ++i){
         S[i] *= timestep;
     }
 }
@@ -28,7 +29,8 @@ __device__ void solve_diffeq_by_rk4(double *X, double *B, double *E, double *E_p
     calculate_runge_kutta_coeff(X, S3, S2, 0.5, B, E, eperm ,timestep);
     calculate_runge_kutta_coeff(X, S4, S3, 1.0, B, E, eperm ,timestep);
 
-    for(int i=0; i<6; ++i){
+    int i;
+    for(i=0; i<6; ++i){
         X[i] += (S1[i] + 2*S2[i] + 2*S3[i] + S4[i])/6;
     }
 }

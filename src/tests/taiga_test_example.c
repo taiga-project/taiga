@@ -8,11 +8,11 @@ double return_double(double x){
 
 int main(){
 
-    TAIGA_INIT_TEST();
+    TAIGA_INIT_TEST_NO_TITLE();
     TAIGA_ASSERT_ALMOST_EQ(0.0,-0.0,"almost equal");
     TAIGA_ASSERT_SUMMARY();
 
-    TAIGA_INIT_TEST();
+    TAIGA_INIT_TEST("SAMPLE TEST");
     double fifty_six_double = 56.0;
     double fifty_seven_double = 57.0;
     int fifty_six = 56;

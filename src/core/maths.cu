@@ -11,12 +11,9 @@ __device__ double cross(double *u, double *v, int index) {
     }
 }
 
-__device__ double interpolate(double y1, double y2, double x, double x1, double x2, double x2_x1){
-    return (x2-x)/x2_x1*y1 + (x-x1)/x2_x1*y2;
-}
-
 __device__ double interpolate(double y1, double y2, double x, double x1, double x2){
-    return interpolate(y1, y2, x, x1, x2, x2-x1);
+    double x2_minus_x1 = x2-x1;
+    return (x2-x) / x2_minus_x1 * y1 + (x - x1) / x2_minus_x1 * y2;
 }
 
 __device__ double interpolate_from_vector(double *x_vector, double *y_vector, long length, double x_value){

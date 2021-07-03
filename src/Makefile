@@ -1,7 +1,8 @@
 NVCC = nvcc
 COMMON_FLAGS = --ptxas-options=-v -w -Xptxas -dlcm=cg -maxrregcount=32 -lcurand -arch=compute_30 -I.
 CFLAGS = $(COMMON_FLAGS) -O3
-TESTFLAGS = $(COMMON_FLAGS) -g -G
+DEBUG_FLAGS = $(COMMON_FLAGS) -g -G
+LIBS = -lcurand
 
 VERSION = -D'TAIGA_VERSION="$(shell git branch | grep \* | cut -d ' ' -f2)"' -D'GIT_REV="$(shell git show -s --pretty=format:%h)"'
 
@@ -20,7 +21,7 @@ taiga.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga.exe main.cu
 
 taiga_debug.exe: main.cu | $(TAIGA_BUILD)
-	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga_debug.exe main.cu
+	$(NVCC) $(DEBUG_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga_debug.exe main.cu
 
 taiga_renate.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(RENATE_FLAGS) -o $(TAIGA_BUILD)/taiga_renate.exe main.cu
@@ -28,25 +29,36 @@ taiga_renate.exe: main.cu | $(TAIGA_BUILD)
 taiga_renate_fast.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(RENATE_FAST_FLAGS) -o $(TAIGA_BUILD)/taiga_renate_fast.exe main.cu
 
-t: test bspline solver
+t: $(TAIGA_BUILD) test
 
-test: tests/tests.cu | $(TAIGA_BUILD)
-	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test.exe tests/tests.cu
+OBJ = $(TAIGA_BUILD)/obj
+
+test: $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_basic_functions.o $(OBJ)/basic_functions.o
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) $^ -o $(TAIGA_BUILD)/test.exe
+
+$(OBJ)/%.o: tests/%.c $(OBJ)
+	$(NVCC)  $(CFLAGS) $(DEFAULT_FLAGS)  -I$tests -c $< -o $@
+
+$(OBJ)/basic_functions.o: utils/basic_functions.c $(OBJ)
+	$(NVCC)  $(CFLAGS) $(DEFAULT_FLAGS)  -I$utils -c $< -o $@
+
+test_init: tests/test_taiga_init.cu | $(TAIGA_BUILD)
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_init.exe tests/test_taiga_init.cu
 
 test_framework: tests/taiga_test_example.c  | $(TAIGA_BUILD)
-	$(NVCC) $(TESTFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_framework.exe tests/taiga_test_example.c
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_framework.exe tests/taiga_test_example.c
 
 field: tests/test_field.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_field.exe tests/test_field.cu
 
-bspline: tests/test_bspline.cu | $(TAIGA_BUILD)
-	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_bspline.exe tests/test_bspline.cu
-
-solver: tests/test_solver.cu | $(TAIGA_BUILD)
-	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_solver.exe tests/test_solver.cu
-
 $(TAIGA_BUILD):
 	mkdir $@
+
+$(OBJ):
+	mkdir $@
+
+$(CLEAN_O):
+	rm $(TAIGA_BUILD)/$^
 
 clean:
 	rm $(TAIGA_BUILD)/*.exe

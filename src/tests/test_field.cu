@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <cuda.h>
 
-#include <cuda_runtime.h>
-#include <cuda_profiler_api.h>
-
 #include "utils/taiga_constants.h"
 #include "utils/prop.h"
 #include "utils/basic_functions.h"
@@ -12,7 +9,7 @@
 #include "dataio/field_import.cu"
 #include "dataio/parameter_reader.c"
 #include "init/sync.cu"
-#include "init/init.c"
+#include "init/init.cu"
 #include "core/cyl2tor.cu"
 #include "core/detection.cu"
 #include "core/localise_field.cu"
@@ -100,7 +97,6 @@ void test_field(int field_interpolation_method){
     BeamProp beam; init_beam_prop(&beam);
     RunProp run;   init_run_prop(&run);
 
-    cudaProfilerStart();
     set_cuda(run.debug);
     
     parameter_reader(&beam, &shot, &run);
@@ -123,7 +119,7 @@ void test_field(int field_interpolation_method){
     init_host(host_global, host_common);
     run.field_interpolation_method = field_interpolation_method;
     run.is_magnetic_field_perturbation = true;
-    run.debug = 1;
+
     init_grid(shot, run, host_common, shared_common);
 
     switch (field_interpolation_method) {
@@ -185,8 +181,6 @@ void test_field(int field_interpolation_method){
 
     cudaMemcpy(host_field, device_field, 3*dim_tmp, cudaMemcpyDeviceToHost);
     cudaMemcpy(host_psi_n, device_psi_n, dim_tmp, cudaMemcpyDeviceToHost);
-
-    cudaProfilerStop();
 
     FILE *fp;
     fp = fopen (concat(run.folder_out, "/test_", field_interpolation_name, "_brad.dat", NULL), "w");

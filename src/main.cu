@@ -26,13 +26,15 @@
 #include "interface/feedback.c"
 #include "utils/debug_functions.c"
 #include "utils/basic_functions.h"
+#include "utils/dir_functions.c"
+#include "utils/cuda_basic_functions.cuh"
 
 #include "dataio/data_import.c"
 #include "dataio/field_import.cu"
 #include "dataio/parameter_reader.c"
 
 #include "init/beam.cu"
-#include "init/init.c"
+#include "init/init.cu"
 #include "init/sync.cu"
 #include "init/detector.cu"
 #include "init/fast_mode.cu"

@@ -12,8 +12,6 @@ double test_bspline_scenario(double x0, double x1) {
     int t0_length, t1_length;
     int i0, i1;
 
-   /* double x0 = 0.1;
-    double x1 = 0.2;*/
     double ref = 0.10051077;
 
     double t0[] = {-5., -5., -5., -5., -1., 1., 5., 5., 5., 5.};
@@ -61,15 +59,10 @@ double test_bspline_scenario(double x0, double x1) {
 }
 
 void test_bspline() {
-    TAIGA_INIT_TEST();
+    TAIGA_INIT_TEST("BSPLINE");
     TAIGA_ASSERT_ALMOST_EQ(0.10051077, test_bspline_scenario(0.1, 0.2), "bspline test 01");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, test_bspline_scenario(0.0, 0.0), 1e-7, "bspline test 02");
     TAIGA_ASSERT_ALMOST_EQ(0.95892427, test_bspline_scenario(-5.0, 0.0), "bspline test 03");
     TAIGA_ASSERT_ALMOST_EQ(0.95978649, test_bspline_scenario(-4.9, 0.0), "bspline test 04");
     TAIGA_ASSERT_SUMMARY();
 }
-
-int main(){
-    test_bspline();
-}
-

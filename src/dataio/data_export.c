@@ -27,7 +27,7 @@ void export_table(char *folder, char *runnumber, char *filename, int Ndat,
 }
 
 void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
-    init_dir(folder, runnumber, subdir);
+    init_dir_with_subdir(folder, runnumber, subdir);
     char* path = concat(folder, "/", runnumber, "/", subdir, "/", filename, NULL);
     
     //! make file (open for editing)
@@ -58,7 +58,7 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *sub
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
-    init_dir(folder, runnumber, subdir);
+    init_dir_with_subdir(folder, runnumber, subdir);
     char* path = concat(folder, "/", runnumber, "/", subdir, "/", filename, NULL);
     
     //! make file (open for editing)
@@ -90,7 +90,7 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir
 }
 
 void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
-    init_dir(folder, runnumber, subdir);
+    init_dir_with_subdir(folder, runnumber, subdir);
     char* path = concat(folder, "/", runnumber, "/", subdir, "/", filename, NULL);
     
     //! make file (open for editing)
@@ -122,7 +122,7 @@ void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *subdi
 }
 
 void export_header(char *dataname, char *unitname, double dat, char *folder, char *runnumber){
-    init_dir(folder, runnumber, "");
+    init_dir_with_subdir(folder, runnumber, "");
     char* path = concat(folder, "/", runnumber, "/header.dat", NULL);
     
     //! make file (open for editing)

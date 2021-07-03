@@ -1,6 +1,7 @@
+#include <stdio.h>
 #include "helper.cuh"
-
-#define LENGTH_TMP 10
+#include "utils/taiga_constants.h"
+#include "taiga_test.h"
 
 void init_tmp(double *h_tmp){
     for (int i=0; i<LENGTH_TMP; ++i){
@@ -11,6 +12,14 @@ void init_tmp(double *h_tmp){
 void print_tmp(double *h_tmp){
     for (int i=0; i<LENGTH_TMP; ++i){
         printf("TMP %d: %lf\n", i, h_tmp[i]);
+    }
+}
+
+void test_tmp(int number_of_cases, double *ref_tmp, double *h_tmp){
+    for (int i=0; i<number_of_cases; ++i){
+        char t[10];
+        sprintf(t, "test %d", i);
+        TAIGA_ASSERT_EQ(ref_tmp[i], h_tmp[i], t);
     }
 }
 
@@ -25,5 +34,4 @@ void start_reference(double **h_tmp, double **d_tmp){
 void end_reference(double **h_tmp, double **d_tmp){
     size_t dim_tmp = sizeof(double)*LENGTH_TMP;
     cudaMemcpy(*h_tmp, *d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    print_tmp(*h_tmp);
 }
