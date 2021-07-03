@@ -40,9 +40,9 @@
         printf("[   ok   ] ");                                    \
         printf("\033[0m");                                        \
         printf("%s\n", test_name);                                \
-        printf("\texpected: ");                                   \
+        printf("\t\t\texpected: ");                               \
         PRINT_VALUE(expected);                                    \
-        printf("\n\tactual:   ");                                 \
+        printf("\n\t\t\tactual:   ");                             \
         PRINT_VALUE(actual);                                      \
         printf("\n");                                             \
     }else{                                                        \
@@ -51,9 +51,9 @@
         printf("[ failed ] ");                                    \
         printf("\033[0m");                                        \
         printf("%s\n", test_name);                                \
-        printf("\texpected: ");                                   \
+        printf("\t\t\texpected: ");                               \
         PRINT_VALUE(expected);                                    \
-        printf("\n\tactual:   ");                                 \
+        printf("\n\t\t\tactual:   ");                             \
         PRINT_VALUE(actual);                                      \
         printf("\n");                                             \
     }                                                             \
@@ -116,13 +116,17 @@
     NUMBER_OF_FAILS;                                 \
 })
 
-#define TAIGA_INIT_TEST() {     \
-       NUMBER_OF_TESTS = 0;     \
-       NUMBER_OF_FAILS = 0;     \
-       printf("==========\n");  \
+#define TAIGA_INIT_TEST(title) {                        \
+       NUMBER_OF_TESTS = 0;                             \
+       NUMBER_OF_FAILS = 0;                             \
+       printf("++++++++++ %s (%s)\n", title, __FILE__); \
 }
 
-int number_of_tests = 0;
-int number_of_fails = 0;
+#define TAIGA_INIT_TEST_NO_TITLE() { \
+    TAIGA_INIT_TEST("");             \
+}
+
+int number_of_tests;// = 0;
+int number_of_fails;// = 0;
 
 #endif //TAIGA_TEST_H
