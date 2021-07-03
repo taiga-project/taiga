@@ -34,7 +34,7 @@
 #include "dataio/parameter_reader.c"
 
 #include "init/beam.cu"
-#include "init/init.c"
+#include "init/init.cu"
 #include "init/sync.cu"
 #include "init/detector.cu"
 #include "init/fast_mode.cu"

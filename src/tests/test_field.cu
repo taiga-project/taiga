@@ -9,7 +9,7 @@
 #include "dataio/field_import.cu"
 #include "dataio/parameter_reader.c"
 #include "init/sync.cu"
-#include "init/init.c"
+#include "init/init.cu"
 #include "core/cyl2tor.cu"
 #include "core/detection.cu"
 #include "core/localise_field.cu"
@@ -119,7 +119,7 @@ void test_field(int field_interpolation_method){
     init_host(host_global, host_common);
     run.field_interpolation_method = field_interpolation_method;
     run.is_magnetic_field_perturbation = true;
-    run.debug = 1;
+
     init_grid(shot, run, host_common, shared_common);
 
     switch (field_interpolation_method) {

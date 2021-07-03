@@ -1,4 +1,5 @@
 #include <cuda.h>
+#include "dataio/data_import.h"
 #include "utils/taiga_constants.h"
 #include "utils/basic_functions.c"
 #include "utils/cuda_basic_functions.cu"

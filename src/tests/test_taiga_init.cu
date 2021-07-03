@@ -2,75 +2,37 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cuda.h>
-#include <cuda_runtime.h>
-#include <curand_kernel.h>
-//#include <stdbool.h>
-//#include <curand_kernel.h>
-#include "utils/basic_functions.h"
+
+#include "helper.cu"
+
 #include "utils/taiga_constants.h"
 #include "utils/prop.h"
-#include "utils/taiga_constants.h"
-#include "core/generate_coords.cu"
+#include "init/init.cu"
 #include "dataio/data_import.c"
-#include "init/init.c"
-#include "init/detector.cu"
-#include "init/beam.cu"
 #include "dataio/parameter_reader.c"
-
 #include "dataio/beam.h"
-//#include "tests/helper.cuh"
+#include "init/beam.cu"
 
 #if READINPUTPROF == 1
-    #include "dataio/beam_manual_profile.c"
+#include "dataio/beam_manual_profile.c"
 #elif RENATE == 110
-    #include "dataio/beam_renate110.c"
+#include "dataio/beam_renate110.c"
 #else
-    #error A valid beam module is required!
+#error A valid beam module is required!
 #endif
 
+#include "init/detector.cu"
+
 #include "detector/postproc.cu"
-#include "detector/sum.cu"
 
-#define LENGTH_TMP 10
-
-void init_tmp(double *h_tmp){
-    for (int i=0; i<LENGTH_TMP; ++i){
-        h_tmp[i] = UNDEFINED_FLOAT;
-    }
-}
-
-void print_tmp(double *h_tmp){
-    for (int i=0; i<LENGTH_TMP; ++i){
-        printf("TMP %d: %lf\n", i, h_tmp[i]);
-    }
-}
-
-void start_reference(double **h_tmp, double **d_tmp){
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    *h_tmp = (double *) malloc(dim_tmp);
-    init_tmp(*h_tmp);
-    cudaMalloc((void **) d_tmp, dim_tmp);
-    cudaMemcpy(*d_tmp, *h_tmp, dim_tmp, cudaMemcpyHostToDevice);
-}
-
-void end_reference(double **h_tmp, double **d_tmp){
-    size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    cudaMemcpy(*h_tmp, *d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    print_tmp(*h_tmp);
-}
-
-
-__global__ void test_init_grid_cuda(/*TaigaCommons* c, */double *tmp){
+__global__ void test_init_grid_cuda(TaigaCommons* c, double *tmp){
     tmp[0] = PI;
-    /*tmp[1] = c->grid_size[0];
+    tmp[1] = c->grid_size[0];
     tmp[2] = c->grid_size[1];
     tmp[3] = c->spline_rgrid[0];
     tmp[4] = c->spline_rgrid[c->grid_size[0]-1];
     tmp[5] = c->spline_zgrid[0];
-    tmp[6] = c->spline_zgrid[c->grid_size[1]-1];*/
-    /*tmp[7] = c->detector_geometry[0];
-    tmp[8] = c->detector_geometry[1];
-    tmp[9] = c->detector_geometry[2];*/
+    tmp[6] = c->spline_zgrid[c->grid_size[1]-1];
 }
 
 __global__ void test_init_coords_cuda(TaigaGlobals* g, double *tmp){
@@ -88,35 +50,32 @@ __global__ void test_init_coords_cuda(TaigaGlobals* g, double *tmp){
 
 void test_init_grid(){
     printf("Test: test_init_grid()\n");
-    /*int tmp_length = 20;
+    int tmp_length = 20;
 
     ShotProp shot;
     RunProp run;
     TaigaCommons *host_common, *shared_common, *dev_common;
 
     size_t dim_commons = sizeof(TaigaCommons);
-    //host_common = (TaigaCommons*)malloc(dim_commons);
-    //shared_common = (TaigaCommons*)malloc(dim_commons);
-    //cudaMalloc((void **) &dev_common, dim_commons);
-/*
+    host_common = (TaigaCommons*)malloc(dim_commons);
+    shared_common = (TaigaCommons*)malloc(dim_commons);
+    cudaMalloc((void **) &dev_common, dim_commons);
+
     strcpy(shot.name, "17178_1097");
     run.field_interpolation_method = CUBIC_SPLINE;
     printf("Init grid\n");
     init_grid(shot, run, host_common, shared_common);
-    cudaMemcpy(dev_common, shared_common, dim_commons, cudaMemcpyHostToDevice);*/
+    cudaMemcpy(dev_common, shared_common, dim_commons, cudaMemcpyHostToDevice);
 
     double *h_tmp, *d_tmp;
     start_reference(&h_tmp, &d_tmp);
-    test_init_grid_cuda <<< 1, 1 >>> (/*dev_common,*/ d_tmp);
+    test_init_grid_cuda <<< 1, 1 >>> (dev_common, d_tmp);
     end_reference(&h_tmp, &d_tmp);
 
-  /*  size_t dim_tmp = sizeof(double)*LENGTH_TMP;
-    cudaMemcpy(h_tmp, d_tmp, dim_tmp, cudaMemcpyDeviceToHost);
-    print_tmp(h_tmp);
-    */
-    //printf("R = %lf ... %lf\n", host_common->spline_rgrid[0], host_common->spline_rgrid[host_common->grid_size[0]-1]);
-    //printf("Z = %lf ... %lf\n", host_common->spline_zgrid[0], host_common->spline_zgrid[host_common->grid_size[1]-1]);
-
+    double reference_values[7] = {PI, 33, 33, 0.3, 0.8 ,-0.4, 0.4};
+    TAIGA_INIT_TEST(__FUNCTION__ );
+    test_tmp(7, reference_values, h_tmp);
+    TAIGA_ASSERT_SUMMARY();
 }
 
 void test_init_coords(){
@@ -144,12 +103,16 @@ void test_init_coords(){
     start_reference(&h_tmp, &d_tmp);
     test_init_coords_cuda <<< 1, 1 >>> (dev_global, d_tmp);
     end_reference(&h_tmp, &d_tmp);
-    
-    printf("Number of ions: %ld\n", host_global->particle_number);
-    
-    printf("1st:  [%lf, %lf, %lf]\n", host_global->rad[0], host_global->z[0], host_global->tor[0]);
-    printf("2nd:  [%lf, %lf, %lf]\n", host_global->rad[1], host_global->z[1], host_global->tor[1]);
-    printf("Last: [%lf, %lf, %lf]\n", host_global->rad[host_global->particle_number-1], host_global->z[host_global->particle_number-1], host_global->tor[host_global->particle_number-1]);
+
+    double reference_values[10] = {host_global->particle_number,
+                                   host_global->rad[0], host_global->z[0], host_global->tor[0],
+                                   host_global->rad[1], host_global->z[1], host_global->tor[1],
+                                   host_global->rad[host_global->particle_number-1],
+                                   host_global->z[host_global->particle_number-1],
+                                   host_global->tor[host_global->particle_number-1]};
+    TAIGA_INIT_TEST(__FUNCTION__ );
+    test_tmp(10, reference_values, h_tmp);
+    TAIGA_ASSERT_SUMMARY();
 }
 
 __global__ void test_detector_cuda(DetectorProp *d,  double *tmp){
@@ -173,6 +136,11 @@ void test_init_detector(){
     start_reference(&h_tmp, &d_tmp);
     test_detector_cuda <<< 1, 1 >>> (device_detector, d_tmp);
     end_reference(&h_tmp, &d_tmp);
+
+    double reference_values[3] = {PI, -10.5, -16.0};
+    TAIGA_INIT_TEST(__FUNCTION__ );
+    test_tmp(3, reference_values, h_tmp);
+    TAIGA_ASSERT_SUMMARY();
 }
 
 __global__ void test_detector_struct(TaigaCommons *c, DetectorProp *d, double *tmp){
@@ -319,14 +287,29 @@ void test_init_detector_full(){
     printf("test_detector_detcellid\n");
     test_detector_detcellid <<< 1, 1 >>> (device_global, d_tmp);
     end_reference(&h_tmp, &d_tmp);
+
+    double reference_values1[7] = {8, 0, 9, 9, 9, 0, 400};
+    TAIGA_INIT_TEST("test_detector_struct");
+    test_tmp(7, reference_values1, h_tmp);
+    TAIGA_ASSERT_SUMMARY();
     
     printf("test_detector_struct\n");
     test_detector_struct <<< 1, 1 >>> (device_common, device_detector, d_tmp);
     end_reference(&h_tmp, &d_tmp);
-    
+
+    double reference_values2[8] = {0.7, 0.2, 0, 0, 0, -10.5, -16, 15};
+    TAIGA_INIT_TEST("test_detector_struct");
+    test_tmp(8, reference_values2, h_tmp);
+    TAIGA_ASSERT_SUMMARY();
+
     printf("test_detector_full_cuda\n");
     test_detector_full_cuda <<< 1, 1 >>> (device_detector, d_tmp);
     end_reference(&h_tmp, &d_tmp);
+
+    double reference_values3[10] = {0};
+    TAIGA_INIT_TEST(__FUNCTION__ );
+    test_tmp(10, reference_values3, h_tmp);
+    TAIGA_ASSERT_SUMMARY();
 }
 
 __global__ void test_detector_range_cuda(double *tmp){
@@ -368,26 +351,11 @@ void test_detector_conversion(){
     
     test_detector_index_cuda <<< 1, 1 >>> (d_tmp);
     end_reference(&h_tmp, &d_tmp);
-}
 
-__global__ void test_renate_fast_cuda(TaigaGlobals* g, double *tmp){
-    tmp[0] = g->rad[0];
-    tmp[1] = g->rad[1];
-    tmp[2] = g->rad[2];
-    tmp[3] = g->vrad[0];
-    tmp[4] = g->vrad[1];
-    tmp[5] = g->vrad[2];
-    tmp[6] = g->detcellid[0];
-    tmp[7] = g->detcellid[1];
-    tmp[8] = g->detcellid[2];
-}
-
-void test_renate_fast(TaigaGlobals *g){
-    printf("test_renate_fast()\n");
-    double *h_tmp, *d_tmp;
-    start_reference(&h_tmp, &d_tmp);
-    test_renate_fast_cuda <<< 1, 1 >>> (g, d_tmp);
-    end_reference(&h_tmp, &d_tmp);
+    double reference_values[10] = {0.2, 0.21, 0.22, 0.23, 0.195, 0.224, 0.242, -1, 2, -1};
+    TAIGA_INIT_TEST(__FUNCTION__ );
+    test_tmp(10, reference_values, h_tmp);
+    TAIGA_ASSERT_SUMMARY();
 }
 
 int main() {
