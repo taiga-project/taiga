@@ -7,13 +7,9 @@ __device__ void calculate_runge_kutta_coeff(double *X,
                                             double *B, double *E,
                                             double eperm, double timestep){
     int i;
-    for (i=3; i<6; ++i){
-        S[i] = X[i] + rk_weight * S_prev[i];
+    for (i=0; i<3; ++i){
+        S[i] = X[i+3] + rk_weight * S_prev[i+3];
     }
-    
-    S[0] = S[3]; // f(R) = vR
-    S[1] = S[4]; // f(Z) = vZ
-    S[2] = S[5]; // f(T) = vT
     (*get_acceleration_from_lorentz_force)(&S[3], S, B, E, eperm);
     
     for (i=0; i<6; ++i){
