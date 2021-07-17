@@ -181,7 +181,20 @@ int main(int argc, char *argv[]){
         
         //! grid
         init_grid(shot, run, host_common, shared_common);
-        magnetic_field_read_and_init(shot, run, host_common, shared_common);
+        switch (run.field_interpolation_method) {
+            case CUBIC_SPLINE:
+                magnetic_field_read_and_init(shot, run, host_common, shared_common);
+                poloidal_flux_read_and_init(shot, run, host_common, shared_common);
+                break;
+            case CUBIC_BSPLINE:
+                magnetic_field_read_and_init_with_bsplines(shot, run, host_common, shared_common);
+                poloidal_flux_read_and_init_with_bsplines(shot, run, host_common, shared_common);
+                break;
+            default:
+                printf("Invalid interpolation value\n");
+                exit(1);
+        }
+
         if (run.is_electric_field_on) run.is_electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
         if (run.is_magnetic_field_perturbation) run.is_magnetic_field_perturbation = poloidal_flux_read_and_init(shot, run, host_common, shared_common);
 

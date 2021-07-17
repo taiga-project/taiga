@@ -108,11 +108,11 @@ void set_solver(RunProp *run, char* solver){
 void set_field_interpolation_method(RunProp *run, char* method){
     string_to_lowercase(method);
     if (!strcmp(method, "spline")){
-        run->solver = SOLVER_VERLET;
+        run->field_interpolation_method = CUBIC_SPLINE;
     }else if (!strcmp(method, "bspline") || !strcmp(method, "b-spline")){
-        run->solver = SOLVER_YOSHIDA;
+        run->field_interpolation_method = CUBIC_BSPLINE;
     }else{
-        printf("Warning: Unvalid interpolationm method: %s\nSet to bicubic spline [spline].", method);
+        printf("Warning: Unvalid interpolation method: %s\nSet to bicubic spline [spline].", method);
     }
 }
 
