@@ -19,15 +19,15 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
 
     double local_psi_n[16];
 
-    double local_bfield[3], local_efield[3], local_efield_prev[3]={0, 0, 0};
-    double R;
+    double local_bfield[9], local_efield[9];
+    double local_efield_prev[3]={0, 0, 0};
 
     double eperm = c->eperm;
     double timestep = c->timestep;
     bool is_electric_field_on = c->is_electric_field_on;
+    long max_step_number = c->max_step_number;
 
     double X_prev[6];
-    double a[3] = {0, 0, 0};
 
     switch(c->solver){
         case SOLVER_RK45:
@@ -61,21 +61,14 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
         get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_without_electric_field;
     }
 
-    for (int loopi=0; (loopi < c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
-        R = get_major_radius(X[0], X[2]);
-        copy_local_field_coefficients(c, R, X[1], local_spline_indices,
-                                      local_spline_brad, local_spline_bz, local_spline_btor,
-                                      local_spline_erad, local_spline_ez, local_spline_etor,
-                                      local_psi_n);
+    for (int step_counter=0; (step_counter < max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++step_counter){
+        for(int i=0; i<6; ++i)  X_prev[i] = X[i];
 
-        get_local_field(local_bfield, local_efield, is_electric_field_on,
-                        c, R, X, local_spline_indices,
+        get_local_field(X, local_bfield, local_efield, c, is_electric_field_on,
+                        local_spline_indices,
                         local_spline_brad, local_spline_bz, local_spline_btor,
                         local_spline_erad, local_spline_ez, local_spline_etor,
                         local_psi_n);
-
-        // archive coordinates
-        for(int i=0; i<6; ++i)  X_prev[i] = X[i];
 
         (*solve_diffeq)(X, local_bfield, local_efield, local_efield_prev, eperm, timestep);
 
