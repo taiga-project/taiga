@@ -65,12 +65,12 @@ __device__ void get_coefficients_with_splines(
     }
 }
 
-__device__ void copy_local_field(TaigaCommons *c,
-                                 double position_rad, double position_z,
-                                 int *local_spline_indices,
-                                 double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                 double *local_psi_n){
+__device__ void copy_local_field_coefficients(TaigaCommons *c,
+                                              double position_rad, double position_z,
+                                              int *local_spline_indices,
+                                              double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                              double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                              double *local_psi_n){
     int rci, zci;
     int rgrid_length = c->grid_size[0];
     int zgrid_length = c->grid_size[1];
@@ -87,6 +87,34 @@ __device__ void copy_local_field(TaigaCommons *c,
                             local_spline_brad, local_spline_bz, local_spline_btor,
                             local_spline_erad, local_spline_ez, local_spline_etor,
                             local_psi_n, rgrid_length, zgrid_length);
+    }
+}
+
+__device__ void get_local_field(double *local_bfield, double *local_efield, bool is_electric_field_on,
+                                TaigaCommons *c,
+                                double R, double *X,
+                                int *local_spline_indices,
+                                double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                double *local_psi_n){
+
+    double dr, dz;
+    dr = (*get_dr)(c, local_spline_indices, R);
+    dz = (*get_dz)(c, local_spline_indices, X[1]);
+
+    local_bfield[0] = (*calculate_local_field)(c, local_spline_indices, local_spline_brad, dr, dz);
+    local_bfield[1] = (*calculate_local_field)(c, local_spline_indices, local_spline_bz,   dr, dz);
+    local_bfield[2] = (*calculate_local_field)(c, local_spline_indices, local_spline_btor, dr, dz);
+
+    local_bfield[0] = get_rad_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
+    local_bfield[2] = get_tor_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
+
+    if (is_electric_field_on){
+        local_efield[0] = (*calculate_local_field)(c, local_spline_indices, local_spline_erad, dr, dz);
+        local_efield[1] = (*calculate_local_field)(c, local_spline_indices, local_spline_ez,   dr, dz);
+        local_efield[2] = (*calculate_local_field)(c, local_spline_indices, local_spline_etor, dr, dz);
+        local_efield[0] = get_rad_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
+        local_efield[2] = get_tor_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
     }
 }
 

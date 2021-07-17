@@ -3,13 +3,6 @@
 
 __device__ void (*solve_diffeq)(double *X, double *B, double *E, double *E_prev, double eperm, double timestep);
 
-__device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spline_indices,
-                                           const double *local_spline, double dr, double dz);
-
-__device__ double (*get_dr)(TaigaCommons *c, const int *local_spline_indices, double R);
-__device__ double (*get_dz)(TaigaCommons *c, const int *local_spline_indices, double Z);
-
-
 __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid){
     // next grid
     int local_spline_indices[2];
@@ -27,7 +20,6 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     double local_psi_n[16];
 
     double local_bfield[3], local_efield[3], local_efield_prev[3]={0, 0, 0};
-    double dr, dz;
     double R;
 
     double eperm = c->eperm;
@@ -71,28 +63,16 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
 
     for (int loopi=0; (loopi < c->max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++loopi){
         R = get_major_radius(X[0], X[2]);
-        copy_local_field(c, R, X[1], local_spline_indices,
-                         local_spline_brad, local_spline_bz, local_spline_btor,
-                         local_spline_erad, local_spline_ez, local_spline_etor,
-                         local_psi_n);
+        copy_local_field_coefficients(c, R, X[1], local_spline_indices,
+                                      local_spline_brad, local_spline_bz, local_spline_btor,
+                                      local_spline_erad, local_spline_ez, local_spline_etor,
+                                      local_psi_n);
 
-        dr = (*get_dr)(c, local_spline_indices, R);
-        dz = (*get_dz)(c, local_spline_indices, X[1]);
-
-        local_bfield[0] = (*calculate_local_field)(c, local_spline_indices, local_spline_brad, dr, dz);
-        local_bfield[1] = (*calculate_local_field)(c, local_spline_indices, local_spline_bz,   dr, dz);
-        local_bfield[2] = (*calculate_local_field)(c, local_spline_indices, local_spline_btor, dr, dz);
-
-        local_bfield[0] = get_rad_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
-        local_bfield[2] = get_tor_from_poloidal(R, local_bfield[0], local_bfield[2], X[0], X[2]);
-
-        if (is_electric_field_on){
-            local_efield[0] = (*calculate_local_field)(c, local_spline_indices, local_spline_erad, dr, dz);
-            local_efield[1] = (*calculate_local_field)(c, local_spline_indices, local_spline_ez,   dr, dz);
-            local_efield[2] = (*calculate_local_field)(c, local_spline_indices, local_spline_etor, dr, dz);
-            local_efield[0] = get_rad_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
-            local_efield[2] = get_tor_from_poloidal(R, local_efield[0], local_efield[2], X[0], X[2]);
-        }
+        get_local_field(local_bfield, local_efield, is_electric_field_on,
+                        c, R, X, local_spline_indices,
+                        local_spline_brad, local_spline_bz, local_spline_btor,
+                        local_spline_erad, local_spline_ez, local_spline_etor,
+                        local_psi_n);
 
         // archive coordinates
         for(int i=0; i<6; ++i)  X_prev[i] = X[i];
