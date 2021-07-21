@@ -1,10 +1,14 @@
 #include "lorentz.cu"
 #include "localise_field.cuh"
 
-__device__ void (*solve_diffeq)(double *X, double *B, double *E, double *E_prev, double eperm, double timestep);
+__device__ void (*solve_diffeq)(double *X, double eperm, double timestep,
+                                TaigaCommons *c, bool is_electric_field_on,
+                                int *local_spline_indices,
+                                double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                double *local_psi_n);
 
 __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid){
-    // next grid
     int local_spline_indices[2];
     local_spline_indices[0] = SPLINE_INDEX_ERROR;
     local_spline_indices[1] = SPLINE_INDEX_ERROR;
@@ -12,15 +16,10 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     double local_spline_brad[16];
     double local_spline_bz[16];
     double local_spline_btor[16];
-
     double local_spline_erad[16];
     double local_spline_ez[16];
     double local_spline_etor[16];
-
     double local_psi_n[16];
-
-    double local_bfield[9], local_efield[9];
-    double local_efield_prev[3]={0, 0, 0};
 
     double eperm = c->eperm;
     double timestep = c->timestep;
@@ -28,10 +27,14 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     long max_step_number = c->max_step_number;
 
     double X_prev[6];
+    int i, step_counter;
 
     switch(c->solver){
         case SOLVER_RK45:
             solve_diffeq = &solve_diffeq_by_rk4;
+            break;
+        case SOLVER_RUNGE_KUTTA_NYSTROM:
+            solve_diffeq = &solve_diffeq_by_rkn;
             break;
         case SOLVER_VERLET:
             solve_diffeq = &solve_diffeq_by_verlet;
@@ -61,16 +64,15 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
         get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_without_electric_field;
     }
 
-    for (int step_counter=0; (step_counter < max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++step_counter){
-        for(int i=0; i<6; ++i)  X_prev[i] = X[i];
+    for (step_counter=0; (step_counter < max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++step_counter){
+        for(i=0; i<6; ++i)  X_prev[i] = X[i];
 
-        get_local_field(X, local_bfield, local_efield, c, is_electric_field_on,
+        (*solve_diffeq)(X, eperm, timestep,
+                        c, is_electric_field_on,
                         local_spline_indices,
                         local_spline_brad, local_spline_bz, local_spline_btor,
                         local_spline_erad, local_spline_ez, local_spline_etor,
                         local_psi_n);
-
-        (*solve_diffeq)(X, local_bfield, local_efield, local_efield_prev, eperm, timestep);
 
         detcellid = calculate_detection_position(X, X_prev, c->detector_geometry);
     }

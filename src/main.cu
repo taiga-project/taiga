@@ -20,7 +20,7 @@
 //#include "test/cuda/nvToolsExt.h"
 
 #include "utils/taiga_constants.h"
-#include "utils/prop.h"
+#include "utils/prop.c"
 #include "main.cuh"
 #include "interface/save.c"
 #include "interface/feedback.c"
@@ -51,6 +51,7 @@
 
 #include "core/maths.cu"
 #include "core/rk4.cu"
+#include "core/runge_kutta_nystrom.cu"
 #include "core/solvers.cuh"
 #include "core/verlet.cu"
 #include "core/yoshida.cu"

@@ -94,8 +94,10 @@ int runnumber_reader(ShotProp *shot, RunProp *run){
 
 void set_solver(RunProp *run, char* solver){
     string_to_lowercase(solver);
-    if (!strcmp(solver, "rk") || !strcmp(solver, "rk45") || !strcmp(solver, "runge-kutta") || !strcmp(solver, "runge--kutta")){
+    if (!strcmp(solver, "rk") || !strcmp(solver, "rk45") || !strcmp(solver, "runge-kutta") || !strcmp(solver, "runge--kutta")) {
         run->solver = SOLVER_RK45;
+    }else if (!strcmp(solver, "rkn") || !strcmp(solver, "nystrom") || !strcmp(solver, "runge-kutta-nystrom") || !strcmp(solver, "runge--kutta--nystrom")){
+        run->solver = SOLVER_RUNGE_KUTTA_NYSTROM;
     }else if (!strcmp(solver, "verlet")){
         run->solver = SOLVER_VERLET;
     }else if (!strcmp(solver, "yoshida")){
