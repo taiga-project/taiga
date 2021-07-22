@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define __device__ ;
 #include "taiga_test.h"
 
 #include "test_solver.h"
@@ -37,12 +36,12 @@ double get_speed(double *X) {
     return sqrt(X[3]*X[3]+X[4]*X[4]+X[5]*X[5]);
 }
 
-void get_local_field(double *X, double *local_bfield, double *local_efield,
-                     TaigaCommons *c, bool is_electric_field_on,
-                     int *local_spline_indices,
-                     double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                     double *local_psi_n){
+void generate_homogeneous_field(double *X, double *local_bfield, double *local_efield,
+                                TaigaCommons *c, bool is_electric_field_on,
+                                int *local_spline_indices,
+                                double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                double *local_psi_n){
     local_bfield[0] = 0.0;
     local_bfield[1] = 0.0;
     local_bfield[2] = 1.0;
@@ -51,13 +50,35 @@ void get_local_field(double *X, double *local_bfield, double *local_efield,
     local_efield[2] = 0.0;
 }
 
-double run_homogeneous_field_with_solver(double timestep,
-                                         void (*solve_diffeq)(double *X, double eperm, double timestep,
-                                                              TaigaCommons *c, bool is_electric_field_on,
-                                                              int *local_spline_indices,
-                                                              double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                                                              double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                                              double *local_psi_n) ) {
+void get_local_field(double *X, double *local_bfield, double *local_efield,
+                           TaigaCommons *c, bool is_electric_field_on,
+                           int *local_spline_indices,
+                           double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                           double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                           double *local_psi_n){
+    generate_local_field(X, local_bfield, local_efield,
+                         c, is_electric_field_on,
+                         local_spline_indices,
+                         local_spline_brad, local_spline_bz, local_spline_btor,
+                         local_spline_erad, local_spline_ez, local_spline_etor,
+                         local_psi_n);
+}
+
+double run_field_with_solver(double timestep, int field_type,
+                             void (*solve_diffeq)(double *X, double eperm, double timestep,
+                                                  TaigaCommons *c, bool is_electric_field_on,
+                                                  int *local_spline_indices,
+                                                  double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                                  double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                                  double *local_psi_n) ) {
+
+    switch(field_type){
+        case HOMOGENEOUS:
+            generate_local_field = &generate_homogeneous_field;
+            break;
+        default:
+            printf("Error: Illegal field_type\n");
+    }
     double X[6] = {0};
     double X_prev[6] = {0};
     int local_spline_indices[2];
@@ -104,9 +125,9 @@ double run_homogeneous_field_with_solver(double timestep,
 
 void test_solver() {
     TAIGA_INIT_TEST("SOLVER");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_rkn), 1e-5, "4th order Runge--Kutta--Nystrom");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet based Boris-SDC (BGSDC)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_homogeneous_field_with_solver(1e-9, solve_diffeq_by_yoshida), 1e-5, "Yoshida based Boris-SDC");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_rkn), 1e-5, "4th order Runge--Kutta--Nystrom");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet based Boris-SDC (BGSDC)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_yoshida), 1e-5, "Yoshida based Boris-SDC");
     TAIGA_ASSERT_SUMMARY();
 }
