@@ -3,7 +3,6 @@ import h5py
 import numpy
 import scipy.interpolate
 from h5py import File
-import matplotlib.pyplot as plt
 
 
 def get_home_directory():
@@ -70,6 +69,7 @@ class CDBReader:
         self.efit = EFITManager(self.shot_number, self.time)
 
         self.R = self.efit.get_time_sliced_data('/output/profiles2D/r')
+        self.one_over_R = numpy.diag(1/self.R)
         self.Z = self.efit.get_time_sliced_data('/output/profiles2D/z')
 
         self.poloidal_flux = []
@@ -86,7 +86,7 @@ class CDBReader:
 
     def set_interpolation_for_poloidal_flux(self, y):
         poloidal_flux = self.efit.get_time_sliced_data('output/fluxFunctionProfiles/poloidalFlux')
-        return scipy.interpolate.UnivariateSpline(poloidal_flux, y)
+        return scipy.interpolate.UnivariateSpline(poloidal_flux, y, k=3, s=0)
 
     def set_normalised_poloidal_flux(self):
         normalised_poloidal_flux = self.efit.get_data('output/fluxFunctionProfiles/normalizedPoloidalFlux')
@@ -108,11 +108,11 @@ class CDBReader:
         self.psi_n = scipy.interpolate.RectBivariateSpline(self.Z, self.R, self.normalised_poloidal_flux)
 
     def set_B_R(self):
-        B_R_2d = -self.psi(self.Z, self.R, dx=1, dy=0, grid=True)/self.R
+        B_R_2d = numpy.dot(-self.psi(self.Z, self.R, dx=1, dy=0, grid=True), self.one_over_R)
         self.B_R = scipy.interpolate.RectBivariateSpline(self.Z, self.R, B_R_2d)
 
     def set_B_Z(self):
-        B_Z_2d = self.psi(self.Z, self.R, dx=0, dy=1, grid=True)/self.R
+        B_Z_2d = numpy.dot(self.psi(self.Z, self.R, dx=0, dy=1, grid=True), self.one_over_R)
         self.B_Z = scipy.interpolate.RectBivariateSpline(self.Z, self.R, B_Z_2d)
 
     def set_B_phi(self):
@@ -121,7 +121,7 @@ class CDBReader:
         if len(self.poloidal_flux) == 0:
             self.get_poloidal_flux()
         R_B_phi_2d = get_R_B_phi(self.poloidal_flux)
-        B_phi_2d = -R_B_phi_2d/self.R
+        B_phi_2d = numpy.dot(-R_B_phi_2d, self.one_over_R)
         self.B_phi = scipy.interpolate.RectBivariateSpline(self.Z, self.R, B_phi_2d)
 
 

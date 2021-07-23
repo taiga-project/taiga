@@ -94,8 +94,10 @@ int runnumber_reader(ShotProp *shot, RunProp *run){
 
 void set_solver(RunProp *run, char* solver){
     string_to_lowercase(solver);
-    if (!strcmp(solver, "rk") || !strcmp(solver, "rk45") || !strcmp(solver, "runge-kutta") || !strcmp(solver, "runge--kutta")){
+    if (!strcmp(solver, "rk") || !strcmp(solver, "rk45") || !strcmp(solver, "runge-kutta") || !strcmp(solver, "runge--kutta")) {
         run->solver = SOLVER_RK45;
+    }else if (!strcmp(solver, "rkn") || !strcmp(solver, "nystrom") || !strcmp(solver, "runge-kutta-nystrom") || !strcmp(solver, "runge--kutta--nystrom")){
+        run->solver = SOLVER_RUNGE_KUTTA_NYSTROM;
     }else if (!strcmp(solver, "verlet")){
         run->solver = SOLVER_VERLET;
     }else if (!strcmp(solver, "yoshida")){
@@ -108,11 +110,11 @@ void set_solver(RunProp *run, char* solver){
 void set_field_interpolation_method(RunProp *run, char* method){
     string_to_lowercase(method);
     if (!strcmp(method, "spline")){
-        run->solver = SOLVER_VERLET;
+        run->field_interpolation_method = CUBIC_SPLINE;
     }else if (!strcmp(method, "bspline") || !strcmp(method, "b-spline")){
-        run->solver = SOLVER_YOSHIDA;
+        run->field_interpolation_method = CUBIC_BSPLINE;
     }else{
-        printf("Warning: Unvalid interpolationm method: %s\nSet to bicubic spline [spline].", method);
+        printf("Warning: Unvalid interpolation method: %s\nSet to bicubic spline [spline].", method);
     }
 }
 

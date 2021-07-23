@@ -63,10 +63,10 @@ __global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, doub
             return;
     }
 
-    copy_local_field(c, r, z, local_spline_indices,
-                     local_spline_brad, local_spline_bz, local_spline_btor,
-                     local_spline_erad, local_spline_ez, local_spline_etor,
-                     local_spline_polflux);
+    copy_local_field_coefficients(c, r, z, local_spline_indices,
+                                  local_spline_brad, local_spline_bz, local_spline_btor,
+                                  local_spline_erad, local_spline_ez, local_spline_etor,
+                                  local_spline_polflux);
     dr = (*get_dr)(c, local_spline_indices, r);
     dz = (*get_dz)(c, local_spline_indices, z);
     local_brad = (*calculate_local_field)(c, local_spline_indices, local_spline_brad, dr, dz);

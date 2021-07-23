@@ -1,4 +1,4 @@
-// velocity Verlet
+// velocity Verlet with Boris algorithm
 #include "verlet.cuh"
 #include "solvers.cuh"
 #include "maths.cuh"
@@ -45,8 +45,24 @@ __device__ void calculate_verlet_v(double *X, double *B, double *E, double *E_pr
     }
 }
 
-__device__ void solve_diffeq_by_verlet(double *X, double *B, double *E, double *E_prev, double eperm, double timestep) {
-    calculate_verlet_x(X, B, E, eperm, timestep);
+__device__ void solve_diffeq_by_verlet(double *X, double eperm, double timestep,
+                                       TaigaCommons *c, bool is_electric_field_on,
+                                       int *local_spline_indices,
+                                       double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                       double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                       double *local_psi_n){
+    double B[3], E[3], E_prev[3];
+    get_local_field(X, B, E_prev, c, is_electric_field_on,
+                    local_spline_indices,
+                    local_spline_brad, local_spline_bz, local_spline_btor,
+                    local_spline_erad, local_spline_ez, local_spline_etor,
+                    local_psi_n);
+    calculate_verlet_x(X, B, E_prev, eperm, timestep);
+    get_local_field(X, B, E, c, is_electric_field_on,
+                    local_spline_indices,
+                    local_spline_brad, local_spline_bz, local_spline_btor,
+                    local_spline_erad, local_spline_ez, local_spline_etor,
+                    local_psi_n);
     double dt_per_2 = 0.5 * timestep;
     calculate_verlet_v(X, B, E, E_prev, eperm, dt_per_2);
 }
