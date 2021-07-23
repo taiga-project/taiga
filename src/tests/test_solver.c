@@ -15,8 +15,8 @@
 #include "core/verlet.cu"
 #include "core/lorentz.cu"
 
-#define GRAD_B_FACTOR 0.01
-#define NUMBER_OF_CYCLOTRON_PERIODS 10000
+#define GRAD_B_FACTOR 0.0001
+#define NUMBER_OF_CYCLOTRON_PERIODS 100000
 #define LARMOR_RADIUS 0.01
 
 double test_interp1(double x, double x0, double x1, double y0, double y1) {
@@ -151,9 +151,9 @@ void test_solver() {
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet based Boris-SDC (BGSDC)");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_yoshida), 1e-5, "Yoshida based Boris-SDC");
     double reference_grad_B_drift = -GRAD_B_FACTOR * PI * LARMOR_RADIUS * LARMOR_RADIUS * NUMBER_OF_CYCLOTRON_PERIODS;
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_rk4), 1e-4, "4th order linearised Runge--Kutta (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_rkn), 1e-4, "4th order linearised Runge--Kutta--Nystrom (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_verlet), 1e-4, "velocity-Verlet based Boris-SDC (BGSDC) (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_rkn), 1e-5, "4th order linearised Runge--Kutta--Nystrom (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet based Boris-SDC (BGSDC) (grad B)");
     //TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_yoshida), 1e-4, "Yoshida based Boris-SDC (BGSDC) (grad B)");
     TAIGA_ASSERT_SUMMARY();
 }
