@@ -15,6 +15,10 @@
 #include "core/verlet.cu"
 #include "core/lorentz.cu"
 
+#define GRAD_B_FACTOR 0.01
+#define NUMBER_OF_CYCLOTRON_PERIODS 10000
+#define LARMOR_RADIUS 0.01
+
 double test_interp1(double x, double x0, double x1, double y0, double y1) {
     return y0+(x-x0)*(y1-y0)/(x1-x0);
 }
@@ -50,6 +54,20 @@ void generate_homogeneous_field(double *X, double *local_bfield, double *local_e
     local_efield[2] = 0.0;
 }
 
+void generate_grad_B_field(double *X, double *local_bfield, double *local_efield,
+                           TaigaCommons *c, bool is_electric_field_on,
+                           int *local_spline_indices,
+                           double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                           double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                           double *local_psi_n){
+    local_bfield[0] = 0.0;
+    local_bfield[1] = 0.0;
+    local_bfield[2] = 1.0 + GRAD_B_FACTOR * X[1];
+    local_efield[0] = 0.0;
+    local_efield[1] = 0.0;
+    local_efield[2] = 0.0;
+}
+
 void get_local_field(double *X, double *local_bfield, double *local_efield,
                            TaigaCommons *c, bool is_electric_field_on,
                            int *local_spline_indices,
@@ -76,6 +94,9 @@ double run_field_with_solver(double timestep, int field_type,
         case HOMOGENEOUS:
             generate_local_field = &generate_homogeneous_field;
             break;
+        case GRAD_B:
+            generate_local_field = &generate_grad_B_field;
+            break;
         default:
             printf("Error: Illegal field_type\n");
     }
@@ -97,7 +118,7 @@ double run_field_with_solver(double timestep, int field_type,
 
     get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_without_electric_field;
 
-    int maximum_extrema = 20;
+    int maximum_extrema = 2 * NUMBER_OF_CYCLOTRON_PERIODS;
 
     SolverTestExtrema t;
     t.index = 0;
@@ -105,7 +126,7 @@ double run_field_with_solver(double timestep, int field_type,
     t.counter = 1;
     t.extrema = (double*)malloc(maximum_extrema * sizeof(double));
 
-    X[4] = 4e5;
+    X[4] = eperm * LARMOR_RADIUS;
     t.extrema[0] = X[t.index];
 
     double v0 = get_speed(X);
@@ -129,5 +150,10 @@ void test_solver() {
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_rkn), 1e-5, "4th order Runge--Kutta--Nystrom");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet based Boris-SDC (BGSDC)");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_yoshida), 1e-5, "Yoshida based Boris-SDC");
+    double reference_grad_B_drift = -GRAD_B_FACTOR * PI * LARMOR_RADIUS * LARMOR_RADIUS * NUMBER_OF_CYCLOTRON_PERIODS;
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_rk4), 1e-4, "4th order linearised Runge--Kutta (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_rkn), 1e-4, "4th order linearised Runge--Kutta--Nystrom (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_verlet), 1e-4, "velocity-Verlet based Boris-SDC (BGSDC) (grad B)");
+    //TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_yoshida), 1e-4, "Yoshida based Boris-SDC (BGSDC) (grad B)");
     TAIGA_ASSERT_SUMMARY();
 }
