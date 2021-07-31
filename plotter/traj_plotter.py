@@ -76,7 +76,7 @@ psiBoundary = hdf5PsiBoundary[hdf5Index]
 boundaryR = hdf5BoundaryR[hdf5Index,:]
 boundaryZ = hdf5BoundaryZ[hdf5Index,:]
 
-PSI = psi2/psiAxis
+PSI = numpy.transpose(psi2)/psiAxis
 
 R, Z =  numpy.meshgrid(rcord, zcord)
 

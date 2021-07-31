@@ -3,10 +3,9 @@
 function cdb_reader(varargin)
     startclean
     add_csapi_if_its_not_installed
-    
+
     in.tokamak = 'compass';
-    in.majorradius = 0.56;
-    
+
     in.plot = true;
     in.renate = true;
     in.folder = '../input/cdb';
@@ -14,9 +13,8 @@ function cdb_reader(varargin)
     out.folder.grid = '../input/fieldGrid/';
     out.folder.spline = '../input/fieldSpl/';
     out.folder.plot = '../results/';
-    
-    %% input
 
+    %% input
     if nargin == 0
         in.shotNumber = '11774';
         in.time = 1099;
@@ -27,27 +25,26 @@ function cdb_reader(varargin)
         in.shotNumber = varargin{1};
         in.time = varargin{2};
     end
-    
+
     if (nargin >=4 && ~isempty( varargin{4}) )
         in.make_field.e.loaded = varargin{3};
         in.make_field.e.equation = varargin{4};
     else
         in.make_field.e.loaded = 0;
     end
-    
+
     if (strcmp(in.shotNumber,'test') && nargin >=5 && ~isempty( varargin{5}) )
         in.make_field.b.equation = varargin{5};
         in.make_field.b.loaded = 1;
     else
         in.make_field.b.loaded = 0;
     end
-    
+
     %% start
-    
     out = getHiddenParameters(out);
-    
-    [efit, ts] = initEmpty;
-    
+
+    efit = initEmpty;
+
     if in.make_field.b.loaded
         efit = makeMagneticGrid (in, out, efit);
     else
@@ -61,91 +58,68 @@ function cdb_reader(varargin)
         efit = readToroidalFlux(in, out, efit);
 
         efit = calcMagneticGrid (in, out, efit);
-        out = normaliseFlux(in, out, efit);
     end
-    
+
     saveMagneticGrid (in, out, efit);
     saveMagneticSpline (in, out, efit);
-    
+    savePsiProfile (in, out, efit);
+
     if in.make_field.e.loaded
         efit = makeElectricGrid (in, out, efit);
         saveElectricGrid (in, out, efit);
         saveElectricSpline (in, out, efit);
     end
-    
-    
-    if (in.renate && ~in.make_field.b.loaded)
-        ts = readThomsonData(in, out, ts);
-        
-        out.efit.z      = linspace(min(ts.z),max(ts.z),200);
-        out.efit.r      = ones(size(out.efit.z))*in.majorradius;
-        
-        %out = fitProfilesNT(ts, out);
-        
-        saveRenateFlux(in, out);
-        %saveRenateNT (in, out);
-        
-        if in.plot
-            %plotProfilesNT (in, out, ts);
-            plotNormFlux (in, out, efit);
-        end
-    end
-
 end
 
 function efit = calcMagneticGrid (in, out, efit)
-    psi_RZ = efit.polflux;
+    psi_RZ = efit.polflux';
     R_M = out.flux.r;
     Z_M = out.flux.z;
-    dx=1e-6;
-    psi_dR1 = interp2(R_M,Z_M,psi_RZ,R_M-dx/2,Z_M,'spline');
-    psi_dR2 = interp2(R_M,Z_M,psi_RZ,R_M+dx/2,Z_M,'spline');
-    psi_dZ1 = interp2(R_M,Z_M,psi_RZ,R_M,Z_M-dx/2,'spline');
-    psi_dZ2 = interp2(R_M,Z_M,psi_RZ,R_M,Z_M+dx/2,'spline');
+    dx = 1e-6;
+    psi_dR1 = interp2(R_M,Z_M, psi_RZ, R_M-dx/2,Z_M, 'spline');
+    psi_dR2 = interp2(R_M,Z_M, psi_RZ, R_M+dx/2,Z_M, 'spline');
+    psi_dZ1 = interp2(R_M,Z_M, psi_RZ, R_M,Z_M-dx/2, 'spline');
+    psi_dZ2 = interp2(R_M,Z_M, psi_RZ, R_M,Z_M+dx/2, 'spline');
 
     psi_dR = (psi_dR2-psi_dR1)/dx;
     psi_dZ = (psi_dZ2-psi_dZ1)/dx;
 
-    brad = -psi_dZ./R_M;%*pi;
-    bz   =  psi_dR./R_M;%*pi;
+    brad = -psi_dZ./R_M;
+    bz   =  psi_dR./R_M;
     efit.brad = brad';
     efit.bz = bz';
 end
 
 function efit = makeMagneticGrid (in, out, efit)
-
     e = lower(in.make_field.b.equation);
     e = regexprep(e,'*','.*');
     e = regexprep(e,'/','./');
     e = regexprep(e,'\^','.\^');
-    
+
     s = [50,50];
     efit.r = linspace(0.5,1.5,s(1));
     efit.z = linspace(-0.5,0.5,s(2));
     efit.polflux = 'test';
     r = efit.r;
     z = efit.z;
-    
+
     brad = zeros(s);
     bz = zeros(s);
     btor = zeros(s);
-    
+
     try
         disp([e,';'])
         eval([e,';'])
     catch
         disp(['ERROR: magnetic_field_value is invalid (',in.make_field.b.equation,')'])
-        %keyboard
     end
-    
+
     efit.brad = brad .* ones(s); efit.brad = efit.brad';
     efit.bz   = bz   .* ones(s); efit.bz   = efit.bz';
     efit.btor = btor .* ones(s); efit.btor = efit.btor';
-    
 end
 
 function efit = makeElectricGrid (in, out, efit)
-
     e = lower(in.make_field.e.equation);
     e = regexprep(e,'*','.*');
     e = regexprep(e,'/','./');
@@ -154,11 +128,11 @@ function efit = makeElectricGrid (in, out, efit)
     r = efit.r;
     z = efit.z;
     s = size(efit.brad);
-    
+
     erad=zeros(s);
     ez=zeros(s);
     etor=zeros(s);
-    
+
     try
         disp([e,';'])
         eval([e,';'])
@@ -166,16 +140,15 @@ function efit = makeElectricGrid (in, out, efit)
         disp(['ERROR: electric_field_value is invalid (',in.make_field.e.equation,')'])
         %keyboard
     end
-    
+
     efit.erad = erad .* ones(s); efit.erad = efit.erad';
     efit.ez   = ez   .* ones(s); efit.ez   = efit.ez';
     efit.etor = etor .* ones(s); efit.etor = efit.etor';
-    
 end
 
 function saveMagneticGrid (in, out, efit) 
-    complist = {'r',    'z',    'brad','bz','btor','polflux'};
-    filelist = {'rcord','zcord','brad','bz','btor','psi2'};
+    complist = {'r',    'z',    'brad','bz','btor','polflux', 'psi_n'};
+    filelist = {'rcord','zcord','brad','bz','btor','psi2', 'psi_n'};
     saveGrid (in, out, efit, complist, filelist);
 end
 
@@ -186,16 +159,13 @@ function saveElectricGrid (in, out, efit)
 end
 
 function saveGrid (in, out, efit, complist, filelist)
-    
     foldername = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
     mkdir(foldername)
-    
+
     for i = 1:length(complist)
         dlmwrite([foldername, filelist{i},'.dat'],efit.(complist{i}), 'precision','%.16e','delimiter','\t');
     end
-    
 end
-
 
 function savePlot (in, out, plotname)
     mkdir(out.folder.plot)
@@ -210,13 +180,17 @@ function saveMagneticSpline (in, out, efit)
     saveSplineCoeffs (in, out, efit,complist);
 end
 
+function savePsiProfile (in, out, efit)
+    complist = {'polflux', 'psi_n'};
+    saveSplineCoeffs (in, out, efit,complist);
+end
+
 function saveElectricSpline (in, out, efit)
     complist = {'erad','ez','etor'};
     saveSplineCoeffs (in, out, efit,complist);
 end
 
 function saveSplineCoeffs (in, out, efit,complist)
-    
     for i=1:length(complist)
         comp=complist{i};
         try
@@ -232,7 +206,6 @@ function saveSplineCoeffs (in, out, efit,complist)
             i23 = i21+2*sp.pieces(2);
             i24 = i21+3*sp.pieces(2);
 
-
             c = reshape(sp.coefs,size(sp.coefs,2),[]);
             b = sp.breaks{1};
             b2 = sp.breaks{2};
@@ -243,12 +216,12 @@ function saveSplineCoeffs (in, out, efit,complist)
             save([foldername,'/r.spline'],'-ascii','-tabs','-double','b')
             save([foldername,'/z.spline'],'-ascii','-tabs','-double','b2')
             disp('Spline calculated')
-            
+
             c11 = c(i11,i21);    c12 = c(i11,i22);    c13 = c(i11,i23);    c14 = c(i11,i24);
             c21 = c(i12,i21);    c22 = c(i12,i22);    c23 = c(i12,i23);    c24 = c(i12,i24);
             c31 = c(i13,i21);    c32 = c(i13,i22);    c33 = c(i13,i23);    c34 = c(i13,i24);
             c41 = c(i14,i21);    c42 = c(i14,i22);    c43 = c(i14,i23);    c44 = c(i14,i24);
-            
+
             for fi1 = 1:4
                 for fi2 = 1:4
                     save([foldername,'/',comp,'.spl',num2str(fi1),num2str(fi2)],'-ascii','-tabs','-double',['c',num2str(fi1),num2str(fi2)])
@@ -259,17 +232,8 @@ function saveSplineCoeffs (in, out, efit,complist)
         catch
             error(['Error in spline fitting: \n sizeof ',comp,': ',num2str(size(efit.(comp))),' must be ',num2str(length(efit.r)),' x ',num2str(length(efit.z))])
         end
-        %    folder_grid = ([out.folder.grid,'/', in.shotNumber,'_',num2str(in.time),'/']);
-
-        %    mkdir(out.folder.spline)
-        %    folder_spl = [out.folder.spline,'/', in.shotNumber,'_',num2str(in.time),'/'];
-        %    mkdir(folder_spl)
-
-        %    disp(['octave --eval saveMagneticSplineOctave(',comp,',',folder_grid,',',folder_spl,') '])
-        %end
     end
 end
-
 
 function out = getHiddenParameters(out)
     out.nt.zeff = 2.0;
@@ -277,113 +241,69 @@ function out = getHiddenParameters(out)
     out.nt.psi_in  = 0:.01:1.25;
 end
 
-function [efit, ts] = initEmpty
+function efit = initEmpty
     efit = '';
-    ts = '';
 end
 
 function in = readTimes(in)
-
     % EFIT
     in.source = 'efitxx';
     in.hdf5flag = '/time';
     in.index.efit=find(readDataFile(in)>=in.time/1000,1);
-    
-    % TS
-    in.source = 'ts';
-    in.hdf5flag = 'TS_record_time';
-    in.index.ts = find(readDataFile(in)>=in.time,1);
-    
 end
-
-function ts = readThomsonData(in, out, ts)
-
-    in.source = 'ts';
-    % TS density profile (from TS)
-    in.hdf5flag = 'ne';
-    ts.densityRaw = readVectorData(in);
-    in.hdf5flag = 'ne_err';
-    ts.densityRawErr = readVectorData(in);
-    
-    % TS coordinates
-    in.hdf5flag = 'TS_z_axis';
-    ts.zRaw = readDataFile(in);
-    
-    % TS temperature profile (from TS)
-    in.hdf5flag = 'Te';
-    ts.temperatureRaw = readVectorData(in);
-    in.hdf5flag = 'Te_err';
-    ts.temperatureRawErr = readVectorData(in);
-
-    %value to renate110
-    ts.densityRaw        = ts.densityRaw        / 1e19;
-    ts.densityRawErr     = ts.densityRawErr     / 1e19;
-    ts.temperatureRaw    = ts.temperatureRaw    / 1000;
-    ts.temperatureRawErr = ts.temperatureRawErr / 1000;
-
-    notnanindex       = (~isnan(ts.densityRaw));
-    ts.density        = [ts.densityRaw(notnanindex)];        % 1e19 m-3
-    ts.densityErr     = [ts.densityRawErr(notnanindex)];     % 1e19 m-3
-    ts.temperature    = [ts.temperatureRaw(notnanindex)];    % keV
-    ts.temperatureErr = [ts.temperatureRawErr(notnanindex)]; % keV
-    ts.z              = [ts.zRaw(notnanindex)];
-    ts.r              = ones(size(ts.z))*in.majorradius;
-    ts.psi            = interp2(out.flux.r,out.flux.z,out.flux.normPolFlux,ts.r,ts.z);
-end
-
 
 function efit = readToroidalFlux(in, out, efit)
     in.source = 'efitxx';
-    
+
     %B*Rgeom
     in.hdf5flag = '/output/globalParameters/bvacRgeom';
     efit.bvacrgeom = readScalarData(in);
-    
+
     in.hdf5flag = '/output/fluxFunctionProfiles/rBphi';
     rbtor = readVectorData(in);
     
     in.hdf5flag = '/output/fluxFunctionProfiles/poloidalFlux';
     polflux = readVectorData(in);
-    
-    rbtor = interp1(polflux, rbtor, efit.polflux, 'spline',rbtor(end));
+
+    in.hdf5flag = '/output/fluxFunctionProfiles/normalizedPoloidalFlux';
+    normpolflux = readDataFile(in);
+
+    psi_RZ = efit.polflux';
+    rbtor = interp1(polflux, rbtor, psi_RZ, 'spline', rbtor(end));
     btor = -rbtor./out.flux.r;
     efit.btor =  btor';
 
+    efit.psi_n = interp1(polflux, normpolflux, efit.polflux, 'spline');
 end
 
 function [efit, out] = readEfitGrid(in, out, efit)
-
     in.source = 'efitxx';
-    
+
     % EFIT major radius (R)
     in.hdf5flag = '/output/profiles2D/r';
     efit.r       = readVectorData(in);
-    
+
     % EFIT vertical position (Z)
     in.hdf5flag = '/output/profiles2D/z';
     efit.z       = readVectorData(in);
-    
+
     % size of R and Z
     efit.R_size    = length(efit.r);
     efit.Z_size    = length(efit.z);
-    
+
     % RZ meshgrid
     [out.flux.r,out.flux.z] = meshgrid(efit.r,efit.z);
-
 end
 
 function efit = readPoloidalFlux(in, out, efit)
-
     in.source = 'efitxx';
     % EFIT poloidal flux
     in.hdf5flag = '/output/profiles2D/poloidalFlux';
-    efit.polflux    = readMatrixData(in);
+    efit.polflux    = readMatrixData(in)';
     
 end
 
-
 function efit = readMagneticAxis(in, efit)
-
     in.source = 'efitxx';
     % EFIT magnetic axis
     in.hdf5flag = '/output/globalParameters/magneticAxisR';
@@ -392,9 +312,7 @@ function efit = readMagneticAxis(in, efit)
     efit.magnax.z     = readScalarData(in);
 end
 
-
 function efit = readMagneticBoundary(in, efit)
-    
     in.source = 'efitxx';
     in.hdf5flag = '/output/separatrixGeometry/boundaryClassification';
     efit.boundary     = readScalarData(in);
@@ -412,223 +330,19 @@ function efit = readMagneticBoundary(in, efit)
     efit.limiter.z     = readScalarData(in);
 end
 
-
-function out = normaliseFlux(in, out, efit)
-    
-    in.source = 'efitxx';
-    in.hdf5flag = '/output/singleFluxSurface/poloidalFlux';
-    polflux1dEFIT      = readScalarData(in);
-    
-    in.hdf5flag = '/output/singleFluxSurface/normalizedPoloidalFlux';
-    polflux1dfactorEFIT   = readScalarData(in);
-    
-    
-    polfluxMagnAx = interp2(out.flux.r,out.flux.z,efit.polflux,efit.magnax.r,efit.magnax.z);
-    
-    % Flux normalisation
-    % f(x) = (F(x) - F0)/(Fq - F0) * q
-    out.flux.normPolFlux = (efit.polflux - polfluxMagnAx) / (polflux1dEFIT - polfluxMagnAx) * polflux1dfactorEFIT;
-end
-
-
-% nt_compass_mx matrix for RENATE 1.1.0
-function saveRenateNT(in, out)
-    
-    for i = 1:length(out.nt.density)
-        nt_compass_mx(i,:) = [out.nt.psi(i), out.nt.temperature(i), out.nt.density(i), out.nt.zeff, 5.0];
-    end
-    
-    if exist(out.folder.renate) ~= 7
-        mkdir(out.folder.renate);
-    end
-    
-    filename = [out.folder.renate,'/nt_',in.tokamak,in.shotNumber,'_',int2str(in.time),'.txt'];
-    disp(['Writing density profile into ',filename]);
-    dlmwrite(filename, nt_compass_mx, 'precision','%.4E','delimiter','\t');
-end
-
-% flux_compass_mx matrix for RENATE 1.1.0
-function saveRenateFlux(in, out)
-    for i = 1:size(out.flux.r,1)*size(out.flux.r,2)
-        flux_compass_mx(i,:) = [out.flux.r(i), out.flux.z(i), out.flux.normPolFlux(i)];
-    end
-    
-    if exist(out.folder.renate) ~= 7
-        mkdir(out.folder.renate);
-    end
-    
-    filename = [out.folder.renate,'/flux_',in.tokamak,in.shotNumber,'_',int2str(in.time),'.txt'];
-    disp(['Writing density profile into ',filename]);
-    dlmwrite(filename, flux_compass_mx, 'precision','%.4E','delimiter','\t');
-end
-
-
-function ts = profileHack(ts,out)
-    density = ts.density;
-    densityErr = ts.densityErr;
-    temperature = ts.temperature;
-    temperatureErr = ts.temperatureErr;
-    psi_in = ts.psi;
-    psi_out=[];
-    Te_out=[];
-    ne_out=[];
-    l = length(out.flux.r);
-    l2=100;
-    for i = 1:l
-        psi_out=[psi_out,psi_in(i)*ones(1,l2)];
-        ne_out=[Te_out,random('norm',density(i),densityErr(i),l2)];
-        Te_out=[Te_out,random('norm',temperature(i),temperatureErr(i),l2)];
-    end
-    ts.psi=psi_out;
-    ts.temperature=Te_out;
-    ts.density=ne_out;
-
-end
-
-function out = fitProfilesNT_old(ts, out)
-    
-    try
-        ts = profileHack(ts,out);
-    catch e
-    end
-    
-    in = find(ts.psi<max(out.nt.psi_in) & ts.psi > min(out.nt.psi_in));
-    
-    try
-        out.nt.temperature = interp1(ts.psi(in), smooth(ts.psi(in), ts.temperature(in), 0.3, 'rlowess'), out.nt.psi,'linear','extrap');
-        out.nt.density     = interp1(ts.psi(in), smooth(ts.psi(in), ts.density(in), 0.3, 'rlowess'), out.nt.psi,'linear','extrap');
-        disp('  Data smoothed by Fitting Curve Toolbox.')
-    catch e
-        try
-            out.nt.temperature = interp1(ts.psi(in), smoothdata(ts.psi(in), ts.temperature(in), 0.3, 'rlowess'), out.nt.psi,'linear','extrap');
-            out.nt.density     = interp1(ts.psi(in), smoothdata(ts.psi(in), ts.density(in), 0.3, 'rlowess'), out.nt.psi,'linear','extrap');
-            disp('  Fitting Curve Toolbox is not installed, but Matlab natively supports data smooth.')
-        catch e
-            out.nt.temperature = interp1(ts.psi(in), ts.temperature(in), out.nt.psi,'linear','extrap');
-            out.nt.density     = interp1(ts.psi(in), ts.density(in), out.nt.psi,'linear','extrap');
-            disp('  WARNING: Data not smoothed! Please install Fitting Curve Toolbox! ')
-        end
-    end
-    
-    out.nt.temperature = out.nt.temperature .* (out.nt.temperature > 0);
-    
-    out.nt.density     = out.nt.density .* (out.nt.density > 0);
-end
-
-
-function out = fitProfilesNT(ts, out)
-    try
-        stefanikova_l_mode = @(a,r) a(1)*exp(-(sqrt(r)/a(2)).^a(3));
-        T_init = [800,0.69,3];
-        T_fit = nlinfit(ts.psi,ts.temperature,stefanikova_l_mode,T_init);
-        out.nt.temperature = stefanikova_l_mode(T_fit,ts.psi);
-        
-        n_init = [4e19,0.69,4.6];
-        n_fit = nlinfit(ts.psi,ts.density,stefanikova_l_mode,n_init);
-        out.nt.density = stefanikova_l_mode(n_fit,ts.psi);
-    end
-
-end
-
-function plotProfilesNT (in, out, ts);
-    l = length(out.nt.psi_in);
-
-    figure
-    hold on
-    title (['Electron density profile @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s)'])
-    plot(ts.psi,ts.density,'x')
-    plot(out.nt.psi,out.nt.density,'m')
-    plot(out.nt.psi_in,out.nt.density(1:l),'r','linewidth',2)
-    xlabel('\psi')
-    ylabel('n_e [10^{19} m^{-3}]')
-    savePlot (in, out, 'ne')
-    
-    figure
-    hold on
-    title (['Electron density profile @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s)'])
-    errorbar(ts.psi,ts.density,ts.densityErr)
-    plot(out.nt.psi,out.nt.density,'m')
-    plot(out.nt.psi_in,out.nt.density(1:l),'r','linewidth',2)
-    xlabel('\psi')
-    ylabel('n_e [10^{19} m^{-3}]')
-    ylim([0,1.1*max(ts.density)])
-    savePlot (in, out, 'ne_err')
-
-    figure
-    hold on
-    title (['Electron temperature profile @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s)'])
-    plot(ts.psi,ts.temperature,'x')
-    plot(out.nt.psi,out.nt.temperature,'m')
-    plot(out.nt.psi_in,out.nt.temperature(1:l),'r','linewidth',2)
-    xlabel('\psi')
-    ylabel('T_e [keV]')
-    savePlot (in, out, 'Te')
-    
-    figure
-    hold on
-    title (['Electron temperature profile @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s)'])
-    errorbar(ts.psi,ts.temperature,ts.temperatureErr)
-    plot(out.nt.psi,out.nt.temperature,'m')
-    plot(out.nt.psi_in,out.nt.temperature(1:l),'r','linewidth',2)
-    xlabel('\psi')
-    ylabel('T_e [keV]')
-    ylim([0,1.1*max(ts.temperature)])
-    savePlot (in, out, 'Te_err')
-
-end
-
-function plotNormFlux (in, out, efit)
-    warning('off', 'MATLAB:HandleGraphics:noJVM')
-
-    figure
-    hold on
-    title(['Normalised flux @ ', upper(in.tokamak), ' #', in.shotNumber, ' (', num2str(in.time),' s)'])
-    
-    contourStep = 0.005;
-    contourMin = 0;
-    contourMax = 1;
-    clevel = contourMin-contourStep/2:contourStep:contourMax+contourStep/2;
-    
-    contourf(out.flux.r,out.flux.z,out.flux.normPolFlux,clevel,'color','none')
-    contour(out.flux.r,out.flux.z,out.flux.normPolFlux,0:0.1:1,'k')
-    caxis(clevel([1 end])-contourStep); % fix up the color so it spans across my desired levels.
-    
-    if strcmp(efit.boundary, 'xpoint')
-        plot(efit.spx.r,efit.spx.z,'wx')
-    else
-        plot([min(efit.r),max(efit.r)],[efit.limiter.z,efit.limiter.z],'w')
-        plot([efit.limiter.r,efit.limiter.r],[min(efit.z),max(efit.z)],'w')
-        plot(efit.limiter.r,efit.limiter.z,'wo')
-    end
-    
-    
-    xlabel('R [m]')
-    ylabel('z [m]')
-    
-    colorbar
-    axis equal
-    
-    savePlot(in, out, 'psi')
-    
-end
-
 function  outputData = readScalarData(in)
     rawData = readDataFile(in);
     outputData = rawData(getTimeIndex(in));
-    % disp(['Reading ',in.hdf5flag, '\t 0d(', num2str(size(outputData)), ')'])
 end
-
 
 function  outputData = readVectorData(in)
     rawData = readDataFile(in);
     outputData = rawData(:,getTimeIndex(in));
-    % disp(['Reading ',in.hdf5flag, '\t 1d(', num2str(size(outputData)), ')'])
 end
 
 function  outputData = readMatrixData(in)
     rawData = readDataFile(in);
     outputData = rawData(:,:,getTimeIndex(in));
-    % disp(['Reading ',in.hdf5flag, '\t 2d(', num2str(size(outputData)), ')'])
 end
 
 function outputin = readDataFile(in)
@@ -636,9 +350,6 @@ function outputin = readDataFile(in)
         case 'efitxx'
             filename = [in.folder,'/',in.shotNumber,'/EFITXX/EFITXX.1.h5'];
             outputin = h5read(filename, in.hdf5flag);
-        case 'ts'
-            filename = [in.folder,'/',in.shotNumber,'/THOMSON/',in.hdf5flag,'.1.h5'];
-            outputin = h5read(filename, ['/', in.hdf5flag]);
     end
 end
 
@@ -646,13 +357,10 @@ function index = getTimeIndex(in)
     switch in.source
         case 'efitxx'
             index = in.index.efit;
-        case 'ts'
-            index = in.index.ts;
         otherwise
             disp('ERROR: Corrupt time index')
     end
 end
-
 
 function startclean
     clear all

@@ -2,6 +2,10 @@
 
 #define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
 
+#define HELP_MODE 1
+#define HELP_DEVICES 2
+#define HELP_VERSION 3
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda.h>
@@ -15,18 +19,25 @@
 #include <cuda_profiler_api.h>
 //#include "test/cuda/nvToolsExt.h"
 
-#include "taiga_constants.h"
-#include "prop.h"
+#include "utils/taiga_constants.h"
+#include "utils/prop.c"
 #include "main.cuh"
-#include "taiga_write.cu"
-#include "debug_functions.c"
-#include "basic_functions.h"
+#include "interface/save.c"
+#include "interface/feedback.c"
+#include "utils/debug_functions.c"
+#include "utils/basic_functions.h"
+#include "utils/dir_functions.c"
+#include "utils/cuda_basic_functions.cuh"
 
 #include "dataio/data_import.c"
-#include "dataio/field_import.c"
+#include "dataio/field_import.cu"
 #include "dataio/parameter_reader.c"
 
-#include "taiga_init.c"
+#include "init/beam.cu"
+#include "init/init.cu"
+#include "init/sync.cu"
+#include "init/detector.cu"
+#include "init/fast_mode.cu"
 #include "dataio/beam.h"
 #if READINPUTPROF == 1
     #include "dataio/beam_manual_profile.c"
@@ -38,17 +49,23 @@
 
 #include "dataio/data_export.c"
 
-#include "running/rk4.cu"
-#include "running/detection.cu"
-#include "running/undetected.cu"
-#include "running/cyl2tor.cu"
-#include "running/traj.cu"
-#include "running/generate_coords.cu"
-#include "running/taiga.cu"
+#include "core/maths.cu"
+#include "core/rk4.cu"
+#include "core/runge_kutta_nystrom.cu"
+#include "core/solvers.cuh"
+#include "core/verlet.cu"
+#include "core/yoshida.cu"
+#include "core/detection.cu"
+#include "core/cyl2tor.cu"
+#include "core/localise_field.cu"
+#include "core/bspline.cu"
+#include "core/traj.cu"
+#include "core/generate_coords.cu"
+#include "core/taiga.cu"
 
-#include "detector_module.cu"
-#include "running/detector_postproc.cu"
-#include "running/detector_sum.cu"
+#include "detector/module.cu"
+#include "detector/postproc.cu"
+#include "detector/sum.cu"
 
 void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, RunProp *run){
     
@@ -61,14 +78,14 @@ void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, Ru
             run->step_host = 2000;
             run->step_device = 1;
         }else if (!strcmp(input, "--help") || !strcmp(input, "-h")){
-            run->help = 1;
-        }else if (!strcmp(input, "--devices") || !strcmp(input, "-l")){   
-            run->help = 2;
+            run->help = HELP_MODE;
+        }else if (!strcmp(input, "--devices") || !strcmp(input, "-D") || !strcmp(input, "-l")){
+            run->help = HELP_DEVICES;
         }else if (!strcmp(input, "--parameter_file") || !strcmp(input, "-p")){
             input = strtok(NULL, "=");
             strcpy(run->parameter_file, input);
             printf("Parameter file: %s\n", run->parameter_file);
-        }else if (!strcmp(input, "--runnumber_file")){
+        }else if (!strcmp(input, "--runnumber_file")  || !strcmp(input, "-R")){
             strcpy(run->runnumber_file, input);
             printf("Runnumber file: %s\n", run->runnumber_file);
         }else if (!strcmp(input, "--runnumber") || !strcmp(input, "-r")){
@@ -80,26 +97,39 @@ void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, Ru
             input = strtok(NULL, "=");
             strcpy(run->ion_source_file, input);
             printf("Ion source file: %s\n", run->ion_source_file);
-        }else if (!strcmp(input, "--ion-source-coords")){
+        }else if (!strcmp(input, "--ion-source-coords") || !strcmp(input, "-S")){
             input = strtok(NULL, "=");
             strcpy(run->io_coordinate_order, input);
             printf("Order of coordinates in input file: %s\n", run->io_coordinate_order);
+        }else if (!strcmp(input, "--version") || !strcmp(input, "-v")){
+            input = strtok(NULL, "=");
+            run->help = HELP_VERSION;
+        }else{
+            printf("Warning: Undefined command line parameter: %s\n", input);
         }
     }
 }
 
-void print_help_message(){        
+void print_help_message(){
     printf("%s\n", concat("TAIGA ", TAIGA_VERSION," (r", GIT_REV, ")", NULL));
-    printf("Usage: taiga.exe [options]\nOptions:\n");
-    printf("  -d, --debug                 Print additional debug informations\n");
-    printf("  -f, --fulltrace             Save coordinates at every timestep\n");
-    printf("  -h, --help                  Help message\n");
-    printf("  -l, --devices               List GPU devices\n");
-    printf("  -p, --parameter_file=PATH   Parameter file path\n");
-    printf("      --runnumber_file=PATH   Runnumber file path\n");
-    printf("  -r  --runnumber=INTEGER     Runnumber value\n");
-    printf("  -s, --ion-source=PATH       Ion source path\n");
-    printf("      --ion-source-coords=XXX Order of coordinates (RZT or RTZ) in input file\n");
+    printf("Usage: taiga.exe [OPTION]\nOptions:\n");
+    printf("  -d,      --debug                 Print additional debug informations\n");
+    printf("  -D, -l,  --devices               List GPU devices\n");
+    printf("  -f,      --fulltrace             Save coordinates at every timestep\n");
+    printf("  -h,      --help                  Help message\n");
+    printf("  -p=PATH, --parameter_file=PATH   Parameter file path\n");
+    printf("  -r=INT,  --runnumber=INTEGER     Runnumber value\n");
+    printf("  -R=PATH  --runnumber_file=PATH   Runnumber file path\n");
+    printf("  -s=PATH, --ion-source=PATH       Ion source path\n");
+    printf("  -S=XXX   --ion-source-coords=XXX Order of coordinates (RZT or RTZ) in input file\n");
+    printf("  -v       --version               Version number\n");
+}
+
+void print_version(){
+    printf("TAIGA (%s)\n\n", TAIGA_VERSION);
+    printf("Trajectory simulator of ABP Ions with GPU Acceleration\n");
+    printf("Copyright (C) 2011--2021\n\n");
+    printf("Written by Matyas Aradi\n");
 }
 
 int main(int argc, char *argv[]){
@@ -108,10 +138,12 @@ int main(int argc, char *argv[]){
     RunProp run;   init_run_prop(&run);
     input_init_taiga(argc, argv, &shot, &beam, &run);
     
-    if (run.help == 1){
+    if (run.help == HELP_MODE){
         print_help_message();
-    }else if (run.help == 2){
+    }else if (run.help == HELP_DEVICES){
         set_cuda(1);
+    }else if (run.help == HELP_VERSION){
+        print_version();
     }else{
         parameter_reader(&beam, &shot, &run);
         runnumber_reader(&shot, &run);
@@ -150,9 +182,23 @@ int main(int argc, char *argv[]){
         
         //! grid
         init_grid(shot, run, host_common, shared_common);
-        magnetic_field_read_and_init(shot, run, host_common, shared_common);
-        if (shot.is_electric_field_on) shot.is_electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
-        
+        switch (run.field_interpolation_method) {
+            case CUBIC_SPLINE:
+                magnetic_field_read_and_init(shot, run, host_common, shared_common);
+                poloidal_flux_read_and_init(shot, run, host_common, shared_common);
+                break;
+            case CUBIC_BSPLINE:
+                magnetic_field_read_and_init_with_bsplines(shot, run, host_common, shared_common);
+                poloidal_flux_read_and_init_with_bsplines(shot, run, host_common, shared_common);
+                break;
+            default:
+                printf("Invalid interpolation value\n");
+                exit(1);
+        }
+
+        if (run.is_electric_field_on) run.is_electric_field_on = electric_field_read_and_init(shot, run, host_common, shared_common);
+        if (run.is_magnetic_field_perturbation) run.is_magnetic_field_perturbation = poloidal_flux_read_and_init(shot, run, host_common, shared_common);
+
         // detector
         set_detector_geometry(shot, host_common, shared_common);
         init_detector(shared_detector, device_detector, shot);
@@ -220,7 +266,7 @@ int main(int argc, char *argv[]){
             if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global);
         }
         
-        // Get CUDA timer 
+        // Get CUDA timer
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
         if (!FASTMODE) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
@@ -231,9 +277,6 @@ int main(int argc, char *argv[]){
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
         if (!FASTMODE)  printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
         printf("===============================\n");
-        
-        //UNSOLVED: undetected <<<1,1>>>(detcellid, host_global->particle_number, device_service_array);
-        //UNSOLVED: printf("Lost particle ratio: \t %.4lf % \n\n", host_service_array[1]*100);
         
         //! MEMCOPY (device2HOST)
         cudaMemcpy(host_service_array, device_service_array, dimService, cudaMemcpyDeviceToHost);

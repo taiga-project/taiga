@@ -49,7 +49,7 @@ long read_vector(double **name, char *folder, char *shotname, char *filename, in
     return l;
 }
 
-long read_matrix_column(double **name, char *path, int coloumn_id){
+long read_matrix_column(double **name, char *path, int column_id){
     long i, j;
 
     char tmp[1000];
@@ -69,8 +69,8 @@ long read_matrix_column(double **name, char *path, int coloumn_id){
         file = fopen(path,"r");
         for (i=0; (fgets(tmp, sizeof tmp, file) != NULL); NULL){
             token = strtok( tmp, " " );
-            for(j = 0; j<coloumn_id && token != NULL; ++j){
-                if (j == coloumn_id-1){
+            for(j = 0; j<column_id && token != NULL; ++j){
+                if (j == column_id-1){
                     value = atof(token);
                     if (value || (token[0]=='0') || (strncmp(token,"-0",2) == 0) ){
                         tname[i] = value;
