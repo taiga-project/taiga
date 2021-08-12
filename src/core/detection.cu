@@ -1,6 +1,6 @@
 #include "maths.cuh"
 
-__device__ int calculate_detection_position(double *X, double *X_prev, double *detector_geometry){
+__device__ int calculate_detection_position(double *X, double *X_prev, double *detector_geometry, double timestep){
     double detector_R   = detector_geometry[0];
     double detector_Z   = detector_geometry[1];
     double detector_T   = detector_geometry[2];
@@ -19,13 +19,10 @@ __device__ int calculate_detection_position(double *X, double *X_prev, double *d
         (X_prev[2]-detector_T)*sin_beta;
     
     if((detector_distance*detector_distance_prev<=0) && (X[3]>0)){
-        double X_new[6];
-        double detector_distance_rate = -detector_distance_prev/(detector_distance-detector_distance_prev);
-        
         for (int i=0; i<6; ++i) X[i] = interpolate(X_prev[i], X[i], 0, detector_distance_prev, detector_distance);
-        
+        X[TIME_OF_FLIGHT_ID] += interpolate(0, 1, 0, detector_distance_prev, detector_distance) * timestep;
         return CALCULATION_FINISHED;
     }
-    
+    X[TIME_OF_FLIGHT_ID] += timestep;
     return CALCULATION_NOT_FINISHED;
 }

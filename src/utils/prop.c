@@ -5,7 +5,7 @@ void init_beam_prop(BeamProp *beam){
     beam->mass =  7.016004558;
     beam->toroidal_deflection = 0;
     beam->vertical_deflection = 0;
-    beam->deflection_coordinate = 2.3;
+    beam->deflection_radial_coordinate = 2.3;
 }
 
 void init_shot_prop(ShotProp *shot){

@@ -8,11 +8,10 @@ __device__ void (*solve_diffeq)(double *X, double eperm, double timestep,
                                 double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                 double *local_psi_n);
 
-__device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid){
+__device__ int calculate_trajectory(TaigaCommons *c, double X[X_SIZE], int detcellid){
     int local_spline_indices[2];
     local_spline_indices[0] = SPLINE_INDEX_ERROR;
     local_spline_indices[1] = SPLINE_INDEX_ERROR;
-
     double local_spline_brad[16];
     double local_spline_bz[16];
     double local_spline_btor[16];
@@ -26,7 +25,7 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     bool is_electric_field_on = c->is_electric_field_on;
     long max_step_number = c->max_step_number;
 
-    double X_prev[6];
+    double X_prev[X_SIZE];
     int i, step_counter;
 
     switch(c->solver){
@@ -65,7 +64,7 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
     }
 
     for (step_counter=0; (step_counter < max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++step_counter){
-        for(i=0; i<6; ++i)  X_prev[i] = X[i];
+        for(i=0; i<X_SIZE; ++i)  X_prev[i] = X[i];
 
         (*solve_diffeq)(X, eperm, timestep,
                         c, is_electric_field_on,
@@ -74,7 +73,7 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[6], int detcellid)
                         local_spline_erad, local_spline_ez, local_spline_etor,
                         local_psi_n);
 
-        detcellid = calculate_detection_position(X, X_prev, c->detector_geometry);
+        detcellid = calculate_detection_position(X, X_prev, c->detector_geometry, timestep);
     }
 
     return detcellid;

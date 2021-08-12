@@ -12,6 +12,8 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
     double* shared_vrad;
     double* shared_vz;
     double* shared_vtor;
+    double* shared_intensity;
+    double* shared_time_of_flight;
     int* shared_detcellid;
 
     if (!FASTMODE){
@@ -21,11 +23,15 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
         g_host->vrad = (double*)malloc(size_coord);
         g_host->vz   = (double*)malloc(size_coord);
         g_host->vtor = (double*)malloc(size_coord);
+        g_host->intensity = (double*)malloc(size_coord);
+        g_host->time_of_flight = (double*)malloc(size_coord);
         g_host->detcellid = (int*)malloc(size_detcellid);
         load_beam(g_host, beam, shot, run);
 
         for (int i=0; i<run->block_size * run->block_number; ++i){
             g_host->detcellid[i] = CALCULATION_NOT_FINISHED;
+            g_host->intensity[i] = 1.0;
+            g_host->time_of_flight[i] = (g_host->rad[i] - beam->deflection_radial_coordinate) / g_host->vrad[i];
         }
 
         memcpy(g_shared, g_host, size_globals);
@@ -37,6 +43,8 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
     cudaMalloc((void **) &shared_vrad, size_coord);
     cudaMalloc((void **) &shared_vz,   size_coord);
     cudaMalloc((void **) &shared_vtor, size_coord);
+    cudaMalloc((void **) &shared_intensity, size_coord);
+    cudaMalloc((void **) &shared_time_of_flight, size_coord);
     cudaMalloc((void **) &shared_detcellid, size_detcellid);
 
     if (!FASTMODE){
@@ -46,6 +54,8 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
         cudaMemcpy(shared_vrad,      g_host->vrad,      size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_vz,        g_host->vz,        size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_vtor,      g_host->vtor,      size_coord,  cudaMemcpyHostToDevice);
+        cudaMemcpy(shared_intensity, g_host->intensity, size_coord, cudaMemcpyHostToDevice);
+        cudaMemcpy(shared_time_of_flight, g_host->time_of_flight, size_coord, cudaMemcpyHostToDevice);
         cudaMemcpy(shared_detcellid, g_host->detcellid, size_detcellid, cudaMemcpyHostToDevice);
     }
 
@@ -55,6 +65,8 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
     g_shared->vrad = shared_vrad;
     g_shared->vz   = shared_vz;
     g_shared->vtor = shared_vtor;
+    g_shared->intensity = shared_intensity;
+    g_shared->time_of_flight = shared_time_of_flight;
     g_shared->detcellid = shared_detcellid;
 }
 
