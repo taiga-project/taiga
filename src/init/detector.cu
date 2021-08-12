@@ -3,7 +3,7 @@
 void init_detector(DetectorProp* shared_detector, DetectorProp *device_detector, ShotProp shot){
     double *host_detector_xgrid, *device_detector_xgrid;
     double *host_detector_ygrid, *device_detector_ygrid;
-    long *device_counter;
+    double *device_counter;
     
     shared_detector->length_xgrid = read_vector(&host_detector_xgrid, "input/detector", shot.detector_mask, "detx", false)/2;
     shared_detector->length_ygrid = read_vector(&host_detector_ygrid, "input/detector", shot.detector_mask, "dety", false)/2;
@@ -15,7 +15,7 @@ void init_detector(DetectorProp* shared_detector, DetectorProp *device_detector,
         printf("Detector postprocessor module: ON (%d x %d / %s)\n", shared_detector->length_xgrid, shared_detector->length_ygrid, shot.detector_mask);
         size_t size_detector_xgrid = 2 * shared_detector->length_xgrid * sizeof(double);
         size_t size_detector_ygrid = 2 * shared_detector->length_ygrid * sizeof(double);
-        size_t size_counter = shared_detector->number_of_detector_cells * sizeof(long);
+        size_t size_counter = shared_detector->number_of_detector_cells * sizeof(double);
         size_t size_detector = sizeof(DetectorProp);
         
         cudaMalloc((void **) &device_detector_xgrid, size_detector_xgrid);

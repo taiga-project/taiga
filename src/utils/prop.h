@@ -46,7 +46,7 @@ typedef struct DetectorProp{
     int length_xgrid;
     int length_ygrid;
     int number_of_detector_cells;
-    long* counter;
+    double* counter;
     double* xgrid;
     double* ygrid;
 }DetectorProp;
