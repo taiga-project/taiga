@@ -44,8 +44,8 @@ __global__ void generate_coords(TaigaGlobals *globals, BeamProp beam, BeamProfil
     }while ((XZ*XZ+XT*XT)>=(beam.diameter/2)*(beam.diameter/2));
     
     // deflection 
-    globals->z[idx] += tan(beam.vertical_deflection) * (beam.deflection_coordinate - XR);
-    globals->tor[idx] += tan(beam.toroidal_deflection) * (beam.deflection_coordinate - XR);
+    globals->z[idx] += tan(beam.vertical_deflection) * (beam.deflection_radial_coordinate - XR);
+    globals->tor[idx] += tan(beam.toroidal_deflection) * (beam.deflection_radial_coordinate - XR);
     
     // set velocity of particles*/
     globals->vrad[idx] = -speed*cos(beam.vertical_deflection)*cos(beam.toroidal_deflection);

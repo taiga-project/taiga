@@ -62,6 +62,7 @@
 #include "core/traj.cu"
 #include "core/generate_coords.cu"
 #include "core/taiga.cu"
+#include "core/init_beamlet.cu"
 
 #include "detector/module.cu"
 #include "detector/postproc.cu"

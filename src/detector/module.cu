@@ -5,10 +5,10 @@
 
 void export_detector(DetectorProp* shared_detector, DetectorProp *device_detector, TaigaGlobals *shared_global, ShotProp shot, RunProp run){
     if (shared_detector->detector_module_on){
-        long *host_counter;
-        size_t size_counter = shared_detector->number_of_detector_cells * sizeof(long);
+        double *host_counter;
+        size_t size_counter = shared_detector->number_of_detector_cells * sizeof(double);
         
-        host_counter = (long*)malloc(size_counter);
+        host_counter = (double*)malloc(size_counter);
         cudaMemcpy(host_counter, shared_detector->counter, size_counter, cudaMemcpyDeviceToHost);
         export_data(host_counter, shared_detector->number_of_detector_cells, run.folder_out, run.runnumber, "detector", "cellcounter.dat", shared_detector->length_xgrid);
         

@@ -5,7 +5,6 @@
 #include "utils/cuda_basic_functions.cu"
 
 void init_host(TaigaGlobals *host_global, TaigaCommons *host_common){
-    host_common->step_counter = 0;
     host_common->max_step_number = 0;
     host_common->eperm = 0;
     host_common->timestep = 0;
@@ -55,7 +54,6 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
 void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *shared_global, TaigaCommons *shared_common){
     shared_global->particle_number       = run.particle_number;
     shared_common->max_step_number       = run.step_device;
-    shared_common->step_counter          = 0;
     shared_common->eperm                 = ELEMENTARY_CHARGE / AMU / beam.mass;
     shared_common->timestep              = run.timestep;
     shared_common->solver                = run.solver;

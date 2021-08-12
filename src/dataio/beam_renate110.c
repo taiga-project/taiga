@@ -44,8 +44,8 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
         }while ((g->z[i]*g->z[i]+g->tor[i]*g->tor[i])>=(beam->diameter/2)*(beam->diameter/2));
         
         /* deflection */
-        g->z[i]   += tan(beam->vertical_deflection) * (beam->deflection_coordinate - g->rad[i]);
-        g->tor[i] += tan(beam->toroidal_deflection) * (beam->deflection_coordinate - g->rad[i]);
+        g->z[i]   += tan(beam->vertical_deflection) * (beam->deflection_radial_coordinate - g->rad[i]);
+        g->tor[i] += tan(beam->toroidal_deflection) * (beam->deflection_radial_coordinate - g->rad[i]);
         
         /* set velocity of particles */
         g->vrad[i] = -speed*cos(beam->vertical_deflection)*cos(beam->toroidal_deflection);

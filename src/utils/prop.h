@@ -1,30 +1,6 @@
 #ifndef PROP_H
 #define PROP_H
 
-typedef struct TaigaGlobals{
-    double *rad, *z, *tor, *vrad, *vz, *vtor;
-    int *detcellid;
-    long particle_number;
-}TaigaGlobals;
-
-typedef struct TaigaCommons{
-    long max_step_number;        // N_step
-    long step_counter;
-    double eperm;
-    double timestep;
-    int solver;
-    int field_interpolation_method;
-    int *grid_size;
-    double *spline_rgrid;
-    double *spline_zgrid;
-    double **brad, **bz, **btor;
-    bool is_electric_field_on;
-    double **erad, **ez, **etor;
-    bool is_magnetic_field_perturbation;
-    double **psi_n;
-    double *detector_geometry;
-}TaigaCommons;
-
 typedef struct BeamProp{
     char matter[STRING_LENGTH];
     double mass;                // in amu
@@ -32,7 +8,7 @@ typedef struct BeamProp{
     double diameter;            // in meter
     double toroidal_deflection; // in radian
     double vertical_deflection; // in radian
-    double deflection_coordinate;// radial position of deflection plates in meter
+    double deflection_radial_coordinate;// radial position of deflection plates in meter
 }BeamProp;
 
 typedef struct ShotProp{
@@ -70,7 +46,7 @@ typedef struct DetectorProp{
     int length_xgrid;
     int length_ygrid;
     int number_of_detector_cells;
-    long* counter;
+    double* counter;
     double* xgrid;
     double* ygrid;
 }DetectorProp;
@@ -83,5 +59,30 @@ typedef struct BeamProfile{
     double *cross_grid;
     double *cross_profile;
 }BeamProfile;
+
+typedef struct TaigaGlobals{
+    double *rad, *z, *tor, *vrad, *vz, *vtor;
+    int *detcellid;
+    double *intensity;
+    double *time_of_flight;
+    long particle_number;
+}TaigaGlobals;
+
+typedef struct TaigaCommons{
+    long max_step_number;        // N_step
+    double eperm;
+    double timestep;
+    int solver;
+    int field_interpolation_method;
+    int *grid_size;
+    double *spline_rgrid;
+    double *spline_zgrid;
+    double **brad, **bz, **btor;
+    bool is_electric_field_on;
+    double **erad, **ez, **etor;
+    bool is_magnetic_field_perturbation;
+    double **psi_n;
+    double *detector_geometry;
+}TaigaCommons;
 
 #endif
