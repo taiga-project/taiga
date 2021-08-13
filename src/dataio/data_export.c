@@ -46,7 +46,7 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *sub
 }
 
 void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename){
-    export_data(dat, Ndat, folder, runnumber, "", filename, INFINITY);
+    export_data(dat, Ndat, folder, runnumber, "", filename, INFINITY_INTEGER);
 }
 
 void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
@@ -54,7 +54,7 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *fil
 }
 
 void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename){
-    export_data(dat, Ndat, folder, runnumber, subdir, filename, INFINITY);
+    export_data(dat, Ndat, folder, runnumber, subdir, filename, INFINITY_INTEGER);
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
@@ -78,7 +78,7 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename){
-    export_data(dat, Ndat, folder, runnumber, "", filename, INFINITY);
+    export_data(dat, Ndat, folder, runnumber, "", filename, INFINITY_INTEGER);
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
@@ -86,7 +86,7 @@ void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *filena
 }
 
 void export_data(int *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename){
-    export_data(dat, Ndat, folder, runnumber, subdir, filename, INFINITY);
+    export_data(dat, Ndat, folder, runnumber, subdir, filename, INFINITY_INTEGER);
 }
 
 void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename, int dat_per_line){
@@ -110,7 +110,7 @@ void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *subdi
 }
 
 void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *filename){
-    export_data(dat, Ndat, folder, runnumber, "", filename, INFINITY);
+    export_data(dat, Ndat, folder, runnumber, "", filename, INFINITY_INTEGER);
 }
 
 void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *filename, int dat_per_line){
@@ -118,7 +118,7 @@ void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *filen
 }
 
 void export_data(long *dat, int Ndat, char *folder, char *runnumber, char *subdir, char *filename){
-    export_data(dat, Ndat, folder, runnumber, subdir, filename, INFINITY);
+    export_data(dat, Ndat, folder, runnumber, subdir, filename, INFINITY_INTEGER);
 }
 
 void export_header(char *dataname, char *unitname, double dat, char *folder, char *runnumber){

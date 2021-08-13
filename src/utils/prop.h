@@ -9,6 +9,7 @@ typedef struct BeamProp{
     double toroidal_deflection; // in radian
     double vertical_deflection; // in radian
     double deflection_radial_coordinate;// radial position of deflection plates in meter
+    double ionisation_energy;   // in electronvolts
 }BeamProp;
 
 typedef struct ShotProp{
@@ -85,6 +86,7 @@ typedef struct TaigaCommons{
     double *detector_geometry;
     double *ts_psi, *ts_temperature, *ts_density;
     long ts_length;
+    double ionisation_energy;
 }TaigaCommons;
 
 #endif

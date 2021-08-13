@@ -55,6 +55,7 @@ void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals
     shared_global->particle_number       = run.particle_number;
     shared_common->max_step_number       = run.step_device;
     shared_common->eperm                 = ELEMENTARY_CHARGE / AMU / beam.mass;
+    shared_common->ionisation_energy     = beam.ionisation_energy;
     shared_common->timestep              = run.timestep;
     shared_common->solver                = run.solver;
     shared_common->field_interpolation_method = run.field_interpolation_method;
