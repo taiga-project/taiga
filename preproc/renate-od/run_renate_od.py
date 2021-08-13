@@ -7,8 +7,8 @@ from load_ts_profile import *
 
 def get_param():
     xml_content = '<xml lang="en"><head><id>taiga beamlet</id></head><body>' \
-                  '<beamlet_energy unit = "keV">40</beamlet_energy>' \
-                  '<beamlet_species unit = "">Na</beamlet_species>' \
+                  '<beamlet_energy unit = "keV">80</beamlet_energy>' \
+                  '<beamlet_species unit = "">Li</beamlet_species>' \
                   '<beamlet_current unit = "A">0.001</beamlet_current>' \
                   '</body></xml>'
     xml_root = lxml.etree.XML(xml_content)
@@ -71,7 +71,12 @@ def calculate_beamlet(beamlet_geometry, shot_number, time):
 
 
 def export_beamlet_profile(export_directory='data/output/matyi'):
-    radial_coordinate, ionisation_degree, attenuation_degree = calculate_beamlet()
+    shot_number = '17178'
+    time = '1097'
+    z = 0
+    tor = 0
+    beamlet_geometry = set_beamlet(z, tor)
+    radial_coordinate, ionisation_degree, attenuation_degree = calculate_beamlet(beamlet_geometry, shot_number, time)
     radial_coordinate.to_csv(export_directory+'/rad.dat', index=False, header=False)
     attenuation_degree.to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
     plot_ionisation_profile(radial_coordinate, ionisation_degree)
@@ -108,5 +113,5 @@ def mock_beam(diameter=5e-3, z_length=3, tor_length=3):
 
 
 if __name__ == "__main__":
-    # export_beamlet_profile()
-    mock_beam()
+     export_beamlet_profile()
+    #mock_beam()
