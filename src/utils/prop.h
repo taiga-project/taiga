@@ -83,6 +83,8 @@ typedef struct TaigaCommons{
     bool is_magnetic_field_perturbation;
     double **psi_n;
     double *detector_geometry;
+    double *ts_psi, *ts_temperature, *ts_density;
+    long ts_length;
 }TaigaCommons;
 
 #endif
