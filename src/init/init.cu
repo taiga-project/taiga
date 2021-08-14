@@ -8,8 +8,10 @@ void init_host(TaigaGlobals *host_global, TaigaCommons *host_common){
     host_common->max_step_number = 0;
     host_common->eperm = 0;
     host_common->timestep = 0;
+    host_common->ionisation_energy = INFINITY;
     host_common->is_electric_field_on = false;
     host_common->is_magnetic_field_perturbation = false;
+    host_common->is_ionisation_on = false;
     host_global->particle_number = 0;
 }
 

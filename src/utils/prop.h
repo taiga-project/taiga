@@ -33,6 +33,7 @@ typedef struct RunProp{
     int field_interpolation_method;
     bool is_electric_field_on;
     bool is_magnetic_field_perturbation;
+    bool is_ionisation_on;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
     char runnumber[STRING_LENGTH];
     char parameter_file[STRING_LENGTH];
@@ -87,6 +88,7 @@ typedef struct TaigaCommons{
     double *ts_psi, *ts_temperature, *ts_density;
     long ts_length;
     double ionisation_energy;
+    bool is_ionisation_on;
 }TaigaCommons;
 
 #endif

@@ -45,6 +45,7 @@ void set_taiga_parameter(char* par_name, char* par_value, BeamProp *beam, ShotPr
     else if (!strcmp(par_name, "field_interpolation_method")){
         set_field_interpolation_method(run, clean_string(par_value));
     }
+    else if (!strcmp(par_name, "secondary_ionisation"))     run->is_ionisation_on = (bool)par_value_d;
     else if (!strcmp(par_name, "electric_field_value") || !strcmp(par_name, "matlab"))
         ;
     else{

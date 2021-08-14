@@ -29,6 +29,7 @@ void init_run_prop(RunProp *run){
     run->field_interpolation_method = CUBIC_SPLINE;
     run->is_electric_field_on = false;
     run->is_magnetic_field_perturbation = false;
+    run->is_ionisation_on = false;
     run->cpu_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_core = UNDEFINED_FLOAT;
