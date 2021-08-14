@@ -3,7 +3,7 @@
 #include <cuda.h>
 
 #include "utils/taiga_constants.h"
-#include "utils/prop.h"
+#include "utils/prop.c"
 #include "utils/basic_functions.h"
 #include "dataio/data_import.c"
 #include "dataio/field_import.cu"
@@ -17,12 +17,6 @@
 
 
 #define GRID_RES 33
-
-__device__ double (*calculate_local_field)(TaigaCommons *c, const int *local_spline_indices,
-                                           const double *local_spline, double dr, double dz);
-
-__device__ double (*get_dr)(TaigaCommons *c, const int *local_spline_indices, double R);
-__device__ double (*get_dz)(TaigaCommons *c, const int *local_spline_indices, double Z);
 
 __global__ void calculate_field_grid(TaigaCommons *c, double *R, double *Z, double *field, double *psi_n){
 
