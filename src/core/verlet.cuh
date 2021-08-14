@@ -8,5 +8,5 @@ __device__ void solve_diffeq_by_verlet(double *X, double eperm, double timestep,
                                        int *local_spline_indices,
                                        double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                        double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                       double *local_psi_n);
+                                       double *local_spline_psi_n);
 #endif //VERLET_CUH

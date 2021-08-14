@@ -7,7 +7,7 @@ __device__ void solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                                     int *local_spline_indices,
                                     double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                    double *local_psi_n){
+                                    double *local_spline_psi_n){
 
     double K1[3], K2[3], K3[3], K4[3];
     double B[3], E[3];
@@ -20,7 +20,7 @@ __device__ void solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     (*get_acceleration_from_lorentz_force)(K1, &X[3], B, E, eperm);
 
     //K2
@@ -32,7 +32,7 @@ __device__ void solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     (*get_acceleration_from_lorentz_force)(K2, v, B, E, eperm);
 
     //K3
@@ -43,7 +43,7 @@ __device__ void solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     (*get_acceleration_from_lorentz_force)(K3, v, B, E, eperm);
 
     //K4
@@ -55,7 +55,7 @@ __device__ void solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     (*get_acceleration_from_lorentz_force)(K4, v, B, E, eperm);
 
     // end
