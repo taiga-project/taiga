@@ -86,7 +86,7 @@ typedef struct TaigaCommons{
     double **psi_n;
     double *detector_geometry;
     double *ts_psi, *ts_temperature, *ts_density;
-    long ts_length;
+    int ts_length;
     double ionisation_energy;
     bool is_ionisation_on;
 }TaigaCommons;
