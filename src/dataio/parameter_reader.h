@@ -9,5 +9,6 @@ void set_solver(RunProp *run, char* solver);
 void set_field_interpolation_method(RunProp *run, char* method);
 double get_mass(char *name_of_ion);
 double get_ionisation_energy(char *name_of_ion);
+double get_charge(char *name_of_ion);
 
 #endif //PARAMETER_READER_H

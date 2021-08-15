@@ -3,6 +3,7 @@
 
 typedef struct BeamProp{
     char matter[STRING_LENGTH];
+    double charge;              // in Z
     double mass;                // in amu
     double energy;              // in keV
     double diameter;            // in meter
