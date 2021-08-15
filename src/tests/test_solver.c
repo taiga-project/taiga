@@ -68,12 +68,12 @@ void generate_grad_B_field(double *X, double *local_bfield, double *local_efield
     local_efield[2] = 0.0;
 }
 
-void get_local_field(double *X, double *local_bfield, double *local_efield,
-                           TaigaCommons *c, bool is_electric_field_on,
-                           int *local_spline_indices,
-                           double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                           double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                           double *local_psi_n){
+double get_local_field(double *X, double *local_bfield, double *local_efield,
+                       TaigaCommons *c, bool is_electric_field_on,
+                       int *local_spline_indices,
+                       double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                       double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                       double *local_psi_n){
     generate_local_field(X, local_bfield, local_efield,
                          c, is_electric_field_on,
                          local_spline_indices,
@@ -83,7 +83,7 @@ void get_local_field(double *X, double *local_bfield, double *local_efield,
 }
 
 double run_field_with_solver(double timestep, int field_type,
-                             void (*solve_diffeq)(double *X, double eperm, double timestep,
+                             double (*solve_diffeq)(double *X, double eperm, double timestep,
                                                   TaigaCommons *c, bool is_electric_field_on,
                                                   int *local_spline_indices,
                                                   double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,

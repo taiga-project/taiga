@@ -18,18 +18,19 @@ __device__ void calculate_runge_kutta_coeff(double *X,
     }
 }
 
-__device__ void solve_diffeq_by_rk4(double *X, double eperm, double timestep,
+__device__ double solve_diffeq_by_rk4(double *X, double eperm, double timestep,
                                     TaigaCommons *c, bool is_electric_field_on,
                                     int *local_spline_indices,
                                     double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                    double *local_psi_n){
+                                    double *local_spline_psi_n){
     double B[3], E[3];
-    get_local_field(X, B, E, c, is_electric_field_on,
-                    local_spline_indices,
-                    local_spline_brad, local_spline_bz, local_spline_btor,
-                    local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+    double local_psi_n;
+    local_psi_n = get_local_field(X, B, E, c, is_electric_field_on,
+                                  local_spline_indices,
+                                  local_spline_brad, local_spline_bz, local_spline_btor,
+                                  local_spline_erad, local_spline_ez, local_spline_etor,
+                                  local_spline_psi_n);
 
     double S1[6], S2[6], S3[6], S4[6];
     
@@ -42,4 +43,6 @@ __device__ void solve_diffeq_by_rk4(double *X, double eperm, double timestep,
     for(i=0; i<6; ++i){
         X[i] += (S1[i] + 2*S2[i] + 2*S3[i] + S4[i])/6;
     }
+
+    return local_psi_n;
 }

@@ -38,6 +38,8 @@
 #include "init/sync.cu"
 #include "init/detector.cu"
 #include "init/fast_mode.cu"
+#include "init/thomson.cu"
+
 #include "dataio/beam.h"
 #if READINPUTPROF == 1
     #include "dataio/beam_manual_profile.c"
@@ -63,6 +65,7 @@
 #include "core/generate_coords.cu"
 #include "core/taiga.cu"
 #include "core/init_beamlet.cu"
+#include "core/ionisation.cu"
 
 #include "detector/module.cu"
 #include "detector/postproc.cu"
@@ -236,7 +239,9 @@ int main(int argc, char *argv[]){
         if (run.debug == 1 && !FASTMODE)   debug_message_init(host_global);
         
         size_t dimX = host_global->particle_number*sizeof(double);
-        
+
+        set_thomson_profiles(shot, host_common, shared_common);
+
         init_device_structs(beam, shot, run, shared_global, shared_common);
         sync_device_structs(device_global, shared_global, device_common, shared_common);
         if (FASTMODE)   init_fastmode(beam, shot, run, device_global);

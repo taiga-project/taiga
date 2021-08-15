@@ -3,12 +3,14 @@
 
 typedef struct BeamProp{
     char matter[STRING_LENGTH];
+    double charge;              // in Z
     double mass;                // in amu
     double energy;              // in keV
     double diameter;            // in meter
     double toroidal_deflection; // in radian
     double vertical_deflection; // in radian
     double deflection_radial_coordinate;// radial position of deflection plates in meter
+    double ionisation_energy;   // in electronvolts
 }BeamProp;
 
 typedef struct ShotProp{
@@ -32,6 +34,7 @@ typedef struct RunProp{
     int field_interpolation_method;
     bool is_electric_field_on;
     bool is_magnetic_field_perturbation;
+    bool is_ionisation_on;
     double cpu_time_copy, cuda_time_copy, cuda_time_core;
     char runnumber[STRING_LENGTH];
     char parameter_file[STRING_LENGTH];
@@ -83,6 +86,10 @@ typedef struct TaigaCommons{
     bool is_magnetic_field_perturbation;
     double **psi_n;
     double *detector_geometry;
+    double *ts_psi, *ts_temperature, *ts_density;
+    int ts_length;
+    double ionisation_energy;
+    bool is_ionisation_on;
 }TaigaCommons;
 
 #endif

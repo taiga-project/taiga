@@ -2,9 +2,10 @@
 
 void init_beam_prop(BeamProp *beam){
     strcpy(beam->matter, "Li");
-    beam->mass =  7.016004558;
-    beam->toroidal_deflection = 0;
-    beam->vertical_deflection = 0;
+    beam->charge = 1.0;
+    beam->mass = 7.016004558;
+    beam->toroidal_deflection = 0.0;
+    beam->vertical_deflection = 0.0;
     beam->deflection_radial_coordinate = 2.3;
 }
 
@@ -29,6 +30,7 @@ void init_run_prop(RunProp *run){
     run->field_interpolation_method = CUBIC_SPLINE;
     run->is_electric_field_on = false;
     run->is_magnetic_field_perturbation = false;
+    run->is_ionisation_on = false;
     run->cpu_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_copy = UNDEFINED_FLOAT;
     run->cuda_time_core = UNDEFINED_FLOAT;

@@ -59,6 +59,7 @@ class Profiles:
         self.distance = beamlet_geometry.get_distance()
         self.density = self.thomson_profiles.density.get_value(beamlet_normalised_poloidal_flux)
         self.temperature = self.thomson_profiles.temperature.get_value(beamlet_normalised_poloidal_flux)
+        self.export_profiles()
 
     def set_data_directory(self, database_directory, shot_number):
         self.data_directory = get_home_directory() + '/' + database_directory + '/' + str(shot_number)
@@ -76,6 +77,9 @@ class Profiles:
 
     def get_temperature(self):
         return self.temperature
+
+    def export_profiles(self, path=get_home_directory() + '/input/tsProf'):
+        self.thomson_profiles.export_profiles(path)
 
 
 # pylint: disable=super-init-not-called
@@ -223,6 +227,11 @@ class ThomsonProfiles:
     def get_profile(self, field, reconstruction_id):
         return self.get_dataset(field, reconstruction_id)[self.time_index]
 
+    def export_profiles(self, path):
+        export_directory = path + '/' + self.shot_number + '_' + self.time
+        self.density.export_profile(export_directory, 'density')
+        self.temperature.export_profile(export_directory, 'temperature')
+
 
 class ProfileManager:
     def __init__(self, x, y, y_error):
@@ -288,3 +297,19 @@ class ProfileManager:
 
     def get_value(self, normalised_poloidal_flux):
         return self.f_smooth(normalised_poloidal_flux)
+
+    def export_profile(self, path, field):
+        try:
+            os.mkdir(path)
+            print('Create directory and write data to ' + path)
+        except FileExistsError:
+            print('Write data to ' + path)
+        else:
+            raise()
+        flux_file = open(path + '/flux.prof', 'w')
+        numpy.savetxt(flux_file, self.x_fine)
+        flux_file.close()
+
+        data_file = open(path + '/' + field + '.prof', 'w')
+        numpy.savetxt(data_file, self.y_fine)
+        data_file.close()

@@ -8,8 +8,10 @@ void init_host(TaigaGlobals *host_global, TaigaCommons *host_common){
     host_common->max_step_number = 0;
     host_common->eperm = 0;
     host_common->timestep = 0;
+    host_common->ionisation_energy = INFINITY;
     host_common->is_electric_field_on = false;
     host_common->is_magnetic_field_perturbation = false;
+    host_common->is_ionisation_on = false;
     host_global->particle_number = 0;
 }
 
@@ -54,10 +56,12 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
 void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *shared_global, TaigaCommons *shared_common){
     shared_global->particle_number       = run.particle_number;
     shared_common->max_step_number       = run.step_device;
-    shared_common->eperm                 = ELEMENTARY_CHARGE / AMU / beam.mass;
+    shared_common->eperm                 = beam.charge * ELEMENTARY_CHARGE / AMU / beam.mass;
     shared_common->timestep              = run.timestep;
     shared_common->solver                = run.solver;
     shared_common->field_interpolation_method = run.field_interpolation_method;
+    shared_common->is_ionisation_on      = run.is_ionisation_on;
+    shared_common->ionisation_energy     = beam.ionisation_energy;
 }
 
 void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global){

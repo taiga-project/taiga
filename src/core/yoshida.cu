@@ -16,13 +16,14 @@ __device__ void calculate_yoshida_v(double d, double *X,
     calculate_verlet_v(X, B, E, E_prev, eperm, d * timestep);
 }
 
-__device__ void solve_diffeq_by_yoshida(double *X, double eperm, double timestep,
+__device__ double solve_diffeq_by_yoshida(double *X, double eperm, double timestep,
                                         TaigaCommons *c, bool is_electric_field_on,
                                         int *local_spline_indices,
                                         double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                         double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                        double *local_psi_n){
+                                        double *local_spline_psi_n){
     double B[3], E[3], E_prev[3];
+    double local_psi_n;
     double cbrt2 = cbrt(2.0);
     double w1 = 1.0 / (2.0 - cbrt2);
     double w0 = - cbrt2 * w1;
@@ -33,42 +34,43 @@ __device__ void solve_diffeq_by_yoshida(double *X, double eperm, double timestep
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     calculate_yoshida_x(c1, X, timestep);
     get_local_field(X, B, E, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     calculate_yoshida_v(w1, X, B, E, E_prev, eperm, timestep);
     get_local_field(X, B, E_prev, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     calculate_yoshida_x(c2, X, timestep);
     get_local_field(X, B, E, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     calculate_yoshida_v(w0, X, B, E, E_prev, eperm, timestep);
     get_local_field(X, B, E_prev, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     calculate_yoshida_x(c2, X, timestep);
     get_local_field(X, B, E, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+                    local_spline_psi_n);
     calculate_yoshida_v(w1, X, B, E, E_prev, eperm, timestep);
-    get_local_field(X, B, E_prev, c, is_electric_field_on,
-                    local_spline_indices,
-                    local_spline_brad, local_spline_bz, local_spline_btor,
-                    local_spline_erad, local_spline_ez, local_spline_etor,
-                    local_psi_n);
+    local_psi_n = get_local_field(X, B, E_prev, c, is_electric_field_on,
+                                  local_spline_indices,
+                                  local_spline_brad, local_spline_bz, local_spline_btor,
+                                  local_spline_erad, local_spline_ez, local_spline_etor,
+                                  local_spline_psi_n);
     calculate_yoshida_x(c1, X, timestep);
+    return local_psi_n;
 }
