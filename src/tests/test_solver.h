@@ -41,12 +41,12 @@ void generate_grad_B_field(double *X, double *local_bfield, double *local_efield
                            double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                            double *local_psi_n);
 double run_field_with_solver(double timestep, int field_type,
-                             void (*solve_diffeq)(double *X, double eperm, double timestep,
-                                                  TaigaCommons *c, bool is_electric_field_on,
-                                                  int *local_spline_indices,
-                                                  double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                                                  double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                                  double *local_psi_n) );
+                             double (*solve_diffeq)(double *X, double eperm, double timestep,
+                                                    TaigaCommons *c, bool is_electric_field_on,
+                                                    int *local_spline_indices,
+                                                    double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                                    double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                                    double *local_psi_n) );
 
 void test_solver();
 
