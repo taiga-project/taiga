@@ -2,12 +2,8 @@
 
 #include "verlet.cuh"
 
-__device__ void calculate_yoshida_x(double c, double *X, double timestep){
-    double c_dt = c * timestep;
-    int i;
-    for (i = 0; i < 3; ++i) {
-        X[i] += c_dt * X[i + 3];
-    }
+__device__ void calculate_yoshida_x(double c, double *X, double *B, double *E,double eperm, double timestep) {
+    calculate_verlet_x(X, B, E, eperm, c * timestep);
 }
 
 __device__ void calculate_yoshida_v(double d, double *X,
@@ -35,7 +31,7 @@ __device__ double solve_diffeq_by_yoshida(double *X, double eperm, double timest
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
                     local_spline_psi_n);
-    calculate_yoshida_x(c1, X, timestep);
+    calculate_yoshida_x(c1, X, B, E, eperm, timestep);
     get_local_field(X, B, E, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
@@ -47,7 +43,7 @@ __device__ double solve_diffeq_by_yoshida(double *X, double eperm, double timest
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
                     local_spline_psi_n);
-    calculate_yoshida_x(c2, X, timestep);
+    calculate_yoshida_x(c2, X, B, E, eperm, timestep);
     get_local_field(X, B, E, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
@@ -59,7 +55,7 @@ __device__ double solve_diffeq_by_yoshida(double *X, double eperm, double timest
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
                     local_spline_psi_n);
-    calculate_yoshida_x(c2, X, timestep);
+    calculate_yoshida_x(c2, X, B, E, eperm, timestep);
     get_local_field(X, B, E, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
@@ -71,6 +67,6 @@ __device__ double solve_diffeq_by_yoshida(double *X, double eperm, double timest
                                   local_spline_brad, local_spline_bz, local_spline_btor,
                                   local_spline_erad, local_spline_ez, local_spline_etor,
                                   local_spline_psi_n);
-    calculate_yoshida_x(c1, X, timestep);
+    calculate_yoshida_x(c1, X, B, E, eperm, timestep);
     return local_psi_n;
 }
