@@ -1,6 +1,7 @@
 #include <cuda.h>
 #include "dataio/data_import.h"
 #include "utils/taiga_constants.h"
+#include "utils/physics.h"
 #include "utils/basic_functions.c"
 #include "utils/cuda_basic_functions.cu"
 
@@ -56,12 +57,12 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
 void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *shared_global, TaigaCommons *shared_common){
     shared_global->particle_number       = run.particle_number;
     shared_common->max_step_number       = run.step_device;
-    shared_common->eperm                 = beam.charge * ELEMENTARY_CHARGE / AMU / beam.mass;
+    shared_common->eperm                 = beam.charge * ELEMENTARY_CHARGE / AMU / get_mass(beam.species, beam.charge);
     shared_common->timestep              = run.timestep;
     shared_common->solver                = run.solver;
     shared_common->field_interpolation_method = run.field_interpolation_method;
     shared_common->is_ionisation_on      = run.is_ionisation_on;
-    shared_common->ionisation_energy     = beam.ionisation_energy;
+    shared_common->ionisation_energy     = get_ionisation_energy(beam.species, beam.charge);
 }
 
 void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global){

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
+#include "utils/physics.h"
 
 // set beam inline parameters
 void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
@@ -13,7 +14,7 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
     prof = (BeamProfile*)malloc(size_prof);
     init_ion_profile(shotname, prof);
     
-    speed = calculate_speed(beam->energy, beam->mass);
+    speed = calculate_speed(beam->energy, get_mass(beam->species, beam->charge));
     
     /* cross section normalisation */
     /*if (prof_size[1] > 0){

@@ -135,6 +135,7 @@ void export_header(char *dataname, char *unitname, double dat, char *folder, cha
     if ((dat < ZERO_THRESHOLD) && (dat > -ZERO_THRESHOLD)) dat = 0;
     
     //! writing to file
+    printf("+>%s:\t%lg %s\n",dataname,dat,unitname);
     fprintf(f,"%s:\t%lg %s",dataname,dat,unitname);
     fprintf(f,"\n");
     fclose(f);
@@ -156,6 +157,7 @@ void export_header(char *dataname, char *unitname, double dat, double dat2, char
     if ((dat2 < ZERO_THRESHOLD) && (dat2 > -ZERO_THRESHOLD)) dat = 0;
     
     //! writing to file
+    printf("=>%s:\t%lg %s \t%lg %s\n",dataname,dat,unitname,dat2,unitname);
     fprintf(f,"%s:\t%lg %s \t%lg %s",dataname,dat,unitname,dat2,unitname);
     fprintf(f,"\n");
     fclose(f);
@@ -174,6 +176,7 @@ void export_header(char *text, char *folder, char *runnumber){
     }
     
     //! writing to file
+    printf("->%s\n}", text);
     fprintf(f,"%s",text);
     fprintf(f,"\n");
     fclose(f);

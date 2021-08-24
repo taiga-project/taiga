@@ -28,6 +28,7 @@
 #include "utils/basic_functions.h"
 #include "utils/dir_functions.c"
 #include "utils/cuda_basic_functions.cuh"
+#include "utils/physics.c"
 
 #include "dataio/data_import.c"
 #include "dataio/field_import.cu"
@@ -305,6 +306,8 @@ int main(int argc, char *argv[]){
         
         if (!FASTMODE){
             save_endpoints(host_global, run);
+        }else{
+            printf("Warning: End-points are not saved in FASTMODE\n");
         }
         
         printf("\nData folder: %s/%s\n\n", run.folder_out, run.runnumber);

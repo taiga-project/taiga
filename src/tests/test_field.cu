@@ -3,6 +3,7 @@
 #include <cuda.h>
 
 #include "utils/taiga_constants.h"
+#include "utils/physics.c"
 #include "utils/prop.c"
 #include "utils/basic_functions.h"
 #include "dataio/data_import.c"
