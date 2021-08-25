@@ -1,4 +1,4 @@
-#include "maths.cuh"
+#include "core/maths/maths.cuh"
 
 __device__ int calculate_detection_position(double *X, double *X_prev, double *detector_geometry, double timestep){
     double detector_R   = detector_geometry[0];

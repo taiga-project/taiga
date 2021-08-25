@@ -1,4 +1,4 @@
-#include "init_beamlet.cuh"
+#include "core/init/init_beamlet.cuh"
 
 __global__ void taiga(TaigaGlobals *g, TaigaCommons *c, double *service_var){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;    // thread index

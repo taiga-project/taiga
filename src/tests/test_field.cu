@@ -11,10 +11,10 @@
 #include "interface/parameter_reader.c"
 #include "init/device/sync.cu"
 #include "init/device/init.cu"
-#include "core/cyl2tor.cu"
+#include "core/maths/cyl2tor.cu"
 #include "core/detection.cu"
 #include "core/localise_field.cu"
-#include "core/bspline.cu"
+#include "core/maths/bspline.cu"
 
 
 #define GRID_RES 33

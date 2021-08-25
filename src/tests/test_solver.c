@@ -8,12 +8,12 @@
 
 #include "utils/taiga_constants.h"
 #include "utils/prop.c"
-#include "core/maths.cu"
-#include "core/rk4.cu"
-#include "core/runge_kutta_nystrom.cu"
-#include "core/yoshida.cu"
-#include "core/verlet.cu"
-#include "core/lorentz.cu"
+#include "core/maths/maths.cu"
+#include "core/solvers/rk4.cu"
+#include "core/solvers/runge_kutta_nystrom.cu"
+#include "core/solvers/yoshida.cu"
+#include "core/solvers/verlet.cu"
+#include "core/physics/lorentz.cu"
 
 #define GRAD_B_FACTOR 0.0001
 #define NUMBER_OF_CYCLOTRON_PERIODS 100000

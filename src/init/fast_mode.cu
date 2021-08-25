@@ -1,5 +1,5 @@
 #include <cuda.h>
-#include "core/generate_coords.cuh"
+#include "core/init/generate_coords.cuh"
 #include "utils/physics.h"
 
 void init_fastmode(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *device_global){

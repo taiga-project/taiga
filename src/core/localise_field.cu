@@ -1,5 +1,5 @@
 #include "localise_field.cuh"
-#include "bspline.cuh"
+#include "core/maths/bspline.cuh"
 
 __device__ void (*get_coefficients)(TaigaCommons *c,
                                     int *local_spline_indices,

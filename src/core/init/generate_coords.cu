@@ -1,4 +1,4 @@
-#include "maths.cuh"
+#include "core/maths/maths.cuh"
 
 __global__ void generate_coords(TaigaGlobals *globals, BeamProp beam, BeamProfile *prof, double mass){
 
