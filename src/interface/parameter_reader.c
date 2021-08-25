@@ -18,12 +18,10 @@ void set_taiga_parameter(char* par_name, char* par_value, BeamProp *beam, ShotPr
     if (!strcmp(par_name, "shotnumber"))                    strcpy(shot->shotnumber, clean_string(par_value));
     else if (!strcmp(par_name, "time"))                     strcpy(shot->time, clean_string(par_value));
     else if (!strcmp(par_name, "runnumber"))                strcpy(run->runnumber, clean_string(par_value));
-    else if (!strcmp(par_name, "matter") || !strcmp(par_name, "beammatter") || !strcmp(par_name, "species")){
-        strcpy(beam->matter, clean_string(par_value));
-        beam->mass = get_mass(beam->matter);
-        beam->ionisation_energy = get_ionisation_energy(beam->matter);
-        beam->charge = get_charge(beam->matter);
+    else if (!strcmp(par_name, "species") || !strcmp(par_name, "beammatter") || !strcmp(par_name, "species")){
+        strcpy(beam->species, clean_string(par_value));
     }
+    else if (!strcmp(par_name, "charge"))                   beam->charge = par_value_lf;
     else if (!strcmp(par_name, "energy"))                   beam->energy = par_value_lf;
     else if (!strcmp(par_name, "vertical_deflection"))      beam->vertical_deflection = par_value_lf/180.0*PI;
     else if (!strcmp(par_name, "toroidal_deflection"))      beam->toroidal_deflection = par_value_lf/180.0*PI;
@@ -119,55 +117,4 @@ void set_field_interpolation_method(RunProp *run, char* method){
     }else{
         printf("Warning: Unvalid interpolation method: %s\nSet to bicubic spline [spline].", method);
     }
-}
-
-//https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl
-double get_mass(char *name_of_ion){
-    if (!strcmp(name_of_ion,"D") || !strcmp(name_of_ion,"H2")){
-        return 2.0141017781212-MASS_OF_ELECTRON;
-    }else if (!strcmp(name_of_ion,"Li") || !strcmp(name_of_ion,"Li7")){
-        return 7.016003436645-MASS_OF_ELECTRON;
-    }else if (!strcmp(name_of_ion,"Na") || !strcmp(name_of_ion,"Na23")){
-        return 22.989769282019-MASS_OF_ELECTRON;
-    }else if (!strcmp(name_of_ion,"K") || !strcmp(name_of_ion,"K39")){
-        return 38.963706486449-MASS_OF_ELECTRON;
-    }else if (!strcmp(name_of_ion,"Rb") || !strcmp(name_of_ion,"Rb85")){
-        return 84.911789737954-MASS_OF_ELECTRON;
-    }else if (!strcmp(name_of_ion,"Cs") || !strcmp(name_of_ion,"Cs133")){
-        return 132.905451961080-MASS_OF_ELECTRON;
-    }else if (!strcmp(name_of_ion,"Li atom")){
-        return 7.016003436645;
-    }else{
-        try{
-            return atof(name_of_ion)-MASS_OF_ELECTRON;
-        }catch (...){
-            printf("Error: Invalid ion species: %s\n", name_of_ion);
-            exit(1);
-        }
-    }
-}
-
-//http://www-personal.umich.edu/~cowley/ionen.htm
-double get_ionisation_energy(char *name_of_ion){
-    if (!strcmp(name_of_ion,"Li") || !strcmp(name_of_ion,"Li7")){
-        return 75.64009;
-    }else if (!strcmp(name_of_ion,"Na") || !strcmp(name_of_ion,"Na23")){
-        return 47.2864;
-    }else if (!strcmp(name_of_ion,"K") || !strcmp(name_of_ion,"K39")){
-        return 31.63;
-    }else if (!strcmp(name_of_ion,"Rb") || !strcmp(name_of_ion,"Rb85")){
-        return 27.2895;
-    }else if (!strcmp(name_of_ion,"Cs") || !strcmp(name_of_ion,"Cs133")){
-        return 23.15744;
-    }else if (!strcmp(name_of_ion,"Li atom")){
-        return 5.3917;
-    }else{
-        printf("Warning: Secondary ionisation module turned off");
-        return INFINITY;
-    }
-}
-
-double get_charge(char *name_of_ion){
-    if (!strcmp(name_of_ion,"Li atom")) return 0.0;
-    return 1.0;
 }

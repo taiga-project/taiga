@@ -2,15 +2,13 @@
 #define PROP_H
 
 typedef struct BeamProp{
-    char matter[STRING_LENGTH];
+    char species[STRING_LENGTH];
     double charge;              // in Z
-    double mass;                // in amu
     double energy;              // in keV
     double diameter;            // in meter
     double toroidal_deflection; // in radian
     double vertical_deflection; // in radian
     double deflection_radial_coordinate;// radial position of deflection plates in meter
-    double ionisation_energy;   // in electronvolts
 }BeamProp;
 
 typedef struct ShotProp{

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define __device__ ;
-#include "core/bspline.cu"
+#include "core/maths/bspline.cu"
 #include "taiga_test.h"
 
 double test_bspline_scenario(double x0, double x1) {

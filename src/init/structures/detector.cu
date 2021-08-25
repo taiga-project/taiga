@@ -1,5 +1,3 @@
-#include <cuda.h>
-
 void init_detector(DetectorProp* shared_detector, DetectorProp *device_detector, ShotProp shot){
     double *host_detector_xgrid, *device_detector_xgrid;
     double *host_detector_ygrid, *device_detector_ygrid;

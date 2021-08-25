@@ -22,50 +22,51 @@
 #include "utils/taiga_constants.h"
 #include "utils/prop.c"
 #include "main.cuh"
-#include "interface/save.c"
+#include "interface/data_export/save_data.c"
 #include "interface/feedback.c"
 #include "utils/debug_functions.c"
 #include "utils/basic_functions.h"
-#include "utils/dir_functions.c"
+#include "utils/dataio/dir_functions.c"
 #include "utils/cuda_basic_functions.cuh"
+#include "utils/physics.c"
 
-#include "dataio/data_import.c"
-#include "dataio/field_import.cu"
-#include "dataio/parameter_reader.c"
+#include "utils/dataio/data_import.c"
+#include "interface/data_import/field_import.cu"
+#include "interface/parameter_reader.c"
 
-#include "init/beam.cu"
-#include "init/init.cu"
-#include "init/sync.cu"
-#include "init/detector.cu"
+#include "init/structures/beam.cu"
+#include "init/device/init.cu"
+#include "init/device/sync.cu"
+#include "init/structures/detector.cu"
 #include "init/fast_mode.cu"
 #include "init/thomson.cu"
 
-#include "dataio/beam.h"
+#include "interface/data_import/beam.h"
 #if READINPUTPROF == 1
-    #include "dataio/beam_manual_profile.c"
+    #include "interface/data_import/beam_manual_profile.c"
 #elif RENATE == 110
-    #include "dataio/beam_renate110.c"
+    #include "interface/data_import/beam_renate110.c"
 #else
     #error A valid beam module is required!
 #endif
 
-#include "dataio/data_export.c"
+#include "utils/dataio/data_export.c"
 
-#include "core/maths.cu"
-#include "core/rk4.cu"
-#include "core/runge_kutta_nystrom.cu"
-#include "core/solvers.cuh"
-#include "core/verlet.cu"
-#include "core/yoshida.cu"
+#include "core/maths/maths.cu"
+#include "core/solvers/rk4.cu"
+#include "core/solvers/runge_kutta_nystrom.cu"
+#include "core/solvers/solvers.cuh"
+#include "core/solvers/verlet.cu"
+#include "core/solvers/yoshida.cu"
 #include "core/detection.cu"
-#include "core/cyl2tor.cu"
+#include "core/maths/cyl2tor.cu"
 #include "core/localise_field.cu"
-#include "core/bspline.cu"
+#include "core/maths/bspline.cu"
 #include "core/traj.cu"
-#include "core/generate_coords.cu"
+#include "core/init/generate_coords.cu"
 #include "core/taiga.cu"
-#include "core/init_beamlet.cu"
-#include "core/ionisation.cu"
+#include "core/init/init_beamlet.cu"
+#include "core/physics/ionisation.cu"
 
 #include "detector/module.cu"
 #include "detector/postproc.cu"
@@ -305,6 +306,8 @@ int main(int argc, char *argv[]){
         
         if (!FASTMODE){
             save_endpoints(host_global, run);
+        }else{
+            printf("Warning: End-points are not saved in FASTMODE\n");
         }
         
         printf("\nData folder: %s/%s\n\n", run.folder_out, run.runnumber);

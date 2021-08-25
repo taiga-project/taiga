@@ -3,17 +3,18 @@
 #include <cuda.h>
 
 #include "utils/taiga_constants.h"
+#include "utils/physics.c"
 #include "utils/prop.c"
 #include "utils/basic_functions.h"
-#include "dataio/data_import.c"
-#include "dataio/field_import.cu"
-#include "dataio/parameter_reader.c"
-#include "init/sync.cu"
-#include "init/init.cu"
-#include "core/cyl2tor.cu"
+#include "utils/dataio/data_import.c"
+#include "interface/data_import/field_import.cu"
+#include "interface/parameter_reader.c"
+#include "init/device/sync.cu"
+#include "init/device/init.cu"
+#include "core/maths/cyl2tor.cu"
 #include "core/detection.cu"
 #include "core/localise_field.cu"
-#include "core/bspline.cu"
+#include "core/maths/bspline.cu"
 
 
 #define GRID_RES 33
