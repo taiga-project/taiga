@@ -1,4 +1,4 @@
-//#include "thomson.cuh"
+#include "thomson.cuh"
 
 void import_thomson_profiles(ShotProp shot, TaigaCommons *c) {
     c->ts_length = read_vector(&c->ts_psi, "input/tsProf", shot.name, "flux.prof");

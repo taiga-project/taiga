@@ -1,9 +1,8 @@
 #include "prop.h"
 
 void init_beam_prop(BeamProp *beam){
-    strcpy(beam->matter, "Li");
+    strcpy(beam->species, "Li");
     beam->charge = 1.0;
-    beam->mass = 7.016004558;
     beam->toroidal_deflection = 0.0;
     beam->vertical_deflection = 0.0;
     beam->deflection_radial_coordinate = 2.3;

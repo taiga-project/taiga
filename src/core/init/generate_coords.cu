@@ -1,6 +1,6 @@
-#include "maths.cuh"
+#include "core/maths/maths.cuh"
 
-__global__ void generate_coords(TaigaGlobals *globals, BeamProp beam, BeamProfile *prof){
+__global__ void generate_coords(TaigaGlobals *globals, BeamProp beam, BeamProfile *prof, double mass){
 
     // thread index
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -8,7 +8,7 @@ __global__ void generate_coords(TaigaGlobals *globals, BeamProp beam, BeamProfil
     double speed, ionisation_yeald;
     double XR, XZ, XT;
     
-    speed = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ AMU/ beam.mass);
+    speed = sqrt(2 * beam.energy*1000*ELEMENTARY_CHARGE/ AMU/ mass);
     
     // cross section normalisation 
 //    if (prof->cross_length > 0){

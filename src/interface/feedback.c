@@ -1,7 +1,7 @@
 #include "feedback.h"
 #include "utils/prop.h"
 #include "utils/basic_functions.h"
-#include "dataio/data_export.h"
+#include "utils/dataio/data_export.h"
 
 void print_run_details(TaigaGlobals *host_global, TaigaCommons *host_common, ShotProp shot, RunProp run){
     printf("===============================\n");
@@ -38,8 +38,9 @@ void fill_header_file(TaigaCommons *common, BeamProp beam, ShotProp shot, RunPro
     export_header_addline(run.folder_out, run.runnumber);
     
     if(!READINPUTPROF){
+        export_header(concat("Beam species:\t", beam.species, NULL), run.folder_out, run.runnumber);
+        export_header("Beam charge number", "", beam.charge, run.folder_out, run.runnumber);
         export_header("Beam energy", "keV", beam.energy, run.folder_out, run.runnumber);
-        export_header("Atomic mass", "AMU", beam.mass, run.folder_out, run.runnumber);
         export_header("Beam diameter", "mm", beam.diameter*1000, run.folder_out, run.runnumber);
         export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection*180.0/PI, beam.vertical_deflection*180.0/PI, run.folder_out, run.runnumber);
     }
