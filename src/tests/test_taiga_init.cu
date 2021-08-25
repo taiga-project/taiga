@@ -11,13 +11,13 @@
 #include "init/device/init.cu"
 #include "utils/dataio/data_import.c"
 #include "interface/parameter_reader.c"
-#include "dataio/beam.h"
+#include "interface/data_import/beam.h"
 #include "init/structures/beam.cu"
 
 #if READINPUTPROF == 1
-#include "dataio/beam_manual_profile.c"
+#include "interface/data_import/beam_manual_profile.c"
 #elif RENATE == 110
-#include "dataio/beam_renate110.c"
+#include "interface/data_import/beam_renate110.c"
 #else
 #error A valid beam module is required!
 #endif

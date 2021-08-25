@@ -22,7 +22,7 @@
 #include "utils/taiga_constants.h"
 #include "utils/prop.c"
 #include "main.cuh"
-#include "interface/save_data.c"
+#include "interface/data_export/save_data.c"
 #include "interface/feedback.c"
 #include "utils/debug_functions.c"
 #include "utils/basic_functions.h"
@@ -31,7 +31,7 @@
 #include "utils/physics.c"
 
 #include "utils/dataio/data_import.c"
-#include "dataio/field_import.cu"
+#include "interface/data_import/field_import.cu"
 #include "interface/parameter_reader.c"
 
 #include "init/structures/beam.cu"
@@ -41,11 +41,11 @@
 #include "init/fast_mode.cu"
 #include "init/thomson.cu"
 
-#include "dataio/beam.h"
+#include "interface/data_import/beam.h"
 #if READINPUTPROF == 1
-    #include "dataio/beam_manual_profile.c"
+    #include "interface/data_import/beam_manual_profile.c"
 #elif RENATE == 110
-    #include "dataio/beam_renate110.c"
+    #include "interface/data_import/beam_renate110.c"
 #else
     #error A valid beam module is required!
 #endif

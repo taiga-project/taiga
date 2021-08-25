@@ -1,7 +1,7 @@
 #include "save_data.h"
-#include "utils/prop.h"
-#include "utils/basic_functions.h"
-#include "utils/dataio/data_export.h"
+#include "../../utils/prop.h"
+#include "../../utils/basic_functions.h"
+#include "../../utils/dataio/data_export.h"
 
 void save_trajectories(TaigaGlobals *host_global, RunProp run){
     export_data(host_global->rad,  run.particle_number, run.folder_out, run.runnumber, "t_rad.dat");

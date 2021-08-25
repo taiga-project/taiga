@@ -7,7 +7,7 @@
 #include "utils/prop.c"
 #include "utils/basic_functions.h"
 #include "utils/dataio/data_import.c"
-#include "dataio/field_import.cu"
+#include "interface/data_import/field_import.cu"
 #include "interface/parameter_reader.c"
 #include "init/device/sync.cu"
 #include "init/device/init.cu"

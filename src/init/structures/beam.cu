@@ -1,5 +1,4 @@
-#include "../../../../../../../../../../usr/include/cuda.h"
-#include "../../dataio/beam.h"
+#include "interface/data_import/beam.h"
 
 void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_host, TaigaGlobals *g_shared) {
     size_t size_coord = run->block_size * run->block_number * sizeof(double);
