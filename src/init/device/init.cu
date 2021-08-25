@@ -1,9 +1,9 @@
-#include <cuda.h>
-#include "dataio/data_import.h"
-#include "utils/taiga_constants.h"
-#include "utils/physics.h"
-#include "utils/basic_functions.c"
-#include "utils/cuda_basic_functions.cu"
+#include "../../../../../../../../../../usr/include/cuda.h"
+#include "../../utils/dataio/data_import.h"
+#include "../../utils/taiga_constants.h"
+#include "../../utils/physics.h"
+#include "../../utils/basic_functions.c"
+#include "../../utils/cuda_basic_functions.cu"
 
 void init_host(TaigaGlobals *host_global, TaigaCommons *host_common){
     host_common->max_step_number = 0;

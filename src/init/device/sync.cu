@@ -1,4 +1,4 @@
-#include <cuda.h>
+#include "../../../../../../../../../../usr/include/cuda.h"
 
 void sync_device_structs(TaigaGlobals *g_device, TaigaGlobals *g_shared, TaigaCommons *c_device, TaigaCommons *c_shared){
     cudaMemcpy(c_device, c_shared, sizeof(TaigaCommons), cudaMemcpyHostToDevice);

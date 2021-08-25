@@ -22,22 +22,22 @@
 #include "utils/taiga_constants.h"
 #include "utils/prop.c"
 #include "main.cuh"
-#include "interface/save.c"
+#include "interface/save_data.c"
 #include "interface/feedback.c"
 #include "utils/debug_functions.c"
 #include "utils/basic_functions.h"
-#include "utils/dir_functions.c"
+#include "utils/dataio/dir_functions.c"
 #include "utils/cuda_basic_functions.cuh"
 #include "utils/physics.c"
 
-#include "dataio/data_import.c"
+#include "utils/dataio/data_import.c"
 #include "dataio/field_import.cu"
-#include "dataio/parameter_reader.c"
+#include "interface/parameter_reader.c"
 
-#include "init/beam.cu"
-#include "init/init.cu"
-#include "init/sync.cu"
-#include "init/detector.cu"
+#include "init/structures/beam.cu"
+#include "init/device/init.cu"
+#include "init/device/sync.cu"
+#include "init/structures/detector.cu"
 #include "init/fast_mode.cu"
 #include "init/thomson.cu"
 
@@ -50,7 +50,7 @@
     #error A valid beam module is required!
 #endif
 
-#include "dataio/data_export.c"
+#include "utils/dataio/data_export.c"
 
 #include "core/maths.cu"
 #include "core/rk4.cu"

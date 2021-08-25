@@ -8,11 +8,11 @@
 #include "utils/taiga_constants.h"
 #include "utils/prop.c"
 #include "utils/physics.c"
-#include "init/init.cu"
-#include "dataio/data_import.c"
-#include "dataio/parameter_reader.c"
+#include "init/device/init.cu"
+#include "utils/dataio/data_import.c"
+#include "interface/parameter_reader.c"
 #include "dataio/beam.h"
-#include "init/beam.cu"
+#include "init/structures/beam.cu"
 
 #if READINPUTPROF == 1
 #include "dataio/beam_manual_profile.c"
@@ -22,7 +22,7 @@
 #error A valid beam module is required!
 #endif
 
-#include "init/detector.cu"
+#include "init/structures/detector.cu"
 
 #include "detector/postproc.cu"
 #include "detector/sum.cu"
