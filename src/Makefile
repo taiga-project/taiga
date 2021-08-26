@@ -11,7 +11,7 @@ RENATE_FLAGS = $(VERSION) -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=0'
 RENATE_FAST_FLAGS = $(VERSION) -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=1'
 
 ifndef TAIGA_BUILD
-	TAIGA_BUILD=build
+	TAIGA_BUILD=../build
 endif
 $(info Build directory: $(TAIGA_BUILD) )
 
@@ -31,11 +31,11 @@ taiga_renate.exe: main.cu | $(TAIGA_BUILD)
 taiga_renate_fast.exe: main.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(RENATE_FAST_FLAGS) -o $(TAIGA_BUILD)/taiga_renate_fast.exe main.cu
 
-t: $(TAIGA_BUILD) test
+t: test
 
 OBJ = $(TAIGA_BUILD)/obj
 
-test: $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_basic_functions.o $(OBJ)/basic_functions.o
+test: $(TAIGA_BUILD) $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_basic_functions.o $(OBJ)/basic_functions.o
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) $^ -o $(TAIGA_BUILD)/test.exe
 
 $(OBJ)/%.o: tests/%.c $(OBJ)
