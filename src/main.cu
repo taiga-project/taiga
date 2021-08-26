@@ -205,8 +205,10 @@ int main(int argc, char *argv[]){
         if (run.is_magnetic_field_perturbation) run.is_magnetic_field_perturbation = poloidal_flux_read_and_init(shot, run, host_common, shared_common);
 
         // detector
-        set_detector_geometry(shot, host_common, shared_common);
-        init_detector(shared_detector, device_detector, shot);
+        set_detector_geometry(shot, host_common, shared_common, shared_detector);
+        if (shared_detector->detector_module_on) {
+            init_detector(shared_detector, device_detector, shot);
+        }
         
         // <service value>
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);

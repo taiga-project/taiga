@@ -33,24 +33,30 @@ void init_detector(DetectorProp* shared_detector, DetectorProp *device_detector,
     }
 }
 
-void set_detector_geometry(ShotProp shot, TaigaCommons *host_common, TaigaCommons *shared_common){
-    char *tokaniser;
-    double *shared_detector_geometry;
+void set_detector_geometry(ShotProp shot, TaigaCommons *host_common, TaigaCommons *shared_common, DetectorProp *shared_detector){
+    if ( (strcmp(shot.detector_mask, "no") == 0) ||
+         (strcmp(shot.detector_mask, "no_mask") == 0) ||
+         (strcmp(shot.detector_mask, "no mask") == 0)) {
+        shared_detector->detector_module_on = false;
+    } else {
+        char *tokaniser;
+        double *shared_detector_geometry;
+        shared_detector->detector_module_on = true;
+        size_t size_detector = 5 * sizeof(double);
+        host_common->detector_geometry = (double *) malloc(size_detector);
+        tokaniser = strtok(shot.detector_geometry, ",");
+        host_common->detector_geometry[0] = strtod(tokaniser, NULL);
+        tokaniser = strtok(NULL, ",");
+        host_common->detector_geometry[1] = strtod(tokaniser, NULL);
+        tokaniser = strtok(NULL, ",");
+        host_common->detector_geometry[2] = strtod(tokaniser, NULL);
+        tokaniser = strtok(NULL, ",");
+        host_common->detector_geometry[3] = (strtod(tokaniser, NULL) * PI / 180.0);
+        tokaniser = strtok(NULL, ",");
+        host_common->detector_geometry[4] = (strtod(tokaniser, NULL) * PI / 180.0);
 
-    size_t size_detector = 5 * sizeof(double);
-    host_common->detector_geometry = (double *)malloc(size_detector);
-    tokaniser = strtok(shot.detector_geometry, ",");
-    host_common->detector_geometry[0] = strtod (tokaniser, NULL);
-    tokaniser = strtok(NULL,",");
-    host_common->detector_geometry[1] = strtod (tokaniser, NULL);
-    tokaniser = strtok(NULL,",");
-    host_common->detector_geometry[2] = strtod (tokaniser, NULL);
-    tokaniser = strtok(NULL,",");
-    host_common->detector_geometry[3] = (strtod (tokaniser, NULL) * PI/180.0);
-    tokaniser = strtok(NULL,",");
-    host_common->detector_geometry[4] = (strtod (tokaniser, NULL) * PI/180.0);
-
-    cudaMalloc((void **) &shared_detector_geometry, size_detector);
-    cudaMemcpy(shared_detector_geometry, host_common->detector_geometry, size_detector, cudaMemcpyHostToDevice);
-    shared_common->detector_geometry = shared_detector_geometry;
+        cudaMalloc((void **) &shared_detector_geometry, size_detector);
+        cudaMemcpy(shared_detector_geometry, host_common->detector_geometry, size_detector, cudaMemcpyHostToDevice);
+        shared_common->detector_geometry = shared_detector_geometry;
+    }
 }
