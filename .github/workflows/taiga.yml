@@ -14,6 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: compile
-      - run: make test
+        run: make test
       - name: run test
-      - run: build/test.exe
+        run: build/test.exe
