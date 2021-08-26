@@ -192,6 +192,9 @@ void test_init_detector_full(){
     host_common = (TaigaCommons*)malloc(dim_commons);
     shared_common = (TaigaCommons*)malloc(dim_commons);
     cudaMalloc((void **) &device_common, dim_commons);
+    size_t size_detector_prop = sizeof(DetectorProp);
+    shared_detector = (DetectorProp*)malloc(size_detector_prop);
+    cudaMalloc((void **) &device_detector, size_detector_prop);
     
     strcpy(shot.name, REFERENCE);
     strcpy(shot.detector_geometry, "0.7, 0.2, 0, 0, 0");
@@ -199,12 +202,7 @@ void test_init_detector_full(){
     run.block_size = 20;
     
     init_grid(shot, run, host_common, shared_common);
-    set_detector_geometry(shot, host_common, shared_common);
-    
-    size_t size_detector_prop = sizeof(DetectorProp);
-    shared_detector = (DetectorProp*)malloc(size_detector_prop);
-    cudaMalloc((void **) &device_detector, size_detector_prop);
-    
+    set_detector_geometry(shot, host_common, shared_common, shared_detector);
     init_detector(shared_detector, device_detector, shot);
     
     size_t size_globals = sizeof(TaigaGlobals);
