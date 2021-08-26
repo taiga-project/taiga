@@ -2,9 +2,9 @@ name: TAIGA CI
 
 on:
   push:
-    branches: [ main ] [ develop ] [ feature-104 ]
+    branches: main, develop, feature-104
   pull_request:
-    branches: [ main ] [ develop ]
+    branches: main, develop
 
 jobs:
   build:
