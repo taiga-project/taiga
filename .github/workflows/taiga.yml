@@ -20,6 +20,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: navigate
         run: cd src
+      - name: test path
+        run: pwd; ls -l
       - name: compile
         run: make test
       - name: run test
