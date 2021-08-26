@@ -13,7 +13,6 @@ RENATE_FAST_FLAGS = $(VERSION) -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=1'
 
 ifndef TAIGA_BUILD
 	TAIGA_BUILD=../build
-	$(TAIGA_BUILD)
 endif
 $(info Build directory: $(TAIGA_BUILD) )
 
@@ -59,6 +58,7 @@ $(TAIGA_BUILD):
 	mkdir $@
 
 $(OBJ):
+	mkdir $(TAIGA_BUILD)
 	mkdir $@
 
 $(CLEAN_O):
