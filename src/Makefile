@@ -37,13 +37,13 @@ t: test
 OBJ = $(TAIGA_BUILD)/obj
 
 test: $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_basic_functions.o $(OBJ)/basic_functions.o
-	$(GCC) $(DEFAULT_FLAGS) -lm -I. $^ -o $(TAIGA_BUILD)/test.exe
+	$(GCC) $(DEFAULT_FLAGS) -lm -w -I. $^ -o $(TAIGA_BUILD)/test.exe
 
 $(OBJ)/%.o: tests/%.c $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -lm -I. -I$tests -c $< -o $@
+	$(GCC) $(DEFAULT_FLAGS) -lm -w -I. -I$tests -c $< -o $@
 
 $(OBJ)/basic_functions.o: utils/basic_functions.c $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -I. -I$utils -c $< -o $@
+	$(GCC) $(DEFAULT_FLAGS) -w -I. -I$utils -c $< -o $@
 
 test_init: tests/test_taiga_init.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_init.exe tests/test_taiga_init.cu
