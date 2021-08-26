@@ -25,4 +25,4 @@ jobs:
       - name: compile
         run: cd src; make test
       - name: run test
-        run: src/build/test.exe
+        run: build/test.exe
