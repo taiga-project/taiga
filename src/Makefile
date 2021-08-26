@@ -49,7 +49,7 @@ test_init: tests/test_taiga_init.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_init.exe tests/test_taiga_init.cu
 
 test_framework: tests/taiga_test_example.c  | $(TAIGA_BUILD)
-	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_framework.exe tests/taiga_test_example.c
+	$(GCC) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_framework.exe tests/taiga_test_example.c
 
 field: tests/test_field.cu | $(TAIGA_BUILD)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_field.exe tests/test_field.cu
