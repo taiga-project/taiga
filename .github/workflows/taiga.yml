@@ -21,8 +21,8 @@ jobs:
       - name: navigate
         run: cd src
       - name: test path
-        run: pwd; ls -l
+        run: cd src; pwd; ls -l
       - name: compile
-        run: make test
+        run: cd src; make test
       - name: run test
-        run: build/test.exe
+        run: src/build/test.exe
