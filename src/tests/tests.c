@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include "taiga_test.h"
 #include "test_basic_functions.h"
 #include "test_solver.h"
