@@ -4,7 +4,7 @@
 #include "taiga_test.h"
 #include "tests/test_basic_functions.h"
 
-void test_concat(){
+int test_concat(){
     TAIGA_INIT_TEST("CONCAT");
     TAIGA_ASSERT_COMPARE("HelloWorld!", concat("He","ll","oWor","ld","!",NULL), "concat test 01");
     TAIGA_ASSERT_COMPARE("Hell\3", concat("He","ll","\3",NULL,"ld","!"), "concat test 02");
@@ -15,6 +15,6 @@ void test_concat(){
     char* f="RR";
 
     TAIGA_ASSERT_COMPARE("HeRRo!", concat("He",f,"o!",NULL), "concat test 07") ;
-    TAIGA_ASSERT_SUMMARY();
+    return TAIGA_ASSERT_SUMMARY();
 }
 
