@@ -3,13 +3,7 @@ name: TAIGATEST FRAMEWORK
 on:
   push:
     branches: 
-      - master
-      - develop 
       - feature-104
-  pull_request:
-    branches: 
-      - master
-      - develop
 
 jobs:
   build:
