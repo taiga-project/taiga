@@ -1,10 +1,5 @@
 name: TAIGATEST FRAMEWORK
 
-on:
-  push:
-    branches: 
-      - feature-104
-
 jobs:
   build:
 
