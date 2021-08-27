@@ -6,8 +6,8 @@
 #include "test_bspline.h"
 
 int main(){
-    test_concat();
-    test_bspline();
+    return test_concat() +
+    test_bspline() +
     test_solver();
 }
 

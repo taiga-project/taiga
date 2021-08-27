@@ -1,0 +1,17 @@
+name: TAIGATEST FRAMEWORK
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: navigate
+        run: cd src
+      - name: test path
+        run: cd src; pwd; ls -l
+      - name: compile
+        run: cd src; make test_framework
+      - name: run test
+        run: build/test_framework.exe

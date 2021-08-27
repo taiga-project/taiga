@@ -58,11 +58,11 @@ double test_bspline_scenario(double x0, double x1) {
     return  value;
 }
 
-void test_bspline() {
+int test_bspline() {
     TAIGA_INIT_TEST("BSPLINE");
     TAIGA_ASSERT_ALMOST_EQ(0.10051077, test_bspline_scenario(0.1, 0.2), "bspline test 01");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, test_bspline_scenario(0.0, 0.0), 1e-7, "bspline test 02");
     TAIGA_ASSERT_ALMOST_EQ(0.95892427, test_bspline_scenario(-5.0, 0.0), "bspline test 03");
     TAIGA_ASSERT_ALMOST_EQ(0.95978649, test_bspline_scenario(-4.9, 0.0), "bspline test 04");
-    TAIGA_ASSERT_SUMMARY();
+    return TAIGA_ASSERT_SUMMARY();
 }

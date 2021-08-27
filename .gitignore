@@ -8,5 +8,6 @@ results/*
 
 # compiled files
 *.exe
-code/*.exe
+build
+src/*.exe
 

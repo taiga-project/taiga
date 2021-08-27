@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
+#include <string.h>
 
 #include "taiga_test.h"
 
@@ -144,7 +146,7 @@ double run_field_with_solver(double timestep, int field_type,
     return t.extrema[maximum_extrema-1];
 }
 
-void test_solver() {
+int test_solver() {
     TAIGA_INIT_TEST("SOLVER");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, solve_diffeq_by_rkn), 1e-5, "4th order Runge--Kutta--Nystrom");
@@ -155,5 +157,5 @@ void test_solver() {
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_rkn), 1e-5, "4th order linearised Runge--Kutta--Nystrom (grad B)");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet based Boris-SDC (BGSDC) (grad B)");
     //TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, solve_diffeq_by_yoshida), 1e-4, "Yoshida based Boris-SDC (BGSDC) (grad B)");
-    TAIGA_ASSERT_SUMMARY();
+    return TAIGA_ASSERT_SUMMARY();
 }

@@ -48,6 +48,6 @@ double run_field_with_solver(double timestep, int field_type,
                                                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                                     double *local_psi_n) );
 
-void test_solver();
+int test_solver();
 
 #endif //TEST_SOLVER_CUH
