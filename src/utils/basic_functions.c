@@ -26,6 +26,7 @@ char* concat(const char *s1, ...){
     }
     va_end(args);
     r = (char*)malloc(arg_length);
+    r[0] = NULL;
     va_start(args, s1);
     for(s=s1; s!=NULL; s=va_arg(args, const char*)){
         strcat(r, s);
