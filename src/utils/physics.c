@@ -29,8 +29,19 @@ double get_mass(char *name_of_ion, int charge){
 double get_ionisation_energy(char *name_of_ion, int charge){
     switch (charge) {
         case 0:
-            if (!strcmp(name_of_ion, "Li atom")) {
-                return 5.3917;
+            if (!strcmp(name_of_ion, "Li") || !strcmp(name_of_ion, "Li7")) {
+                return 5.39171;
+            } else if (!strcmp(name_of_ion, "Na") || !strcmp(name_of_ion, "Na23")) {
+                return 5.13908;
+            } else if (!strcmp(name_of_ion, "K") || !strcmp(name_of_ion, "K39")) {
+                return 4.34066;
+            } else if (!strcmp(name_of_ion, "Rb") || !strcmp(name_of_ion, "Rb85")) {
+                return 4.17713;
+            } else if (!strcmp(name_of_ion, "Cs") || !strcmp(name_of_ion, "Cs133")) {
+                return 3.89390;
+            } else {
+                printf("Warning: Invalid ion species: %s\n         Secondary ionisation module turned off", name_of_ion);
+                return INFINITY;
             }
         case 1:
             if (!strcmp(name_of_ion, "Li") || !strcmp(name_of_ion, "Li7")) {
@@ -44,11 +55,11 @@ double get_ionisation_energy(char *name_of_ion, int charge){
             } else if (!strcmp(name_of_ion, "Cs") || !strcmp(name_of_ion, "Cs133")) {
                 return 23.15744;
             } else {
-                printf("Warning: Secondary ionisation module turned off");
+                printf("Warning: Invalid ion species: %s\n         Secondary ionisation module turned off", name_of_ion);
                 return INFINITY;
             }
         default:
-            printf("Warning: Secondary ionisation module turned off");
+            printf("Warning: Invalid charge number: %d\n         Secondary ionisation module turned off", charge);
             return INFINITY;
     }
 }
