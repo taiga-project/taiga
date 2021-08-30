@@ -9,7 +9,9 @@ __device__ void calculate_ionisation_loss(double psi_n, double *X, TaigaCommons 
     density = interpolate(c->ts_density[local_ts_index[0]], c->ts_density[local_ts_index[0]+1],
                               psi_n, local_ts_psi[0], local_ts_psi[1]);
     loss = timestep * calculate_ionisation_rate(temperature, density, c->ionisation_energy);
-    if (!isnan(loss))   X[BEAMLET_INTENSITY_ID] *= (1.0 - loss);
+    if (isnan(loss) == false) {
+        X[BEAMLET_INTENSITY_ID] *= (1.0 - loss);
+    }
 }
 
 //NRL Plasma Formulary 2016, p55
