@@ -1,5 +1,10 @@
 name: TAIGATEST FRAMEWORK
 
+on:
+  push:
+    branches-ignore:
+      - '**'
+
 jobs:
   build:
 
