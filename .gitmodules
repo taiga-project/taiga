@@ -1,0 +1,3 @@
+[submodule "external/renate-od"]
+	path = external/renate-od
+	url = https://github.com/gergopokol/renate-od
