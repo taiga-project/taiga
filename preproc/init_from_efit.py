@@ -129,6 +129,13 @@ class ParseToTaiga:
     def __init__(self, cdb):
         export_dir = get_home_directory() + '/input/fieldSpl/' + str(cdb.shot_number) + '_' + str(cdb.time)
         print('Save B-spline coefficients to: ' + export_dir)
+        try:
+            os.mkdir(export_dir)
+            print('Create directory and write data to ' + export_dir)
+        except FileExistsError:
+            print('Write data to ' + export_dir)
+        else:
+            pass
         numpy.savetxt(export_dir + '/z.bspl', cdb.B_R.tck[0])
         numpy.savetxt(export_dir + '/r.bspl', cdb.B_R.tck[1])
         numpy.savetxt(export_dir + '/brad.bspl', cdb.B_R.tck[2])
@@ -140,3 +147,4 @@ class ParseToTaiga:
 if __name__ == "__main__":
     cr = CDBReader(17178, 1097)
     ParseToTaiga(cr)
+
