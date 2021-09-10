@@ -5,8 +5,6 @@ import numpy
 import scipy
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
-from stefanikova2016 import *
-
 
 def get_home_directory():
     try:
@@ -47,7 +45,7 @@ class Profiles:
     def __init__(self, shot_number='17178', time='1097',
                  beamlet_geometry=BeamletGeometry(),
                  ts_time_source='EFIT',
-                 efit_reconstruction_id=1, thomson_reconstruction_id=2,
+                 efit_reconstruction_id=1, thomson_reconstruction_id=1,
                  database_directory='input/cdb', thomson_subdir='THOMSON', efit_subdir='EFITXX'):
         self.data_directory = None
         self.set_data_directory(database_directory, shot_number)
@@ -60,6 +58,7 @@ class Profiles:
         self.density = self.thomson_profiles.density.get_value(beamlet_normalised_poloidal_flux)
         self.temperature = self.thomson_profiles.temperature.get_value(beamlet_normalised_poloidal_flux)
         self.export_profiles()
+        self.thomson_profiles.plot_profiles()
 
     def set_data_directory(self, database_directory, shot_number):
         self.data_directory = get_home_directory() + '/' + database_directory + '/' + str(shot_number)
@@ -95,7 +94,7 @@ class TestProfilePlot(Profiles):
 
     def __init__(self, shot_number='17178', time='1097',
                  beamlet_geometry=reference_beamlet, ts_time_source='EFIT',
-                 efit_reconstruction_id=1, thomson_reconstruction_id=2, database_directory='input/cdb',
+                 efit_reconstruction_id=1, thomson_reconstruction_id=1, database_directory='input/cdb',
                  thomson_subdir='THOMSON', efit_subdir='EFITXX'):
         super().__init__(shot_number, time, beamlet_geometry, ts_time_source, efit_reconstruction_id,
                          thomson_reconstruction_id, database_directory, thomson_subdir, efit_subdir)
@@ -214,11 +213,11 @@ class ThomsonProfiles:
                 'Invalid Thomson scattering data structure!\nExample for a correct structure:\nTe.1.h5\n\tTe')
 
     def plot_profiles(self):
-        self.density.plot_profile(self.shot_number, self.time, 'n_e (m^{-3})')
-        self.temperature.plot_profile(self.shot_number, self.time, 'T_e (keV)')
+        self.density.plot_profile(self.shot_number, self.time, '$n_e~(\mathrm{m}^{-3})$')
+        self.temperature.plot_profile(self.shot_number, self.time, '$T_e~(\mathrm{keV})$')
 
     def get_time_index(self, time_dataset):
-        return (numpy.abs(time_dataset - int(self.time))).argmin()
+        return numpy.nanargmin((numpy.abs(time_dataset - int(self.time))))
 
     def get_dataset(self, field, reconstruction_id):
         file = h5py.File(self.thomson_directory + '/' + field + '.' + str(reconstruction_id) + '.h5')
@@ -290,9 +289,11 @@ class ProfileManager:
         ax.fill_between(self.x, self.y - 3 * self.y_error, self.y + 3 * self.y_error, color='gray', alpha=0.3)
         ax.fill_between(self.x, self.y - 5 * self.y_error, self.y + 5 * self.y_error, color='gray', alpha=0.2)
         ax.plot(self.x_fine, self.y_fine)
-        ax.set_xlabel('R [m]')
+        ax.set_xlabel('normalised toroidal flux')
         ax.set_ylabel(ylabel)
-        ax.set_title('TAIGA')('Compass #'+shot_number+' ('+time+' ms) ')
+        ax.set_title('COMPASS #'+shot_number+' ('+time+' ms) ')
+        matplotlib.pyplot.minorticks_on()
+        matplotlib.pyplot.grid(which='both')
         matplotlib.pyplot.show()
 
     def get_value(self, normalised_poloidal_flux):
@@ -305,7 +306,7 @@ class ProfileManager:
         except FileExistsError:
             print('Write data to ' + path)
         else:
-            raise()
+            pass
         flux_file = open(path + '/flux.prof', 'w')
         numpy.savetxt(flux_file, self.x_fine)
         flux_file.close()
@@ -313,3 +314,4 @@ class ProfileManager:
         data_file = open(path + '/' + field + '.prof', 'w')
         numpy.savetxt(data_file, self.y_fine)
         data_file.close()
+
