@@ -2,7 +2,7 @@ import pandas
 import lxml
 
 from crm_solver.beamlet import Beamlet
-from load_ts_profile import *
+from profiles import *
 
 
 class RenateODManager:
@@ -62,7 +62,6 @@ class RenateODManager:
         self.beamlet = Beamlet(param=self.param, profiles=self.profiles, components=self.components)
         self.calculate_relative_attenuation()
 
-    @staticmethod
     def get_attenuation_profile(self):
         radial_coordinate = pandas.DataFrame(self.beamlet_geometry.rad)
         if not hasattr(self.__class__, 'beamlet'):

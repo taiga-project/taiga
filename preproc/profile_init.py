@@ -12,7 +12,7 @@ def l_mode_profile(r,b,c):
 try:
 	shotnumber =  sys.argv[1];
 except:
-	print 'Shot number is not given as proper input parameter. Default value (11774) is used.'
+	print ('Shot number is not given as proper input parameter. Default value (11774) is used.'
 	shotnumber = '11774'
 
 try:
