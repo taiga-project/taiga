@@ -1,7 +1,7 @@
 import pandas
-import lxml
+import lxml.etree
 
-from crm_solver.beamlet import Beamlet
+from ext.renate_od.crm_solver.beamlet import Beamlet
 from profiles import *
 
 
@@ -12,25 +12,25 @@ class RenateODManager:
         self.time = time
         self.species = species
         self.energy = energy
+        self.beamlet = self.get_beamlet()
+        self.relative_attenuation = self.get_relative_attenuation()
 
-    @staticmethod
-    def set_param(self):
+    def get_param(self):
         xml_content = '<xml lang="en"><head><id>taiga beamlet</id></head><body>' \
                       '<beamlet_energy unit = "keV">' + self.energy + '</beamlet_energy>' \
                       '<beamlet_species unit = "">' + self.species + '</beamlet_species>' \
                       '<beamlet_current unit = "A">0.001</beamlet_current>' \
                       '</body></xml>'
         xml_root = lxml.etree.XML(xml_content)
-        self.param = lxml.etree.ElementTree(xml_root)
+        return lxml.etree.ElementTree(xml_root)
 
     @staticmethod
-    def set_components(self):
-        self.components = pandas.DataFrame(
+    def get_components():
+        return pandas.DataFrame(
             {'q': [-1, 1], 'Z': [0, 1], 'A': [0, 2]},
             index=['electron', 'ion'])
 
-    @staticmethod
-    def set_profiles(self):
+    def get_profiles(self):
         tuples = [('beamlet grid', 'distance', 'm'),
                   ('electron', 'density', 'm-3'),
                   ('electron', 'temperature', 'eV'),
@@ -45,27 +45,19 @@ class RenateODManager:
         temperature = p.get_temperature()
 
         profiles_data = numpy.transpose(numpy.array([distance, density, temperature, density, temperature]))
-        self.profiles = pandas.DataFrame(profiles_data, columns=header)
+        return pandas.DataFrame(profiles_data, columns=header)
 
-    @staticmethod
-    def calculate_relative_attenuation(self):
-        if not hasattr(self.__class__, 'relative_attenuation'):
-            self.beamlet.compute_linear_density_attenuation()
-            absolute_attenuation = self.beamlet.profiles['linear_density_attenuation']
-            self.relative_attenuation = absolute_attenuation / absolute_attenuation.max()
+    def get_relative_attenuation(self):
+        self.beamlet.compute_linear_density_attenuation()
+        absolute_attenuation = self.beamlet.profiles['linear_density_attenuation']
+        return absolute_attenuation / absolute_attenuation.max()
 
-    @staticmethod
-    def calculate_beamlet(self):
-        self.set_param()
-        self.set_profiles()
-        self.set_components()
-        self.beamlet = Beamlet(param=self.param, profiles=self.profiles, components=self.components)
-        self.calculate_relative_attenuation()
+    def get_beamlet(self):
+        param = self.get_param()
+        profiles = self.get_profiles()
+        components = self.get_components()
+        return Beamlet(param=param, profiles=profiles, components=components)
 
     def get_attenuation_profile(self):
         radial_coordinate = pandas.DataFrame(self.beamlet_geometry.rad)
-        if not hasattr(self.__class__, 'beamlet'):
-            self.calculate_beamlet()
-        if not hasattr(self.__class__, 'relative_attenuation'):
-            self.calculate_relative_attenuation()
         return radial_coordinate, self.relative_attenuation

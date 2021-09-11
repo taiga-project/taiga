@@ -1,5 +1,9 @@
 import os
+
+import matplotlib.pyplot
 import numpy
+import scipy.interpolate
+from statsmodels.nonparametric.smoothers_lowess import lowess
 
 
 def set_negatives_to_zero(values):
@@ -93,9 +97,11 @@ class ProfileManager:
         else:
             pass
         flux_file = open(path + '/flux.prof', 'w')
+        # noinspection PyTypeChecker
         numpy.savetxt(flux_file, self.x_fine)
         flux_file.close()
 
         data_file = open(path + '/' + field + '.prof', 'w')
+        # noinspection PyTypeChecker
         numpy.savetxt(data_file, self.y_fine)
         data_file.close()

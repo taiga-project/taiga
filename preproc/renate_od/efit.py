@@ -1,4 +1,3 @@
-import scipy
 import h5py
 
 from utils import *

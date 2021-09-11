@@ -27,7 +27,8 @@ def export_beamlet_profile(export_root=get_home_directory() + '/input/ionProf/',
     plot_attenuation_profile(shot_number, time, radial_coordinate, relative_attenuation, export_directory)
 
 
-def plot_attenuation_profile(shot_number, time, radial_coordinate, relative_attenuation, export_directory='.'):
+def plot_attenuation_profile(shot_number, time, radial_coordinate, relative_attenuation, export_directory='.',
+                             R_LCFS=0.7143):
     fig, ax = matplotlib.pyplot.subplots()
     fig.set_size_inches(5, 2)
     ax.plot(radial_coordinate, relative_attenuation, '-', linewidth=2)
@@ -36,7 +37,6 @@ def plot_attenuation_profile(shot_number, time, radial_coordinate, relative_atte
     matplotlib.pyplot.xlabel('$R$ [m]', labelpad=-10.5, loc='right')
     matplotlib.pyplot.ylabel('neutral beam attenuation')
     matplotlib.pyplot.title('COMPASS #' + shot_number + ' (' + time + ' ms)')
-    R_LCFS = 0.7143 #hack
     matplotlib.pyplot.axvline(R_LCFS, c='red', ls='--')
     matplotlib.pyplot.text(R_LCFS+0.005, 0.45, 'LCFS', c='red', fontsize=12)
     matplotlib.pyplot.savefig(export_directory+'/attenuation.pdf')

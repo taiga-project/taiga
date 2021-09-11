@@ -1,5 +1,5 @@
 import numpy
-import matplotlib
+import matplotlib.pyplot
 
 from manager import RenateODManager
 from profiles import Profiles
@@ -29,7 +29,7 @@ def mock_beam(shot_number='17178', time='1097', diameter=5e-3, z_length=3, tor_l
     matplotlib.pyplot.show()
 
 
-# pylint: disable=super-init-not-called
+# noinspection PyMissingConstructor
 class MockedProfiles(Profiles):
     def __init__(self):
         self.distance = [0, 0.1, 0.2]

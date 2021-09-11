@@ -1,5 +1,3 @@
-from statsmodels.nonparametric.smoothers_lowess import lowess
-
 from beamlet import BeamletGeometry
 from thomson import ThomsonProfiles
 from efit import EFITManager
@@ -12,7 +10,7 @@ class Profiles:
                  ts_time_source='EFIT',
                  efit_reconstruction_id=1, thomson_reconstruction_id=1,
                  database_directory='input/cdb', thomson_subdir='THOMSON', efit_subdir='EFITXX'):
-        self.set_data_directory(database_directory, shot_number)
+        self.data_directory = self.get_data_directory(database_directory=database_directory, shot_number=shot_number)
         thomson_directory, efit_file = self.set_path(efit_subdir, thomson_subdir, efit_reconstruction_id)
         self.thomson_profiles = ThomsonProfiles(thomson_directory, shot_number, time, thomson_reconstruction_id,
                                                 ts_time_source)
@@ -26,8 +24,8 @@ class Profiles:
         self.thomson_profiles.plot_profiles()
 
     @staticmethod
-    def set_data_directory(self, database_directory, shot_number):
-        self.data_directory = get_home_directory() + '/' + database_directory + '/' + str(shot_number)
+    def get_data_directory(database_directory, shot_number):
+        return get_home_directory() + '/' + database_directory + '/' + str(shot_number)
 
     def set_path(self, efit_subdir, thomson_subdir, efit_reconstruction_id):
         thomson_directory = self.data_directory + '/' + thomson_subdir
