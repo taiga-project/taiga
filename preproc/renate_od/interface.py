@@ -33,7 +33,7 @@ def plot_attenuation_profile(shot_number, time, radial_coordinate, relative_atte
     fig.set_size_inches(5, 2)
     ax.plot(radial_coordinate, relative_attenuation, '-', linewidth=2)
     matplotlib.pyplot.minorticks_on()
-    matplotlib.pyplot.grid(which='both')
+    matplotlib.pyplot.grid(which='major')
     matplotlib.pyplot.xlabel('$R$ [m]', labelpad=-10.5, loc='right')
     matplotlib.pyplot.ylabel('neutral beam attenuation')
     matplotlib.pyplot.title('COMPASS #' + shot_number + ' (' + time + ' ms)')
