@@ -1,8 +1,11 @@
 import pandas
 import lxml.etree
+import sys
 
-from ext.renate_od.crm_solver.beamlet import Beamlet
 from profiles import *
+
+sys.path.append('../../ext/renate_od')
+from crm_solver.beamlet import Beamlet
 
 
 class RenateODManager:
@@ -18,9 +21,9 @@ class RenateODManager:
     def get_param(self):
         xml_content = '<xml lang="en"><head><id>taiga beamlet</id></head><body>' \
                       '<beamlet_energy unit = "keV">' + self.energy + '</beamlet_energy>' \
-                      '<beamlet_species unit = "">' + self.species + '</beamlet_species>' \
-                      '<beamlet_current unit = "A">0.001</beamlet_current>' \
-                      '</body></xml>'
+                                                                      '<beamlet_species unit = "">' + self.species + '</beamlet_species>' \
+                                                                                                                     '<beamlet_current unit = "A">0.001</beamlet_current>' \
+                                                                                                                     '</body></xml>'
         xml_root = lxml.etree.XML(xml_content)
         return lxml.etree.ElementTree(xml_root)
 
