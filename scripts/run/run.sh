@@ -10,4 +10,4 @@ mkdir "results/"$shotnumber"_"$time"/"$newnum
 cp parameters.sh "results/"$shotnumber"_"$time"/"$newnum
 cp input/detector/$detector_mask/* "results/"$shotnumber"_"$time"/"$newnum
 
-./taiga_renate.exe
+./taiga.exe $@
