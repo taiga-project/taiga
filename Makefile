@@ -1,6 +1,6 @@
 NVCC = nvcc
 GCC = gcc
-COMMON_FLAGS = --ptxas-options=-v -w -Xptxas -dlcm=cg -maxrregcount=32 -lcurand -arch=compute_30 -I.
+COMMON_FLAGS = --ptxas-options=-v -w -Xptxas -dlcm=cg -maxrregcount=32 -lcurand -arch=compute_30 -Isrc
 CFLAGS = $(COMMON_FLAGS) -O3
 DEBUG_FLAGS = $(COMMON_FLAGS) -g -G
 LIBS = -lcurand
@@ -11,58 +11,54 @@ DEFAULT_FLAGS = $(VERSION) -D'RENATE=0' -D'READINPUTPROF=1' -D'FASTMODE=0'
 RENATE_FLAGS = $(VERSION) -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=0'
 RENATE_FAST_FLAGS = $(VERSION) -D'RENATE=110' -D'READINPUTPROF=0' -D'FASTMODE=1'
 
-ifndef TAIGA_BUILD
-	TAIGA_BUILD=../build
-endif
-$(info Build directory: $(TAIGA_BUILD) )
+OBJ=build
+BIN=bin
 
 all: taiga.exe taiga_debug.exe taiga_renate.exe taiga_renate_fast.exe t test_init field
 
 no_test: taiga.exe taiga_debug.exe taiga_renate.exe taiga_renate_fast.exe
 
-taiga.exe: src/main.cu | $(TAIGA_BUILD)
-	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga.exe main.cu
+taiga.exe: src/main.cu | $(BIN)
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/taiga.exe src/main.cu
 
-taiga_debug.exe: src/main.cu | $(TAIGA_BUILD)
-	$(NVCC) $(DEBUG_FLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/taiga_debug.exe main.cu
+taiga_debug.exe: src/main.cu | $(BIN)
+	$(NVCC) $(DEBUG_FLAGS) $(DEFAULT_FLAGS) -o $(BIN)/taiga_debug.exe src/main.cu
 
-taiga_renate.exe: src/main.cu | $(TAIGA_BUILD)
-	$(NVCC) $(CFLAGS) $(RENATE_FLAGS) -o $(TAIGA_BUILD)/taiga_renate.exe main.cu
+taiga_renate.exe: src/main.cu | $(BIN)
+	$(NVCC) $(CFLAGS) $(RENATE_FLAGS) -o $(BIN)/taiga_renate.exe src/main.cu
 
-taiga_renate_fast.exe: src/main.cu | $(TAIGA_BUILD)
-	$(NVCC) $(CFLAGS) $(RENATE_FAST_FLAGS) -o $(TAIGA_BUILD)/taiga_renate_fast.exe main.cu
+taiga_renate_fast.exe: src/main.cu | $(BIN)
+	$(NVCC) $(CFLAGS) $(RENATE_FAST_FLAGS) -o $(BIN)/taiga_renate_fast.exe src/main.cu
 
 t: test
 
-OBJ = $(TAIGA_BUILD)/obj
-
 test: $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_basic_functions.o $(OBJ)/basic_functions.o
-	$(GCC) $(DEFAULT_FLAGS) -I. $^ -lm -o $(TAIGA_BUILD)/test.exe
+	$(GCC) $(DEFAULT_FLAGS) -Isrc -Itests $^ -lm -o $(BIN)/test.exe
 
-$(OBJ)/%.o: tests $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -w -I. -I$tests -c $< -lm -o $@
+$(OBJ)/%.o: tests/%.c $(OBJ)
+	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Itests -c $< -lm -o $@
 
 $(OBJ)/basic_functions.o: src/utils/basic_functions.c $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -w -I. -I$utils -c $< -o $@
+	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Itests -I$utils -c $< -o $@
 
-test_init: tests | $(TAIGA_BUILD)
-	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_init.exe tests/test_taiga_init.cu
+test_init: tests | $(BIN)
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_init.exe tests/test_taiga_init.cu
 
-test_framework: tests  | $(TAIGA_BUILD)
-	$(GCC) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_framework.exe tests/taiga_test_example.c
+test_framework: tests  | $(BIN)
+	$(GCC) $(DEFAULT_FLAGS) -o $(BIN)/test_framework.exe tests/taiga_test_example.c
 
-field: tests | $(TAIGA_BUILD)
-	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(TAIGA_BUILD)/test_field.exe tests/test_field.cu
-
-$(TAIGA_BUILD):
-	mkdir $@
+field: tests | $(BIN)
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_field.exe tests/test_field.cu
 
 $(OBJ):
-	mkdir $(TAIGA_BUILD)
+	mkdir $@
+
+$(BIN):
 	mkdir $@
 
 $(CLEAN_O):
-	rm $(TAIGA_BUILD)/$^
+	rm $(OBJ)/$^
 
 clean:
-	rm $(TAIGA_BUILD)/*.exe
+	rm bin/*
+	rm build/*
