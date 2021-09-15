@@ -2,7 +2,7 @@
 source ./parameters.sh
 
 ./sync.sh $shotnumber
-python preproc/profile_init.py $shotnumber
+python3 preproc/profile_init.py $shotnumber
 
 time_slices=($(cat input/tsProf/$shotnumber.time))
 
