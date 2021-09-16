@@ -1,4 +1,4 @@
-#include "ionisation.cuh"
+#include "core/physics/ionisation.cuh"
 
 __device__ void calculate_ionisation_loss(double psi_n, double *X, TaigaCommons *c,
                                           int *local_ts_index, double *local_ts_psi, double timestep) {

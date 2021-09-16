@@ -1,6 +1,6 @@
 #include <stdarg.h>
 #include <ctype.h>
-#include "dir_functions.h"
+#include "utils/dataio/dir_functions.h"
 
 #if defined(_WIN32)
     #include <windows.h>

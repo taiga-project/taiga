@@ -1,6 +1,6 @@
 // velocity Verlet with Boris algorithm
-#include "verlet.cuh"
-#include "solvers.cuh"
+#include "core/solvers/verlet.cuh"
+#include "core/solvers/solvers.cuh"
 #include "core/maths/maths.cuh"
 
 __device__ void calculate_verlet_x(double *X, double *B, double *E,double eperm, double timestep) {

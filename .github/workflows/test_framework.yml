@@ -12,11 +12,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: navigate
-        run: cd src
-      - name: test path
-        run: cd src; pwd; ls -l
       - name: compile
-        run: cd src; make test_framework
+        run: make test_framework
       - name: run test
-        run: build/test_framework.exe
+        run: bin/test_framework.exe

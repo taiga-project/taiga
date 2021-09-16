@@ -1,6 +1,6 @@
 // Runge--Kutta--Nystrom method
-#include "solvers.cuh"
-#include "../localise_field.cuh"
+#include "core/solvers/solvers.cuh"
+#include "core/localise_field.cuh"
 
 __device__ double solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                                     TaigaCommons *c, bool is_electric_field_on,

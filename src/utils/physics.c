@@ -1,5 +1,5 @@
-#include "taiga_constants.h"
-#include "physics.h"
+#include "utils/taiga_constants.h"
+#include "utils/physics.h"
 
 //https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl
 double get_mass(char *name_of_ion, int charge) {

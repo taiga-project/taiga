@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "taiga_test.h"
-#include "tests/test_basic_functions.h"
+#include "test_basic_functions.h"
 
 int test_concat(){
     TAIGA_INIT_TEST("CONCAT");
