@@ -1,0 +1,19 @@
+name: TAIGA CI
+
+on:
+  pull_request:
+    branches: 
+      - master
+      - develop
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: compile
+        run: make test
+      - name: run test
+        run: bin/test.exe

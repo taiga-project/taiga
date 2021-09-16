@@ -1,4 +1,4 @@
-#include "prop.h"
+#include "utils/prop.h"
 
 void init_beam_prop(BeamProp *beam){
     strcpy(beam->species, "Li");

@@ -1,4 +1,4 @@
-#include "bspline.cuh"
+#include "core/maths/bspline.cuh"
 
 // https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-curve-coef.html
 __device__ void bspline(double *B, double x, int k, int index, double *t){

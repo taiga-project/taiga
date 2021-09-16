@@ -1,7 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <ctype.h>
-#include "basic_functions.h"
+#include "utils/basic_functions.h"
 
 double linear_interpolate(double *x_vector, long x_length, double *y_vector, long y_length, double x_value){
     int i;
@@ -14,7 +17,7 @@ double linear_interpolate(double *x_vector, long x_length, double *y_vector, lon
 char* concat(const char *s1, ...){
     const char *s;
     va_list args;
-    char *r;//r[STRING_LENGTH];
+    char *r;
     size_t arg_length = 1;
     
     va_start(args, s1);
