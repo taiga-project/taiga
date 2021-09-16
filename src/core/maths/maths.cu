@@ -1,4 +1,4 @@
-#include "maths.cuh"
+#include "core/maths/maths.cuh"
 
 __device__ double cross(double *u, double *v, int index) {
     switch(index){

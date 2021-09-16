@@ -1,6 +1,6 @@
 // Yoshida integrator
 
-#include "verlet.cuh"
+#include "core/solvers/verlet.cuh"
 
 __device__ void calculate_yoshida_x(double c, double *X, double timestep){
     double c_dt = c * timestep;

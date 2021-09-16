@@ -1,4 +1,4 @@
-#include "localise_field.cuh"
+#include "core/localise_field.cuh"
 #include "core/maths/bspline.cuh"
 
 __device__ void (*get_coefficients)(TaigaCommons *c,

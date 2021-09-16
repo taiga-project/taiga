@@ -1,6 +1,6 @@
 NVCC = nvcc
 GCC = gcc
-COMMON_FLAGS = --ptxas-options=-v -w -Xptxas -dlcm=cg -maxrregcount=32 -lcurand -arch=compute_30 -Isrc
+COMMON_FLAGS = --ptxas-options=-v -w -Xptxas -dlcm=cg -maxrregcount=32 -lcurand -arch=compute_30 -Isrc -Iinclude
 CFLAGS = $(COMMON_FLAGS) -O3
 DEBUG_FLAGS = $(COMMON_FLAGS) -g -G
 LIBS = -lcurand
@@ -36,10 +36,10 @@ test: $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_ba
 	$(GCC) $(DEFAULT_FLAGS) -Isrc -Itests $^ -lm -o $(BIN)/test.exe
 
 $(OBJ)/%.o: tests/%.c $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Itests -c $< -lm -o $@
+	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Iinclude -Itests -c $< -lm -o $@
 
 $(OBJ)/basic_functions.o: src/utils/basic_functions.c $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Itests -I$utils -c $< -o $@
+	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Iinclude -Itests -I$utils -c $< -o $@
 
 test_init: tests | $(BIN)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_init.exe tests/test_taiga_init.cu

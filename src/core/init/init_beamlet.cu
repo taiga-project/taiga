@@ -1,4 +1,4 @@
-#include "init_beamlet.cuh"
+#include "core/init/init_beamlet.cuh"
 /*
 __device__ void init_beamlet_intensity(double X[X_SIZE], int coordinate_id) {
     X[coordinate_id] = 1.0;

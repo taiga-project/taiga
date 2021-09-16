@@ -1,5 +1,5 @@
 #include "core/physics/lorentz.cu"
-#include "localise_field.cuh"
+#include "core/localise_field.cuh"
 #include "core/physics/ionisation.cuh"
 
 __device__ double (*solve_diffeq)(double *X, double eperm, double timestep,

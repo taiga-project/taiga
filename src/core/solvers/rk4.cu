@@ -1,7 +1,7 @@
 // Runge--Kutta method
 
-#include "solvers.cuh"
-#include "../localise_field.cuh"
+#include "core/solvers/solvers.cuh"
+#include "core/localise_field.cuh"
 
 __device__ void calculate_runge_kutta_coeff(double *X,
                                             double *S, double *S_prev, double rk_weight,
