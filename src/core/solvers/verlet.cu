@@ -32,7 +32,7 @@ __device__ void calculate_verlet_v(double *X, double *B, double *E, double *E_pr
 
     for (i = 0; i < 3; ++i) {
         E[i] = 0.5 * (E[i] + E_prev[i]);
-        v_minus[i] = X[i+3] + dt_per_2 * E[i];
+        v_minus[i] = X[i + 3] + eperm * dt_per_2 * E[i];
     }
 
     for (i = 0; i < 3; ++i) {
@@ -41,7 +41,7 @@ __device__ void calculate_verlet_v(double *X, double *B, double *E, double *E_pr
 
     for (i = 0; i < 3; ++i) {
         v_plus[i] = v_minus[i] + s_per_t * cross(v_star, t, i);
-        X[i+3] = v_plus[i] + dt_per_2 * E[i];
+        X[i + 3] = v_plus[i] + eperm * dt_per_2 * E[i];
     }
 }
 
@@ -52,7 +52,6 @@ __device__ double solve_diffeq_by_verlet(double *X, double eperm, double timeste
                                        double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                        double *local_spline_psi_n){
     double B[3], E[3], E_prev[3];
-    double dt_per_2;
     double local_psi_n;
 
     get_local_field(X, B, E_prev, c, is_electric_field_on,
@@ -66,7 +65,6 @@ __device__ double solve_diffeq_by_verlet(double *X, double eperm, double timeste
                                   local_spline_brad, local_spline_bz, local_spline_btor,
                                   local_spline_erad, local_spline_ez, local_spline_etor,
                                   local_spline_psi_n);
-    dt_per_2 = 0.5 * timestep;
-    calculate_verlet_v(X, B, E, E_prev, eperm, dt_per_2);
+    calculate_verlet_v(X, B, E, E_prev, eperm, 0.5 * timestep);
     return local_psi_n;
 }
