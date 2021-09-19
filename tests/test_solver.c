@@ -15,6 +15,7 @@
 #include "core/solvers/runge_kutta_nystrom.cu"
 #include "core/solvers/yoshida.cu"
 #include "core/solvers/verlet.cu"
+#include "core/solvers/boris.cu"
 #include "core/physics/lorentz.cu"
 
 #define GRAD_B_FACTOR 0.0001

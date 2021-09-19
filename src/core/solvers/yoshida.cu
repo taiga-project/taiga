@@ -1,6 +1,7 @@
 // Yoshida integrator
 
 #include "core/solvers/verlet.cuh"
+#include "core/solvers/boris.cuh"
 
 __device__ void calculate_yoshida_x(double c, double *X, double *B, double *E,double eperm, double timestep) {
     calculate_verlet_x(X, B, E, eperm, c * timestep);
@@ -9,7 +10,7 @@ __device__ void calculate_yoshida_x(double c, double *X, double *B, double *E,do
 __device__ void calculate_yoshida_v(double d, double *X,
                                     double *B, double *E, double *E_prev,
                                     double eperm, double timestep){
-    calculate_verlet_v(X, B, E, E_prev, eperm, d * timestep);
+    calculate_boris_v(X, B, E, E_prev, eperm, d * timestep);
 }
 
 __device__ double solve_diffeq_by_yoshida(double *X, double eperm, double timestep,

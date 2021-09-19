@@ -57,6 +57,7 @@
 #include "core/solvers/runge_kutta_nystrom.cu"
 #include "core/solvers/solvers.cuh"
 #include "core/solvers/verlet.cu"
+#include "core/solvers/boris.cu"
 #include "core/solvers/yoshida.cu"
 #include "core/detection.cu"
 #include "core/maths/cyl2tor.cu"
