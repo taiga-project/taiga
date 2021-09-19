@@ -1,6 +1,6 @@
 #include "core/solvers/boris.cuh"
 
-__device__ void calculate_boris_v(double *X, double *B, double *E, double *E_prev, double eperm, double dt_per_2) {
+__device__ void calculate_boris_v(double *X, double *B, double *E, double *E_prev, double eperm, double timestep) {
     int i;
     double t[3];
     double v_minus[3];
@@ -8,6 +8,7 @@ __device__ void calculate_boris_v(double *X, double *B, double *E, double *E_pre
     double v_plus[3];
     double t_square = 0;
     double s_per_t;
+    double dt_per_2 = timestep / 2.0;
 
     for (i = 0; i < 3; ++i) {
         t[i] = eperm * dt_per_2 * B[i];

@@ -36,6 +36,6 @@ __device__ double solve_diffeq_by_verlet(double *X, double eperm, double timeste
                                   local_spline_brad, local_spline_bz, local_spline_btor,
                                   local_spline_erad, local_spline_ez, local_spline_etor,
                                   local_spline_psi_n);
-    calculate_boris_v(X, B, E, E_prev, eperm, 0.5 * timestep);
+    calculate_boris_v(X, B, E, E_prev, eperm, timestep);
     return local_psi_n;
 }
