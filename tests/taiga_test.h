@@ -30,22 +30,26 @@
 
 #define TAIGA_TEST_MESSAGE(test_name, status, expected, actual) { \
     ++number_of_tests;                                            \
-    if (status == PASSED){                                        \
+    if (status == PASSED) {                                       \
         printf("\033[0;32m");                                     \
         printf("[   ok   ] ");                                    \
         printf("\033[0m");                                        \
         printf("%s\n", test_name);                                \
-    }else if (status == PASSED_DETAIL){                           \
+    } else if (status == PASSED_DETAIL) {                         \
         printf("\033[0;32m");                                     \
         printf("[   ok   ] ");                                    \
         printf("\033[0m");                                        \
         printf("%s\n", test_name);                                \
-        printf("\t\t\texpected: ");                               \
+        printf("\t\t\texpected:   ");                             \
         PRINT_VALUE(expected);                                    \
-        printf("\n\t\t\tactual:   ");                             \
+        printf("\n\t\t\tactual:     ");                           \
         PRINT_VALUE(actual);                                      \
+        if (expected != 0) {                                      \
+            printf("\n\t\t\tdifference: ");                       \
+            PRINT_VALUE(actual-expected);                         \
+        }                                                         \
         printf("\n");                                             \
-    }else{                                                        \
+    } else {                                                      \
         ++number_of_fails;                                        \
         printf("\033[0;31m");                                     \
         printf("[ failed ] ");                                    \
@@ -55,6 +59,10 @@
         PRINT_VALUE(expected);                                    \
         printf("\n\t\t\tactual:   ");                             \
         PRINT_VALUE(actual);                                      \
+        if (expected != 0) {                                      \
+            printf("\n\t\t\tdifference: ");                       \
+            PRINT_VALUE(actual-expected);                         \
+        }                                                         \
         printf("\n");                                             \
     }                                                             \
 }

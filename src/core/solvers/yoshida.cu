@@ -1,19 +1,20 @@
 // Yoshida integrator
 
-#include "core/solvers/verlet.cuh"
+#include "core/solvers/yoshida.cuh"
+#include "core/solvers/boris.cuh"
 
-__device__ void calculate_yoshida_x(double c, double *X, double timestep){
-    double c_dt = c * timestep;
+__device__ void calculate_yoshida_x(double c, double *X, double timestep) {
     int i;
+    double c_dt =  c * timestep;
     for (i = 0; i < 3; ++i) {
-        X[i] += c_dt * X[i + 3];
+        X[i] += c_dt * X[i+3];
     }
 }
 
 __device__ void calculate_yoshida_v(double d, double *X,
                                     double *B, double *E, double *E_prev,
                                     double eperm, double timestep){
-    calculate_verlet_v(X, B, E, E_prev, eperm, d * timestep);
+    calculate_boris_v(X, B, E, E_prev, eperm, d * timestep);
 }
 
 __device__ double solve_diffeq_by_yoshida(double *X, double eperm, double timestep,
@@ -59,7 +60,7 @@ __device__ double solve_diffeq_by_yoshida(double *X, double eperm, double timest
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
                     local_spline_psi_n);
-    calculate_yoshida_x(c2, X, timestep);
+    calculate_yoshida_x(c2, X,timestep);
     get_local_field(X, B, E, c, is_electric_field_on,
                     local_spline_indices,
                     local_spline_brad, local_spline_bz, local_spline_btor,
