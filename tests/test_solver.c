@@ -19,11 +19,11 @@
 #include "core/physics/lorentz.cu"
 
 #define GRAD_B_FACTOR 0.0001
-#define NUMBER_OF_CYCLOTRON_PERIODS 10000
-#define LARMOR_RADIUS 0.01
+#define E_OVER_B 1
 
-#define GET_POSITION 0
-#define GET_SPEED 1
+#define NUMBER_OF_CYCLOTRON_PERIODS 1000
+#define NUMBER_OF_CYCLOTRON_PERIODS_GRAD_B 10000
+#define LARMOR_RADIUS 0.01
 
 double test_interp1(double x, double x0, double x1, double y0, double y1) {
     return y0+(x-x0)*(y1-y0)/(x1-x0);
@@ -46,12 +46,12 @@ double get_speed(double *X) {
     return sqrt(X[3]*X[3]+X[4]*X[4]+X[5]*X[5]);
 }
 
-void generate_homogeneous_field(double *X, double *local_bfield, double *local_efield,
-                                TaigaCommons *c, bool is_electric_field_on,
-                                int *local_spline_indices,
-                                double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
-                                double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                                double *local_psi_n){
+void generate_homogeneous_magnetic_field(double *X, double *local_bfield, double *local_efield,
+                                         TaigaCommons *c, bool is_electric_field_on,
+                                         int *local_spline_indices,
+                                         double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                         double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                         double *local_psi_n) {
     local_bfield[0] = 0.0;
     local_bfield[1] = 0.0;
     local_bfield[2] = 1.0;
@@ -65,13 +65,27 @@ void generate_grad_B_field(double *X, double *local_bfield, double *local_efield
                            int *local_spline_indices,
                            double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                            double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
-                           double *local_psi_n){
+                           double *local_psi_n) {
     local_bfield[0] = 0.0;
     local_bfield[1] = 0.0;
     local_bfield[2] = 1.0 + GRAD_B_FACTOR * X[1];
     local_efield[0] = 0.0;
     local_efield[1] = 0.0;
     local_efield[2] = 0.0;
+}
+
+void generate_E_par_B_field(double *X, double *local_bfield, double *local_efield,
+                                    TaigaCommons *c, bool is_electric_field_on,
+                                    int *local_spline_indices,
+                                    double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                    double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                    double *local_psi_n) {
+    local_bfield[0] = 0.0;
+    local_bfield[1] = 0.0;
+    local_bfield[2] = 1.0;
+    local_efield[0] = 0.0;
+    local_efield[1] = 0.0;
+    local_efield[2] = E_OVER_B;
 }
 
 double get_local_field(double *X, double *local_bfield, double *local_efield,
@@ -96,12 +110,19 @@ double run_field_with_solver(double timestep, int field_type, int return_type,
                                                   double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                                   double *local_psi_n) ) {
 
+
+    int maximum_extrema = 2 * NUMBER_OF_CYCLOTRON_PERIODS + 1;
+
     switch(field_type){
         case HOMOGENEOUS:
-            generate_local_field = &generate_homogeneous_field;
+            generate_local_field = &generate_homogeneous_magnetic_field;
             break;
         case GRAD_B:
             generate_local_field = &generate_grad_B_field;
+            maximum_extrema = 2 * NUMBER_OF_CYCLOTRON_PERIODS_GRAD_B + 1;
+            break;
+        case E_PAR_B:
+            generate_local_field = &generate_E_par_B_field;
             break;
         default:
             printf("Error: Illegal field_type\n");
@@ -120,11 +141,9 @@ double run_field_with_solver(double timestep, int field_type, int return_type,
     double local_psi_n[16];
     TaigaCommons *c;
     double eperm = 4e7;
-    int is_electric_field_on = false;
+    int is_electric_field_on = true;
 
-    get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_without_electric_field;
-
-    int maximum_extrema = 2 * NUMBER_OF_CYCLOTRON_PERIODS + 1;
+    get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_with_electric_field;
 
     SolverTestExtrema t;
     t.index = 0;
@@ -151,6 +170,8 @@ double run_field_with_solver(double timestep, int field_type, int return_type,
             return t.extrema[maximum_extrema-1];
         case GET_SPEED:
             return get_speed(X);
+        case GET_SPEED_TOROIDAL:
+            return(X[5]);
     }
 
     return -99999999999;
@@ -158,19 +179,31 @@ double run_field_with_solver(double timestep, int field_type, int return_type,
 
 int test_solver() {
     TAIGA_INIT_TEST("SOLVER");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, GET_POSITION, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, GET_POSITION, solve_diffeq_by_rkn), 1e-5, "4th order Runge--Kutta--Nystrom");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, GET_POSITION, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet--Boris");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(1e-9, HOMOGENEOUS, GET_POSITION, solve_diffeq_by_yoshida), 1e-5, "Yoshida--Boris");
-    double reference_grad_B_drift = -GRAD_B_FACTOR * PI * LARMOR_RADIUS * LARMOR_RADIUS * NUMBER_OF_CYCLOTRON_PERIODS;
-    double reference_speed = 4e7 * LARMOR_RADIUS;
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, GET_POSITION, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, GET_POSITION, solve_diffeq_by_rkn), 1e-5, "4th order linearised Runge--Kutta--Nystrom (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, GET_POSITION, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet--Boris (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(1e-9, GRAD_B, GET_POSITION, solve_diffeq_by_yoshida), 1e-5, "Yoshida--Boris (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(1e-9, GRAD_B, GET_SPEED, solve_diffeq_by_rk4), 1000, "4th order linearised Runge--Kutta (grad B, speed)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(1e-9, GRAD_B, GET_SPEED, solve_diffeq_by_rkn), 1000, "4th order linearised Runge--Kutta--Nystrom (grad B, speed)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(1e-9, GRAD_B, GET_SPEED, solve_diffeq_by_verlet), 1, "velocity-Verlet--Boris (grad B, speed)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(1e-9, GRAD_B, GET_SPEED, solve_diffeq_by_yoshida), 1, "Yoshida--Boris (grad B, speed)");
+    double timestep = 1e-9;
+    double eperm = 4e7;
+
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(timestep, HOMOGENEOUS, GET_POSITION, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(timestep, HOMOGENEOUS, GET_POSITION, solve_diffeq_by_rkn), 1e-5, "4th order Runge--Kutta--Nystrom");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(timestep, HOMOGENEOUS, GET_POSITION, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet--Boris");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(0.0, run_field_with_solver(timestep, HOMOGENEOUS, GET_POSITION, solve_diffeq_by_yoshida), 1e-5, "Yoshida--Boris");
+
+    double reference_grad_B_drift = -GRAD_B_FACTOR * PI * LARMOR_RADIUS * LARMOR_RADIUS * NUMBER_OF_CYCLOTRON_PERIODS_GRAD_B;
+    double reference_speed = eperm * LARMOR_RADIUS;
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_rkn), 1e-5, "4th order linearised Runge--Kutta--Nystrom (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet--Boris (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_yoshida), 1e-5, "Yoshida--Boris (grad B)");
+
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(timestep, GRAD_B, GET_SPEED, solve_diffeq_by_rk4), 1000, "4th order linearised Runge--Kutta (grad B, speed)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(timestep, GRAD_B, GET_SPEED, solve_diffeq_by_rkn), 1000, "4th order linearised Runge--Kutta--Nystrom (grad B, speed)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(timestep, GRAD_B, GET_SPEED, solve_diffeq_by_verlet), 1, "velocity-Verlet--Boris (grad B, speed)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(timestep, GRAD_B, GET_SPEED, solve_diffeq_by_yoshida), 1, "Yoshida--Boris (grad B, speed)");
+
+    double reference_speed_in_electric_field =  eperm * E_OVER_B * NUMBER_OF_CYCLOTRON_PERIODS * 2.0 * PI * LARMOR_RADIUS / reference_speed;
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed_in_electric_field, run_field_with_solver(timestep, E_PAR_B, GET_SPEED_TOROIDAL, solve_diffeq_by_rk4), 1, "4th order linearised Runge--Kutta (E || B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed_in_electric_field, run_field_with_solver(timestep, E_PAR_B, GET_SPEED_TOROIDAL, solve_diffeq_by_rkn), 1, "4th order linearised Runge--Kutta-Nystrom (E || B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed_in_electric_field, run_field_with_solver(timestep, E_PAR_B, GET_SPEED_TOROIDAL, solve_diffeq_by_verlet), 1, "velocity-Verlet--Boris (E || B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed_in_electric_field, run_field_with_solver(timestep, E_PAR_B, GET_SPEED_TOROIDAL, solve_diffeq_by_yoshida), 1, "Yoshida--Boris (E || B)");
+
     return TAIGA_ASSERT_SUMMARY();
 }
