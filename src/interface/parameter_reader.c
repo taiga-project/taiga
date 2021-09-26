@@ -37,7 +37,10 @@ void set_taiga_parameter(char* par_name, char* par_value, BeamProp *beam, ShotPr
     else if (!strcmp(par_name, "timestep"))                 run->timestep = par_value_lf;
     else if (!strcmp(par_name, "step_device"))              run->step_device = par_value_d;
     else if (!strcmp(par_name, "step_host"))                run->step_host = par_value_d;
-    else if (!strcmp(par_name, "threads"))                  run->block_size = par_value_d;
+    else if (!strcmp(par_name, "threads")){
+        run->block_size = par_value_d;
+        run->block_number    = run->particle_number/par_value_d+1;
+    }
     else if (!strcmp(par_name, "particles")){
         run->particle_number = (long)par_value_d;
         run->block_number    = par_value_d/run->block_size+1;
