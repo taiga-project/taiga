@@ -8,8 +8,6 @@ class EFITManager:
         self.efit_file = efit_file
         self.time = time
         self.time_index = self.get_time_index()
-        print(self.time_index)
-        print(time)
         self.r = self.get_time_sliced_data('output/profiles2D/r')
         self.z = self.get_time_sliced_data('output/profiles2D/z')
         self.poloidal_flux_profile = self.get_time_sliced_data('output/profiles2D/poloidalFlux')
@@ -37,9 +35,6 @@ class EFITManager:
             scipy.interpolate.UnivariateSpline(poloidal_flux, normalised_poloidal_flux)
 
     def set_poloidal_flux(self):
-        print(self.r.shape)
-        print(self.z.shape)
-        print(self.poloidal_flux_profile.shape)
         self.get_poloidal_flux = scipy.interpolate.RectBivariateSpline(self.r, self.z, self.poloidal_flux_profile)
 
     def get_normalised_poloidal_flux(self, beamlet_geometry, grid=False):
