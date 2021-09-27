@@ -7,13 +7,11 @@ from utils import *
 class Profiles:
     def __init__(self, shot_number='17178', time='1097',
                  beamlet_geometry=BeamletGeometry(),
-                 ts_time_source='EFIT',
                  efit_reconstruction_id=1, thomson_reconstruction_id=1,
                  database_directory='input/cdb', thomson_subdir='THOMSON', efit_subdir='EFITXX'):
         self.data_directory = self.get_data_directory(database_directory=database_directory, shot_number=shot_number)
         thomson_directory, efit_file = self.set_path(efit_subdir, thomson_subdir, efit_reconstruction_id)
-        self.thomson_profiles = ThomsonProfiles(thomson_directory, shot_number, time, thomson_reconstruction_id,
-                                                ts_time_source)
+        self.thomson_profiles = ThomsonProfiles(thomson_directory, shot_number, time, thomson_reconstruction_id)
         self.efit = EFITManager(efit_file, time)
         beamlet_normalised_poloidal_flux = self.efit.get_normalised_poloidal_flux(beamlet_geometry)
 
