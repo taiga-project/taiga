@@ -16,17 +16,17 @@ class EFITManager:
         self.set_normalised_poloidal_flux()
         self.set_poloidal_flux()
 
-    def get_time_index(self):
-        time_dataset = self.get_data('time')
-        return (numpy.abs(time_dataset - int(self.time) / 1000)).argmin()
-
     def get_data(self, field):
-        file = h5py.File(self.efit_file)
+        file = h5py.File(self.efit_file, 'r')
         return file[field][()]
 
     def get_time_sliced_data(self, field):
-        file = h5py.File(self.efit_file)
+        file = h5py.File(self.efit_file, 'r')
         return file[field][self.time_index]
+
+    def get_time_index(self):
+        time_dataset = self.get_data('time')
+        return (numpy.abs(time_dataset - int(self.time) / 1000)).argmin()
 
     def set_normalised_poloidal_flux(self):
         normalised_poloidal_flux = self.get_data('output/fluxFunctionProfiles/normalizedPoloidalFlux')
