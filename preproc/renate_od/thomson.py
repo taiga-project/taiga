@@ -36,14 +36,14 @@ class ThomsonProfiles:
         self.normalised_poloidal_flux_profile = self.get_profile('psi_n', reconstruction_id=1)
         print('Thomson scattering profile files read successfully from: ' + self.thomson_directory)
 
-    def get_dataset(self, field, reconstruction_id):
+    def get_dataset(self, field, reconstruction_id=1):
         file = h5py.File(self.thomson_directory + '/' + field + '.' + str(reconstruction_id) + '.h5', 'r')
         return file[field][()]
 
     def get_time_index(self, time_dataset):
         return numpy.nanargmin((numpy.abs(time_dataset - int(self.time))))
 
-    def get_profile(self, field, reconstruction_id):
+    def get_profile(self, field, reconstruction_id=1):
         return self.get_dataset(field, reconstruction_id)[self.time_index]
 
     def plot_profiles(self):
