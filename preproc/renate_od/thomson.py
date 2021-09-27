@@ -4,7 +4,7 @@ from utils import *
 
 
 class ThomsonProfiles:
-    def __init__(self, thomson_directory, shot_number, time, reconstruction_id):
+    def __init__(self, thomson_directory, shot_number, time, reconstruction_id=1):
         self.thomson_directory = thomson_directory
         self.reconstruction_id = reconstruction_id
         self.shot_number = shot_number
