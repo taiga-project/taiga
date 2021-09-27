@@ -22,8 +22,8 @@ def export_beamlet_profile(export_root=get_home_directory() + '/input/ionProf/',
     else:
         pass
     print('Save RENATE-OD ionisation profile to: ' + export_directory)
-    radial_coordinate.to_csv(export_directory+'/rad.dat', index=False, header=False)
-    relative_attenuation.to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
+    radial_coordinate.fillna(0).to_csv(export_directory+'/rad.dat', index=False, header=False)
+    relative_attenuation.fillna(0).to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
     plot_attenuation_profile(shot_number, time, radial_coordinate, relative_attenuation, export_directory)
 
 
