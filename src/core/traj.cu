@@ -79,7 +79,7 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[X_SIZE], int detce
         update_intensity = &no_ionisation_loss;
     }
 
-    for (step_counter=0; (step_counter < max_step_number && (detcellid == CALCULATION_NOT_FINISHED)); ++step_counter){
+    for (step_counter=0; ((step_counter < max_step_number) && (detcellid == CALCULATION_NOT_FINISHED)); ++step_counter){
         for(i=0; i<X_SIZE; ++i)  X_prev[i] = X[i];
 
         psi_n = (*solve_diffeq)(X, eperm, timestep,

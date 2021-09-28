@@ -1,11 +1,3 @@
-#define SERVICE_VAR_LENGTH 10
-
-#define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
-
-#define HELP_MODE 1
-#define HELP_DEVICES 2
-#define HELP_VERSION 3
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda.h>
@@ -14,10 +6,6 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
-//#include <filesystem>
-
-#include <cuda_profiler_api.h>
-//#include "test/cuda/nvToolsExt.h"
 
 #include "utils/taiga_constants.h"
 #include "utils/prop.c"
@@ -157,10 +145,17 @@ int main(int argc, char *argv[]){
         init_dir(run.folder_out, run.runnumber);
         CopyFile(run.parameter_file, concat(run.folder_out,"/",run.runnumber,"/parameters.sh", NULL));
         
-        //! CUDA profiler START
-        cudaProfilerStart();
         set_cuda(run.debug);
-        
+
+        //! Set CUDA timer
+        cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
+        clock_t cpu_event_copy_start, cpu_event_copy_end;
+        float cuda_event_core, cuda_event_copy;
+        cudaEventCreate(&cuda_event_core_start);
+        cudaEventCreate(&cuda_event_core_end);
+        cudaEventCreate(&cuda_event_copy_start);
+        cudaEventCreate(&cuda_event_copy_end);
+
         TaigaGlobals *device_global, *host_global, *shared_global;
         TaigaCommons *device_common, *host_common, *shared_common;
         DetectorProp *shared_detector, *device_detector;
@@ -210,7 +205,7 @@ int main(int argc, char *argv[]){
         if (shared_detector->detector_module_on) {
             init_detector(shared_detector, device_detector, shot);
         }
-        
+
         // <service value>
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
         double *host_service_array, *device_service_array;
@@ -230,19 +225,8 @@ int main(int argc, char *argv[]){
         }
         
         print_run_details(host_global, host_common, shot, run);
-        
-        //! Set CUDA timer 
-        cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
-        clock_t cpu_event_copy_start, cpu_event_copy_end;
-        float cuda_event_core, cuda_event_copy;
-        cudaEventCreate(&cuda_event_core_start);
-        cudaEventCreate(&cuda_event_core_end);
-        cudaEventCreate(&cuda_event_copy_start);
-        cudaEventCreate(&cuda_event_copy_end);
-        
+
         if (run.debug == 1 && !FASTMODE)   debug_message_init(host_global);
-        
-        size_t dimX = host_global->particle_number*sizeof(double);
 
         set_thomson_profiles(shot, host_common, shared_common);
 
@@ -257,13 +241,11 @@ int main(int argc, char *argv[]){
             
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
-            //ERRORCHECK();
             
             if (!FASTMODE){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
                 coord_memcopy_back(beam, shot, run, host_global, shared_global);
-                //ERRORCHECK();
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
                 
                 // Save data to files
@@ -299,10 +281,7 @@ int main(int argc, char *argv[]){
         detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
         detector_sum <<<1,1>>> (device_global, device_common, device_detector);
         export_detector(shared_detector, device_detector, shared_global, shot, run);
-        
-        //! CUDA profiler STOP
-        cudaProfilerStop();
-        
+
         if (run.debug == 1)    debug_service_vars(host_service_array);
         
         fill_header_file(host_common, beam, shot, run);
@@ -317,6 +296,8 @@ int main(int argc, char *argv[]){
         
         //! FREE host_service_array variables (RAM, cuda)
         free(host_service_array);  cudaFree(device_service_array);
+
+        cudaThreadExit();
         printf("Ready.\n\n");
     }
 }
