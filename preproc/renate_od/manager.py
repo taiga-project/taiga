@@ -11,10 +11,10 @@ from crm_solver.beamlet import Beamlet
 class RenateODManager:
     def __init__(self, beamlet_geometry, shot_number, time, species, energy):
         self.beamlet_geometry = beamlet_geometry
-        self.shot_number = shot_number
-        self.time = time
+        self.shot_number = str(shot_number)
+        self.time = str(time)
         self.species = species
-        self.energy = energy
+        self.energy = str(energy)
         self.beamlet = self.get_beamlet()
         self.relative_attenuation = self.get_relative_attenuation()
 
