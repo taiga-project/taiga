@@ -27,4 +27,11 @@
     #define CUBIC_BSPLINE 13
 
     #define SPLINE_INDEX_ERROR -1
+
+    #define SERVICE_VAR_LENGTH 10
+
+    #define HELP_MODE 1
+    #define HELP_DEVICES 2
+    #define HELP_VERSION 3
+
 #endif //CONSTANTS_H
