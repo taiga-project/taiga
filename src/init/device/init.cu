@@ -66,7 +66,7 @@ void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals
 }
 
 void set_particle_number(RunProp *run, TaigaGlobals *host_global, TaigaGlobals *shared_global){
-    if (READINPUTPROF == 1){
+    if (run->mode == READ_COORDINATES){
         double *X_temp;
         host_global->particle_number = read_vector(&X_temp, "input", "manual_profile", "rad.dat");
         run->block_number = host_global->particle_number / run->block_size+1;

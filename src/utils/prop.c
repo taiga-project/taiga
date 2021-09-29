@@ -1,5 +1,7 @@
 #include "utils/prop.h"
 
+#include <string.h>
+
 void init_beam_prop(BeamProp *beam){
     strcpy(beam->species, "Li");
     beam->charge = 1.0;
@@ -17,6 +19,7 @@ void init_shot_prop(ShotProp *shot){
 }
 
 void init_run_prop(RunProp *run){
+    run->mode = ALL_IO;
     run->debug = 0;
     run->help = 0;
     run->particle_number = 1;
@@ -26,6 +29,7 @@ void init_run_prop(RunProp *run){
     run->step_device = 2000; // on GPU
     run->timestep = 1e-9;
     run->solver = SOLVER_RK45;
+    run->init_source = READ_COORDINATES;
     run->field_interpolation_method = CUBIC_SPLINE;
     run->is_electric_field_on = false;
     run->is_magnetic_field_perturbation = false;

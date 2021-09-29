@@ -133,7 +133,7 @@ void test_field(int field_interpolation_method){
 
 
     init_device_structs(beam, shot, run, shared_global, shared_common);
-    sync_device_structs(device_global, shared_global, device_common, shared_common);
+    sync_device_structs(device_global, shared_global, device_common, shared_common, true);
 
     double *host_field, *device_field;
     double *host_R, *device_R;

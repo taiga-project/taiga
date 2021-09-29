@@ -3,7 +3,7 @@
 #include "utils/physics.h"
 
 // set beam inline parameters
-void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
+void load_beam_renate(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
     int i, prof_size[2];
     double *radial_grid, *radial_profile, *cross_section_grid, *cross_section_profile, speed, ionisation_yeald, xsec_rad, xsec_ang;
     

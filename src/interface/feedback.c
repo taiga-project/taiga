@@ -30,21 +30,17 @@ void fill_header_file(TaigaCommons *common, BeamProp beam, ShotProp shot, RunPro
     export_header_addline(run.folder_out, run.runnumber);
     export_header("ABP ION TRAJECTORIES", run.folder_out, run.runnumber);
     
-    if(READINPUTPROF==1){
+    if(run.init_source == READ_COORDINATES){
         export_header("Manual (6D) input profile", run.folder_out, run.runnumber);
-    }else if(RENATE==110){
+    }else if(run.init_source == READ_RENATE_OD){
         export_header("TS + Renate 1.1.0 input profile", run.folder_out, run.runnumber);
     }
     export_header_addline(run.folder_out, run.runnumber);
-    
-    if(!READINPUTPROF){
-        export_header(concat("Beam species:\t", beam.species, NULL), run.folder_out, run.runnumber);
-        export_header("Beam charge number", "", beam.charge, run.folder_out, run.runnumber);
-        export_header("Beam energy", "keV", beam.energy, run.folder_out, run.runnumber);
-        export_header("Beam diameter", "mm", beam.diameter*1000, run.folder_out, run.runnumber);
-        export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection*180.0/PI, beam.vertical_deflection*180.0/PI, run.folder_out, run.runnumber);
-    }
-    
+    export_header(concat("Beam species:\t", beam.species, NULL), run.folder_out, run.runnumber);
+    export_header("Beam charge number", "", beam.charge, run.folder_out, run.runnumber);
+    export_header("Beam energy", "keV", beam.energy, run.folder_out, run.runnumber);
+    export_header("Beam diameter", "mm", beam.diameter*1000, run.folder_out, run.runnumber);
+    export_header("Beam deflection (toroidal/vertical)", "°", beam.toroidal_deflection*180.0/PI, beam.vertical_deflection*180.0/PI, run.folder_out, run.runnumber);
     export_header("Number of ions", "", run.particle_number, run.folder_out, run.runnumber);
     export_header_addline(run.folder_out, run.runnumber);
     export_header("Detector position (R)", "m", common->detector_geometry[0], run.folder_out, run.runnumber);
