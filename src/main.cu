@@ -31,7 +31,7 @@
 #include "init/thomson.cu"
 
 #include "interface/data_import/beam_manual_profile.c"
-#include "interface/data_import/beam_renate110.c"
+#include "interface/data_import/beam_renate.c"
 
 #include "utils/dataio/data_export.c"
 

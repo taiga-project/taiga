@@ -13,7 +13,7 @@
 #include "interface/parameter_reader.c"
 #include "init/structures/beam.cu"
 #include "interface/data_import/beam_manual_profile.c"
-#include "interface/data_import/beam_renate110.c"
+#include "interface/data_import/beam_renate.c"
 #include "init/structures/detector.cu"
 #include "detector/postproc.cu"
 #include "detector/sum.cu"
