@@ -34,4 +34,11 @@
     #define HELP_DEVICES 2
     #define HELP_VERSION 3
 
+    #define ALL_IO 0
+    #define JUST_WRITE 1
+    #define MINIMAL_IO 2
+
+    #define READ_COORDINATES 0
+    #define READ_RENATE_OD 1
+
 #endif //CONSTANTS_H

@@ -2,7 +2,7 @@
 #include <math.h>
 #include "utils/physics.h"
 
-void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
+void load_beam_manual(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
     double *xr,*xz,*xt,*vr,*vz,*vt;
     long profile_length = -1;
 
@@ -58,9 +58,4 @@ void load_beam(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *run){
     
     run->particle_number = profile_length;
     if (run->debug==1)  printf("Number of particles are modified to %d.\n", run->particle_number);
-}
-
-void init_ion_profile(char* shotname, BeamProfile* prof){
-    printf("Error: manual beam profile cannot call init_ion_profile");
-    exit(1);
 }

@@ -21,6 +21,7 @@
 #include "utils/dataio/data_import.c"
 #include "interface/data_import/field_import.cu"
 #include "interface/parameter_reader.c"
+#include "interface/compiler_definition.c"
 
 #include "init/structures/beam.cu"
 #include "init/device/init.cu"
@@ -29,14 +30,8 @@
 #include "init/fast_mode.cu"
 #include "init/thomson.cu"
 
-#include "interface/data_import/beam.h"
-#if READINPUTPROF == 1
-    #include "interface/data_import/beam_manual_profile.c"
-#elif RENATE == 110
-    #include "interface/data_import/beam_renate110.c"
-#else
-    #error A valid beam module is required!
-#endif
+#include "interface/data_import/beam_manual_profile.c"
+#include "interface/data_import/beam_renate.c"
 
 #include "utils/dataio/data_export.c"
 
@@ -139,6 +134,7 @@ int main(int argc, char *argv[]){
     }else if (run.help == HELP_VERSION){
         print_version();
     }else{
+        read_compiler_definition(&run);
         parameter_reader(&beam, &shot, &run);
         runnumber_reader(&shot, &run);
         
@@ -220,19 +216,19 @@ int main(int argc, char *argv[]){
         cudaMemcpy(device_service_array, host_service_array, dimService, cudaMemcpyHostToDevice);
         // </service value>
         
-        if (!FASTMODE){
+        if (run.mode == ALL_IO){
            save_trajectories(host_global, run);
         }
         
         print_run_details(host_global, host_common, shot, run);
 
-        if (run.debug == 1 && !FASTMODE)   debug_message_init(host_global);
+        if (run.debug == 1 && run.mode == ALL_IO)   debug_message_init(host_global);
 
         set_thomson_profiles(shot, host_common, shared_common);
 
         init_device_structs(beam, shot, run, shared_global, shared_common);
-        sync_device_structs(device_global, shared_global, device_common, shared_common);
-        if (FASTMODE)   init_fastmode(beam, shot, run, device_global);
+        sync_device_structs(device_global, shared_global, device_common, shared_common, run.mode == ALL_IO);
+        if (run.mode != ALL_IO)   init_fastmode(beam, shot, run, device_global);
         
         for (long step_i=0; step_i<run.step_host; ++step_i){
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
@@ -242,7 +238,7 @@ int main(int argc, char *argv[]){
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
             
-            if (!FASTMODE){
+            if (run.mode == ALL_IO){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
                 coord_memcopy_back(beam, shot, run, host_global, shared_global);
@@ -255,19 +251,19 @@ int main(int argc, char *argv[]){
             }
             
             if (run.debug == 1)    printf("Step\t%ld/%ld\n",step_i,run.step_host);
-            if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global);
+            if (run.debug == 1 && run.mode == ALL_IO)    debug_message_run(host_global);
         }
         
         // Get CUDA timer
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
-        if (!FASTMODE) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
+        if (run.mode == ALL_IO) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
         run.cuda_time_copy = (double) (1.0+run.step_host)*cuda_event_copy/1000.0;
         run.cuda_time_core =  run.step_host*cuda_event_core/1000.0;
         printf("===============================\n");
         printf ("CUDA kernel runtime: %lf s\n", run.cuda_time_core);
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
-        if (!FASTMODE)  printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
+        if (run.mode == ALL_IO)  printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
         printf("===============================\n");
         
         //! MEMCOPY (device2HOST)
@@ -286,7 +282,7 @@ int main(int argc, char *argv[]){
         
         fill_header_file(host_common, beam, shot, run);
         
-        if (!FASTMODE){
+        if (run.mode == ALL_IO){
             save_endpoints(host_global, run);
         }else{
             printf("Warning: End-points are not saved in FASTMODE\n");

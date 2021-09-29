@@ -15,7 +15,7 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
     double* shared_time_of_flight;
     int* shared_detcellid;
 
-    if (!FASTMODE){
+    if (run->mode == ALL_IO){
         g_host->rad = (double*)malloc(size_coord);
         g_host->z   = (double*)malloc(size_coord);
         g_host->tor = (double*)malloc(size_coord);
@@ -25,7 +25,11 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
         g_host->intensity = (double*)malloc(size_coord);
         g_host->time_of_flight = (double*)malloc(size_coord);
         g_host->detcellid = (int*)malloc(size_detcellid);
-        load_beam(g_host, beam, shot, run);
+        if (run->init_source == READ_COORDINATES) {
+            load_beam_manual(g_host, beam, shot, run);
+        } else if (run->init_source == READ_RENATE_OD) {
+            load_beam_renate(g_host, beam, shot, run);
+        }
 
         for (int i=0; i<run->block_size * run->block_number; ++i){
             g_host->detcellid[i] = CALCULATION_NOT_FINISHED;
@@ -46,7 +50,7 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
     cudaMalloc((void **) &shared_time_of_flight, size_coord);
     cudaMalloc((void **) &shared_detcellid, size_detcellid);
 
-    if (!FASTMODE){
+    if (run->mode == ALL_IO){
         cudaMemcpy(shared_rad,       g_host->rad,       size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_z,         g_host->z,         size_coord,  cudaMemcpyHostToDevice);
         cudaMemcpy(shared_tor,       g_host->tor,       size_coord,  cudaMemcpyHostToDevice);

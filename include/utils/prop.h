@@ -1,6 +1,8 @@
 #ifndef PROP_H
 #define PROP_H
 
+#include "taiga_constants.h"
+
 typedef struct BeamProp{
     char species[STRING_LENGTH];
     double charge;              // in Z
@@ -20,6 +22,7 @@ typedef struct ShotProp{
 }ShotProp;
 
 typedef struct RunProp{
+    int mode;
     int debug;
     int help;
     long particle_number;
@@ -29,6 +32,7 @@ typedef struct RunProp{
     long step_device;        // on GPU
     double timestep;
     int solver;
+    int init_source;
     int field_interpolation_method;
     bool is_electric_field_on;
     bool is_magnetic_field_perturbation;
