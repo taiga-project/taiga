@@ -26,19 +26,13 @@ void load_beam_renate(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *
     
     /* initialize random generator */
     srand ( time(NULL) );
-    for (i=0; i< prof->radial_length; ++i) {
-        printf("%d   %lf  %lf\n",i,prof->radial_profile[i], prof->radial_grid[i]);
-    }
-    printf("\n");
     radial_length = prof->radial_length;
     cross_length = prof->cross_length;
     for (i=0; i<run->particle_number; ++i) {
         /* set position of particles */
         do {
-            printf("S %ld/%ld (%ld) %ld \n", i,g->particle_number, run->particle_number, prof->radial_length);
             ionisation_yeald = (double)rand()/RAND_MAX;
             g->rad[i] = linear_interpolate(prof->radial_profile, radial_length, prof->radial_grid, radial_length, ionisation_yeald);
-            printf("%lf %lf\n", ionisation_yeald, g->rad[i]);
         } while (isnan(g->rad[i])||g->rad[i]<0);
         do {
             if (prof_size[1] <= 0) {
