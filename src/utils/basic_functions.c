@@ -9,9 +9,9 @@
 double linear_interpolate(double *x_vector, long x_length, double *y_vector, long y_length, double x_value){
     int i;
     if (x_length != y_length)   printf("ERROR: in interpolation. Two input vectors have different length.");
-    for (i=1; (i<x_length) && (x_vector[i-1]>x_value); ++i);
+    for (i = 0; (i < x_length-1) && (x_vector[i] > x_value); ++i);
     if(i>1){--i;}else{i=1;}
-    return y_vector[i] - (y_vector[i]-y_vector[i-1])*(x_value-x_vector[i-1])/(x_vector[i]-x_vector[i-1]);
+    return y_vector[i] + (y_vector[i+1]-y_vector[i])*(x_value-x_vector[i])/(x_vector[i+1]-x_vector[i]);
 }
 
 char* concat(const char *s1, ...){
