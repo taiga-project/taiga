@@ -7,6 +7,7 @@
 
 int main(){
     return test_concat() +
+    test_interpolate() +
     test_bspline() +
     test_solver();
 }
