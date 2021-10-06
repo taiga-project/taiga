@@ -47,8 +47,8 @@ class ThomsonProfiles:
         return self.get_dataset(field, reconstruction_id)[self.time_index]
 
     def plot_profiles(self):
-        self.density.plot_profile(self.shot_number, self.time, r'$n_e~(\mathrm{m}^{-3})$')
-        self.temperature.plot_profile(self.shot_number, self.time, r'$T_e~(\mathrm{keV})$')
+        self.density.plot_profile(self.shot_number, self.time, r'$n_e~[10^{-19}~\mathrm{m}^{-3}]$', 1e-19)
+        self.temperature.plot_profile(self.shot_number, self.time, r'$T_e~[\mathrm{eV}]$')
 
     def export_profiles(self, path):
         export_directory = path + '/' + self.shot_number + '_' + self.time

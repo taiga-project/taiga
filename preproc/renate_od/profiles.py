@@ -19,7 +19,7 @@ class Profiles:
         self.density = self.thomson_profiles.density.get_value(beamlet_normalised_poloidal_flux)
         self.temperature = self.thomson_profiles.temperature.get_value(beamlet_normalised_poloidal_flux)
         self.export_profiles()
-        self.thomson_profiles.plot_profiles()
+        #self.thomson_profiles.plot_profiles()
 
     @staticmethod
     def get_data_directory(database_directory, shot_number):
