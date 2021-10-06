@@ -70,19 +70,23 @@ class ProfileManager:
         y_ext = numpy.append(self.y_smooth, [0., 0.])
         self.f_smooth = scipy.interpolate.interp1d(x_ext, y_ext, kind='linear', bounds_error=False)
 
-    def plot_profile(self, shot_number, time, ylabel):
+    def plot_profile(self, shot_number, time, ylabel, yscale=1):
         fig, ax = matplotlib.pyplot.subplots()
-        ax.plot(self.x_raw, self.y_raw, '.')
-        ax.plot(self.x, self.y, '.')
-        ax.fill_between(self.x, self.y - 1 * self.y_error, self.y + 1 * self.y_error, color='gray', alpha=0.4)
-        ax.fill_between(self.x, self.y - 3 * self.y_error, self.y + 3 * self.y_error, color='gray', alpha=0.3)
-        ax.fill_between(self.x, self.y - 5 * self.y_error, self.y + 5 * self.y_error, color='gray', alpha=0.2)
-        ax.plot(self.x_fine, self.y_fine)
-        ax.set_xlabel('normalised toroidal flux')
+        fig.set_size_inches(3.5, 3.5)
+        fig.subplots_adjust(left=0.2, bottom=0.15)
+        ax.plot(self.x_raw, self.y_raw*yscale, '.')
+        ax.plot(self.x, self.y*yscale, '.')
+        ax.fill_between(self.x, (self.y - 1 * self.y_error)*yscale, (self.y + 1 * self.y_error)*yscale, color='gray', alpha=0.4)
+        ax.fill_between(self.x, (self.y - 3 * self.y_error)*yscale, (self.y + 3 * self.y_error)*yscale, color='gray', alpha=0.3)
+        ax.fill_between(self.x, (self.y - 5 * self.y_error)*yscale, (self.y + 5 * self.y_error)*yscale, color='gray', alpha=0.2)
+        ax.plot(self.x_fine, self.y_fine*yscale)
+        ax.set_xlabel('normalised poloidal flux')
         ax.set_ylabel(ylabel)
         ax.set_title('COMPASS #'+shot_number+' ('+time+' ms) ')
         matplotlib.pyplot.minorticks_on()
         matplotlib.pyplot.grid(which='both')
+        matplotlib.pyplot.axvline(1, c='red', ls='--')
+        matplotlib.pyplot.text(1.005, max(self.y), 'LCFS', c='red', fontsize=12)
         matplotlib.pyplot.show()
 
     def get_value(self, normalised_poloidal_flux):
