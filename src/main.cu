@@ -1,11 +1,3 @@
-#define SERVICE_VAR_LENGTH 10
-
-#define ERRORCHECK() cErrorCheck(__FILE__, __LINE__)
-
-#define HELP_MODE 1
-#define HELP_DEVICES 2
-#define HELP_VERSION 3
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda.h>
@@ -14,54 +6,51 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
-//#include <filesystem>
-
-#include <cuda_profiler_api.h>
-//#include "test/cuda/nvToolsExt.h"
 
 #include "utils/taiga_constants.h"
 #include "utils/prop.c"
 #include "main.cuh"
-#include "interface/save.c"
+#include "interface/data_export/save_data.c"
 #include "interface/feedback.c"
 #include "utils/debug_functions.c"
 #include "utils/basic_functions.h"
-#include "utils/dir_functions.c"
+#include "utils/dataio/dir_functions.c"
 #include "utils/cuda_basic_functions.cuh"
+#include "utils/physics.c"
 
-#include "dataio/data_import.c"
-#include "dataio/field_import.cu"
-#include "dataio/parameter_reader.c"
+#include "utils/dataio/data_import.c"
+#include "interface/data_import/field_import.cu"
+#include "interface/parameter_reader.c"
+#include "interface/compiler_definition.c"
 
-#include "init/beam.cu"
-#include "init/init.cu"
-#include "init/sync.cu"
-#include "init/detector.cu"
+#include "init/structures/beam.cu"
+#include "init/device/init.cu"
+#include "init/device/sync.cu"
+#include "init/structures/detector.cu"
 #include "init/fast_mode.cu"
-#include "dataio/beam.h"
-#if READINPUTPROF == 1
-    #include "dataio/beam_manual_profile.c"
-#elif RENATE == 110
-    #include "dataio/beam_renate110.c"
-#else
-    #error A valid beam module is required!
-#endif
+#include "init/thomson.cu"
 
-#include "dataio/data_export.c"
+#include "interface/data_import/beam_manual_profile.c"
+#include "interface/data_import/beam_renate.c"
 
-#include "core/maths.cu"
-#include "core/rk4.cu"
-#include "core/runge_kutta_nystrom.cu"
-#include "core/solvers.cuh"
-#include "core/verlet.cu"
-#include "core/yoshida.cu"
+#include "utils/dataio/data_export.c"
+
+#include "core/maths/maths.cu"
+#include "core/solvers/rk4.cu"
+#include "core/solvers/runge_kutta_nystrom.cu"
+#include "core/solvers/solvers.cuh"
+#include "core/solvers/verlet.cu"
+#include "core/solvers/boris.cu"
+#include "core/solvers/yoshida.cu"
 #include "core/detection.cu"
-#include "core/cyl2tor.cu"
+#include "core/maths/cyl2tor.cu"
 #include "core/localise_field.cu"
-#include "core/bspline.cu"
+#include "core/maths/bspline.cu"
 #include "core/traj.cu"
-#include "core/generate_coords.cu"
+#include "core/init/generate_coords.cu"
 #include "core/taiga.cu"
+#include "core/init/init_beamlet.cu"
+#include "core/physics/ionisation.cu"
 
 #include "detector/module.cu"
 #include "detector/postproc.cu"
@@ -145,16 +134,24 @@ int main(int argc, char *argv[]){
     }else if (run.help == HELP_VERSION){
         print_version();
     }else{
+        read_compiler_definition(&run);
         parameter_reader(&beam, &shot, &run);
         runnumber_reader(&shot, &run);
         
         init_dir(run.folder_out, run.runnumber);
         CopyFile(run.parameter_file, concat(run.folder_out,"/",run.runnumber,"/parameters.sh", NULL));
         
-        //! CUDA profiler START
-        cudaProfilerStart();
         set_cuda(run.debug);
-        
+
+        //! Set CUDA timer
+        cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
+        clock_t cpu_event_copy_start, cpu_event_copy_end;
+        float cuda_event_core, cuda_event_copy;
+        cudaEventCreate(&cuda_event_core_start);
+        cudaEventCreate(&cuda_event_core_end);
+        cudaEventCreate(&cuda_event_copy_start);
+        cudaEventCreate(&cuda_event_copy_end);
+
         TaigaGlobals *device_global, *host_global, *shared_global;
         TaigaCommons *device_common, *host_common, *shared_common;
         DetectorProp *shared_detector, *device_detector;
@@ -200,9 +197,11 @@ int main(int argc, char *argv[]){
         if (run.is_magnetic_field_perturbation) run.is_magnetic_field_perturbation = poloidal_flux_read_and_init(shot, run, host_common, shared_common);
 
         // detector
-        set_detector_geometry(shot, host_common, shared_common);
-        init_detector(shared_detector, device_detector, shot);
-        
+        set_detector_geometry(shot, host_common, shared_common, shared_detector);
+        if (shared_detector->detector_module_on) {
+            init_detector(shared_detector, device_detector, shot);
+        }
+
         // <service value>
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
         double *host_service_array, *device_service_array;
@@ -217,28 +216,19 @@ int main(int argc, char *argv[]){
         cudaMemcpy(device_service_array, host_service_array, dimService, cudaMemcpyHostToDevice);
         // </service value>
         
-        if (!FASTMODE){
+        if (run.mode == ALL_IO){
            save_trajectories(host_global, run);
         }
         
         print_run_details(host_global, host_common, shot, run);
-        
-        //! Set CUDA timer 
-        cudaEvent_t cuda_event_core_start, cuda_event_core_end, cuda_event_copy_start, cuda_event_copy_end;
-        clock_t cpu_event_copy_start, cpu_event_copy_end;
-        float cuda_event_core, cuda_event_copy;
-        cudaEventCreate(&cuda_event_core_start);
-        cudaEventCreate(&cuda_event_core_end);
-        cudaEventCreate(&cuda_event_copy_start);
-        cudaEventCreate(&cuda_event_copy_end);
-        
-        if (run.debug == 1 && !FASTMODE)   debug_message_init(host_global);
-        
-        size_t dimX = host_global->particle_number*sizeof(double);
-        
+
+        if (run.debug == 1 && run.mode == ALL_IO)   debug_message_init(host_global);
+
+        set_thomson_profiles(shot, host_common, shared_common);
+
         init_device_structs(beam, shot, run, shared_global, shared_common);
-        sync_device_structs(device_global, shared_global, device_common, shared_common);
-        if (FASTMODE)   init_fastmode(beam, shot, run, device_global);
+        sync_device_structs(device_global, shared_global, device_common, shared_common, run.mode == ALL_IO);
+        if (run.mode != ALL_IO)   init_fastmode(beam, shot, run, device_global);
         
         for (long step_i=0; step_i<run.step_host; ++step_i){
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
@@ -247,13 +237,11 @@ int main(int argc, char *argv[]){
             
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             cudaEventSynchronize(cuda_event_core_end);
-            //ERRORCHECK();
             
-            if (!FASTMODE){
+            if (run.mode == ALL_IO){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
                 coord_memcopy_back(beam, shot, run, host_global, shared_global);
-                //ERRORCHECK();
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
                 
                 // Save data to files
@@ -263,19 +251,19 @@ int main(int argc, char *argv[]){
             }
             
             if (run.debug == 1)    printf("Step\t%ld/%ld\n",step_i,run.step_host);
-            if (run.debug == 1 && !FASTMODE)    debug_message_run(host_global);
+            if (run.debug == 1 && run.mode == ALL_IO)    debug_message_run(host_global);
         }
         
         // Get CUDA timer
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
-        if (!FASTMODE) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
+        if (run.mode == ALL_IO) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
         run.cuda_time_copy = (double) (1.0+run.step_host)*cuda_event_copy/1000.0;
         run.cuda_time_core =  run.step_host*cuda_event_core/1000.0;
         printf("===============================\n");
         printf ("CUDA kernel runtime: %lf s\n", run.cuda_time_core);
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
-        if (!FASTMODE)  printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
+        if (run.mode == ALL_IO)  printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
         printf("===============================\n");
         
         //! MEMCOPY (device2HOST)
@@ -289,22 +277,23 @@ int main(int argc, char *argv[]){
         detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
         detector_sum <<<1,1>>> (device_global, device_common, device_detector);
         export_detector(shared_detector, device_detector, shared_global, shot, run);
-        
-        //! CUDA profiler STOP
-        cudaProfilerStop();
-        
+
         if (run.debug == 1)    debug_service_vars(host_service_array);
         
         fill_header_file(host_common, beam, shot, run);
         
-        if (!FASTMODE){
+        if (run.mode == ALL_IO){
             save_endpoints(host_global, run);
+        }else{
+            printf("Warning: End-points are not saved in FASTMODE\n");
         }
         
         printf("\nData folder: %s/%s\n\n", run.folder_out, run.runnumber);
         
         //! FREE host_service_array variables (RAM, cuda)
         free(host_service_array);  cudaFree(device_service_array);
+
+        cudaThreadExit();
         printf("Ready.\n\n");
     }
 }

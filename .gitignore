@@ -1,5 +1,5 @@
 # IDE
-src/.idea/
+**/.idea/
 **/__pycache__
 
 # result folder
@@ -8,5 +8,7 @@ results/*
 
 # compiled files
 *.exe
-code/*.exe
+bin
+build
+src/*.exe
 
