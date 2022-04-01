@@ -91,6 +91,7 @@ class ProfileManager:
         matplotlib.pyplot.text(1.005, max(self.y), 'LCFS', c='red', fontsize=12)
         matplotlib.pyplot.savefig(self.export_directory + '/' + self.field + '.pdf')
         matplotlib.pyplot.show()
+        print('Save TS profile plot to: ' + self.export_directory + '/' + self.field + '.pdf')
 
     def get_y_label(self, y_scale=1):
         log_y_scale = int(numpy.log10(y_scale))
