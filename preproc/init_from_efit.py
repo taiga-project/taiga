@@ -12,16 +12,20 @@ def get_home_directory():
         return '.'
 
 
-class EFITManager:
+class EFITDataReader:
     file: File
 
-    def __init__(self, shot_number, time, reconstruction_id=1):
+    def __init__(self, shot_number, reconstruction_id=1):
         self.shot_number = shot_number
-        self.time = time
         self.reconstruction_id = reconstruction_id
         self.file_path = ''
         self.init_efit_file()
-        self.time_index = self.get_time_index()
+
+    def get_data(self, field):
+        try:
+            return self.file[field][()]
+        except KeyError:
+            raise KeyError('Invalid hdf5 format.')
 
     def set_efit_file(self, file_path):
         self.file_path = file_path
@@ -38,15 +42,16 @@ class EFITManager:
         self.set_efit_file(get_home_directory() + '/input/cdb/' + str(self.shot_number) +
                            '/EFITXX/EFITXX.' + str(self.reconstruction_id) + '.h5')
 
+
+class EFITManager(EFITDataReader):
+    def __init__(self, shot_number, time, reconstruction_id=1):
+        super().__init__(shot_number, reconstruction_id)
+        self.time = time
+        self.time_index = self.get_time_index()
+
     def get_time_index(self):
         time_dataset = self.get_data('time')
         return (numpy.abs(time_dataset - int(self.time) / 1000)).argmin()
-
-    def get_data(self, field):
-        try:
-            return self.file[field][()]
-        except KeyError:
-            raise KeyError('Invalid hdf5 format.')
 
     def get_time_sliced_data(self, field):
         try:
