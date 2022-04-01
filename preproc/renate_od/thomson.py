@@ -4,11 +4,12 @@ from utils import *
 
 
 class ThomsonProfiles:
-    def __init__(self, thomson_directory, shot_number, time, reconstruction_id=1):
+    def __init__(self, thomson_directory, export_directory, shot_number, time, reconstruction_id=1):
         self.thomson_directory = thomson_directory
         self.reconstruction_id = reconstruction_id
         self.shot_number = shot_number
         self.time = time
+        self.export_directory = export_directory
 
         self.time_index = []
         self.z_axis = []
@@ -19,10 +20,10 @@ class ThomsonProfiles:
         self.normalised_poloidal_flux_profile = []
 
         self.read_thomson_database()
-        self.density = ProfileManager(self.normalised_poloidal_flux_profile,
-                                      self.density_profile, self.density_error_profile)
-        self.temperature = ProfileManager(self.normalised_poloidal_flux_profile,
-                                          self.temperature_profile, self.temperature_error_profile)
+        self.density = ProfileManager(export_directory, self.normalised_poloidal_flux_profile,
+                                      self.density_profile, self.density_error_profile, 'density')
+        self.temperature = ProfileManager(export_directory, self.normalised_poloidal_flux_profile,
+                                          self.temperature_profile, self.temperature_error_profile, 'temperature')
 
     def read_thomson_database(self):
         time_dataset = self.get_dataset('TS_record_time', reconstruction_id=self.reconstruction_id)
@@ -47,10 +48,9 @@ class ThomsonProfiles:
         return self.get_dataset(field, reconstruction_id)[self.time_index]
 
     def plot_profiles(self):
-        self.density.plot_profile(self.shot_number, self.time, r'$n_e~[10^{-19}~\mathrm{m}^{-3}]$', 1e-19)
-        self.temperature.plot_profile(self.shot_number, self.time, r'$T_e~[\mathrm{eV}]$')
+        self.density.plot_profile(self.shot_number, self.time, 1e-19)
+        self.temperature.plot_profile(self.shot_number, self.time)
 
-    def export_profiles(self, path):
-        export_directory = path + '/' + self.shot_number + '_' + self.time
-        self.density.export_profile(export_directory, 'density')
-        self.temperature.export_profile(export_directory, 'temperature')
+    def export_profiles(self):
+        self.density.export_profile()
+        self.temperature.export_profile()
