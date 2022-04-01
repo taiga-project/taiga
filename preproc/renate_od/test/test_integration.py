@@ -1,9 +1,9 @@
 import unittest
 
-from beamlet import BeamletGeometry
-from thomson import ThomsonProfiles
-from efit import EFITManager
-from utils import *
+from taiga.preproc.renate_od.beamlet import BeamletGeometry
+from taiga.preproc.renate_od.thomson import ThomsonProfiles
+from taiga.preproc.renate_od.efit import EFITManager
+from taiga.preproc.renate_od.utils import *
 
 
 class TestROD(unittest.TestCase):
