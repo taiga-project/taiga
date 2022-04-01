@@ -1,6 +1,6 @@
 import unittest
 
-from taiga.preproc.renate_od.utils import ProfileManager
+from utils import ProfileManager
 
 
 class MockProfileManagerNoInit(ProfileManager):

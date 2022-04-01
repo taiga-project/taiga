@@ -1,9 +1,9 @@
 import unittest
 
-from taiga.preproc.renate_od.beamlet import BeamletGeometry
-from taiga.preproc.renate_od.thomson import ThomsonProfiles
-from taiga.preproc.renate_od.efit import EFITManager
-from taiga.preproc.renate_od.utils import *
+from ..beamlet import BeamletGeometry
+from ..thomson import ThomsonProfiles
+from ..efit import EFITManager
+from ..utils import *
 
 
 class TestROD(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestROD(unittest.TestCase):
         thomson_directory = get_home_directory() + '/input/cdb/' + str(shot_number) + '/THOMSON'
         efit_file = get_home_directory() + '/input/cdb/' + str(shot_number) + '/EFITXX/EFITXX.1.h5'
 
-        ts = ThomsonProfiles(thomson_directory, shot_number, time)
+        ts = ThomsonProfiles(thomson_directory, '/tmp', shot_number, time)
         ts_flux = ts.normalised_poloidal_flux_profile
 
         beamlet = BeamletGeometry()
@@ -32,7 +32,7 @@ class TestROD(unittest.TestCase):
 
         R = (R1 * (efit_flux2 - ts_flux) + R2 * (ts_flux - efit_flux1)) / (efit_flux2 - efit_flux1)
 
-        numpy.testing.assert_allclose(R, R_TS, atol=1e-9)
+        numpy.testing.assert_allclose(R, R_TS, atol=1e-4)
 
     @staticmethod
     def test_lcfs(shot_number='17178', time='1097'):
@@ -51,6 +51,4 @@ class TestROD(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    a_shot_number = '17178'
-    a_time = '1097'
     unittest.main()
