@@ -4,7 +4,8 @@ import sys
 
 from profiles import *
 
-sys.path.append('../../ext/renate_od')
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                             os.pardir, os.pardir, 'ext', 'renate_od')))
 from crm_solver.beamlet import Beamlet
 
 
