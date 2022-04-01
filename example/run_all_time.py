@@ -1,7 +1,3 @@
-import taiga.preproc
-import taiga.preproc.renate_od
-#from taiga import EFITDataReader, CDBReader, ParseToTaiga
-#from taiga import export_beamlet_profile
 import sys
 import os
 
@@ -13,11 +9,16 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__f
 from init_from_efit import EFITDataReader, CDBReader, ParseToTaiga
 from interface import export_beamlet_profile
 
+
+def run_all_time(shot_number):
+    e = EFITDataReader(shot_number)
+    times = e.get_data('time')
+    time_slices = (times * 1000).astype(int)
+    for time in time_slices:
+        export_beamlet_profile(shot_number=str(shot_number), time=str(time))
+        cr = CDBReader(shot_number, time)
+        ParseToTaiga(cr)
+
+
 if __name__ == "__main__":
-    a_shot_number = 17178
-    a_time = 1097
-    e = EFITDataReader(a_shot_number)
-    time_dataset = e.get_data('time')
-    export_beamlet_profile(shot_number=str(a_shot_number), time=str(a_time))
-    cr = CDBReader(17178, 1097)
-    ParseToTaiga(cr)
+    run_all_time(17178)
