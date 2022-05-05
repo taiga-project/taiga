@@ -27,7 +27,7 @@
 #define FOLDER "example/solvers/data"
 
 void export_coordinate (FILE *f, double *X) {
-    ;
+    fprintf(f, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", X[0], X[1], X[2], X[3], X[4], X[5]);
 }
 
 void run_field_with_solver_and_export(double timestep, int field_type, char* file_name, long number_of_cyclotron_periods,
@@ -72,7 +72,7 @@ void run_field_with_solver_and_export(double timestep, int field_type, char* fil
     get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_with_electric_field;
     X[4] = eperm * LARMOR_RADIUS;
 
-    file = fopen(concat(FOLDER, "/", file_name, ".dat", NULL) ,"r");
+    file = fopen(concat(FOLDER, "/", file_name, ".dat", NULL) ,"w");
     for (int i = 0; i < maximum_extrema; ++i) {
         solve_diffeq(X, eperm, timestep,
                      c, is_electric_field_on,
@@ -82,6 +82,7 @@ void run_field_with_solver_and_export(double timestep, int field_type, char* fil
                      local_psi_n);
         export_coordinate(file, X);
     }
+    fclose(file);
 }
 
 int main() {
