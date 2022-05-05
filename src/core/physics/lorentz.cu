@@ -1,3 +1,5 @@
+#include "core/physics/lorentz.cuh"
+
 __device__ void get_acceleration_from_lorentz_force_with_electric_field(double *a, double *v,
                                                                         double *B, double *E,
                                                                         double eperm){

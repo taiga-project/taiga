@@ -94,4 +94,8 @@ typedef struct TaigaCommons{
     bool is_ionisation_on;
 }TaigaCommons;
 
+void init_beam_prop(BeamProp *beam);
+void init_shot_prop(ShotProp *shot);
+void init_run_prop(RunProp *run);
+
 #endif

@@ -1,4 +1,5 @@
 // Runge--Kutta--Nystrom method
+#include "core/solvers/runge_kutta_nystrom.cuh"
 #include "core/solvers/solvers.cuh"
 #include "core/localise_field.cuh"
 
