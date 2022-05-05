@@ -91,9 +91,9 @@ void run_field_with_solver_and_export(double timestep, int field_type, char* fil
 }
 
 int main() {
-    double timestep = 1e-12;
-    long number_of_cyclotron_periods = 10000;
-    long frequency_of_export = 1000;
+    double timestep = 1e-10;
+    long number_of_cyclotron_periods = 1000000;
+    long frequency_of_export = 100000;
     run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rk4", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
     run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rkn", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
     run_field_with_solver_and_export(timestep, HOMOGENEOUS, "verlet", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
