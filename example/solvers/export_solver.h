@@ -8,7 +8,8 @@
 #define __device__ ;
 
 void export_coordinate (FILE *f, double *X);
-void run_field_with_solver_and_export(double timestep, int field_type, char* file_name, long number_of_cyclotron_periods,
+void run_field_with_solver_and_export(double timestep, int field_type, char* file_name,
+                                      long number_of_cyclotron_periods, long frequency_of_export,
                                       double (*solve_diffeq)(double *X, double eperm, double timestep,
                                                              TaigaCommons *c, bool is_electric_field_on,
                                                              int *local_spline_indices,

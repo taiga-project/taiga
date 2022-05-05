@@ -31,7 +31,8 @@ void export_coordinate (FILE *f, double *X) {
     fprintf(f, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", X[0], X[1], X[2], X[3], X[4], X[5]);
 }
 
-void run_field_with_solver_and_export(double timestep, int field_type, char* file_name, long number_of_cyclotron_periods,
+void run_field_with_solver_and_export(double timestep, int field_type, char* file_name,
+                                      long number_of_cyclotron_periods, long frequency_of_export,
                                       double (*solve_diffeq)(double *X, double eperm, double timestep,
                                                              TaigaCommons *c, bool is_electric_field_on,
                                                              int *local_spline_indices,
@@ -84,7 +85,7 @@ void run_field_with_solver_and_export(double timestep, int field_type, char* fil
                      local_spline_brad, local_spline_bz, local_spline_btor,
                      local_spline_erad, local_spline_ez, local_spline_etor,
                      local_psi_n);
-        export_coordinate(file, X);
+        if (i % frequency_of_export == 0)   export_coordinate(file, X);
     }
     fclose(file);
 }
@@ -92,9 +93,10 @@ void run_field_with_solver_and_export(double timestep, int field_type, char* fil
 int main() {
     double timestep = 1e-12;
     long number_of_cyclotron_periods = 10000;
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rk4", number_of_cyclotron_periods, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rkn", number_of_cyclotron_periods, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "verlet", number_of_cyclotron_periods,solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "yoshida", number_of_cyclotron_periods, solve_diffeq_by_yoshida);
+    long frequency_of_export = 1000;
+    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rk4", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
+    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rkn", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
+    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "verlet", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
+    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "yoshida", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
     return 0;
 }
