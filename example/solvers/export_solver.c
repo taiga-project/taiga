@@ -21,10 +21,6 @@
 
 #include "utils/basic_functions.c"
 
-#define GRAD_B_FACTOR 0.01
-#define E_OVER_B 1
-#define LARMOR_RADIUS 0.01
-
 #define FOLDER "example"
 
 void export_coordinate (FILE *f, double *X, long N_half) {
