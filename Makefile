@@ -47,6 +47,12 @@ test_init: tests | $(BIN)
 test_framework: tests  | $(BIN)
 	$(GCC) $(DEFAULT_FLAGS) -o $(BIN)/test_framework.exe tests/taiga_test_example.c
 
+example_solvers: $(OBJ)/example_solvers.o $(OBJ)/test_solver.o | $(BIN)
+	$(GCC) $(DEFAULT_FLAGS) $^ -lm -o $(BIN)/example_solvers.exe
+
+$(OBJ)/example_solvers.o: example/solvers/export_solver.c $(OBJ)
+	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Iinclude -Itests -c $< -lm -o $@
+
 field: tests | $(BIN)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_field.exe tests/test_field.cu
 
