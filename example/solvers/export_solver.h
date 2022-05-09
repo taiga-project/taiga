@@ -23,7 +23,7 @@ void generate_B_over_R_field(double *X, double *local_bfield, double *local_efie
                              double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                              double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                              double *local_psi_n);
-void run_field_with_solver_and_export(double timestep, int field_type, char* file_name,
+void run_field_with_solver_and_export(char* scenario_name, double timestep, int field_type, char* solver_name,
                                       long number_of_cyclotron_periods, long frequency_of_export,
                                       double (*solve_diffeq)(double *X, double eperm, double timestep,
                                                              TaigaCommons *c, bool is_electric_field_on,
@@ -31,8 +31,7 @@ void run_field_with_solver_and_export(double timestep, int field_type, char* fil
                                                              double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                                              double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                                              double *local_psi_n) );
-
-void run_scenario(double timestep, int field_type, const char* scenario_name,
+void run_scenario(char* scenario_name,double timestep, int field_type,
                   long number_of_cyclotron_periods, long frequency_of_export);
 
 #endif //EXPORT_SOLVER_CUH

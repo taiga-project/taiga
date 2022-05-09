@@ -59,7 +59,7 @@ void generate_B_over_R_field(double *X, double *local_bfield, double *local_efie
     local_efield[2] = 0.0;
 }
 
-void run_field_with_solver_and_export(double timestep, int field_type, char* file_name,
+void run_field_with_solver_and_export(char* scenario_name, double timestep, int field_type, char* solver_name,
                                       long number_of_cyclotron_periods, long frequency_of_export,
                                       double (*solve_diffeq)(double *X, double eperm, double timestep,
                                                              TaigaCommons *c, bool is_electric_field_on,
@@ -111,7 +111,7 @@ void run_field_with_solver_and_export(double timestep, int field_type, char* fil
     if (field_type == B_OVER_R_FIELD)   X[0] = 1.5;
 
     mkdir(FOLDER, S_IRWXU | S_IRWXG | S_IRWXO);
-    const char *path = concat(FOLDER, "/", file_name, ".dat", NULL);
+    const char *path = concat(FOLDER, "/", solver_name, "_", scenario_name, ".dat", NULL);
     printf("export to: %s\n", path);
     file = fopen(path ,"w");
     for (int i = 0; i < maximum_extrema; ++i) {
@@ -127,9 +127,12 @@ void run_field_with_solver_and_export(double timestep, int field_type, char* fil
 }
 
 
-void run_scenario(double timestep, int field_type, const char* scenario_name,
+void run_scenario(char* scenario_name, double timestep, int field_type,
                   long number_of_cyclotron_periods, long frequency_of_export){
-
+    run_field_with_solver_and_export(scenario_name, timestep, HOMOGENEOUS, "rk4", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
+    run_field_with_solver_and_export(scenario_name, timestep, HOMOGENEOUS, "rkn", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
+    run_field_with_solver_and_export(scenario_name, timestep, HOMOGENEOUS, "verlet", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
+    run_field_with_solver_and_export(scenario_name, timestep, HOMOGENEOUS, "yoshida", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
 }
 
 int main() {
@@ -137,86 +140,21 @@ int main() {
     long number_of_cyclotron_periods = 10000000;
     long frequency_of_export = 100000;
 
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rk4", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rkn", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "verlet", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "yoshida", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
+    run_scenario("default", timestep, HOMOGENEOUS, number_of_cyclotron_periods, frequency_of_export);
+    run_scenario("gradb", timestep, GRAD_B, number_of_cyclotron_periods, frequency_of_export);
+    run_scenario("eparb", timestep, E_PAR_B, number_of_cyclotron_periods, frequency_of_export);
+    run_scenario("br", timestep, BR_FIELD, number_of_cyclotron_periods, frequency_of_export);
 
-    run_field_with_solver_and_export(timestep, GRAD_B, "rk4_gradb", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, GRAD_B, "rkn_gradb", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, GRAD_B, "verlet_gradb", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, GRAD_B, "yoshida_gradb", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
+    run_scenario("gradb_full", timestep, GRAD_B, number_of_cyclotron_periods, 100);
+    run_scenario("b__r", timestep, B_OVER_R_FIELD, 10000000, 100);
+    run_scenario("gradb_start8", 1e-8, B_OVER_R_FIELD, 1, 1000);
+    run_scenario("start8", 1e-8, HOMOGENEOUS, 1, 1000);
+    run_scenario("start10", 1e-10, HOMOGENEOUS, 1000000, 10000);
 
-    run_field_with_solver_and_export(timestep, E_PAR_B, "rk4_eparb", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, E_PAR_B, "rkn_eparb", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, E_PAR_B, "verlet_eparb", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, E_PAR_B, "yoshida_eparb", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    run_field_with_solver_and_export(timestep, BR_FIELD, "rk4_br", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, BR_FIELD,"rkn_br", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, BR_FIELD, "verlet_br", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, BR_FIELD, "yoshida_br", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);*/
-
-    frequency_of_export = 100;
-    run_field_with_solver_and_export(timestep, GRAD_B, "rk4_gradb_full", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, GRAD_B, "rkn_gradb_full", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, GRAD_B, "verlet_gradb_full", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, GRAD_B, "yoshida_gradb_full", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    number_of_cyclotron_periods = 10000000;
-    frequency_of_export = 100;
-    run_field_with_solver_and_export(timestep, B_OVER_R_FIELD, "rk4_b__r", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, B_OVER_R_FIELD, "rkn_b__r", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, B_OVER_R_FIELD, "verlet_b__r", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, B_OVER_R_FIELD, "yoshida_b__r", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    timestep = 1e-8;
-    number_of_cyclotron_periods = 1000;
-    frequency_of_export = 1;
-    run_field_with_solver_and_export(timestep, GRAD_B, "rk4_gradb_start8", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, GRAD_B, "rkn_gradb_start8", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, GRAD_B, "verlet_gradb_start8", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, GRAD_B, "yoshida_gradb_start8", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    timestep = 1e-8;
-    number_of_cyclotron_periods = 1000;
-    frequency_of_export = 1;
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rk4_start8", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rkn_start8", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "verlet_start8", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "yoshida_start8", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    timestep = 1e-10;
-    number_of_cyclotron_periods = 1000000;
-    frequency_of_export = 10000;
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rk4_start10", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rkn_start10", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "verlet_start10", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "yoshida_start10", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    number_of_cyclotron_periods = 100;
-    frequency_of_export = 1;
-    timestep = 1e-9;
-
-    run_field_with_solver_and_export(timestep, B_OVER_R_FIELD, "rk4_b__r_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, B_OVER_R_FIELD, "rkn_b__r_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, B_OVER_R_FIELD, "verlet_b__r_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, B_OVER_R_FIELD, "yoshida_b__r_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rk4_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "rkn_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "verlet_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, HOMOGENEOUS, "yoshida_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    run_field_with_solver_and_export(timestep, GRAD_B, "rk4_gradb_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, GRAD_B, "rkn_gradb_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, GRAD_B, "verlet_gradb_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, GRAD_B, "yoshida_gradb_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
-
-    run_field_with_solver_and_export(timestep, E_PAR_B, "rk4_eparb_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(timestep, E_PAR_B, "rkn_eparb_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(timestep, E_PAR_B, "verlet_eparb_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(timestep, E_PAR_B, "yoshida_eparb_start", number_of_cyclotron_periods, frequency_of_export, solve_diffeq_by_yoshida);
+    run_scenario("start", timestep, HOMOGENEOUS, 100, 1);
+    run_scenario("b__r_start", timestep, B_OVER_R_FIELD, 100, 1);
+    run_scenario("gradb_start", timestep, GRAD_B, 100, 1);
+    run_scenario("eparb_start", timestep, E_PAR_B, 100, 1);
 
     return 0;
 }
