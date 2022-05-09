@@ -59,13 +59,13 @@ class SolverData:
     @staticmethod
     def get_solver_name(solver_id):
         if solver_id == 'rk4':
-            return 'Runge--Kutta 4/5'
+            return 'linearised Runge--Kutta'
         elif solver_id == 'rkn':
-            return 'Runge--Kutta--Nyström 4/5'
+            return 'Runge--Kutta--Nyström'
         elif solver_id == 'verlet':
-            return 'Verlet--Boris 2/3'
+            return 'Verlet--Boris'
         elif solver_id == 'yoshida':
-            return 'Yoshida--Boris 4/5'
+            return 'Yoshida--Boris'
         else:
             return 'unknown'
 
@@ -88,13 +88,18 @@ class SolverData:
     def get_field(self, identifier):
         return self.data[:, identifier]
 
+    def get_timestep(self):
+        exponent = numpy.log10(self.time_step)
+        mantissa = self.time_step / 10**exponent
+        return '$' + str(mantissa) + ' \cdot 10^{' + exponent + '}$ s'
+
     def plot_xy(self):
         matplotlib.pyplot.plot(self.x, self.y, self.line_style, markersize=1.5, label=self.solver_name)
-        matplotlib.pyplot.title('timestep: ' + str(self.time_step) + ', ' + self.field_scenario)
+        matplotlib.pyplot.title('timestep: ' + self.get_timestep() + ', ' + self.field_scenario)
 
     def plot_v(self):
         matplotlib.pyplot.plot(self.x_axis, self.v_relative, self.line_style, linewidth=2.5, label=self.solver_name)
-        matplotlib.pyplot.title('timestep: ' + str(self.time_step) + ', ' + self.field_scenario)
+        matplotlib.pyplot.title('timestep: ' + self.get_timestep() + ', ' + self.field_scenario)
 
 
 def visualise():
