@@ -189,10 +189,10 @@ int test_solver() {
 
     double reference_grad_B_drift = -GRAD_B_FACTOR * PI * LARMOR_RADIUS * LARMOR_RADIUS * NUMBER_OF_CYCLOTRON_PERIODS_GRAD_B;
     double reference_speed = eperm * LARMOR_RADIUS;
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_rk4), 1e-5, "4th order linearised Runge--Kutta (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_rkn), 1e-5, "4th order linearised Runge--Kutta--Nystrom (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_verlet), 1e-5, "velocity-Verlet--Boris (grad B)");
-    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_yoshida), 1e-5, "Yoshida--Boris (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_rk4), 3e-5, "4th order linearised Runge--Kutta (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_rkn), 3e-5, "4th order linearised Runge--Kutta--Nystrom (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_verlet), 3e-5, "velocity-Verlet--Boris (grad B)");
+    TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_grad_B_drift, run_field_with_solver(timestep, GRAD_B, GET_POSITION, solve_diffeq_by_yoshida), 3e-5, "Yoshida--Boris (grad B)");
 
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(timestep, GRAD_B, GET_SPEED, solve_diffeq_by_rk4), 1000, "4th order linearised Runge--Kutta (grad B, speed)");
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed, run_field_with_solver(timestep, GRAD_B, GET_SPEED, solve_diffeq_by_rkn), 1000, "4th order linearised Runge--Kutta--Nystrom (grad B, speed)");
