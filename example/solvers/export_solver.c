@@ -22,7 +22,7 @@
 #include "utils/basic_functions.c"
 
 #define GRAD_B_FACTOR 0.01
-#define E_OVER_B 0.01
+#define E_OVER_B 1
 #define LARMOR_RADIUS 0.01
 
 #define FOLDER "example"
@@ -130,32 +130,28 @@ void run_field_with_solver_and_export(char* scenario_name, double timestep, int 
 
 void run_scenario(char* scenario_name, double timestep, int field_type,
                   long number_of_steps, long frequency_of_export){
-    run_field_with_solver_and_export(scenario_name, timestep, HOMOGENEOUS, "rk4", number_of_steps, frequency_of_export, solve_diffeq_by_rk4);
-    run_field_with_solver_and_export(scenario_name, timestep, HOMOGENEOUS, "rkn", number_of_steps, frequency_of_export, solve_diffeq_by_rkn);
-    run_field_with_solver_and_export(scenario_name, timestep, HOMOGENEOUS, "verlet", number_of_steps, frequency_of_export, solve_diffeq_by_verlet);
-    run_field_with_solver_and_export(scenario_name, timestep, HOMOGENEOUS, "yoshida", number_of_steps, frequency_of_export, solve_diffeq_by_yoshida);
+    run_field_with_solver_and_export(scenario_name, timestep, field_type, "rk4", number_of_steps, frequency_of_export, solve_diffeq_by_rk4);
+    run_field_with_solver_and_export(scenario_name, timestep, field_type, "rkn", number_of_steps, frequency_of_export, solve_diffeq_by_rkn);
+    run_field_with_solver_and_export(scenario_name, timestep, field_type, "verlet", number_of_steps, frequency_of_export, solve_diffeq_by_verlet);
+    run_field_with_solver_and_export(scenario_name, timestep, field_type, "yoshida", number_of_steps, frequency_of_export, solve_diffeq_by_yoshida);
 }
 
 int main() {
     double timestep = 1e-9;
-    long number_of_steps = 10000000;
+    long number_of_steps = 20000000;
     long frequency_of_export = 100000;
 
     run_scenario("default", timestep, HOMOGENEOUS, number_of_steps, frequency_of_export);
     run_scenario("gradb", timestep, GRAD_B, number_of_steps, frequency_of_export);
     run_scenario("eparb", timestep, E_PAR_B, number_of_steps, frequency_of_export);
     run_scenario("br", timestep, BR_FIELD, number_of_steps, frequency_of_export);
-
-    run_scenario("gradb_full", timestep, GRAD_B, number_of_steps, 100);
-    run_scenario("b__r", timestep, B_OVER_R_FIELD, 10000000, 100);
-    run_scenario("gradb_start8", 1e-8, B_OVER_R_FIELD, 1, 1000);
-    run_scenario("start8", 1e-8, HOMOGENEOUS, 1, 1000);
-    run_scenario("start10", 1e-10, HOMOGENEOUS, 1000000, 10000);
-
-    run_scenario("start", timestep, HOMOGENEOUS, 100, 1);
-    run_scenario("b__r_start", timestep, B_OVER_R_FIELD, 100, 1);
-    run_scenario("gradb_start", timestep, GRAD_B, 100, 1);
-    run_scenario("eparb_start", timestep, E_PAR_B, 100, 1);
+    run_scenario("b__r", timestep, B_OVER_R_FIELD, number_of_steps, frequency_of_export);
+    run_scenario("start8", 1e-8, HOMOGENEOUS, 10000, 1);
+    run_scenario("b__r_start8", 1e-8, B_OVER_R_FIELD, 10000, 1);
+    run_scenario("start", timestep, HOMOGENEOUS, 100000, 10);
+    run_scenario("b__r_start", timestep, B_OVER_R_FIELD, 100000, 10);
+    run_scenario("gradb_start", timestep, GRAD_B, 100000, 10);
+    run_scenario("eparb_start", timestep, E_PAR_B, 100000, 10);
 
     return 0;
 }

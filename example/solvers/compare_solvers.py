@@ -5,14 +5,15 @@ import matplotlib.pyplot
 class SolverData:
     directory = "bin/example"
     reference_velocity = 400000
-    number_of_steps = 10000000
+    number_of_steps = 20000000
     frequency_of_export = 100000
-    time_step = 1e-9
+    timestep = 1e-9
     field_scenario = 'B = 1'
 
     def __init__(self, solver_id, scenario='default'):
         self.solver_file = solver_id
         self.solver_name = self.get_solver_name(solver_id)
+        self.solver_file += '_' + scenario
         self.set_scenario(scenario)
         self.data = self.get_data()
         self.x = self.get_field(0)
@@ -23,14 +24,11 @@ class SolverData:
         self.line_style = self.get_line_style(solver_id)
 
     def set_scenario(self, scenario):
-        if scenario != 'default':
-            self.solver_file += '_' + scenario
-
         if scenario == 'start10':
-            self.time_step = 1e-10
+            self.timestep = 1e-10
 
-        if scenario in {'start8', 'gradb_start8'}:
-            self.time_step = 1e-8
+        if scenario in {'start8', 'gradb_start8', 'b__r_start8'}:
+            self.timestep = 1e-8
 
         if scenario in {'gradb', 'gradb_start'}:
             self.field_scenario = 'B_z = 1 + 0.01 y'
@@ -38,23 +36,16 @@ class SolverData:
         if scenario in {'eparb', 'eparb_start'}:
             self.field_scenario = 'B_z = 1, E_z = 0.01'
 
-        if scenario in {'b__r'}:
-            self.field_scenario = '$B_z = \sqrt{x^2+y^2}$'#, E_z = 0.01'
+        if scenario in {'b__r', 'b__r_start', 'b__r_start8'}:
+            self.field_scenario = '$B_z = \sqrt{x^2+y^2}$'
 
-        if scenario in {'start', 'gradb_start', 'b__r_start'}:
-            self.reference_velocity = 400000
-            self.number_of_steps = 100#000
-            self.frequency_of_export = 1#000
+        if scenario in {'start', 'gradb_start', 'b__r_start', 'eparb_start'}:
+            self.number_of_steps = 100000
+            self.frequency_of_export = 10
 
-        if scenario in {'start8', 'gradb_start8'}:
-            self.reference_velocity = 400000
-            self.number_of_steps = 1000  # 000
-            self.frequency_of_export = 1  # 000
-
-        if scenario in {'b__r'}:
-            self.reference_velocity = 400000
-            self.number_of_steps = 10000000
-            self.frequency_of_export = 100
+        if scenario in {'start8', 'gradb_start8', 'b__r_start8'}:
+            self.number_of_steps = 10000
+            self.frequency_of_export = 1
 
     @staticmethod
     def get_solver_name(solver_id):
@@ -89,12 +80,12 @@ class SolverData:
         return self.data[:, identifier]
 
     def get_timestep(self):
-        exponent = numpy.log10(self.time_step)
-        mantissa = self.time_step / 10**exponent
-        return '$' + str(mantissa) + ' \cdot 10^{' + str(exponent) + '}$ s'
+        exponent = numpy.floor(numpy.log10(self.timestep))
+        mantissa = self.timestep / 10 ** exponent
+        return '$' + (str(mantissa) + ' \cdot ' if (mantissa != 1.0) else '') + '10^{' + str(int(exponent)) + '}$ s'
 
     def plot_xy(self):
-        matplotlib.pyplot.plot(self.x, self.y, self.line_style, markersize=1.5, label=self.solver_name)
+        matplotlib.pyplot.plot(self.x, self.y, '.', markersize=1.5, label=self.solver_name)
         matplotlib.pyplot.title('timestep: ' + self.get_timestep() + ', ' + self.field_scenario)
 
     def plot_v(self):
@@ -142,18 +133,8 @@ def compare_solvers_trajectory(scenario='default'):
 if __name__ == "__main__":
     compare_solvers('b__r')
     compare_solvers_trajectory('b__r')
-    compare_solvers()
-    compare_solvers_trajectory()
-    compare_solvers_trajectory('start')
-    compare_solvers('gradb')
-    compare_solvers_trajectory('gradb')
-    compare_solvers('eparb_start')
-    compare_solvers('eparb')
-    compare_solvers('gradb_start8')
-def aa():
-    compare_solvers('eparb_start')
-    compare_solvers('start10')
     compare_solvers('start8')
-    compare_solvers_trajectory('gradb')
-    compare_solvers_trajectory('br')
-    compare_solvers('br')
+    compare_solvers_trajectory('start8')
+    compare_solvers_trajectory('start')
+    compare_solvers('gradb_start')
+    compare_solvers_trajectory('gradb_start')

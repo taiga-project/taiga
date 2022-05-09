@@ -18,7 +18,7 @@
 #include "core/solvers/boris.cu"
 #include "core/physics/lorentz.cu"
 
-#define GRAD_B_FACTOR 0.0001
+#define GRAD_B_FACTOR 0.01
 #define E_OVER_B 1
 
 #define NUMBER_OF_CYCLOTRON_PERIODS 1000
