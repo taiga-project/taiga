@@ -5,7 +5,7 @@ import matplotlib.pyplot
 class SolverData:
     directory = "bin/example"
     reference_velocity = 400000
-    number_of_cyclotron_periods = 10000000
+    number_of_steps = 10000000
     frequency_of_export = 100000
     time_step = 1e-9
     field_scenario = 'B = 1'
@@ -19,7 +19,7 @@ class SolverData:
         self.y = self.get_field(1)
         self.v = numpy.sqrt(self.get_field(3)**2 + self.get_field(4)**2 + self.get_field(5)**2)
         self.v_relative = self.v / self.reference_velocity
-        self.x_axis = numpy.arange(0, self.number_of_cyclotron_periods * 2 + 1, self.frequency_of_export)
+        self.x_axis = numpy.arange(0, self.number_of_steps, self.frequency_of_export)
         self.line_style = self.get_line_style(solver_id)
 
     def set_scenario(self, scenario):
@@ -43,17 +43,17 @@ class SolverData:
 
         if scenario in {'start', 'gradb_start', 'b__r_start'}:
             self.reference_velocity = 400000
-            self.number_of_cyclotron_periods = 100#000
+            self.number_of_steps = 100#000
             self.frequency_of_export = 1#000
 
         if scenario in {'start8', 'gradb_start8'}:
             self.reference_velocity = 400000
-            self.number_of_cyclotron_periods = 1000  # 000
+            self.number_of_steps = 1000  # 000
             self.frequency_of_export = 1  # 000
 
         if scenario in {'b__r'}:
             self.reference_velocity = 400000
-            self.number_of_cyclotron_periods = 10000000
+            self.number_of_steps = 10000000
             self.frequency_of_export = 100
 
     @staticmethod
@@ -91,7 +91,7 @@ class SolverData:
     def get_timestep(self):
         exponent = numpy.log10(self.time_step)
         mantissa = self.time_step / 10**exponent
-        return '$' + str(mantissa) + ' \cdot 10^{' + exponent + '}$ s'
+        return '$' + str(mantissa) + ' \cdot 10^{' + str(exponent) + '}$ s'
 
     def plot_xy(self):
         matplotlib.pyplot.plot(self.x, self.y, self.line_style, markersize=1.5, label=self.solver_name)
