@@ -1,4 +1,4 @@
-#include "cuda_basic_functions.cuh"
+#include "utils/cuda_basic_functions.cuh"
 
 inline void cErrorCheck(const char *file, int line){
     cudaThreadSynchronize();
