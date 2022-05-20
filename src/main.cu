@@ -56,6 +56,8 @@
 #include "detector/postproc.cu"
 #include "detector/sum.cu"
 
+void free_taiga();
+
 void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, RunProp *run){
     
     char *input;
@@ -165,10 +167,10 @@ int main(int argc, char *argv[]){
         host_common = (TaigaCommons*)malloc(size_commons);
         shared_common = (TaigaCommons*)malloc(size_commons);
         shared_detector = (DetectorProp*)malloc(size_detector_prop);
-        
-        cudaMalloc((void **) &device_global, size_global);
-        cudaMalloc((void **) &device_common, size_commons);
-        cudaMalloc((void **) &device_detector, size_detector_prop);
+
+        CHECK_ERROR(cudaMalloc((void **) &device_global, size_global));
+        CHECK_ERROR(cudaMalloc((void **) &device_common, size_commons));
+        CHECK_ERROR(cudaMalloc((void **) &device_detector, size_detector_prop));
         
         init_host(host_global, host_common);
         
@@ -212,8 +214,8 @@ int main(int argc, char *argv[]){
         }
         
         host_service_array[4] = 55555.55555;
-        cudaMalloc((void **) &device_service_array,  dimService);
-        cudaMemcpy(device_service_array, host_service_array, dimService, cudaMemcpyHostToDevice);
+        CHECK_ERROR(cudaMalloc((void **) &device_service_array,  dimService));
+        CHECK_ERROR(cudaMemcpy(device_service_array, host_service_array, dimService, cudaMemcpyHostToDevice));
         // </service value>
         
         if (run.mode == ALL_IO){
@@ -236,7 +238,7 @@ int main(int argc, char *argv[]){
             taiga <<< run.block_number, run.block_size >>> (device_global, device_common, device_service_array);
             
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
-            cudaEventSynchronize(cuda_event_core_end);
+            CHECK_ERROR(cudaEventSynchronize(cuda_event_core_end));
             
             if (run.mode == ALL_IO){
                 // ION COORDS (device2HOST)
@@ -257,9 +259,9 @@ int main(int argc, char *argv[]){
         // Get CUDA timer
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
-        if (run.mode == ALL_IO) run.cpu_time_copy = ((double) (4.0+run.step_host)*(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
-        run.cuda_time_copy = (double) (1.0+run.step_host)*cuda_event_copy/1000.0;
-        run.cuda_time_core =  run.step_host*cuda_event_core/1000.0;
+        if (run.mode == ALL_IO) run.cpu_time_copy = ((double) (4+run.step_host)*(double)(cpu_event_copy_end - cpu_event_copy_start)) / CLOCKS_PER_SEC;
+        run.cuda_time_copy = (double) (1+run.step_host)*cuda_event_copy/1000.0;
+        run.cuda_time_core =  (double)run.step_host*cuda_event_core/1000.0;
         printf("===============================\n");
         printf ("CUDA kernel runtime: %lf s\n", run.cuda_time_core);
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
@@ -267,7 +269,7 @@ int main(int argc, char *argv[]){
         printf("===============================\n");
         
         //! MEMCOPY (device2HOST)
-        cudaMemcpy(host_service_array, device_service_array, dimService, cudaMemcpyDeviceToHost);
+        CHECK_ERROR(cudaMemcpy(host_service_array, device_service_array, dimService, cudaMemcpyDeviceToHost));
         if(host_service_array[0] != 42.24){
             printf("\n +----------------------------+\n | Fatal error in running.    | \n | The CUDA did not run well. |\n | Service value: %11lf |\n +----------------------------+\n\n", host_service_array[0]);
         }else{
@@ -292,8 +294,9 @@ int main(int argc, char *argv[]){
         
         //! FREE host_service_array variables (RAM, cuda)
         free(host_service_array);  cudaFree(device_service_array);
+        //free_taiga();
 
-        cudaThreadExit();
+        CHECK_ERROR(cudaThreadExit());
         printf("Ready.\n\n");
     }
 }
