@@ -24,3 +24,9 @@ void set_thomson_profiles(ShotProp shot, TaigaCommons *host_common, TaigaCommons
     shared_common->ts_density = shared_ts_density;
     shared_common->ts_temperature = shared_ts_temperature;
 }
+
+void free_thomson_profiles(TaigaCommons *shared_common) {
+    cudaFree(shared_common->ts_psi);
+    cudaFree(shared_common->ts_density);
+    cudaFree(shared_common->ts_temperature);
+}
