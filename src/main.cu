@@ -15,7 +15,7 @@
 #include "utils/debug_functions.c"
 #include "utils/basic_functions.h"
 #include "utils/dataio/dir_functions.c"
-#include "utils/cuda_basic_functions.cuh"
+#include "utils/cuda.cuh"
 #include "utils/physics.c"
 
 #include "utils/dataio/data_import.c"
