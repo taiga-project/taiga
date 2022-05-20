@@ -2,6 +2,11 @@
 **/.idea/
 **/__pycache__
 
+#preproc data folder
+preproc/renate_od/data/*
+!preproc/renate_od/data/.gitkeep
+
+
 # result folder
 results/*
 !results/.gitkeep
