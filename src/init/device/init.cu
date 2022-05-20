@@ -3,7 +3,7 @@
 #include "utils/taiga_constants.h"
 #include "utils/physics.h"
 #include "utils/basic_functions.c"
-#include "utils/cuda.cu"
+#include "utils/cuda.cuh"
 
 void init_host(TaigaGlobals *host_global, TaigaCommons *host_common){
     host_common->max_step_number = 0;
