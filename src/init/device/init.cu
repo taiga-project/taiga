@@ -54,6 +54,13 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
     }
 }
 
+void free_grid(TaigaCommons *shared_common){
+    cudaFree(shared_common->grid_size);
+    cudaFree(shared_common->spline_rgrid);
+    cudaFree(shared_common->spline_zgrid);
+}
+
+
 void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals *shared_global, TaigaCommons *shared_common){
     shared_global->particle_number       = run.particle_number;
     shared_common->max_step_number       = run.step_device;
