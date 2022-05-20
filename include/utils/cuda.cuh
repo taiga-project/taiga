@@ -7,7 +7,7 @@ void set_cuda(int debug_flag);
 
 inline void manage_cuda_error(cudaError_t cuda_code, const char *filename, int line, bool abort=true) {
     if (cuda_code != cudaSuccess) {
-        fprintf(stderr,"CUDA ERROR in %s (line %d):\n %s\n", filename, line, cudaGetErrorString(code));
+        fprintf(stderr,"CUDA ERROR in %s (line %d):\n %s\n", filename, line, cudaGetErrorString(cuda_code));
     }
 }
 
