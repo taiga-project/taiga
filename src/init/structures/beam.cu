@@ -1,4 +1,5 @@
 #include "interface/data_import/beam.h"
+#include "utils/cuda.cuh"
 
 void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_host, TaigaGlobals *g_shared) {
     size_t size_coord = run->block_size * run->block_number * sizeof(double);
@@ -40,26 +41,26 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
         memcpy(g_shared, g_host, size_globals);
     }
 
-    cudaMalloc((void **) &shared_rad, size_coord);
-    cudaMalloc((void **) &shared_z,   size_coord);
-    cudaMalloc((void **) &shared_tor, size_coord);
-    cudaMalloc((void **) &shared_vrad, size_coord);
-    cudaMalloc((void **) &shared_vz,   size_coord);
-    cudaMalloc((void **) &shared_vtor, size_coord);
-    cudaMalloc((void **) &shared_intensity, size_coord);
-    cudaMalloc((void **) &shared_time_of_flight, size_coord);
-    cudaMalloc((void **) &shared_detcellid, size_detcellid);
+    CHECK_ERROR(cudaMalloc((void **) &shared_rad, size_coord));
+    CHECK_ERROR(cudaMalloc((void **) &shared_z,   size_coord));
+    CHECK_ERROR(cudaMalloc((void **) &shared_tor, size_coord));
+    CHECK_ERROR(cudaMalloc((void **) &shared_vrad, size_coord));
+    CHECK_ERROR(cudaMalloc((void **) &shared_vz,   size_coord));
+    CHECK_ERROR(cudaMalloc((void **) &shared_vtor, size_coord));
+    CHECK_ERROR(cudaMalloc((void **) &shared_intensity, size_coord));
+    CHECK_ERROR(cudaMalloc((void **) &shared_time_of_flight, size_coord));
+    CHECK_ERROR(cudaMalloc((void **) &shared_detcellid, size_detcellid));
 
     if (run->mode == ALL_IO){
-        cudaMemcpy(shared_rad,       g_host->rad,       size_coord,  cudaMemcpyHostToDevice);
-        cudaMemcpy(shared_z,         g_host->z,         size_coord,  cudaMemcpyHostToDevice);
-        cudaMemcpy(shared_tor,       g_host->tor,       size_coord,  cudaMemcpyHostToDevice);
-        cudaMemcpy(shared_vrad,      g_host->vrad,      size_coord,  cudaMemcpyHostToDevice);
-        cudaMemcpy(shared_vz,        g_host->vz,        size_coord,  cudaMemcpyHostToDevice);
-        cudaMemcpy(shared_vtor,      g_host->vtor,      size_coord,  cudaMemcpyHostToDevice);
-        cudaMemcpy(shared_intensity, g_host->intensity, size_coord, cudaMemcpyHostToDevice);
-        cudaMemcpy(shared_time_of_flight, g_host->time_of_flight, size_coord, cudaMemcpyHostToDevice);
-        cudaMemcpy(shared_detcellid, g_host->detcellid, size_detcellid, cudaMemcpyHostToDevice);
+        CHECK_ERROR(cudaMemcpy(shared_rad,       g_host->rad,       size_coord,  cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(shared_z,         g_host->z,         size_coord,  cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(shared_tor,       g_host->tor,       size_coord,  cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(shared_vrad,      g_host->vrad,      size_coord,  cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(shared_vz,        g_host->vz,        size_coord,  cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(shared_vtor,      g_host->vtor,      size_coord,  cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(shared_intensity, g_host->intensity, size_coord, cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(shared_time_of_flight, g_host->time_of_flight, size_coord, cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(shared_detcellid, g_host->detcellid, size_detcellid, cudaMemcpyHostToDevice));
     }
 
     g_shared->rad  = shared_rad;
@@ -86,21 +87,21 @@ void init_beam_profile(BeamProfile *device_prof, ShotProp shot){
     double *shared_radial_profile;
     double *shared_cross_grid;
     double *shared_cross_profile;
-    
-    cudaMalloc((void **) &shared_radial_grid,    size_rad_prof);
-    cudaMalloc((void **) &shared_radial_profile, size_rad_prof);
-    cudaMalloc((void **) &shared_cross_grid,     size_cross_prof);
-    cudaMalloc((void **) &shared_cross_profile,  size_cross_prof);
-    
-    cudaMemcpy(shared_radial_grid,    host_prof->radial_grid,    size_rad_prof, cudaMemcpyHostToDevice);
-    cudaMemcpy(shared_radial_profile, host_prof->radial_profile, size_rad_prof, cudaMemcpyHostToDevice);
-    cudaMemcpy(shared_cross_grid,     host_prof->cross_grid,     size_cross_prof, cudaMemcpyHostToDevice);
-    cudaMemcpy(shared_cross_profile,  host_prof->cross_profile,  size_cross_prof, cudaMemcpyHostToDevice);
+
+    CHECK_ERROR(cudaMalloc((void **) &shared_radial_grid,    size_rad_prof));
+    CHECK_ERROR(cudaMalloc((void **) &shared_radial_profile, size_rad_prof));
+    CHECK_ERROR(cudaMalloc((void **) &shared_cross_grid,     size_cross_prof));
+    CHECK_ERROR(cudaMalloc((void **) &shared_cross_profile,  size_cross_prof));
+
+    CHECK_ERROR(cudaMemcpy(shared_radial_grid,    host_prof->radial_grid,    size_rad_prof, cudaMemcpyHostToDevice));
+    CHECK_ERROR(cudaMemcpy(shared_radial_profile, host_prof->radial_profile, size_rad_prof, cudaMemcpyHostToDevice));
+    CHECK_ERROR(cudaMemcpy(shared_cross_grid,     host_prof->cross_grid,     size_cross_prof, cudaMemcpyHostToDevice));
+    CHECK_ERROR(cudaMemcpy(shared_cross_profile,  host_prof->cross_profile,  size_cross_prof, cudaMemcpyHostToDevice));
     
     shared_prof->radial_grid    = shared_radial_grid;
     shared_prof->radial_profile = shared_radial_profile;
     shared_prof->cross_grid     = shared_cross_grid;
     shared_prof->cross_profile  = shared_cross_profile;
-    
-    cudaMemcpy(device_prof,  shared_prof,  size_prof, cudaMemcpyHostToDevice);
+
+    CHECK_ERROR(cudaMemcpy(device_prof,  shared_prof,  size_prof, cudaMemcpyHostToDevice));
 }

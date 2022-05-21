@@ -1,3 +1,6 @@
+#include "init/structures/detector.cuh"
+#include "utils/cuda.cuh"
+
 void init_detector(DetectorProp* shared_detector, DetectorProp *device_detector, ShotProp shot){
     double *host_detector_xgrid, *device_detector_xgrid;
     double *host_detector_ygrid, *device_detector_ygrid;
@@ -15,18 +18,18 @@ void init_detector(DetectorProp* shared_detector, DetectorProp *device_detector,
         size_t size_detector_ygrid = 2 * shared_detector->length_ygrid * sizeof(double);
         size_t size_counter = shared_detector->number_of_detector_cells * sizeof(double);
         size_t size_detector = sizeof(DetectorProp);
-        
-        cudaMalloc((void **) &device_detector_xgrid, size_detector_xgrid);
-        cudaMalloc((void **) &device_detector_ygrid, size_detector_ygrid);
-        cudaMalloc((void **) &device_counter, size_counter);
-        
-        cudaMemcpy(device_detector_xgrid, host_detector_xgrid, size_detector_xgrid, cudaMemcpyHostToDevice);
-        cudaMemcpy(device_detector_ygrid, host_detector_ygrid, size_detector_ygrid, cudaMemcpyHostToDevice);
+
+        CHECK_ERROR(cudaMalloc((void **) &device_detector_xgrid, size_detector_xgrid));
+        CHECK_ERROR(cudaMalloc((void **) &device_detector_ygrid, size_detector_ygrid));
+        CHECK_ERROR(cudaMalloc((void **) &device_counter, size_counter));
+
+        CHECK_ERROR(cudaMemcpy(device_detector_xgrid, host_detector_xgrid, size_detector_xgrid, cudaMemcpyHostToDevice));
+        CHECK_ERROR(cudaMemcpy(device_detector_ygrid, host_detector_ygrid, size_detector_ygrid, cudaMemcpyHostToDevice));
         shared_detector->xgrid = device_detector_xgrid;
         shared_detector->ygrid = device_detector_ygrid;
         shared_detector->counter = device_counter;
-        
-        cudaMemcpy(device_detector, shared_detector, size_detector, cudaMemcpyHostToDevice);
+
+        CHECK_ERROR(cudaMemcpy(device_detector, shared_detector, size_detector, cudaMemcpyHostToDevice));
     }else{
         printf("===============================\n");
         printf("Detector postprocessor module: OFF\n");
@@ -55,8 +58,8 @@ void set_detector_geometry(ShotProp shot, TaigaCommons *host_common, TaigaCommon
         tokaniser = strtok(NULL, ",");
         host_common->detector_geometry[4] = (strtod(tokaniser, NULL) * PI / 180.0);
 
-        cudaMalloc((void **) &shared_detector_geometry, size_detector);
-        cudaMemcpy(shared_detector_geometry, host_common->detector_geometry, size_detector, cudaMemcpyHostToDevice);
+        CHECK_ERROR(cudaMalloc((void **) &shared_detector_geometry, size_detector));
+        CHECK_ERROR(cudaMemcpy(shared_detector_geometry, host_common->detector_geometry, size_detector, cudaMemcpyHostToDevice));
         shared_common->detector_geometry = shared_detector_geometry;
     }
 }

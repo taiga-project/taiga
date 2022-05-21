@@ -3,7 +3,7 @@
 #include "utils/taiga_constants.h"
 #include "utils/physics.h"
 #include "utils/basic_functions.c"
-#include "utils/cuda_basic_functions.cu"
+#include "utils/cuda.cuh"
 
 void init_host(TaigaGlobals *host_global, TaigaCommons *host_common){
     host_common->max_step_number = 0;
@@ -36,17 +36,17 @@ void init_grid(ShotProp shot, RunProp run, TaigaCommons *host_common, TaigaCommo
     size_t size_Z = host_common->grid_size[1] * sizeof(double);
     
     memcpy(shared_common, host_common, size_commons);
-    
-    cudaMalloc((void **) &shared_grid_size, size_grid_dim);
-    cudaMemcpy(shared_grid_size, host_common->grid_size, size_grid_dim, cudaMemcpyHostToDevice);
+
+    CHECK_ERROR(cudaMalloc((void **) &shared_grid_size, size_grid_dim));
+    CHECK_ERROR(cudaMemcpy(shared_grid_size, host_common->grid_size, size_grid_dim, cudaMemcpyHostToDevice));
     shared_common->grid_size = shared_grid_size;
-    
-    cudaMalloc((void **) &shared_rgrid, size_R);
-    cudaMemcpy(shared_rgrid, host_common->spline_rgrid, size_R, cudaMemcpyHostToDevice);
+
+    CHECK_ERROR(cudaMalloc((void **) &shared_rgrid, size_R));
+    CHECK_ERROR(cudaMemcpy(shared_rgrid, host_common->spline_rgrid, size_R, cudaMemcpyHostToDevice));
     shared_common->spline_rgrid = shared_rgrid;
-    
-    cudaMalloc((void **) &shared_zgrid, size_Z);
-    cudaMemcpy(shared_zgrid, host_common->spline_zgrid, size_Z, cudaMemcpyHostToDevice);
+
+    CHECK_ERROR(cudaMalloc((void **) &shared_zgrid, size_Z));
+    CHECK_ERROR(cudaMemcpy(shared_zgrid, host_common->spline_zgrid, size_Z, cudaMemcpyHostToDevice));
     shared_common->spline_zgrid = shared_zgrid;
 
     if (run.debug){

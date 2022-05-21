@@ -1,14 +1,4 @@
-#include "cuda_basic_functions.cuh"
-
-inline void cErrorCheck(const char *file, int line){
-    cudaThreadSynchronize();
-    cudaError_t err = cudaGetLastError();
-    if (err != cudaSuccess){
-        printf("Error: %s\n", cudaGetErrorString(err));
-        printf(" @ %s: %d\n", file, line);
-        exit(1);
-    }
-}
+#include "utils/cuda.cuh"
 
 void set_cuda(int debug_flag){
     int num_devices, device_i, active_device=0;
