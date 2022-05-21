@@ -17,6 +17,7 @@
 #include "utils/dataio/dir_functions.c"
 #include "utils/cuda.cu"
 #include "utils/physics.c"
+#include "utils/free.cu"
 
 #include "utils/dataio/data_import.c"
 #include "interface/data_import/field_import.cu"
