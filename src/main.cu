@@ -57,10 +57,7 @@
 #include "detector/postproc.cu"
 #include "detector/sum.cu"
 
-void free_taiga();
-
 void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, RunProp *run){
-    
     char *input;
     for (int i=1; i<argc; ++i){
         input = strtok(argv[i], "=");
@@ -293,9 +290,12 @@ int main(int argc, char *argv[]){
         
         printf("\nData folder: %s/%s\n\n", run.folder_out, run.runnumber);
         
-        //! FREE host_service_array variables (RAM, cuda)
-        free(host_service_array);  cudaFree(device_service_array);
-        //free_taiga();
+        //! FREE
+        free_taiga(host_global, shared_global, device_global,
+                   host_common, shared_common, device_common,
+                   shared_detector, device_detector,
+                   &shot, &beam, &run,
+                   host_service_array, device_service_array);
 
         CHECK_ERROR(cudaThreadExit());
         printf("Ready.\n\n");
