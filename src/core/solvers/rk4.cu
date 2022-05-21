@@ -1,5 +1,6 @@
 // Runge--Kutta method
 
+#include "core/solvers/rk4.cuh"
 #include "core/solvers/solvers.cuh"
 #include "core/localise_field.cuh"
 

@@ -4,19 +4,51 @@ import sys
 
 from profiles import *
 
-sys.path.append('../../ext/renate_od')
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                             os.pardir, os.pardir, 'ext', 'renate_od')))
 from crm_solver.beamlet import Beamlet
 
 
 class RenateODManager:
-    def __init__(self, beamlet_geometry, shot_number, time, species, energy):
+    def __init__(self, beamlet_geometry, shot_number, time, species, energy, scenario='default'):
         self.beamlet_geometry = beamlet_geometry
         self.shot_number = str(shot_number)
         self.time = str(time)
         self.species = species
         self.energy = str(energy)
+        self.scenario = scenario
+
+        p = Profiles(beamlet_geometry=self.beamlet_geometry, shot_number=self.shot_number, time=self.time)
+        self.distance = p.get_distance()
+        self.density = p.get_density()
+        self.temperature = p.get_temperature()
+
         self.beamlet = self.get_beamlet()
         self.relative_attenuation = self.get_relative_attenuation()
+
+    def get_electron_density(self):
+        if self.scenario in ['default', 'just electron']:
+            return self.density
+        else:
+            return numpy.zeros_like(self.density)
+
+    def get_electron_temperature(self):
+        if self.scenario in ['default', 'just electron']:
+            return self.temperature
+        else:
+            return numpy.zeros_like(self.temperature)
+
+    def get_ion_density(self):
+        if self.scenario in ['default', 'just ion']:
+            return self.density
+        else:
+            return numpy.zeros_like(self.density)
+
+    def get_ion_temperature(self):
+        if self.scenario in ['default', 'just ion']:
+            return self.temperature
+        else:
+            return numpy.zeros_like(self.temperature)
 
     def get_param(self):
         xml_content = '<xml lang="en"><head><id>taiga beamlet</id></head><body>' \
@@ -41,13 +73,9 @@ class RenateODManager:
                   ('ion1', 'temperature', 'eV')]
 
         header = pandas.MultiIndex.from_tuples(tuples, names=['type', 'property', 'unit'])
-
-        p = Profiles(beamlet_geometry=self.beamlet_geometry, shot_number=self.shot_number, time=self.time)
-        distance = p.get_distance()
-        density = p.get_density()
-        temperature = p.get_temperature()
-
-        profiles_data = numpy.transpose(numpy.array([distance, density, temperature, density, temperature]))
+        profiles_data = numpy.transpose(numpy.array([self.distance,
+                                                     self.get_electron_density(), self.get_electron_temperature(),
+                                                     self.get_ion_density(), self.get_ion_temperature()]))
         return pandas.DataFrame(profiles_data, columns=header)
 
     def get_relative_attenuation(self):
