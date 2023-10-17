@@ -43,3 +43,12 @@ void string_to_lowercase(char* str) {
     char *p;
     for(p=str; *p; ++p) *p=tolower(*p);
 }
+
+char* to_str(double x) {
+    size_t l;
+    char *s;
+    l = (size_t)snprintf(NULL, 0, "%f", x) + 1;
+    s = (char*)malloc(l);
+    snprintf(s, l, "%.0f", x);
+    return s;
+}
