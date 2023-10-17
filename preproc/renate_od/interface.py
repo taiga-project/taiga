@@ -14,7 +14,7 @@ def export_beamlet_profile(export_root=get_home_directory() + '/input/ionProf/',
     r = RenateODManager(beamlet_geometry, shot_number, time, species, energy)
     radial_coordinate, relative_attenuation = r.get_attenuation_profile()
         
-    export_directory = export_root + '/'+shot_number+'_'+time
+    export_directory = export_root + '/' + shot_number + '_' + time + '/' + species + '/' + energy + '/'
     try:
         os.mkdir(export_directory)
         print('Create directory and write data to ' + export_directory)
@@ -23,8 +23,8 @@ def export_beamlet_profile(export_root=get_home_directory() + '/input/ionProf/',
     else:
         pass
     print('Save RENATE-OD ionisation profile to: ' + export_directory)
-    radial_coordinate.fillna(0).to_csv(export_directory+'/rad.dat', index=False, header=False)
-    relative_attenuation.fillna(0).to_csv(export_directory+'/ionyeald.dat', index=False, header=False)
+    radial_coordinate.fillna(0).to_csv(export_directory + 'rad.dat', index=False, header=False)
+    relative_attenuation.fillna(0).to_csv(export_directory + 'ionyeald.dat', index=False, header=False)
     plot_attenuation_profile(shot_number, time, radial_coordinate, relative_attenuation, export_directory)
 
 
@@ -56,4 +56,5 @@ def plot_attenuation_profile(shot_number, time, radial_coordinate, relative_atte
 if __name__ == "__main__":
     a_shot_number = '17178'
     a_time = '1097'
-    export_beamlet_profile(shot_number=a_shot_number, time=a_time)
+    a_species='Li'
+    export_beamlet_profile(shot_number=a_shot_number, time=a_time, species=a_species)

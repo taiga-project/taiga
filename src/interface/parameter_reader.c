@@ -77,6 +77,8 @@ int parameter_reader(BeamProp *beam, ShotProp *shot, RunProp *run){
     }
     fclose(fp);
     strcpy(shot->name, concat(shot->shotnumber, "_", shot->time, NULL));
+
+    strcpy(shot->long_name, concat(shot->shotnumber, "_", shot->time, "/", beam->species, "/", to_str(beam->energy), NULL));
     strcpy(run->folder_out, concat("results/", shot->shotnumber, "_", shot->time, NULL));
     return 0;
 }

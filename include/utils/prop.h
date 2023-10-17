@@ -15,6 +15,7 @@ typedef struct BeamProp{
 
 typedef struct ShotProp{
     char name[STRING_LENGTH];
+    char long_name[STRING_LENGTH];
     char shotnumber[STRING_LENGTH];
     char time[STRING_LENGTH];
     char detector_mask[STRING_LENGTH];
