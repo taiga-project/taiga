@@ -7,9 +7,10 @@ LIBS = -lcurand
 
 VERSION = -D'TAIGA_VERSION="$(shell git branch | grep \* | cut -d ' ' -f2)"' -D'GIT_REV="$(shell git show -s --pretty=format:%h)"'
 
-DEFAULT_FLAGS = $(VERSION) -D'RENATE=0' -D'FASTMODE=0' #-fcommon
+DEFAULT_FLAGS = $(VERSION) -D'RENATE=0' -D'FASTMODE=0'
 RENATE_FLAGS = $(VERSION) -D'RENATE=1' -D'FASTMODE=0'
 RENATE_FAST_FLAGS = $(VERSION) -D'RENATE=1' -D'FASTMODE=1'
+TEST_FLAGS = $(VERSION) -fcommon
 
 OBJ=build
 BIN=bin
@@ -33,28 +34,28 @@ taiga_renate_fast.exe: src/main.cu | $(BIN)
 t: test
 
 test: $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_basic_functions.o $(OBJ)/basic_functions.o | $(BIN)
-	$(GCC) $(DEFAULT_FLAGS) -Isrc -Itests $^ -lm -o $(BIN)/test.exe
+	$(GCC) $(TEST_FLAGS) -Isrc -Itests $^ -lm -o $(BIN)/test.exe
 
 $(OBJ)/%.o: tests/%.c $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Iinclude -Itests -c $< -lm -o $@
+	$(GCC) $(TEST_FLAGS) -w -Isrc -Iinclude -Itests -c $< -lm -o $@
 
 $(OBJ)/basic_functions.o: src/utils/basic_functions.c $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Iinclude -Itests -I$utils -c $< -o $@
+	$(GCC) $(TEST_FLAGS) -w -Isrc -Iinclude -Itests -I$utils -c $< -o $@
 
 test_init: tests | $(BIN)
-	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_init.exe tests/test_taiga_init.cu
+	$(NVCC) $(CFLAGS) $(TEST_FLAGS) -o $(BIN)/test_init.exe tests/test_taiga_init.cu
 
 test_framework: tests  | $(BIN)
-	$(GCC) $(DEFAULT_FLAGS) -o $(BIN)/test_framework.exe tests/taiga_test_example.c
+	$(GCC) $(TEST_FLAGS) -o $(BIN)/test_framework.exe tests/taiga_test_example.c
 
 example_solvers: $(OBJ)/example_solvers.o $(OBJ)/test_solver.o | $(BIN)
-	$(GCC) $(DEFAULT_FLAGS) $^ -lm -o $(BIN)/example_solvers.exe
+	$(GCC) $(TEST_FLAGS) $^ -lm -o $(BIN)/example_solvers.exe
 
 $(OBJ)/example_solvers.o: example/solvers/export_solver.c $(OBJ)
-	$(GCC) $(DEFAULT_FLAGS) -w -Isrc -Iinclude -Itests -c $< -lm -o $@
+	$(GCC) $(TEST_FLAGS) -w -Isrc -Iinclude -Itests -c $< -lm -o $@
 
 field: tests | $(BIN)
-	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_field.exe tests/test_field.cu
+	$(NVCC) $(CFLAGS) $(TEST_FLAGS) -o $(BIN)/test_field.exe tests/test_field.cu
 
 $(OBJ):
 	mkdir $@
