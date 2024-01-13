@@ -79,7 +79,7 @@ void init_beam_profile(BeamProfile *device_prof, ShotProp shot){
     size_t size_prof = sizeof(BeamProfile);
     host_prof = (BeamProfile*)malloc(size_prof);
     shared_prof = (BeamProfile*)malloc(size_prof);
-    init_ion_profile(shot.name, host_prof);
+    init_ion_profile(shot.long_name, host_prof);
     size_t size_rad_prof = sizeof(double)*host_prof->radial_length;
     size_t size_cross_prof = sizeof(double)*host_prof->cross_length;
     
