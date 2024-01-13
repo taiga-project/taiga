@@ -43,7 +43,7 @@ $(OBJ)/basic_functions.o: src/utils/basic_functions.c $(OBJ)
 	$(GCC) $(TEST_FLAGS) -w -Isrc -Iinclude -Itests -I$utils -c $< -o $@
 
 test_init: tests | $(BIN)
-	$(NVCC) $(CFLAGS) $(TEST_FLAGS) -o $(BIN)/test_init.exe tests/test_taiga_init.cu
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_init.exe tests/test_taiga_init.cu
 
 test_framework: tests  | $(BIN)
 	$(GCC) $(TEST_FLAGS) -o $(BIN)/test_framework.exe tests/taiga_test_example.c
@@ -55,7 +55,7 @@ $(OBJ)/example_solvers.o: example/solvers/export_solver.c $(OBJ)
 	$(GCC) $(TEST_FLAGS) -w -Isrc -Iinclude -Itests -c $< -lm -o $@
 
 field: tests | $(BIN)
-	$(NVCC) $(CFLAGS) $(TEST_FLAGS) -o $(BIN)/test_field.exe tests/test_field.cu
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_field.exe tests/test_field.cu
 
 $(OBJ):
 	mkdir $@
