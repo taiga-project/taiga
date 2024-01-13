@@ -7,7 +7,7 @@ LIBS = -lcurand
 
 VERSION = -D'TAIGA_VERSION="$(shell git branch | grep \* | cut -d ' ' -f2)"' -D'GIT_REV="$(shell git show -s --pretty=format:%h)"'
 
-DEFAULT_FLAGS = $(VERSION) -D'RENATE=0' -D'FASTMODE=0' -fcommon
+DEFAULT_FLAGS = $(VERSION) -D'RENATE=0' -D'FASTMODE=0' #-fcommon
 RENATE_FLAGS = $(VERSION) -D'RENATE=1' -D'FASTMODE=0'
 RENATE_FAST_FLAGS = $(VERSION) -D'RENATE=1' -D'FASTMODE=1'
 
