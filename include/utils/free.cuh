@@ -6,7 +6,13 @@
 #define DEVICE 2
 #define FREE(where, p) { \
     if (where == HOST) {free(p);} \
-    else {CHECK_ERROR(cudaFree(p));} \
+    else if (where == SHARED) {CHECK_ERROR(cudaFree(p));} \
+}
+#define FREE_SHARED(where, p) { \
+    if (where == SHARED) {CHECK_ERROR(cudaFree(p));} \
+}
+#define FREE_SHARED_IF(where, p) { \
+    if (where == SHARED & p == NULL) {CHECK_ERROR(cudaFree(p));} \
 }
 #define FREE_MAIN(where, p) { \
     if (where == DEVICE) {CHECK_ERROR(cudaFree(p));} \
