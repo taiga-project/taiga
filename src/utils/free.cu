@@ -5,21 +5,21 @@ void free_taiga(TaigaGlobals *host_global, TaigaGlobals *shared_global, TaigaGlo
                 DetectorProp *shared_detector, DetectorProp *device_detector,
                 ShotProp *shot, BeamProp *beam, RunProp *run,
                 double *host_service_array, double *device_service_array) {
+    if (run->debug == 1) printf("Free global.\n");
     free_global(host_global, HOST);
     free_global(shared_global, SHARED);
     free_global(device_global, DEVICE);
+    if (run->debug == 1) printf("Free common.\n");
     free_common(host_common, HOST);
     free_common(shared_common, SHARED);
     free_common(device_common, DEVICE);
+    if (run->debug == 1) printf("Free detector.\n");
     free_detector(shared_detector, SHARED);
     free_detector(device_detector, DEVICE);
-    free(shot);
-    free(beam);
-    free(run);
+    if (run->debug == 1) printf("Free service array.\n");
     free(host_service_array);
     CHECK_ERROR(cudaFree(device_service_array));
 }
-
 
 void free_detector(DetectorProp *detector, int where){
     FREE(where, detector->counter);
@@ -53,17 +53,16 @@ void free_common(TaigaCommons *common, int where){
     FREE(where, common->grid_size);
     FREE(where, common->spline_rgrid);
     FREE(where, common->spline_zgrid);
-    FREE(where, common->brad);
-    FREE(where, common->bz);
-    FREE(where, common->btor);
-    FREE(where, common->erad);
-    FREE(where, common->ez);
-    FREE(where, common->etor);
-    FREE(where, common->psi_n);
+    FREE_SHARED(where, common->brad);
+    FREE_SHARED(where, common->bz);
+    FREE_SHARED(where, common->btor);
+    FREE_SHARED_IF(where, common->erad);
+    FREE_SHARED_IF(where, common->ez);
+    FREE_SHARED_IF(where, common->etor);
+    FREE_SHARED_IF(where, common->psi_n);
     FREE(where, common->detector_geometry);
-    FREE(where, common->ts_psi);
-    FREE(where, common->ts_density);
-    FREE(where, common->ts_temperature);
+    FREE_SHARED(where, common->ts_psi);
+    FREE_SHARED(where, common->ts_density);
+    FREE_SHARED(where, common->ts_temperature);
     FREE_MAIN(where, common);
 }
-
