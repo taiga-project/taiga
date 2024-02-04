@@ -40,3 +40,10 @@ int test_interpolate(){
     TAIGA_ASSERT_ALMOST_EQ(15.4, y0, "decreasing order (case2)");
     return TAIGA_ASSERT_SUMMARY();
 }
+
+int test_to_string(){
+    TAIGA_INIT_TEST("TO STRING");
+    TAIGA_ASSERT_COMPARE("50", to_str(50), "exact value 50");
+    TAIGA_ASSERT_COMPARE("49", to_str(49.2), "rounded value 49.2");
+    return TAIGA_ASSERT_SUMMARY();
+}

@@ -7,13 +7,11 @@ void load_beam_renate(TaigaGlobals *g, BeamProp *beam, ShotProp *shot, RunProp *
     long i, prof_size[2];
     long radial_length, cross_length;
     double *radial_grid, *radial_profile, *cross_section_grid, *cross_section_profile, speed, ionisation_yeald, xsec_rad, xsec_ang;
-    
-    char* shotname = concat(shot->shotnumber, "_", shot->time, NULL);
-    
+
     BeamProfile *prof;
     size_t size_prof = sizeof(BeamProfile);
     prof = (BeamProfile*)malloc(size_prof);
-    init_ion_profile(shotname, prof);
+    init_ion_profile(shot->long_name, prof);
     
     speed = calculate_speed(beam->energy, get_mass(beam->species, beam->charge));
     
