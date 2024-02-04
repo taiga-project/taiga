@@ -2,6 +2,6 @@
 # pre-commit: block to commit to master or develop branches
 
 case "$(git rev-parse --abbrev-ref HEAD)" in
-master|develop) echo "Error: commit rejected. Master and develop branches are protected!" 1>&2; exit 1;;
+master|develop|two) echo "Error: commit rejected. Master and develop branches are protected!" 1>&2; exit 1;;
 esac
 exit 0
