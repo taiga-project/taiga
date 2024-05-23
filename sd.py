@@ -6,25 +6,30 @@ from preproc.renate_od.interface import SetProfiles
 from preproc.renate_od.utils import get_home_directory
 from plotter.detector import detector
 from plotter.detector_plane import detector_plane
+from plotter.traj_plotter import traj_plotter
 
 
 class SD:
-    def __init__(self, shot_number, time, species, energy, detector_par):
+    def __init__(self, shot_number, time, species, energy, detector_par,
+                 runnumber=None, is_trajectory_detailed=False):
         self.shot_number = str(int(shot_number))
         self.time = str(int(time))
         self.species = species
         self.energy = str(int(energy))
         self.detector_par = detector_par
-        self.runnumber = strftime("%Y%m%d%H%M%S", localtime())
-        self.parameter_file = os.path.join(get_home_directory(),
-                                           "parameter_" + self.runnumber + ".sh")
+        self.runnumber = runnumber
+        self.is_trajectory_detailed = is_trajectory_detailed
+        self.is_run_simulation = True
+        self.set_runnumber()
+        if self.is_run_simulation:
+            self.parameter_file = os.path.join(get_home_directory(),
+                                               "parameter_" + self.runnumber + ".sh")
 
-        self.write_parameter_file()
-        self.preproc()
-        self.run_core()
-        self.delete_parameter_file()
-        detector(self.shot_number, self.time, self.runnumber)
-        detector_plane(self.shot_number, self.time, self.runnumber, self.detector_par)
+            self.write_parameter_file()
+            self.preproc()
+            self.run_core()
+            self.delete_parameter_file()
+        self.run_plotters()
 
     def preproc(self):
         CDBManager(self.shot_number, self.time)
@@ -32,10 +37,24 @@ class SD:
 
     def run_core(self):
         os.chdir(get_home_directory())
-        command = "./taiga_renate.exe -p=" + self.parameter_file + " -r="+self.runnumber
+        command = "./taiga_renate.exe -p=" + self.parameter_file + " -r=" + self.runnumber
+        if self.is_trajectory_detailed:
+            command += " --fulltrace"
         print(command)
         os.system(command)
-        os.system("pwd")
+
+    def run_plotters(self):
+        os.chdir(get_home_directory())
+        detector(self.shot_number, self.time, self.runnumber)
+        detector_plane(self.shot_number, self.time, self.runnumber, self.detector_par)
+        if self.is_trajectory_detailed:
+            traj_plotter(self.shot_number, self.time, self.runnumber, self.detector_par, self.species, self.energy)
+
+    def set_runnumber(self):
+        if self.runnumber is None:
+            self.runnumber = strftime("%Y%m%d%H%M%S", localtime())
+        else:
+            self.is_run_simulation = False
 
     def write_parameter_file(self):
         f = open(self.parameter_file, "w")
@@ -64,4 +83,6 @@ if __name__ == "__main__":
     a_species = 'Li'
     an_energy = 70
     a_detector = "0.6846,0.253,0.0,38,0"
-    SD(a_shot_number, a_time, a_species, an_energy, a_detector)
+    a_runnumber = '20240523214835'
+    is_plot_trajectory = True
+    SD(a_shot_number, a_time, a_species, an_energy, a_detector, a_runnumber, is_trajectory_detailed=is_plot_trajectory)

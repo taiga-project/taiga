@@ -42,7 +42,7 @@ def detector_plane(shotnumber, time, runnumber, detector_par):
 		Z = np.loadtxt(results_folder+'z.dat')
 		T = np.loadtxt(results_folder+'tor.dat')
 	except:
-		print ('Invalid input folder: '+results_folder)
+		print('Invalid input folder: ' + results_folder)
 
 	try:
 		particle_on_detector = np.abs((Z-Z0) *np.tan((detector_RZ_angle/180.0)*np.pi) + (R-R0)) < max_distance
@@ -74,15 +74,15 @@ def detector_plane(shotnumber, time, runnumber, detector_par):
 		pl.xlabel(r"$T \mathrm{ [m]}$")
 		pl.ylabel(r"$Z \mathrm{ [m]}$")
 	except:
-		print ('Unable to plot: '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
+		print('Unable to plot: '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
 
 	try:
-		print ('Save plot to '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
+		print('Save plot to '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
 		pl.savefig(results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
 		pl.clf()
 
 	except:
-		print ('Unable to save to : '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
+		print('Unable to save to : '+results_folder+'detpy_'+shotnumber+'_'+time+'.pdf')
 		pl.show()
 
 	xmin, xmax = -4e-2, 4e-2
