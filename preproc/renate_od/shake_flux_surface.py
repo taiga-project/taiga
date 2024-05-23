@@ -1,12 +1,12 @@
 import matplotlib.pyplot
 import pandas
 
-from renate_od.interface import get_lcfs_radial_coordinate
-from renate_od.manager import RenateODManager
-from renate_od.beamlet import set_beamlet
-from renate_od.efit import EFITManager
-from renate_od.profiles import *
-from renate_od.utils import *
+from preproc.renate_od.interface import get_lcfs_radial_coordinate
+from preproc.renate_od.manager import RenateODManager
+from preproc.renate_od.beamlet import set_beamlet
+from preproc.renate_od.efit import EFITManager
+from preproc.renate_od.profiles import *
+from preproc.renate_od.utils import *
 
 
 class ProfilesMock(Profiles):

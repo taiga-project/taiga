@@ -1,10 +1,10 @@
 import matplotlib.pyplot
 
-from renate_od.manager import RenateODManager
-from renate_od.profiles import Profiles
-from renate_od.beamlet import BeamletGeometry, set_beamlet
-from renate_od.interface import get_lcfs_radial_coordinate
-from renate_od.utils import *
+from preproc.renate_od.manager import RenateODManager
+from preproc.renate_od.profiles import Profiles
+from preproc.renate_od.beamlet import BeamletGeometry, set_beamlet
+from preproc.renate_od.interface import get_lcfs_radial_coordinate
+from preproc.renate_od.utils import *
 
 
 def mock_beam(shot_number='17178', time='1097', diameter=5e-3, z_length=3, tor_length=3):

@@ -1,7 +1,7 @@
-from renate_od.beamlet import BeamletGeometry
-from renate_od.thomson import ThomsonProfiles
-from renate_od.efit import EFITManager
-from renate_od.utils import *
+from preproc.renate_od.beamlet import BeamletGeometry
+from preproc.renate_od.thomson import ThomsonProfiles
+from preproc.renate_od.efit import EFITManager
+from preproc.renate_od.utils import *
 
 
 class Profiles:

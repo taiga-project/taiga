@@ -1,9 +1,9 @@
 import os
 from time import localtime, strftime
 
-from init_from_efit import CDBManager
-from renate_od.interface import SetProfiles
-from renate_od.utils import get_home_directory
+from preproc.init_from_efit import CDBManager
+from preproc.renate_od.interface import SetProfiles
+from preproc.renate_od.utils import get_home_directory
 
 
 class SD:

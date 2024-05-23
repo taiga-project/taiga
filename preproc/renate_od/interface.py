@@ -1,9 +1,9 @@
 import matplotlib.pyplot
 
-from renate_od.manager import RenateODManager
-from renate_od.beamlet import set_beamlet
-from renate_od.efit import EFITManager
-from renate_od.utils import *
+from preproc.renate_od.manager import RenateODManager
+from preproc.renate_od.beamlet import set_beamlet
+from preproc.renate_od.efit import EFITManager
+from preproc.renate_od.utils import *
 
 
 def get_lcfs_radial_coordinate(time, shot_number, efit_reconstruction_id=1, database_directory='input/cdb', efit_subdir='EFITXX'):
