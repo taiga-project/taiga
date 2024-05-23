@@ -4,14 +4,17 @@ from time import localtime, strftime
 from preproc.init_from_efit import CDBManager
 from preproc.renate_od.interface import SetProfiles
 from preproc.renate_od.utils import get_home_directory
+from plotter.detector import detector
+from plotter.detector_plane import detector_plane
 
 
 class SD:
-    def __init__(self, shot_number, time, species, energy):
+    def __init__(self, shot_number, time, species, energy, detector_par):
         self.shot_number = str(int(shot_number))
         self.time = str(int(time))
         self.species = species
         self.energy = str(int(energy))
+        self.detector_par = detector_par
         self.runnumber = strftime("%Y%m%d%H%M%S", localtime())
         self.parameter_file = os.path.join(get_home_directory(),
                                            "parameter_" + self.runnumber + ".sh")
@@ -20,6 +23,8 @@ class SD:
         self.preproc()
         self.run_core()
         self.delete_parameter_file()
+        detector(self.shot_number, self.time, self.runnumber)
+        detector_plane(self.shot_number, self.time, self.runnumber, self.detector_par)
 
     def preproc(self):
         CDBManager(self.shot_number, self.time)
@@ -42,7 +47,7 @@ class SD:
         f.write("toroidal_deflection=0 #degree; + 200 V deflection\n")
         f.write("diameter=5 #mm\n")
         f.write("particles=1000\n")
-        f.write("detector='0.6846,0.253,0.0,38,0'\n")
+        f.write("detector='" + self.detector_par + "'\n")
         f.write("electric_field_module=0\n")
         f.write("detector_mask='final'\n")
         f.write("solver='rk'\n")
@@ -56,6 +61,7 @@ class SD:
 if __name__ == "__main__":
     a_shot_number = 17178
     a_time = 1097
-    a_species = 'Na'
-    an_energy = 80
-    SD(a_shot_number, a_time, a_species, an_energy)
+    a_species = 'Li'
+    an_energy = 70
+    a_detector = "0.6846,0.253,0.0,38,0"
+    SD(a_shot_number, a_time, a_species, an_energy, a_detector)
