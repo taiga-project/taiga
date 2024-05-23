@@ -5,6 +5,7 @@ from scipy.interpolate import interp1d
 import h5py
 import matplotlib.pyplot as plt
 
+
 def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy):
     root_folder = os.path.abspath(os.getcwd())
     result_folder = os.path.join(root_folder, 'results')
