@@ -1,12 +1,12 @@
 import matplotlib.pyplot
 import pandas
 
-from taiga.preproc.renate_od.interface import get_lcfs_radial_coordinate
-from taiga.preproc.renate_od.manager import RenateODManager
-from taiga.preproc.renate_od.beamlet import set_beamlet
-from taiga.preproc.renate_od.efit import EFITManager
-from taiga.preproc.renate_od.profiles import *
-from taiga.preproc.renate_od.utils import *
+from renate_od.interface import get_lcfs_radial_coordinate
+from renate_od.manager import RenateODManager
+from renate_od.beamlet import set_beamlet
+from renate_od.efit import EFITManager
+from renate_od.profiles import *
+from renate_od.utils import *
 
 
 class ProfilesMock(Profiles):
@@ -94,6 +94,7 @@ def shake_flux_surface_silent(species, shot_number, time, energy):
         (beamlet_geometry.rad[1]-beamlet_geometry.rad[2])
     return numpy.max(diff)
 
+
 if __name__ == "__main__":
     a_species = 'Li'
     a_shot_number = '17178'
@@ -115,7 +116,9 @@ if __name__ == "__main__":
     ax.plot(energies, max_diff, '-', linewidth=2)
     matplotlib.pyplot.savefig(export_directory+'/maxdiff.pdf')
     matplotlib.pyplot.savefig(export_directory+'/maxdiff.svg')
-#if __name__ == "__main__":
+
+
+# if __name__ == "__main__":
 #    a_species = 'Li'
 #    a_shot_number = '17178'
 #    a_time = '1097'
