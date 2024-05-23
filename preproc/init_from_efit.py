@@ -143,16 +143,15 @@ class ParseToTaiga:
 
 
 class CDBManager:
-    export_dir = None
-
     def __init__(self, shot_number, time, is_forced_saved=False):
         self.shot_number = shot_number
         self.time = time
         self.is_saved = is_forced_saved
+        self.export_dir = None
         self.init_export_dir()
         if self.is_saved:
             cr = CDBReader(self.shot_number, self.time)
-            ParseToTaiga(cr)
+            ParseToTaiga(cr, self.export_dir)
 
     def set_export_dir(self):
         self.export_dir = os.path.join(get_home_directory() + 'input', 'fieldSpl',
@@ -161,8 +160,8 @@ class CDBManager:
     def init_export_dir(self):
         self.set_export_dir()
         try:
+            os.makedirs(self.export_dir)
             self.is_saved = True
-            os.makedirs(self.export_directory)
             print('Create B-spline coefficient directory: ' + self.export_dir)
         except OSError:
             print('Existing B-spline coefficient directory: ' + self.export_dir)
