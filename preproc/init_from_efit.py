@@ -162,12 +162,10 @@ class CDBManager:
         self.set_export_dir()
         try:
             self.is_saved = True
-            os.mkdir(self.export_dir)
+            os.makedirs(self.export_directory)
             print('Create B-spline coefficient directory: ' + self.export_dir)
-        except FileExistsError:
+        except OSError as error:
             print('Existing B-spline coefficient directory: ' + self.export_dir)
-        else:
-            pass
 
 
 if __name__ == "__main__":
