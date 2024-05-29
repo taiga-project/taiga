@@ -1,12 +1,14 @@
 import sys
 import os
 import numpy as np
+import numpy.matlib
 from scipy.interpolate import interp1d
 import h5py
 import matplotlib.pyplot as plt
 
 
-def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy):
+
+def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, title=None):
     root_folder = os.path.abspath(os.getcwd())
     result_folder = os.path.join(root_folder, 'results')
     field_folder = os.path.join(root_folder, 'input', 'fieldGrid')
@@ -15,6 +17,9 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy):
 
     shot_and_time = f"{shotnumber}_{time}"
     working_folder = os.path.join(result_folder, shot_and_time, runnumber)
+
+    if title is None:
+        r'COMPASS #' + shotnumber + '\n ($t = $' + time + ' ms)'
 
     # Ionization
     ionR = np.genfromtxt(fname=os.path.join(ion_profile_folder, shot_and_time, species, energy, 'rad.dat'))
@@ -72,14 +77,14 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy):
     fig, ax = plt.subplots()
     ax.hist(t_rad[0, :], density=True, bins=50)
     ax.set_xlabel(r'$R$ [m]')
-    ax.set_title(f'COMPASS #{shotnumber}\n($t = {time}$ ms)')
+    ax.set_title(title)
 
     # Save plot
     plot_filename = os.path.join(working_folder, f'start_{shot_and_time}.pdf')
     try:
         plt.savefig(plot_filename)
         plt.clf()
-        print(f'Saved plot to {plot_filename}')
+        print(f'Save plot to {plot_filename}')
     except:
         print(f'Unable to save to: {plot_filename}')
         plt.show()
@@ -103,7 +108,7 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy):
 
     axs[1, 1].axis('off')
 
-    fig.suptitle(f'COMPASS #{shotnumber} ($t = {time}$ ms)')
+    fig.suptitle(title)
     plt.show()
 
     # Create a 2D figure
@@ -118,17 +123,19 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy):
     plt.plot(boundary_r, boundary_z, color='black')
 
     # Iterate over ions
-    for i in range(number_of_ions):
-        ion_intensity = 1
-        ion_factor = np.asscalar(ionF(t_rad[1, i]))
-
+    intensity_indices = np.argsort(ionF(t_rad[1, :]))
+    ion_factor = ionF(t_rad[1, :])
+    for i in intensity_indices:
         # Adjust ion factor within bounds
-        ion_factor = max(0, min(1, ion_factor))
-
+        ion_factor[i] = max(0, min(1, ion_factor[i]))
         # Plot ion trajectory
-        plt.plot([rcord[-1], t_rad[1, i]], [t_z[0, i], t_z[0, i]], color=(ion_intensity, ion_intensity, 0))
-        plt.plot(t_rad[:, i], t_z[:, i], color=(ion_factor, 0, 0))
+        plt.plot(t_rad[:, i], t_z[:, i], color=(ion_factor[i], 0, 0))
 
+    alpha_factor = 50/number_of_ions
+    for i in intensity_indices:
+        # Plot atom trajectory
+        plt.plot([rcord[-1], t_rad[1, i]], [t_z[0, i], t_z[0, i]], color=(1, 1, 0), alpha=ion_factor[i] * alpha_factor)
+    print(number_of_ions)
     try:
         # Detector parameters
         detector_y_size = 12.2e-3
@@ -149,13 +156,15 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy):
 
     plt.xlabel(r'$R$ [m]')
     plt.ylabel(r'$Z$ [m]')
-    plt.title (r'COMPASS #'+shotnumber+'\n ($t = $'+time+' ms)')
+    plt.title(title)
     ax.set_aspect('equal', 'box')
     try:
-        plot_filename = os.path.join(working_folder, f'traj_{shot_and_time}.pdf')
-        plt.savefig(plot_filename)
+        plot_filename = os.path.join(working_folder, f'traj_{shot_and_time}')
+        plt.savefig(plot_filename+'.pdf', dpi=300, bbox_inches='tight')
+        print(f'Save plot to {plot_filename}.pdf')
+        plt.savefig(plot_filename+'.png', dpi=300, bbox_inches='tight')
+        print(f'Save plot to {plot_filename}.png')
         plt.clf()
-        print(f'Saved plot to {plot_filename}')
     except:
-        print(f'Unable to save to: {plot_filename}')
+        print(f'Unable to save to: {plot_filename}.pdf/png')
         plt.show()

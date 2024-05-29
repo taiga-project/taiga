@@ -11,7 +11,7 @@ from plotter.traj_plotter import traj_plotter
 
 class SD:
     def __init__(self, shot_number, time, species, energy, detector_par,
-                 runnumber=None, is_trajectory_detailed=False):
+                 runnumber=None, is_trajectory_detailed=False, title=None):
         self.shot_number = str(int(shot_number))
         self.time = str(int(time))
         self.species = species
@@ -19,6 +19,7 @@ class SD:
         self.detector_par = detector_par
         self.runnumber = runnumber
         self.is_trajectory_detailed = is_trajectory_detailed
+        self.title = title
         self.is_run_simulation = True
         self.set_runnumber()
         if self.is_run_simulation:
@@ -48,7 +49,7 @@ class SD:
         detector(self.shot_number, self.time, self.runnumber)
         detector_plane(self.shot_number, self.time, self.runnumber, self.detector_par)
         if self.is_trajectory_detailed:
-            traj_plotter(self.shot_number, self.time, self.runnumber, self.detector_par, self.species, self.energy)
+            traj_plotter(self.shot_number, self.time, self.runnumber, self.detector_par, self.species, self.energy, self.title)
 
     def set_runnumber(self):
         if self.runnumber is None:
@@ -65,7 +66,7 @@ class SD:
         f.write("energy=" + self.energy + " #keV\n")
         f.write("toroidal_deflection=0 #degree; + 200 V deflection\n")
         f.write("diameter=5 #mm\n")
-        f.write("particles=1000\n")
+        f.write("particles=10000\n")
         f.write("detector='" + self.detector_par + "'\n")
         f.write("electric_field_module=0\n")
         f.write("detector_mask='final'\n")
@@ -82,7 +83,9 @@ if __name__ == "__main__":
     a_time = 1097
     a_species = 'Li'
     an_energy = 70
-    a_detector = "0.6846,0.253,0.0,38,0"
+    z_det = 0.253
+    a_detector = f"0.6846,{z_det},0.0,38,0"
     a_runnumber = '20240523214835'
     is_plot_trajectory = True
-    SD(a_shot_number, a_time, a_species, an_energy, a_detector, a_runnumber, is_trajectory_detailed=is_plot_trajectory)
+    a_title = f"Reference discharge\n{a_species} beam, $E ={an_energy}$ keV\n$Z_D={z_det*100}$ cm"
+    SD(a_shot_number, a_time, a_species, an_energy, a_detector, a_runnumber, is_trajectory_detailed=is_plot_trajectory, title=a_title)
