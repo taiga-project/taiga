@@ -1,5 +1,8 @@
 import matplotlib.pyplot
 import pandas
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from preproc.renate_od.interface import get_lcfs_radial_coordinate
 from preproc.renate_od.manager import RenateODManager
@@ -47,7 +50,6 @@ class RenateODManagerMock(RenateODManager):
 
 
 def shake_flux_surface(species, shot_number, time, energy):
-
     export_directory='.'
     z = 0
     tor = 0
@@ -58,26 +60,31 @@ def shake_flux_surface(species, shot_number, time, energy):
     matplotlib.pyplot.minorticks_on()
     matplotlib.pyplot.grid(which='major')
     matplotlib.pyplot.xlabel('$R$ [m]', labelpad=-10.5, loc='right')
-    matplotlib.pyplot.ylabel('neutral beam attenuation')
-    matplotlib.pyplot.title('COMPASS #' + shot_number + ' (' + time + ' ms)')
-    R_LCFS = get_lcfs_radial_coordinate(shot_number, time)
+    matplotlib.pyplot.ylabel('normalized\nneutral beam density')
+    matplotlib.pyplot.title('reference discharge, ' + species + ' beam, ' + str(energy) + ' keV')
+    R_LCFS = get_lcfs_radial_coordinate(shot_number=shot_number, time=time)
     matplotlib.pyplot.axvline(R_LCFS, c='red', ls='--')
+    matplotlib.pyplot.text(R_LCFS+0.005, 0.56, 'reference', c='red', fontsize=6)
     matplotlib.pyplot.text(R_LCFS+0.005, 0.45, 'LCFS', c='red', fontsize=12)
 
     export_directory = get_home_directory() + '/input/ionProf/' + shot_number + '_' + time
     for shift in numpy.linspace(-0.02, 0.02, 5):
         r = RenateODManagerMock(beamlet_geometry, shot_number, time, species, energy, shift)
         radial_coordinate, relative_attenuation = r.get_attenuation_profile()
-        ax.plot(radial_coordinate, relative_attenuation, '-', linewidth=2, label=r'$\rho$->$\rho$+%.2f'%shift)
+        label = r'with %3.f%% $\rho$' % (100*(1+shift))
+        if shift == 0:
+            label = r'reference  $\rho$'
+        ax.plot(radial_coordinate, relative_attenuation, '-', linewidth=2, label=label,
+                color=(max(abs(shift*10), shift*50), abs(shift*30), max(abs(shift*10), -shift*50)))
         relative_attenuation.fillna(0).to_csv(export_directory + '/ionyeald' + str(int(100*(1+shift)))+'.dat', index=False, header=False)
-    ax.legend()
-    matplotlib.pyplot.savefig(export_directory+'/attenuation.pdf')
-    matplotlib.pyplot.savefig(export_directory+'/attenuation.svg')
+    ax.legend(labelspacing=0.3, borderpad=0)
+    matplotlib.pyplot.xlim(0.6, 0.75)
+    matplotlib.pyplot.subplots_adjust(left=0.18, right=0.95, top=0.85, bottom=0.15)
+    matplotlib.pyplot.savefig(export_directory+'/attenuation_shaked.pdf')
+    matplotlib.pyplot.savefig(export_directory+'/attenuation_shaked.svg')
 
 
 def shake_flux_surface_silent(species, shot_number, time, energy):
-
-
     beamlet_geometry = BeamletGeometry()
     beamlet_geometry.rad = numpy.linspace(0.72, 0.6, 1000)
     beamlet_geometry.set_with_value(0, 'z', 'rad')
@@ -95,7 +102,7 @@ def shake_flux_surface_silent(species, shot_number, time, energy):
     return numpy.max(diff)
 
 
-if __name__ == "__main__":
+def test_multi_energy():
     a_species = 'Li'
     a_shot_number = '17178'
     a_time = '1097'
@@ -118,9 +125,21 @@ if __name__ == "__main__":
     matplotlib.pyplot.savefig(export_directory+'/maxdiff.svg')
 
 
-# if __name__ == "__main__":
-#    a_species = 'Li'
-#    a_shot_number = '17178'
-#    a_time = '1097'
-#    an_energy = 80
-#    shake_flux_surface(a_species, a_shot_number, a_time, an_energy)
+def test_single_energy():
+    a_species = 'Li'
+    a_shot_number = '17178'
+    a_time = '1097'
+    an_energy = 80
+    shake_flux_surface(a_species, a_shot_number, a_time, an_energy)
+
+
+def test_single_energy2():
+    a_species = 'Na'
+    a_shot_number = '17178'
+    a_time = '1097'
+    an_energy = 50
+    shake_flux_surface(a_species, a_shot_number, a_time, an_energy)
+
+
+if __name__ == "__main__":
+    test_single_energy2()

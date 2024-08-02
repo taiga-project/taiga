@@ -5,10 +5,14 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.cm as colormap
 import scipy.stats as st
+import qrcode
 
 
-def detector(shotnumber, time, runnumber, is_debug=False):
+def detector(shotnumber, time, runnumber, title=None, is_debug=False):
     results_folder = os.path.join('results', f'{shotnumber}_{time}', runnumber)
+
+    if title is None:
+        r'COMPASS #' + shotnumber + '\n ($t = $' + time + ' ms)'
 
     try:
         cell_counts = np.loadtxt(os.path.join(results_folder, 'detector', 'cellcounter.dat'))
@@ -25,6 +29,8 @@ def detector(shotnumber, time, runnumber, is_debug=False):
     cmax = cell_counts.max() if cell_counts.max() > 0 else 1
 
     try:
+        plt.rc('font', family='serif')
+        plt.rc('text', usetex=True)
         fig, ax = plt.subplots()
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
@@ -47,13 +53,21 @@ def detector(shotnumber, time, runnumber, is_debug=False):
         if is_debug:
             print(cell_counts)
 
-        plt.xlabel(r"$x \mathrm{ [mm]}$")
-        plt.ylabel(r"$y \mathrm{ [mm]}$")
-        plt.title(f"COMPASS #{shotnumber} (t={time} s)")
+        plt.xlabel(r"toroidal detector position [mm]")
+        plt.ylabel(r"vertical detector position [mm]")
+        plt.title(title)
+
+        qr_content = f'raw.githubusercontent.com/taiga-project/refs/run/{runnumber}'
+        print(f'Add QR code: {qr_content}')
+        qr_image = qrcode.make(qr_content)
+        ax_qr = fig.add_axes([0.175, 0.495, 0.08, 0.5], anchor='NE', zorder=10)
+        ax_qr.imshow(qr_image, cmap='gray')
+        ax_qr.axis('off')
 
         try:
-            print(f'Save plot to {os.path.join(results_folder, f"detpy2_{shotnumber}_{time}.pdf")}')
-            plt.savefig(os.path.join(results_folder, f"detpy2_{shotnumber}_{time}.pdf"))
+            filename = f"detector_{runnumber}.pdf"
+            print(f'Save plot to {os.path.join(results_folder, filename)}')
+            plt.savefig(os.path.join(results_folder, filename), dpi=300, bbox_inches='tight')
             plt.clf()
         except Exception as e:
             print(f'Unable to save to: {results_folder} ({e})')

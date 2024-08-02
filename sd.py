@@ -46,8 +46,8 @@ class SD:
 
     def run_plotters(self):
         os.chdir(get_home_directory())
-        detector(self.shot_number, self.time, self.runnumber)
-        detector_plane(self.shot_number, self.time, self.runnumber, self.detector_par)
+        detector(self.shot_number, self.time, self.runnumber, self.title)
+        detector_plane(self.shot_number, self.time, self.runnumber, self.detector_par, self.title)
         if self.is_trajectory_detailed:
             traj_plotter(self.shot_number, self.time, self.runnumber, self.detector_par, self.species, self.energy, self.title)
 
@@ -66,7 +66,7 @@ class SD:
         f.write("energy=" + self.energy + " #keV\n")
         f.write("toroidal_deflection=0 #degree; + 200 V deflection\n")
         f.write("diameter=5 #mm\n")
-        f.write("particles=10000\n")
+        f.write("particles=1000\n")
         f.write("detector='" + self.detector_par + "'\n")
         f.write("electric_field_module=0\n")
         f.write("detector_mask='final'\n")
@@ -83,9 +83,10 @@ if __name__ == "__main__":
     a_time = 1097
     a_species = 'Li'
     an_energy = 70
-    z_det = 0.253
-    a_detector = f"0.6846,{z_det},0.0,38,0"
-    a_runnumber = '20240523214835'
+    z_det = 22
+    t_det = -3.0
+    a_detector = f"0.6846,{z_det/100},{t_det/100},38,0"
+    a_runnumber = None#'20240530015119'
     is_plot_trajectory = True
-    a_title = f"Reference discharge\n{a_species} beam, $E ={an_energy}$ keV\n$Z_D={z_det*100}$ cm"
+    a_title = f"reference magnetic field\n{a_species} beam, $E ={an_energy}$ keV\n$Z_D={z_det}$ cm, $T_D={t_det}$ cm"
     SD(a_shot_number, a_time, a_species, an_energy, a_detector, a_runnumber, is_trajectory_detailed=is_plot_trajectory, title=a_title)

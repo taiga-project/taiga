@@ -5,10 +5,10 @@ import numpy.matlib
 from scipy.interpolate import interp1d
 import h5py
 import matplotlib.pyplot as plt
+import qrcode
 
 
-
-def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, title=None):
+def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, title=None, R_min=0.65):
     root_folder = os.path.abspath(os.getcwd())
     result_folder = os.path.join(root_folder, 'results')
     field_folder = os.path.join(root_folder, 'input', 'fieldGrid')
@@ -25,7 +25,7 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, tit
     ionR = np.genfromtxt(fname=os.path.join(ion_profile_folder, shot_and_time, species, energy, 'rad.dat'))
     ionY = np.genfromtxt(fname=os.path.join(ion_profile_folder, shot_and_time, species, energy, 'ionyeald.dat'))
     ionX1 = np.gradient(ionY)
-    ionF = interp1d(ionR, -ionX1 / np.amax(np.absolute(ionX1)))
+    ionF = interp1d(ionR, -ionX1 / np.amax(np.absolute(ionX1[ionR > R_min])))
 
     plt.plot(ionR, ionF(ionR))
 
@@ -67,7 +67,7 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, tit
     R, Z = np.meshgrid(rcord, zcord)
 
     # Filter data
-    t_index = cellid >= 0
+    t_index = (cellid >= 0) & (t_rad[1, :] > R_min)
     t_rad = t_rad[:, t_index]
     t_z = t_z[:, t_index]
     t_tor = t_tor[:, t_index]
@@ -113,11 +113,14 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, tit
 
     # Create a 2D figure
     plt.clf()
+    plt.rc('font', family='serif')
+    plt.rc('text', usetex=True)
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
     # Plot filled contours
     plt.contourf(R, Z, PSI, levels=np.arange(-2, 2, 0.1), cmap='GnBu')
+    #plt.contourf(R, Z, PSI, levels=np.arange(0, 12, 0.3), cmap='GnBu')
 
     # Plot boundary line
     plt.plot(boundary_r, boundary_z, color='black')
@@ -135,7 +138,6 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, tit
     for i in intensity_indices:
         # Plot atom trajectory
         plt.plot([rcord[-1], t_rad[1, i]], [t_z[0, i], t_z[0, i]], color=(1, 1, 0), alpha=ion_factor[i] * alpha_factor)
-    print(number_of_ions)
     try:
         # Detector parameters
         detector_y_size = 12.2e-3
@@ -146,11 +148,12 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, tit
         detector_y_tilt = detector_y_size * np.cos(detector_phi / 180 * np.pi)
 
         # Plot detector lines
+        detector_colour = (0, 0.5, 0)
         plt.plot([detector_x0, detector_x0], [detector_y0, max(zcord)],
-                 color='blue', linewidth=1)
+                 color=detector_colour, linewidth=1)
         plt.plot([detector_x0 - detector_x_tilt, detector_x0 + detector_x_tilt],
                  [detector_y0 + detector_y_tilt, detector_y0 - detector_y_tilt],
-                 color='blue', linewidth=2)
+                 color=detector_colour, linewidth=2)
     except ValueError:
         print('Invalid detector coordinates.')
 
@@ -158,8 +161,14 @@ def traj_plotter(shotnumber, time, runnumber, detector_par, species, energy, tit
     plt.ylabel(r'$Z$ [m]')
     plt.title(title)
     ax.set_aspect('equal', 'box')
+    qr_content = f'https://taiga-project.github.io?{runnumber}'
+    print(f'Add QR code: {qr_content}')
+    qr_image = qrcode.make(qr_content)
+    ax_qr = fig.add_axes([0.24, 0.495, 0.08, 0.5], anchor='NE', zorder=10)
+    ax_qr.imshow(qr_image, cmap='gray')
+    ax_qr.axis('off')
     try:
-        plot_filename = os.path.join(working_folder, f'traj_{shot_and_time}')
+        plot_filename = os.path.join(working_folder, f'traj_{runnumber}')
         plt.savefig(plot_filename+'.pdf', dpi=300, bbox_inches='tight')
         print(f'Save plot to {plot_filename}.pdf')
         plt.savefig(plot_filename+'.png', dpi=300, bbox_inches='tight')
