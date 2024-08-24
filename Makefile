@@ -57,6 +57,9 @@ $(OBJ)/example_solvers.o: example/solvers/export_solver.c $(OBJ)
 field: tests | $(BIN)
 	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/test_field.exe tests/test_field.cu
 
+export_solver: tests | $(BIN)
+	$(NVCC) $(CFLAGS) $(DEFAULT_FLAGS) -o $(BIN)/export_solver.exe tests/test_solver.c tests/export_solver.c
+
 $(OBJ):
 	mkdir $@
 

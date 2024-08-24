@@ -60,6 +60,20 @@ void generate_homogeneous_magnetic_field(double *X, double *local_bfield, double
     local_efield[2] = 0.0;
 }
 
+void generate_homogeneous_electric_field(double *X, double *local_bfield, double *local_efield,
+                                         TaigaCommons *c, bool is_electric_field_on,
+                                         int *local_spline_indices,
+                                         double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                         double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                         double *local_psi_n) {
+    local_bfield[0] = 0.0;
+    local_bfield[1] = 0.0;
+    local_bfield[2] = 0.0;
+    local_efield[0] = 0.0;
+    local_efield[1] = 0.0;
+    local_efield[2] = 1.0;
+}
+
 void generate_grad_B_field(double *X, double *local_bfield, double *local_efield,
                            TaigaCommons *c, bool is_electric_field_on,
                            int *local_spline_indices,
@@ -86,6 +100,34 @@ void generate_E_par_B_field(double *X, double *local_bfield, double *local_efiel
     local_efield[0] = 0.0;
     local_efield[1] = 0.0;
     local_efield[2] = E_OVER_B;
+}
+
+void generate_inv_R_field(double *X, double *local_bfield, double *local_efield,
+                          TaigaCommons *c, bool is_electric_field_on,
+                          int *local_spline_indices,
+                          double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                          double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                          double *local_psi_n) {
+    local_bfield[0] = 0.0;
+    local_bfield[1] = 0.0;
+    local_bfield[2] = LARMOR_RADIUS / sqrt(X[0] * X[0] + X[1] * X[1]);
+    local_efield[0] = 0.0;
+    local_efield[1] = 0.0;
+    local_efield[2] = 0.0;
+}
+
+void generate_R_field(double *X, double *local_bfield, double *local_efield,
+                          TaigaCommons *c, bool is_electric_field_on,
+                          int *local_spline_indices,
+                          double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                          double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                          double *local_psi_n) {
+    local_bfield[0] = 0.0;
+    local_bfield[1] = 0.0;
+    local_bfield[2] = sqrt(X[0] * X[0] + X[1] * X[1]) / LARMOR_RADIUS;
+    local_efield[0] = 0.0;
+    local_efield[1] = 0.0;
+    local_efield[2] = 0.0;
 }
 
 double get_local_field(double *X, double *local_bfield, double *local_efield,
@@ -117,12 +159,21 @@ double run_field_with_solver(double timestep, int field_type, int return_type,
         case HOMOGENEOUS:
             generate_local_field = &generate_homogeneous_magnetic_field;
             break;
+        case E_FIELD:
+            generate_local_field = &generate_homogeneous_electric_field;
+            break;
         case GRAD_B:
             generate_local_field = &generate_grad_B_field;
             maximum_extrema = 2 * NUMBER_OF_CYCLOTRON_PERIODS_GRAD_B + 1;
             break;
         case E_PAR_B:
             generate_local_field = &generate_E_par_B_field;
+            break;
+        case INV_R:
+            generate_local_field = &generate_inv_R_field;
+            break;
+        case PROP_R:
+            generate_local_field = &generate_inv_R_field;
             break;
         default:
             printf("Error: Illegal field_type\n");
@@ -177,6 +228,82 @@ double run_field_with_solver(double timestep, int field_type, int return_type,
     return -99999999999;
 }
 
+void export_field_with_solver(double timestep, int field_type,
+                              double (*solve_diffeq)(double *X, double eperm, double timestep,
+                                                     TaigaCommons *c, bool is_electric_field_on,
+                                                     int *local_spline_indices,
+                                                     double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                                     double *local_psi_n),
+                              long number_of_periods, char* filename ) {
+
+    switch(field_type){
+        case HOMOGENEOUS:
+            generate_local_field = &generate_homogeneous_magnetic_field;
+            break;
+        case E_FIELD:
+            generate_local_field = &generate_homogeneous_electric_field;
+            break;
+        case GRAD_B:
+            generate_local_field = &generate_grad_B_field;
+            break;
+        case E_PAR_B:
+            generate_local_field = &generate_E_par_B_field;
+            break;
+        case INV_R:
+            generate_local_field = &generate_inv_R_field;
+            break;
+        case PROP_R:
+            generate_local_field = &generate_R_field;
+            break;
+        default:
+            printf("Error: Illegal field_type\n");
+    }
+    double X[6] = {0};
+    double X_prev[6] = {0};
+    int local_spline_indices[2];
+    local_spline_indices[0] = SPLINE_INDEX_ERROR;
+    local_spline_indices[1] = SPLINE_INDEX_ERROR;
+    double local_spline_brad[16];
+    double local_spline_bz[16];
+    double local_spline_btor[16];
+    double local_spline_erad[16];
+    double local_spline_ez[16];
+    double local_spline_etor[16];
+    double local_psi_n[16];
+    TaigaCommons *c;
+    double eperm = 4e7;
+    int is_electric_field_on = true;
+
+    double steps_in_a_period = (2.0 * 3.14159265358979 / eperm / timestep)*100;
+    long maximum_step = number_of_periods * (long)steps_in_a_period;
+
+    get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_with_electric_field;
+
+    X[0] = -LARMOR_RADIUS;
+    X[4] = eperm * LARMOR_RADIUS;
+
+    // Open file in write mode
+    FILE *file_ptr;
+    file_ptr = fopen(filename, "w");
+    long i;
+    for(i=0; i < maximum_step; ++i){
+        memcpy(&X_prev, &X, 6*sizeof(double));
+        if (i % (long)steps_in_a_period == 0){
+            fprintf(file_ptr, "%.12le\t%.12le\t%.12le\t%.12le\t%.12le\t%.12le\n", X[0], X[1], X[2], X[3], X[4], X[5]);
+        }
+        solve_diffeq(X, eperm, timestep,
+                     c, is_electric_field_on,
+                     local_spline_indices,
+                     local_spline_brad, local_spline_bz, local_spline_btor,
+                     local_spline_erad, local_spline_ez, local_spline_etor,
+                     local_psi_n);
+ }
+
+    // Close the file
+    fclose(file_ptr);
+}
+
 int test_solver() {
     TAIGA_INIT_TEST("SOLVER");
     double timestep = 1e-9;
@@ -206,4 +333,35 @@ int test_solver() {
     TAIGA_ASSERT_ALMOST_EQ_MAX_DIFF(reference_speed_in_electric_field, run_field_with_solver(timestep, E_PAR_B, GET_SPEED_TOROIDAL, solve_diffeq_by_yoshida), 1, "Yoshida--Boris (E || B)");
 
     return TAIGA_ASSERT_SUMMARY();
+}
+
+void export_field() {
+    long number_of_periods = 3000;
+    double timestep = 1e-9;
+
+    export_field_with_solver(timestep, HOMOGENEOUS, solve_diffeq_by_rk4, number_of_periods, "export_homo_rk4.txt");
+    export_field_with_solver(timestep, HOMOGENEOUS, solve_diffeq_by_rkn, number_of_periods, "export_homo_rkn.txt");
+    export_field_with_solver(timestep, HOMOGENEOUS, solve_diffeq_by_verlet, number_of_periods, "export_homo_verlet.txt");
+    export_field_with_solver(timestep, HOMOGENEOUS, solve_diffeq_by_yoshida, number_of_periods, "export_homo_yoshida.txt");
+
+    export_field_with_solver(timestep, E_PAR_B, solve_diffeq_by_rk4, number_of_periods, "export_eparb_rk4.txt");
+    export_field_with_solver(timestep, E_PAR_B, solve_diffeq_by_rkn, number_of_periods, "export_eparb_rkn.txt");
+    export_field_with_solver(timestep, E_PAR_B, solve_diffeq_by_verlet, number_of_periods, "export_eparb_verlet.txt");
+    export_field_with_solver(timestep, E_PAR_B, solve_diffeq_by_yoshida, number_of_periods, "export_eparb_yoshida.txt");
+
+    export_field_with_solver(timestep, GRAD_B, solve_diffeq_by_rk4, number_of_periods, "export_gradb_rk4.txt");
+    export_field_with_solver(timestep, GRAD_B, solve_diffeq_by_rkn, number_of_periods, "export_gradb_rkn.txt");
+    export_field_with_solver(timestep, GRAD_B, solve_diffeq_by_verlet, number_of_periods, "export_gradb_verlet.txt");
+    export_field_with_solver(timestep, GRAD_B, solve_diffeq_by_yoshida, number_of_periods, "export_gradb_yoshida.txt");
+
+    export_field_with_solver(timestep, INV_R, solve_diffeq_by_rk4, number_of_periods, "export_invr_rk4.txt");
+    export_field_with_solver(timestep, INV_R, solve_diffeq_by_rkn, number_of_periods, "export_invr_rkn.txt");
+    export_field_with_solver(timestep, INV_R, solve_diffeq_by_verlet, number_of_periods, "export_invr_verlet.txt");
+    export_field_with_solver(timestep, INV_R, solve_diffeq_by_yoshida, number_of_periods, "export_invr_yoshida.txt");
+
+    export_field_with_solver(timestep, PROP_R, solve_diffeq_by_rk4, number_of_periods, "export_r_rk4.txt");
+    export_field_with_solver(timestep, PROP_R, solve_diffeq_by_rkn, number_of_periods, "export_r_rkn.txt");
+    export_field_with_solver(timestep, PROP_R, solve_diffeq_by_verlet, number_of_periods, "export_r_verlet.txt");
+    export_field_with_solver(timestep, PROP_R, solve_diffeq_by_yoshida, number_of_periods, "export_r_yoshida.txt");
+
 }

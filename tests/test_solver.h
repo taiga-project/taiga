@@ -11,6 +11,8 @@
 #define GRAD_B 1
 #define E_FIELD 2
 #define E_PAR_B 3
+#define INV_R 4
+#define PROP_R 5
 
 #define GET_POSITION 0
 #define GET_SPEED 1
@@ -40,6 +42,12 @@ void generate_homogeneous_magnetic_field(double *X, double *local_bfield, double
                                          double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                          double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                          double *local_psi_n);
+void generate_homogeneous_electric_field(double *X, double *local_bfield, double *local_efield,
+                                         TaigaCommons *c, bool is_electric_field_on,
+                                         int *local_spline_indices,
+                                         double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                         double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                         double *local_psi_n);
 void generate_grad_B_field(double *X, double *local_bfield, double *local_efield,
                            TaigaCommons *c, bool is_electric_field_on,
                            int *local_spline_indices,
@@ -52,6 +60,18 @@ void generate_E_par_B_field(double *X, double *local_bfield, double *local_efiel
                             double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                             double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                             double *local_psi_n);
+void generate_inv_R_field(double *X, double *local_bfield, double *local_efield,
+                          TaigaCommons *c, bool is_electric_field_on,
+                          int *local_spline_indices,
+                          double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                          double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                          double *local_psi_n);
+void generate_R_field(double *X, double *local_bfield, double *local_efield,
+                          TaigaCommons *c, bool is_electric_field_on,
+                          int *local_spline_indices,
+                          double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                          double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                          double *local_psi_n);
 double run_field_with_solver(double timestep, int field_type, int return_type,
                              double (*solve_diffeq)(double *X, double eperm, double timestep,
                                                     TaigaCommons *c, bool is_electric_field_on,
@@ -59,7 +79,16 @@ double run_field_with_solver(double timestep, int field_type, int return_type,
                                                     double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
                                                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
                                                     double *local_psi_n) );
+void export_field_with_solver(double timestep, int field_type,
+                              double (*solve_diffeq)(double *X, double eperm, double timestep,
+                                                     TaigaCommons *c, bool is_electric_field_on,
+                                                     int *local_spline_indices,
+                                                     double *local_spline_brad, double *local_spline_bz, double *local_spline_btor,
+                                                     double *local_spline_erad, double *local_spline_ez, double *local_spline_etor,
+                                                     double *local_psi_n),
+                              long number_of_periods, char* filename );
 
 int test_solver();
+void export_field();
 
 #endif //TEST_SOLVER_CUH
