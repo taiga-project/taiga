@@ -33,7 +33,7 @@ taiga_renate_fast.exe: src/main.cu | $(BIN)
 
 t: test
 
-test: $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_basic_functions.o $(OBJ)/basic_functions.o | $(BIN)
+test: $(OBJ)/tests.o  $(OBJ)/test_bspline.o  $(OBJ)/test_solver.o $(OBJ)/test_basic_functions.o $(OBJ)/basic_functions.o $(OBJ)/test_bezier.o | $(BIN)
 	$(GCC) $(TEST_FLAGS) -Isrc -Itests $^ -lm -o $(BIN)/test.exe
 
 $(OBJ)/%.o: tests/%.c $(OBJ)

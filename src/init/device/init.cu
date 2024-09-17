@@ -61,6 +61,7 @@ void init_device_structs(BeamProp beam, ShotProp shot, RunProp run, TaigaGlobals
     shared_common->timestep              = run.timestep;
     shared_common->solver                = run.solver;
     shared_common->field_interpolation_method = run.field_interpolation_method;
+    shared_common->detect_interpolation_method = run.detect_interpolation_method;
     shared_common->is_ionisation_on      = run.is_ionisation_on;
     shared_common->ionisation_energy     = get_ionisation_energy(beam.species, beam.charge);
 }

@@ -10,7 +10,6 @@
 
 #include "utils/taiga_constants.h"
 #include "utils/prop.c"
-#include "core/maths/maths.cu"
 #include "core/solvers/rk4.cu"
 #include "core/solvers/runge_kutta_nystrom.cu"
 #include "core/solvers/yoshida.cu"
