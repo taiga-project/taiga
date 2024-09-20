@@ -275,12 +275,12 @@ void export_field_with_solver(double timestep, int field_type,
     double eperm = 4e7;
     int is_electric_field_on = true;
 
-    double steps_in_a_period = (2.0 * 3.14159265358979 / eperm / timestep)*100;
+    double steps_in_a_period = (2.0 * 3.14159265358979 / eperm / timestep);//*1e4;
     long maximum_step = number_of_periods * (long)steps_in_a_period;
 
     get_acceleration_from_lorentz_force = &get_acceleration_from_lorentz_force_with_electric_field;
 
-    X[0] = -LARMOR_RADIUS;
+    X[0] = -1.0;//-LARMOR_RADIUS;
     X[4] = eperm * LARMOR_RADIUS;
 
     // Open file in write mode
@@ -336,8 +336,8 @@ int test_solver() {
 }
 
 void export_field() {
-    long number_of_periods = 3000;
-    double timestep = 1e-9;
+    long number_of_periods = 15000;
+    double timestep = 1e-10;
 
     export_field_with_solver(timestep, HOMOGENEOUS, solve_diffeq_by_rk4, number_of_periods, "export_homo_rk4.txt");
     export_field_with_solver(timestep, HOMOGENEOUS, solve_diffeq_by_rkn, number_of_periods, "export_homo_rkn.txt");
