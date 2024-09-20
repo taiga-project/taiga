@@ -38,7 +38,7 @@ void export_data(double *dat, int Ndat, char *folder, char *runnumber, char *sub
     }
     //! write data
     for (int i=0; i<Ndat; ++i){
-        fprintf(f,"%le\t",dat[i]);
+        fprintf(f,"%.16le\t",dat[i]);
         if ((i+1)%dat_per_line == 0)    fprintf(f,"\n");
     }
     fprintf(f,"\n");
