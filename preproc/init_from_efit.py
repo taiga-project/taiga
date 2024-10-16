@@ -39,8 +39,9 @@ class EFITDataReader:
             raise
 
     def init_efit_file(self):
-        self.set_efit_file(get_home_directory() + '/input/cdb/' + str(self.shot_number) +
-                           '/EFITXX/EFITXX.' + str(self.reconstruction_id) + '.h5')
+        self.set_efit_file(os.path.join(get_home_directory() + 'input', 'cdb',
+                                        str(self.shot_number),
+                                        'EFITXX', 'EFITXX.' + str(self.reconstruction_id) + '.h5'))
 
 
 class EFITManager(EFITDataReader):
@@ -74,7 +75,7 @@ class CDBReader:
         self.efit = EFITManager(self.shot_number, self.time)
 
         self.R = self.efit.get_time_sliced_data('/output/profiles2D/r')
-        self.one_over_R = numpy.diag(1/self.R)
+        self.one_over_R = numpy.diag(1 / self.R)
         self.Z = self.efit.get_time_sliced_data('/output/profiles2D/z')
 
         self.poloidal_flux = []
@@ -131,25 +132,40 @@ class CDBReader:
 
 
 class ParseToTaiga:
-    def __init__(self, cdb):
-        export_dir = get_home_directory() + '/input/fieldSpl/' + str(cdb.shot_number) + '_' + str(cdb.time)
+    def __init__(self, cdb, export_dir):
         print('Save B-spline coefficients to: ' + export_dir)
+        numpy.savetxt(os.path.join(export_dir, 'z.bspl'), cdb.B_R.tck[0])
+        numpy.savetxt(os.path.join(export_dir, 'r.bspl'), cdb.B_R.tck[1])
+        numpy.savetxt(os.path.join(export_dir, 'brad.bspl'), cdb.B_R.tck[2])
+        numpy.savetxt(os.path.join(export_dir, 'bz.bspl'), cdb.B_Z.tck[2])
+        numpy.savetxt(os.path.join(export_dir, 'btor.bspl'), cdb.B_phi.tck[2])
+        numpy.savetxt(os.path.join(export_dir, 'psi_n.bspl'), cdb.psi_n.tck[2])
+
+
+class CDBManager:
+    def __init__(self, shot_number, time, is_forced_saved=False):
+        self.shot_number = shot_number
+        self.time = time
+        self.is_saved = is_forced_saved
+        self.export_dir = None
+        self.init_export_dir()
+        if self.is_saved:
+            cr = CDBReader(self.shot_number, self.time)
+            ParseToTaiga(cr, self.export_dir)
+
+    def set_export_dir(self):
+        self.export_dir = os.path.join(get_home_directory() + 'input', 'fieldSpl',
+                                       str(self.shot_number) + '_' + str(self.time))
+
+    def init_export_dir(self):
+        self.set_export_dir()
         try:
-            os.mkdir(export_dir)
-            print('Create directory and write data to ' + export_dir)
-        except FileExistsError:
-            print('Write data to ' + export_dir)
-        else:
-            pass
-        numpy.savetxt(export_dir + '/z.bspl', cdb.B_R.tck[0])
-        numpy.savetxt(export_dir + '/r.bspl', cdb.B_R.tck[1])
-        numpy.savetxt(export_dir + '/brad.bspl', cdb.B_R.tck[2])
-        numpy.savetxt(export_dir + '/bz.bspl', cdb.B_Z.tck[2])
-        numpy.savetxt(export_dir + '/btor.bspl', cdb.B_phi.tck[2])
-        numpy.savetxt(export_dir + '/psi_n.bspl', cdb.psi_n.tck[2])
+            os.makedirs(self.export_dir)
+            self.is_saved = True
+            print('Create B-spline coefficient directory: ' + self.export_dir)
+        except OSError:
+            print('Existing B-spline coefficient directory: ' + self.export_dir)
 
 
 if __name__ == "__main__":
-    cr = CDBReader(17178, 1097)
-    ParseToTaiga(cr)
-
+    CDBManager(17178, 1097)
