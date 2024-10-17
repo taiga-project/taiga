@@ -26,6 +26,9 @@
     #define CUBIC_SPLINE 3
     #define CUBIC_BSPLINE 13
 
+    #define LINEAR_INTERPOLATION 0
+    #define BEZIER_INTERPOLATION 1
+
     #define SPLINE_INDEX_ERROR -1
 
     #define SERVICE_VAR_LENGTH 10

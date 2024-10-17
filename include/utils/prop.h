@@ -35,6 +35,7 @@ typedef struct RunProp{
     int solver;
     int init_source;
     int field_interpolation_method;
+    int detect_interpolation_method;
     bool is_electric_field_on;
     bool is_magnetic_field_perturbation;
     bool is_ionisation_on;
@@ -80,6 +81,7 @@ typedef struct TaigaCommons{
     double timestep;
     int solver;
     int field_interpolation_method;
+    int detect_interpolation_method;
     int *grid_size;
     double *spline_rgrid;
     double *spline_zgrid;
