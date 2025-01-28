@@ -49,6 +49,9 @@ void set_taiga_parameter(char* par_name, char* par_value, BeamProp *beam, ShotPr
     else if (!strcmp(par_name, "field_interpolation_method")){
         set_field_interpolation_method(run, clean_string(par_value));
     }
+    else if (!strcmp(par_name, "detect_interpolation_method")){
+        set_detect_interpolation_method(run, clean_string(par_value));
+    }
     else if (!strcmp(par_name, "secondary_ionisation"))     run->is_ionisation_on = (bool)par_value_d;
     else if (!strcmp(par_name, "electric_field_value") || !strcmp(par_name, "matlab"))
         ;
@@ -123,5 +126,14 @@ void set_field_interpolation_method(RunProp *run, char* method){
         run->field_interpolation_method = CUBIC_BSPLINE;
     }else{
         printf("Warning: Unvalid interpolation method: %s\nSet to bicubic spline [spline].", method);
+    }
+}
+
+void set_detect_interpolation_method(RunProp *run, char* method){
+    string_to_lowercase(method);
+    if (!strcmp(method, "bezier")){
+        run->detect_interpolation_method = BEZIER_INTERPOLATION;
+    }else{
+        run->detect_interpolation_method = LINEAR_INTERPOLATION;
     }
 }

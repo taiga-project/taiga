@@ -91,7 +91,8 @@ __device__ int calculate_trajectory(TaigaCommons *c, double X[X_SIZE], int detce
 
         (*update_intensity)(psi_n, X, c, local_ts_index, local_ts_psi, timestep);
 
-        detcellid = calculate_detection_position(X, X_prev, c->detector_geometry, timestep);
+        detcellid = calculate_detection_position(X, X_prev, c->detector_geometry, timestep,
+                                                 c->detect_interpolation_method);
     }
 
     return detcellid;

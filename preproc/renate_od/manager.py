@@ -2,7 +2,7 @@ import pandas
 import lxml.etree
 import sys
 
-from profiles import *
+from preproc.renate_od.profiles import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                              os.pardir, os.pardir, 'ext', 'renate_od')))

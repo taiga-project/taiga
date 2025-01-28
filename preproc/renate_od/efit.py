@@ -1,6 +1,6 @@
 import h5py
 
-from utils import *
+from preproc.renate_od.utils import *
 
 
 class EFITManager:

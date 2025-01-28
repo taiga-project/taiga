@@ -1,7 +1,7 @@
-from beamlet import BeamletGeometry
-from thomson import ThomsonProfiles
-from efit import EFITManager
-from utils import *
+from preproc.renate_od.beamlet import BeamletGeometry
+from preproc.renate_od.thomson import ThomsonProfiles
+from preproc.renate_od.efit import EFITManager
+from preproc.renate_od.utils import *
 
 
 class Profiles:

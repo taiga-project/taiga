@@ -31,6 +31,7 @@ void init_run_prop(RunProp *run){
     run->solver = SOLVER_RK45;
     run->init_source = READ_COORDINATES;
     run->field_interpolation_method = CUBIC_SPLINE;
+    run->detect_interpolation_method = LINEAR_INTERPOLATION;
     run->is_electric_field_on = false;
     run->is_magnetic_field_perturbation = false;
     run->is_ionisation_on = false;

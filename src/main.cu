@@ -117,7 +117,7 @@ void print_help_message(){
 void print_version(){
     printf("TAIGA (%s)\n\n", TAIGA_VERSION);
     printf("Trajectory simulator of ABP Ions with GPU Acceleration\n");
-    printf("Copyright (C) 2011--2021\n\n");
+    printf("Copyright (C) 2011--2024\n\n");
     printf("Written by Matyas Aradi\n");
 }
 
