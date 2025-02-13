@@ -66,6 +66,8 @@ void input_init_taiga(int argc, char *argv[], ShotProp *shot, BeamProp *beam, Ru
         }else if (!strcmp(input, "--fulltrace") || !strcmp(input, "-f")){
             run->step_host = 2000;
             run->step_device = 1;
+        }else if (!strcmp(input, "--no-trace") || !strcmp(input, "-n")){
+            run->mode = NO_TRACE;
         }else if (!strcmp(input, "--help") || !strcmp(input, "-h")){
             run->help = HELP_MODE;
         }else if (!strcmp(input, "--devices") || !strcmp(input, "-D") || !strcmp(input, "-l")){
@@ -106,6 +108,7 @@ void print_help_message(){
     printf("  -D, -l,  --devices               List GPU devices\n");
     printf("  -f,      --fulltrace             Save coordinates at every timestep\n");
     printf("  -h,      --help                  Help message\n");
+    printf("  -n,      --no-trace              Do not save coordinates.\n");
     printf("  -p=PATH, --parameter_file=PATH   Parameter file path\n");
     printf("  -r=INT,  --runnumber=INTEGER     Runnumber value\n");
     printf("  -R=PATH  --runnumber_file=PATH   Runnumber file path\n");
@@ -117,7 +120,7 @@ void print_help_message(){
 void print_version(){
     printf("TAIGA (%s)\n\n", TAIGA_VERSION);
     printf("Trajectory simulator of ABP Ions with GPU Acceleration\n");
-    printf("Copyright (C) 2011--2024\n\n");
+    printf("Copyright (C) 2011--2025\n\n");
     printf("Written by Matyas Aradi\n");
 }
 
@@ -126,7 +129,7 @@ int main(int argc, char *argv[]){
     BeamProp beam; init_beam_prop(&beam);
     RunProp run;   init_run_prop(&run);
     input_init_taiga(argc, argv, &shot, &beam, &run);
-    
+
     if (run.help == HELP_MODE){
         print_help_message();
     }else if (run.help == HELP_DEVICES){
@@ -137,10 +140,10 @@ int main(int argc, char *argv[]){
         read_compiler_definition(&run);
         parameter_reader(&beam, &shot, &run);
         runnumber_reader(&shot, &run);
-        
+
         init_dir(run.folder_out, run.runnumber);
         CopyFile(run.parameter_file, concat(run.folder_out,"/",run.runnumber,"/parameters.sh", NULL));
-        
+
         set_cuda(run.debug);
 
         //! Set CUDA timer
@@ -155,11 +158,11 @@ int main(int argc, char *argv[]){
         TaigaGlobals *device_global, *host_global, *shared_global;
         TaigaCommons *device_common, *host_common, *shared_common;
         DetectorProp *shared_detector, *device_detector;
-        
+
         size_t size_global = sizeof(TaigaGlobals);
         size_t size_commons = sizeof(TaigaCommons);
         size_t size_detector_prop = sizeof(DetectorProp);
-        
+
         host_global = (TaigaGlobals*)malloc(size_global);
         shared_global = (TaigaGlobals*)malloc(size_global);
         host_common = (TaigaCommons*)malloc(size_commons);
@@ -169,14 +172,14 @@ int main(int argc, char *argv[]){
         CHECK_ERROR(cudaMalloc((void **) &device_global, size_global));
         CHECK_ERROR(cudaMalloc((void **) &device_common, size_commons));
         CHECK_ERROR(cudaMalloc((void **) &device_detector, size_detector_prop));
-        
+
         init_host(host_global, host_common);
-        
+
         set_particle_number(&run, host_global, shared_global);
-        
+
         //! coordinates
         init_coords(&beam, &shot, &run, host_global, shared_global);
-        
+
         //! grid
         init_grid(shot, run, host_common, shared_common);
         switch (run.field_interpolation_method) {
@@ -206,20 +209,20 @@ int main(int argc, char *argv[]){
         size_t dimService = SERVICE_VAR_LENGTH * sizeof(double);
         double *host_service_array, *device_service_array;
         host_service_array = (double *)malloc(dimService);
-        
+
         for(int i=0; i<SERVICE_VAR_LENGTH; ++i){
             host_service_array[i] = 0;
         }
-        
+
         host_service_array[4] = 55555.55555;
         CHECK_ERROR(cudaMalloc((void **) &device_service_array,  dimService));
         CHECK_ERROR(cudaMemcpy(device_service_array, host_service_array, dimService, cudaMemcpyHostToDevice));
         // </service value>
-        
+
         if (run.mode == ALL_IO){
-           save_trajectories(host_global, run);
+            save_trajectories(host_global, run);
         }
-        
+
         print_run_details(host_global, host_common, shot, run);
 
         if (run.debug == 1 && run.mode == ALL_IO)   debug_message_init(host_global);
@@ -227,33 +230,34 @@ int main(int argc, char *argv[]){
         set_thomson_profiles(shot, host_common, shared_common);
 
         init_device_structs(beam, shot, run, shared_global, shared_common);
-        sync_device_structs(device_global, shared_global, device_common, shared_common, run.mode == ALL_IO);
+        sync_device_structs(device_global, shared_global, device_common, shared_common,
+                            run.mode == ALL_IO || run.mode == NO_TRACE);
         if (run.mode != ALL_IO)   init_fastmode(beam, shot, run, device_global);
-        
+
         for (long step_i=0; step_i<run.step_host; ++step_i){
             if (step_i == 0) cudaEventRecord(cuda_event_core_start, 0);
-            
+
             taiga <<< run.block_number, run.block_size >>> (device_global, device_common, device_service_array);
-            
+
             if (step_i == 0) cudaEventRecord(cuda_event_core_end, 0);
             CHECK_ERROR(cudaEventSynchronize(cuda_event_core_end));
-            
+
             if (run.mode == ALL_IO){
                 // ION COORDS (device2HOST)
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_start, 0);
                 coord_memcopy_back(beam, shot, run, host_global, shared_global);
                 if (step_i == 0) cudaEventRecord(cuda_event_copy_end, 0);
-                
+
                 // Save data to files
                 cpu_event_copy_start = clock();
                 save_trajectories(host_global, run);
                 cpu_event_copy_end = clock();
             }
-            
+
             if (run.debug == 1)    printf("Step\t%ld/%ld\n",step_i,run.step_host);
             if (run.debug == 1 && run.mode == ALL_IO)    debug_message_run(host_global);
         }
-        
+
         // Get CUDA timer
         cudaEventElapsedTime(&cuda_event_core, cuda_event_core_start, cuda_event_core_end);
         cudaEventElapsedTime(&cuda_event_copy, cuda_event_copy_start, cuda_event_copy_end);
@@ -265,7 +269,7 @@ int main(int argc, char *argv[]){
         printf ("CUDA memcopy time:   %lf s\n", run.cuda_time_copy);
         if (run.mode == ALL_IO)  printf ("CPU->HDD copy time:  %lf s\n", run.cpu_time_copy);
         printf("===============================\n");
-        
+
         //! MEMCOPY (device2HOST)
         CHECK_ERROR(cudaMemcpy(host_service_array, device_service_array, dimService, cudaMemcpyDeviceToHost));
         if(host_service_array[0] != 42.24){
@@ -273,23 +277,22 @@ int main(int argc, char *argv[]){
         }else{
             printf("\nSuccessful run. \n\n");
         }
-        
+
         detector_postproc <<< run.block_number, run.block_size >>> (device_global, device_common, device_detector);
         detector_sum <<<1,1>>> (device_global, device_common, device_detector);
         export_detector(shared_detector, device_detector, shared_global, shot, run);
 
         if (run.debug == 1)    debug_service_vars(host_service_array);
-        
+
         fill_header_file(host_common, beam, shot, run);
-        
+
         if (run.mode == ALL_IO){
             save_endpoints(host_global, run);
         }else{
             printf("Warning: End-points are not saved in FASTMODE\n");
         }
-        
+
         printf("\nData folder: %s/%s\n\n", run.folder_out, run.runnumber);
-        
         //! FREE
         free_taiga(host_global, shared_global, device_global,
                    host_common, shared_common, device_common,
