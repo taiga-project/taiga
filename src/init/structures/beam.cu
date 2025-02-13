@@ -16,7 +16,7 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
     double* shared_time_of_flight;
     int* shared_detcellid;
 
-    if (run->mode == ALL_IO){
+    if (run->mode == ALL_IO || run->mode == NO_TRACE){
         g_host->rad = (double*)malloc(size_coord);
         g_host->z   = (double*)malloc(size_coord);
         g_host->tor = (double*)malloc(size_coord);
@@ -51,7 +51,7 @@ void init_coords(BeamProp *beam, ShotProp *shot, RunProp *run, TaigaGlobals *g_h
     CHECK_ERROR(cudaMalloc((void **) &shared_time_of_flight, size_coord));
     CHECK_ERROR(cudaMalloc((void **) &shared_detcellid, size_detcellid));
 
-    if (run->mode == ALL_IO){
+    if (run->mode == ALL_IO || run->mode == NO_TRACE){
         CHECK_ERROR(cudaMemcpy(shared_rad,       g_host->rad,       size_coord,  cudaMemcpyHostToDevice));
         CHECK_ERROR(cudaMemcpy(shared_z,         g_host->z,         size_coord,  cudaMemcpyHostToDevice));
         CHECK_ERROR(cudaMemcpy(shared_tor,       g_host->tor,       size_coord,  cudaMemcpyHostToDevice));
@@ -82,7 +82,7 @@ void init_beam_profile(BeamProfile *device_prof, ShotProp shot){
     init_ion_profile(shot.long_name, host_prof);
     size_t size_rad_prof = sizeof(double)*host_prof->radial_length;
     size_t size_cross_prof = sizeof(double)*host_prof->cross_length;
-    
+
     double *shared_radial_grid;
     double *shared_radial_profile;
     double *shared_cross_grid;
@@ -97,7 +97,7 @@ void init_beam_profile(BeamProfile *device_prof, ShotProp shot){
     CHECK_ERROR(cudaMemcpy(shared_radial_profile, host_prof->radial_profile, size_rad_prof, cudaMemcpyHostToDevice));
     CHECK_ERROR(cudaMemcpy(shared_cross_grid,     host_prof->cross_grid,     size_cross_prof, cudaMemcpyHostToDevice));
     CHECK_ERROR(cudaMemcpy(shared_cross_profile,  host_prof->cross_profile,  size_cross_prof, cudaMemcpyHostToDevice));
-    
+
     shared_prof->radial_grid    = shared_radial_grid;
     shared_prof->radial_profile = shared_radial_profile;
     shared_prof->cross_grid     = shared_cross_grid;
