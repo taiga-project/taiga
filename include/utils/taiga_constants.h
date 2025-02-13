@@ -40,6 +40,7 @@
     #define ALL_IO 0
     #define JUST_WRITE 1
     #define MINIMAL_IO 2
+    #define NO_TRACE 3
 
     #define READ_COORDINATES 0
     #define READ_RENATE_OD 1
