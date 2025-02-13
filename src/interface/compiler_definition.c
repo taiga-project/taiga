@@ -7,13 +7,4 @@ void read_compiler_definition(RunProp *run) {
     } else {
         run->init_source = READ_COORDINATES;
     }
-
-    switch(FASTMODE) {
-        case 1:
-            run->mode = JUST_WRITE; break;
-        case 2:
-            run->mode = MINIMAL_IO; break;
-        default:
-            run->mode = ALL_IO; break;
-    }
 }
