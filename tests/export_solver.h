@@ -1,4 +1,0 @@
-#ifndef EXPORT_SOLVER_H
-#define EXPORT_SOLVER_H
-
-#endif //EXPORT_SOLVER_H
