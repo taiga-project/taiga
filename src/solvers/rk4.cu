@@ -12,7 +12,7 @@ __device__ void calculate_runge_kutta_coeff(double *X,
     for (i=0; i<3; ++i){
         S[i] = X[i+3] + rk_weight * S_prev[i+3];
     }
-    (*get_acceleration_from_lorentz_force)(&S[3], S, B, E, eperm);
+    Lorentz::acceleration(a, v, B, E, eperm);
     
     for (i=0; i<6; ++i){
         S[i] *= timestep;

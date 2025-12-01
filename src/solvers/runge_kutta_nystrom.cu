@@ -23,7 +23,7 @@ __device__ double solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
                     local_spline_psi_n);
-    (*get_acceleration_from_lorentz_force)(K1, &X[3], B, E, eperm);
+    Lorentz::acceleration(a, v, B, E, eperm);
 
     //K2
     for(i=0; i<3; ++i){
@@ -35,7 +35,7 @@ __device__ double solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
                     local_spline_psi_n);
-    (*get_acceleration_from_lorentz_force)(K2, v, B, E, eperm);
+    Lorentz::acceleration(a, v, B, E, eperm);
 
     //K3
     for(i=0; i<3; ++i){
@@ -46,7 +46,7 @@ __device__ double solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                     local_spline_brad, local_spline_bz, local_spline_btor,
                     local_spline_erad, local_spline_ez, local_spline_etor,
                     local_spline_psi_n);
-    (*get_acceleration_from_lorentz_force)(K3, v, B, E, eperm);
+    Lorentz::acceleration(a, v, B, E, eperm);
 
     //K4
     for(i=0; i<3; ++i){
@@ -58,7 +58,7 @@ __device__ double solve_diffeq_by_rkn(double *X, double eperm, double timestep,
                                   local_spline_brad, local_spline_bz, local_spline_btor,
                                   local_spline_erad, local_spline_ez, local_spline_etor,
                                   local_spline_psi_n);
-    (*get_acceleration_from_lorentz_force)(K4, v, B, E, eperm);
+    Lorentz::acceleration(a, v, B, E, eperm);
 
     // end
     for(i=0; i<3; ++i){

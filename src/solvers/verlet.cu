@@ -9,7 +9,7 @@ __device__ void calculate_verlet_x(double *X, double *B, double *E,double eperm,
     double a[3];
     double dt_per_2 = 0.5 * timestep;
 
-    (*get_acceleration_from_lorentz_force)(a, &X[3], B, E, eperm);
+    Lorentz::acceleration(a, v, B, E, eperm);
 
     for (i = 0; i < 3; ++i) {
         X[i] += timestep * (X[i + 3] + dt_per_2 * a[i]);
